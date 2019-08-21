@@ -1,0 +1,25 @@
+{
+  "name": "weather-services",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ambient-weather-api": "0.0.6",
+    "axios": "^0.19.0",
+    "express": "^4.17.1",
+    "lune": "^0.4.0",
+    "moment": "^2.24.0",
+    "mysql2": "^1.6.5",
+    "path": "^0.12.7",
+    "pm2": "^3.5.1",
+    "socket.io": "^2.2.0"
+  },
+  "devDependencies": {
+    "dotenv": "^8.1.0"
+  }
+}

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/../Meteobridge-Weather34-Template/Meteobridge-Weather34-Template.iml" filepath="$PROJECT_DIR$/../Meteobridge-Weather34-Template/Meteobridge-Weather34-Template.iml" />
+      <module fileurl="file://$PROJECT_DIR$/darksky.iml" filepath="$PROJECT_DIR$/darksky.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../weather-data/weather-data.iml" filepath="$PROJECT_DIR$/../weather-data/weather-data.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../weather-server/weather-server.iml" filepath="$PROJECT_DIR$/../weather-server/weather-server.iml" />
+    </modules>
+  </component>
+</project>

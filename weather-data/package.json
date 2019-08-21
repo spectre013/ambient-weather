@@ -1,0 +1,18 @@
+{
+  "name": "weather-data",
+  "version": "1.0.0",
+  "description": "",
+  "main": "data.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ambient-weather-api": "0.0.6",
+    "dotenv": "^8.1.0",
+    "moment": "^2.24.0",
+    "mysql2": "^1.6.5",
+    "pm2": "^3.5.1"
+  }
+}

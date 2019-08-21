@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: weather-data-deployment
+  labels:
+    app: weather-data-deployment
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: weather-data-deployment
+  template:
+    metadata:
+      labels:
+        app: weather-data-deployment
+    spec:
+      containers:
+        - image: docker.zoms.net/weather-data:latest
+          name: weather-data-deployment
+          imagePullPolicy: Always
+          ports:
+            - name: weather-server
+              containerPort: 3000
+              protocol: TCP
+          env:
+            - name: AMBIENT_WEATHER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: weather-secret
+                  key: apikey
+            - name: AMBIENT_WEATHER_APPLICATION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: weather-secret
+                  key: appkey
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: weather-secret
+                  key: host
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: weather-secret
+                  key: user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: weather-secret
+                  key: password
+            - name: DB_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: weather-secret
+                  key: database
+      imagePullSecrets:
+        - name: zoms
+      restartPolicy: Always

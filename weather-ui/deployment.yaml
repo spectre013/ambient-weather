@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: weather-ui-deployment
+  labels:
+    app: weather-ui-deployment
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: weather-ui-deployment
+  template:
+    metadata:
+      labels:
+        app: weather-ui-deployment
+    spec:
+      containers:
+        - image: docker.zoms.net/weather-ui:latest
+          name: weather-ui-deployment
+          imagePullPolicy: Always
+          ports:
+            - name: weather-ui
+              containerPort: 80
+              protocol: TCP
+      imagePullSecrets:
+        - name: zoms
+      restartPolicy: Always
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: weather-ui-service
+  name: weather-ui-service
+spec:
+  ports:
+    - port: 80
+  selector:
+    app: weather-ui-deployment
+
+---
+
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: weather-ui-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    certmanager.k8s.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  tls:
+    - hosts:
+        - weather.zoms.net
+      secretName: weather-tls
+  rules:
+    - host: weather.zoms.net
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: weather-ui-service
+              servicePort: 80
+          - path: /api
+            backend:
+              serviceName: weather-server-service
+              servicePort: 3000
