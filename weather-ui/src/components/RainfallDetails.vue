@@ -47,7 +47,7 @@
                         &nbsp;&nbsp;<valuetextheading1>Last Hour</valuetextheading1><br>
                         <div class="tempconverter1">
                             <div class="rainmodulehome">
-                                <raiblue>{{ current.hourlyrainin }}</raiblue>
+                                <raiblue>{{ current.hourlyrain  }}</raiblue>
                                 <smallrainunit2>in</smallrainunit2>
                             </div>
                         </div>
@@ -114,7 +114,7 @@ export default {
     rainLevel: function() {
         let rain = this.dailyrainin;
         if(rain > 0) {
-            return {height:rain *25.4*1+'px'};
+            return {height:rain *25.4+'px'};
         }
         return {height:0+'px'};
     }

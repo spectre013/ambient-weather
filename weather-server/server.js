@@ -36,10 +36,11 @@ const io = require('socket.io')(server, {path: '/api/ws'});
 app.get('/api/forecast', async (req, res)  => {
     let data = {};
     try {
-    await axios
-      .get(`https://api.darksky.net/forecast/${process.env.DARKSKY}/${process.env.LAT},${process.env.LON}`)
-      .then(response => (data = response.data));
-      res.json(data);
+        let url = `https://api.darksky.net/forecast/${process.env.DARKSKY}/${process.env.LAT},${process.env.LON}`;
+        await axios
+          .get(url)
+          .then(response => (data = response.data));
+          res.json(data);
     } catch (e) {
       console.log(e);
     }
@@ -57,6 +58,20 @@ app.get('/api/current', async (req, res)  => {
               data = {};
             }
         });
+    let rain = {};
+    const start = moment().format('YYYY-MM-DD HH:mm:ss');
+    const end = moment().subtract(60, 'minutes').format('YYYY-MM-DD HH:mm:ss');
+    const hourRain = 'select MAX(dailyrainin) as hourlyrain from records where `date` between ? and ?';
+    console.log(start,end)
+      await connection.query(hourRain,[end,start])
+          .then(([rows]) => {
+              if(rows.length > 0) {
+                  rain = rows[0];
+              } else {
+                  rain = {hourlyrain:0};
+              }
+          });
+      data.hourlyrain = rain.hourlyrain;
   } catch (e) {
     res.status(500).send({erroMessage:e.message});
     console.log(e);

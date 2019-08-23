@@ -6,11 +6,11 @@
                     <span class="close-icon" @click="close">X</span>
                 </slot>
             </div>
-            <section class="modal-body" v-if="forecast">
+            <section class="modal-body" v-if="alert">
                 <h1 v-bind:class="alertColor"><svg id="firealert" viewBox="0 0 32 32" width="22px" height="22px" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M16 3 L30 29 2 29 Z M16 11 L16 19 M16 23 L16 25"></path></svg>
-                    {{ forecast.alerts[0].title}}</h1>
-                <div class="alertText"><span v-bind:class="alertColor">Alert Description: </span> {{ forecast.alerts[0].description}}</div>
-                <div class="targetarea"><span v-bind:class="alertColor">Regions Affected: </span> <span v-bind:key="region" v-for="region in forecast.alerts[0].regions">{{ region }}</span></div>
+                    {{ alert.title}}</h1>
+                <div class="alertText"><span v-bind:class="alertColor">Alert Description: </span> {{ alert.description}}</div>
+                <div class="targetarea"><span v-bind:class="alertColor">Regions Affected: </span> <span>{{ joinRegions }}</span></div>
             </section>
         </div>
     </div>
@@ -21,10 +21,13 @@
         name: 'alertmodal',
         props: {
             forecast: Object,
+            options: Object,
         },
-        mounted: function() {
-            console.log(this.forecast);
-        },
+      data() {
+          return {
+              alert: null,
+          }
+      },
         methods: {
             close: function() {
                 this.$parent.closeModal('alert');
@@ -32,25 +35,20 @@
         },
         computed: {
             alertColor: function() {
-                let c = "";
-                switch(this.forecast.alerts[0].title) {
-                    case "Flash Flood Watch":
-                    case "Flash Flood Warning":
-                        c = 'greenu';
-                        break;
-                   case "Air Quality Alert":
-                        c = 'orangeu';
-                        break;
-                    default:
-                        c = "";
+                if(this.alert.title.startsWith("911")) {
+                    return "Telephone Outage 911".toLowerCase().replace(/\s+/g, "-");
                 }
-                return c;
+                return this.alert.title.toLowerCase().replace(/\s+/g, "-")
+            },
+            joinRegions:function () {
+                return this.alert.regions.join(", ")
             }
         },
-        watch: {
+        mounted: function() {
+            this.alert = this.forecast.alerts[this.options.alert];
+        }
 
-        },
-    };
+  };
 </script>
 
 <style scoped>

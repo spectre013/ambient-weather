@@ -9,7 +9,7 @@ Vue.config.ignoredElements = [/^darksky/,/^temp/,/^weather34/,'oorange','span2',
 'indoororange1','spanindoortempfalling','indoororange1','spanindoortempfalling','luminance1','uppercase','span1','uviforecasthourgreen',
 'value','valuetext','smalluvunit','alertvalue','noalert','spanyellow','valuetitleunit','topblue1','smallwindunit','smallrainunita','valuetextheading1','raiblue',
   'smallrainunit2','rainratetextheading','maxred','hours','blueu','moonrisecolor','moonm','moonsetcolor','tgreen','topgreen1','smallwindunit','toporange1','minblue',
-  'smalltempunit','smalltempunit2','smallrainunit','valuetext1','uviforecasthouryellow','trendmovementfallingx','redu','blue','articlegraph','uviforecasthourred'];
+  'smalltempunit','smalltempunit2','smallrainunit','valuetext1','uviforecasthouryellow','trendmovementfallingx','redu','blue','articlegraph','uviforecasthourred','uviforecasthourorange'];
 
 
 Vue.mixin(computed);

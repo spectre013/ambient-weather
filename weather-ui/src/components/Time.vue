@@ -34,7 +34,7 @@ export default {
   name: 'stationtime',
   data() {
       return {
-          date: moment()
+          date: moment.utc().utcOffset(-6)
       };
   },
   watch: {
@@ -43,7 +43,7 @@ export default {
     }
   },
   mounted() {
-    this.date = moment().unix();
+    this.date = moment.utc().utcOffset(-6).unix();
     this.show();
   },
   methods: {
@@ -56,7 +56,7 @@ export default {
       }, 1000);
     },
     showTime() {
-      this.date = moment();
+      this.date = moment.utc().utcOffset(-6);
     }
   },
   filters: {

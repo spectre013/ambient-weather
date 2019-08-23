@@ -93,138 +93,138 @@ export default {
                 calc= 0.5 + (calc / d_crcl );
                 if (calc > 2.0) {
                     calc = calc - 2;
+                    }
+                    return calc.toFixed(5);
                 }
-                return calc.toFixed(5);
-            }
-            let start  = parseFloat(clc_crcl(sunRise));
-            let end    = parseFloat(clc_crcl(sunSet));
-            let pos    = parseFloat(clc_crcl(moment().unix()));
-            let sn_clr = '';
-            if (now > sunSet || now < sunRise ){
-                sn_clr = 'rgba(86,95,103,0)';
-            }else {
-                sn_clr = 'rgba(255, 112,50,1)';
-            }
+                let start  = parseFloat(clc_crcl(sunRise));
+                let end    = parseFloat(clc_crcl(sunSet));
+                let pos    = parseFloat(clc_crcl(moment().unix()));
+                let sn_clr = '';
+                if (now > sunSet || now < sunRise ){
+                    sn_clr = 'rgba(86,95,103,0)';
+                }else {
+                    sn_clr = 'rgba(255, 112,50,1)';
+                }
 
-            let ctx = canvas.getContext('2d')
-            ctx.imageSmoothingEnabled =false;
-            ctx.beginPath();
-            ctx.arc(63, 65, 55, 0, 2 * Math.PI);
-            ctx.lineWidth = 0;
-            ctx.strokeStyle = "#565f67";
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.arc(63, 65, 55, start * Math.PI, end * Math.PI);
-            ctx.lineWidth = 2;
-            ctx.strokeStyle ="#3b9cac";
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.arc(63, 65, 55, pos * Math.PI, pos * Math.PI);
-            ctx.lineWidth = 0;
-            ctx.strokeStyle = `"${sn_clr}"`;
-            ctx.stroke();
+                let ctx = canvas.getContext('2d')
+                ctx.imageSmoothingEnabled =false;
+                ctx.beginPath();
+                ctx.arc(63, 65, 55, 0, 2 * Math.PI);
+                ctx.lineWidth = 0;
+                ctx.strokeStyle = "#565f67";
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(63, 65, 55, start * Math.PI, end * Math.PI);
+                ctx.lineWidth = 2;
+                ctx.strokeStyle ="#3b9cac";
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(63, 65, 55, pos * Math.PI, pos * Math.PI);
+                ctx.lineWidth = 0;
+                ctx.strokeStyle = `"${sn_clr}"`;
+                ctx.stroke();
+            },
         },
-    },
-      methods: {
-        sunClock: function() {
-            return (((moment().hour()*15)+(moment().minute()/4))-86);
+          methods: {
+            sunClock: function() {
+                return (((moment().hour()*15)+(moment().minute()/4))-86);
 
-        },
-       timeToDecimal: function(t) {
-            let arr = t.split(':');
-            let dec = parseInt((arr[1]/6)*10, 10);
-            return parseFloat(parseInt(arr[0], 10) + '.' + (dec<10?'0':'') + dec);
-        },
-        sunRiseTime: function() {
-          let sunRiseTime = moment().startOf('day').add(this.timeToDecimal(this.astro.sunrise),"hours");
-          return sunRiseTime;
-        },
-        sunSetTime: function() {
-            let sunSetTime = moment().startOf('day').add(this.timeToDecimal(this.astro.sunset),"hours");
-            return sunSetTime;
-        },
-        hoursTilSunSet: function() {
-            let sunsetTime = moment(this.astro.date + " "+this.astro.sunset+":00");
-            let now = moment();
-            let h = moment.duration(sunsetTime.diff(now)).hours();
-            if( h < 1 && this.hasSunset) {
-                sunsetTime = moment(this.astro.tomorrow.date + " "+this.astro.tomorrow.sunrise+":00");
-            }
-            let duration = sunsetTime.diff(now);
-            return moment.duration(duration).hours();
-        },
-        minTilSunSet: function() {
-            let sunsetTime = moment(this.astro.date + " "+this.astro.sunset+":00");
-            let now = moment();
-            let t = moment.duration(sunsetTime.diff(now)).minutes();
-            if( t <= 0 && this.hasSunset) {
-                sunsetTime = moment(this.astro.tomorrow.date + " "+this.astro.tomorrow.sunrise+":00");
-            }
-            let duration = sunsetTime.diff(now);
+            },
+           timeToDecimal: function(t) {
+                let arr = t.split(':');
+                let dec = parseInt((arr[1]/6)*10, 10);
+                return parseFloat(parseInt(arr[0], 10) + '.' + (dec<10?'0':'') + dec);
+            },
+            sunRiseTime: function() {
+              let sunRiseTime = moment().startOf('day').add(this.timeToDecimal(this.astro.sunrise),"hours");
+              return sunRiseTime;
+            },
+            sunSetTime: function() {
+                let sunSetTime = moment().startOf('day').add(this.timeToDecimal(this.astro.sunset),"hours");
+                return sunSetTime;
+            },
+            hoursTilSunSet: function() {
+                let sunsetTime = moment(this.astro.date + " "+this.astro.sunset+":00");
+                let now = moment();
+                let h = moment.duration(sunsetTime.diff(now)).hours();
+                if( h < 1 && this.hasSunset) {
+                    sunsetTime = moment(this.astro.tomorrow.date + " "+this.astro.tomorrow.sunrise+":00");
+                }
+                let duration = sunsetTime.diff(now);
+                return moment.duration(duration).hours();
+            },
+            minTilSunSet: function() {
+                let sunsetTime = moment(this.astro.date + " "+this.astro.sunset+":00");
+                let now = moment();
+                let t = moment.duration(sunsetTime.diff(now)).minutes();
+                if( t <= 0 && this.hasSunset) {
+                    sunsetTime = moment(this.astro.tomorrow.date + " "+this.astro.tomorrow.sunrise+":00");
+                }
+                let duration = sunsetTime.diff(now);
 
-            return moment.duration(duration).minutes();
-        },
-        setDateTime(hours) {
-            let h = hours.split(":");
-            return moment().startOf('day').hour(h[0]).minute(h[1]);
-        },
-        todayTomorrow: function(type) {
-            let event = this.setDateTime(this.astro[type]);
-            if(moment() > event)  {
-                return 'Tomorrow';
-            } else {
-                return 'Today';
+                return moment.duration(duration).minutes();
+            },
+            setDateTime(hours) {
+                let h = hours.split(":");
+                return moment().startOf('day').hour(h[0]).minute(h[1]);
+            },
+            todayTomorrow: function(type) {
+                let event = this.setDateTime(this.astro[type]);
+                if(moment() > event)  {
+                    return 'Tomorrow';
+                } else {
+                    return 'Today';
+                }
+            },
+            sunHasSet: function() {
+                let h = this.astro.sunset.split(":");
+                let sunset = moment().startOf('day').hour(h[0]).minute(h[1]);
+                let m = moment.duration(sunset.diff(moment())).minutes();
+                if(m <= 0) {
+                    this.hasSunset = true;
+                } else {
+                    this.hasSunset = false;
+                }
             }
-        },
-        sunHasSet: function() {
-            let h = this.astro.sunset.split(":");
-            let sunset = moment().startOf('day').hour(h[0]).minute(h[1]);
-            var m = sunset.diff(moment(),'minutes');
-            if(m <= 0) {
-                this.hasSunset = true;
-            } else {
-                this.hasSunset = false;
-            }
-        }
-      },
-      filters: {
-
-      },
-      computed: {
-          now: function() {
-              return moment().format("HH:mm:ss");
           },
-         darkness: function() {
-            let day = moment('1970-01-01 23:59:59');
-            let hours = day.subtract(this.timeToDecimal(this.astro.day_length),"hours");
-            return hours.format('HH:mm');
-        },
-        isSunSet: function() {
-            if(this.hasSunset) {
-                return 'Til Sunrise';
-            } else {
-                return 'Til Sunset';
-            }
-        },
-        sunBelow: function() {
-            if(this.hasSunset) {
-                return 'sunbelowweather34';
-            } else {
-                return 'sunaboveweather34';
-            }
-        },
-          sunColor: function() {
-              let value="";
-              if (this.astro.sun_altitude<=0.5 && this.astro.sun_altitude>-4){
-                  value = "rgba(255, 112, 50, 0.5)";
-              }else if (this.astro.sun_altitude <= 0){
-                  value = "rgba(86, 95, 103, 0.7)";
-              }else {
-                  value = "rgba(255,124,57,1)";
-              }
-              return {background:value};
+          filters: {
+
           },
-      },
+          computed: {
+              now: function() {
+                  return moment().format("HH:mm:ss");
+              },
+             darkness: function() {
+                let day = moment('1970-01-01 23:59:59');
+                let hours = day.subtract(this.timeToDecimal(this.astro.day_length),"hours");
+                return hours.format('HH:mm');
+            },
+            isSunSet: function() {
+                if(this.hasSunset) {
+                    return 'Til Sunrise';
+                } else {
+                    return 'Til Sunset';
+                }
+            },
+            sunBelow: function() {
+                if(this.hasSunset) {
+                    return 'sunbelowweather34';
+                } else {
+                    return 'sunaboveweather34';
+                }
+            },
+              sunColor: function() {
+                  let value="";
+                  if (this.astro.sun_altitude<=0.5 && this.astro.sun_altitude>-4){
+                      value = "rgba(255, 112, 50, 0.5)";
+                  }else if (this.astro.sun_altitude <= 0){
+                      value = "rgba(86, 95, 103, 0.7)";
+                  }else {
+                      value = "rgba(255,124,57,1)";
+                  }
+                  return {background:value};
+              },
+          },
 }
 </script>
 

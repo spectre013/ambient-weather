@@ -11,5 +11,5 @@ RUN npm run build
 FROM nginx:stable-alpine as production-stage
 RUN apk add bash
 COPY --from=build-stage /app/dist /usr/share/nginx/html
-
+RUN cat /usr/share/nginx/html/index.html
 CMD ["nginx", "-g", "daemon off;"]

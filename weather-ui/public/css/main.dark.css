@@ -2106,7 +2106,6 @@ spanm2 {
   font-weight: 500
 }
 
-.weather34box.alert span,
 .weather34box.earthquake span {
   color: #ff7c39;
   font-weight: 500
@@ -6216,24 +6215,24 @@ topblue1 {
 
 darkskytemplohome uvspan,
 gustorange,
-torange {
+torange, .torange {
   color: #ff7c39
 }
 
-tred {
+tred,.tred {
   color: #d35d4e
 }
 
-tyellow {
+tyellow, .tyellow {
   color: #e6a141
 }
 
-tgreen {
+tgreen, .tgreen {
   color: #90b12a
 }
 
 oblue,
-tblue {
+tblue, .tblue {
   color: #3b9cac
 }
 
@@ -7798,7 +7797,7 @@ spanelightning {
   width: 220px;
   position: absolute;
   font-weight: 400;
-  left: 10px
+  left:1px;
 }
 
 alertadvisory {

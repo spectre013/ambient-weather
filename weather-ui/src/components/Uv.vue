@@ -16,7 +16,7 @@
             <div class="updatedtime"><span><svg id="i-info" viewBox="0 0 32 32" width="6" height="6" fill="#9aba2f" stroke="#9aba2f" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"> <path d="M16 14 L16 23 M16 8 L16 10"></path><circle cx="16" cy="16" r="14"></circle>
                 </svg> {{current.date | now }} </span></div>
             <div class="weather34solarword">
-                <valuetext>W/m2</valuetext>
+                <valuetext>W/m<sup>2</sup></valuetext>
             </div>
             <div class="weather34solarvalue">
                 <div class="solartodaycontainer1">
@@ -34,7 +34,7 @@
                 </div>
             </div>
             <div class="uvtrend">UV INDEX</div>
-            <div class="uvcaution">&nbsp;<valuetext>Max {{ minmax.max.day.value }} <time>
+            <div class="uvcaution">&nbsp;&nbsp;&nbsp;&nbsp;<valuetext>Max {{ minmax.max.day.value }} <time>
                 <value>({{ minmax.max.day.date | timeFormat }}</value>)
             </time></valuetext>
             </div>
@@ -113,6 +113,12 @@
             },
         },
         computed: {
+            luxToday: function() {
+                if(this.current.solarradiation === 0) {
+                    return "solarluxtodaydark";
+                }
+                return "solarluxtoday"
+            },
             uvToday: function() {
                 if(this.current.uv >= 10) {
                     return "uvtoday11";

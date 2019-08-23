@@ -71,7 +71,7 @@
                 </div>
             </div>
             <div class="tempconverter2">
-                <div class="tempconvertercircle16-20">{{ current.tempf | toCelcius }}<smalltempunit2>&deg;C<smalltempunit2></smalltempunit2>
+                <div v-bind:class="current.tempf | tempCircle">{{ current.tempf | toCelcius }}<smalltempunit2>&deg;C<smalltempunit2></smalltempunit2>
                 </smalltempunit2>
                 </div>
             </div>
@@ -102,6 +102,9 @@ export default {
     openModal: function(type,options) {
          this.$parent.showModal(type,options);
     },
+      toCelcius: function(temp) {
+          return ((temp -32) * 5/9).toFixed(2);
+      },
     feelslike: function() {
           if(this.current.tempf < 35) {
               return "maxcircleblue";

@@ -27,7 +27,7 @@
       <Indoor :live="live" :loc="'2'" :title="'Master Bedroom'"/>
     </div>
     <ChartModal v-if="models.chart" @close="closeModal" :options="modalOptions"/>
-    <AlertModal v-if="models.alert" :forecast="forecast" @close="closeModal"/>
+    <AlertModal v-if="models.alert" :forecast="forecast" @close="closeModal" :options="modalOptions"/>
     <AlmanacModel v-if="models.almanac" @close="closeModal"/>
   </div>
 </template>

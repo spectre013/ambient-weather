@@ -54,7 +54,7 @@
                 </div>
             </div>
             <div class="tempconverter2">
-                <div class="tempconvertercircle16-20">{{ temp | toCelcius }}<smalltempunit2>&deg;C<smalltempunit2></smalltempunit2>
+                <div v-bind:class="temp | tempCircle">{{ temp | toCelcius }}<smalltempunit2>&deg;C<smalltempunit2></smalltempunit2>
                 </smalltempunit2>
                 </div>
             </div>

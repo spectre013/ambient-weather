@@ -1,5 +1,34 @@
 export default {
     filters: {
+        tempCircle: function(temp) {
+            if(temp<=14){
+                return 'tempconvertercircle10';
+            } else if(temp<=23){
+                return 'tempconvertercircle5';
+            } else if(temp<=32){
+                return 'tempconvertercirclezero';
+            } else if(temp<=41){
+                return 'tempconvertercircle0-5';
+            } else if(temp<50){
+                return 'tempconvertercircle6-10';
+            } else if(temp<59){
+                return 'tempconvertercircle11-15';
+            } else if(temp<68){
+                return 'tempconvertercircle16-20';
+            } else if(temp<77){
+                return 'tempconvertercircle21-25';
+            } else if(temp<86){
+                return 'tempconvertercircle26-30';
+            } else if(temp<95){
+                return 'tempconvertercircle31-35';
+            } else if(temp<104){
+                return 'tempconvertercircle36-40';
+            } else if(temp<113){
+                return 'tempconvertercircle41-45';
+            } else if(temp<212){
+                return 'tempconvertercircle50';
+            }
+        },
         dewPointClass: function(dewpoint) {
             if (dewpoint>69.8) {
                 return 'tempmodulehome25-30c';

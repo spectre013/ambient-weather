@@ -1,23 +1,43 @@
 pipeline {
     agent any
-    tools {nodejs "node"}
-    stages {
-        stage('Build') { 
-            steps {
-                sh 'npm install'
-                sh 'npm run build'
-            }
-        }
-
-//         stage('Deploy') {
-//                     steps {
-//                         sh 'cp monitor.js dist'
-//                     }
-//                 }
+    environment {
+        registry = "docker.zoms.net"
+        registryCredential = "zoms-docker"
+        serverImage = ''
+        dataImage = ''
+        uiImage = ''
     }
-    post {
-            always {
+    stages {
+
+        stage('checkout') {
+            steps {
                 cleanWs()
+                checkout([$class: 'GitSCM',
+                    branches: [[name: '*/master']],
+                    userRemoteConfigs: [[credentialsId: 'spectre013',
+                    url: 'git@github.com:spectre013/ambient-weather.git']]])
             }
         }
+        stage('Building Data') {
+              steps{
+                script {
+                      dataImage = docker.build("${registry}/weather-data:latest","./weather-data/")
+                }
+              }
+            }
+            stage('Deploy Data') {
+              steps{
+                script {
+                  docker.withRegistry("https://${registry}", registryCredential) {
+                    dataImage.push()
+                }
+                }
+              }
+            }
+            stage('Remove Data') {
+              steps{
+                sh "docker rmi ${registry}/weather-data:latest"
+              }
+            }
+    }
 }
