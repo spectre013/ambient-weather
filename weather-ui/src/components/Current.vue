@@ -2,7 +2,16 @@ a<template>
     <div class="weather-item">
         <div class="chartforecast">
             <!-- HOURLY & Outlook for homeweather station-->
-            <span class="yearpopup"> <a alt="nearby metar station" title="nearby metar station" href="metarnearby.php" data-lity=""><svg viewBox="0 0 32 32" width="8" height="8" fill="none" stroke="#777" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"><path d="M14 9 L3 9 3 29 23 29 23 18 M18 4 L28 4 28 14 M28 4 L14 18"></path></svg> Nearby Metar </a></span><span class="monthpopup"><a href="windyradar.php" title="Windy.com Radar" alt="Windy.com Radar" data-lity=""><svg viewBox="0 0 32 32" width="8" height="8" fill="none" stroke="#777" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"><path d="M14 9 L3 9 3 29 23 29 23 18 M18 4 L28 4 28 14 M28 4 L14 18"></path></svg> Radar</a></span>
+            <span class="yearpopup">
+                <a alt="nearby metar station" title="nearby metar station" href="#" v-on:click="openModal('metar')">
+                    <svg viewBox="0 0 32 32" width="8" height="8" fill="none" stroke="#777" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"><path d="M14 9 L3 9 3 29 23 29 23 18 M18 4 L28 4 28 14 M28 4 L14 18"></path></svg>
+                    Nearby Metar </a>
+            </span>
+            <span class="monthpopup">
+                <a href="#" v-on:click="openModal('radar')" title="Windy.com Radar" alt="Windy.com Radar" data-lity="">
+                    <svg viewBox="0 0 32 32" width="8" height="8" fill="none" stroke="#777" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"><path d="M14 9 L3 9 3 29 23 29 23 18 M18 4 L28 4 28 14 M28 4 L14 18"></path></svg>
+                    Radar</a>
+            </span>
         </div>
             <span class="moduletitle">Current Conditions</span><br>
         <div id="currentsky" v-if="forecast && hourly">
@@ -56,7 +65,9 @@ a<template>
 
         },
         methods: {
-
+            openModal: function(type,options) {
+                this.$parent.showModal(type,options);
+            },
         },
         filters: {
             now: function (date) {

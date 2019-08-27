@@ -46,6 +46,22 @@ app.get('/api/forecast', async (req, res)  => {
     }
 });
 
+app.get('/api/metar', async (req, res)  => {
+    let data = {};
+    const headers = {
+        'X-API-Key': process.env.METAR,
+    };
+    try {
+        let url = `https://api.checkwx.com/metar/kcos/decoded`;
+        await axios
+            .get(url,{headers})
+            .then(response => (data = response.data));
+        res.json(data);
+    } catch (e) {
+        console.log(e);
+    }
+});
+
 app.get('/api/current', async (req, res)  => {
   let data = [];
   try {
@@ -59,8 +75,8 @@ app.get('/api/current', async (req, res)  => {
             }
         });
     let rain = {};
-    const start = moment().format('YYYY-MM-DD HH:mm:ss');
-    const end = moment().subtract(60, 'minutes').format('YYYY-MM-DD HH:mm:ss');
+    const start = moment.utc().utcOffset(-6).format('YYYY-MM-DD HH:mm:ss');
+    const end = moment.utc().utcOffset(-6).subtract(60, 'minutes').format('YYYY-MM-DD HH:mm:ss');
     const hourRain = 'select MAX(dailyrainin) as hourlyrain from records where `date` between ? and ?';
     console.log(start,end)
       await connection.query(hourRain,[end,start])
@@ -114,8 +130,8 @@ app.get('/api/trend/:type', async (req, res)  => {
     let avg=0;
     let current = 0;
     let temptrend = {trend:'',by:0};
-    const start = moment().format('YYYY-MM-DD HH:mm:ss');
-    const end = moment().subtract(30, 'minutes').format('YYYY-MM-DD HH:mm:ss');
+    const start = moment.utc().utcOffset(-6).format('YYYY-MM-DD HH:mm:ss');
+    const end = moment.utc().utcOffset(-6).subtract(30, 'minutes').format('YYYY-MM-DD HH:mm:ss');
     const curTemp = 'select AVG(tempf) as temp from records where `date` between ? and ?';
     await connection.query(curTemp, [end,start])
         .then((result) => {
@@ -149,8 +165,8 @@ app.get('/api/trend/:type', async (req, res)  => {
     let barotrend = {trend:'',by:0};
     let avg = 0;
     let current = 0;
-    const start = moment().format('YYYY-MM-DD HH:mm:ss');
-    const end = moment().subtract(3, 'hours').format('YYYY-MM-DD HH:mm:ss');
+    const start = moment.utc().utcOffset(-6).format('YYYY-MM-DD HH:mm:ss');
+    const end = moment.utc().utcOffset(-6).subtract(3, 'hours').format('YYYY-MM-DD HH:mm:ss');
     const barAvg = 'select AVG(baromrelin) as baro from records where `date` between ? and ?';
     await connection.query(barAvg, [end,start])
         .then((result) => {
@@ -189,13 +205,14 @@ app.get('/api/trend/:type', async (req, res)  => {
 app.get('/api/chart/:type/:period', async (req, res)  => {
     const type = req.params.type;
     const period = req.params.period;
-    let start = moment().startOf(period).format('YYYY-MM-DD 00:00:00');
-    let end = moment().endOf(period).format('YYYY-MM-DD 23:59:59');
+    let dates = getTimeframe('day');
+    let start = dates[0];
+    let end = dates[1];
     let dateformat = '%Y-%m-%d';
     if(period === 'day') {
         dateformat = '%H:%d:%s';
     }
-
+    //console.log(moment.utc().startOf(period).utcOffset(-6).toString(),moment.utc().endOf(period).utcOffset(-6).toString());
     let data = `select DATE_FORMAT(r.date,'${dateformat}') AS mmdd, max(${type}) max, min(${type}) min from records r where date between ? AND ? group by mmdd order by mmdd`;
     let json = {data1: [],data2: []};
     //console.log(data,start,end);
@@ -215,8 +232,9 @@ app.get('/api/chart/:type/:period', async (req, res)  => {
 
 app.get('/api/wind', async (req, res)  => {
   let data = {};
-  let start = moment().format('YYYY-MM-DD 00:00:00');
-  let end = moment().format('YYYY-MM-DD 23:59:59');
+  let dates = getTimeframe('day');
+  let start = dates[0];
+  let end = dates[1];
   let wind = 'select max(windspeedmph) as value, `date` from records where `date` between ? and ? group by `date`,windspeedmph order by windspeedmph desc limit 0,1';
   let gust = 'select max(windgustmph) as value, `date` from records where `date` between ? and ? group by `date`,windgustmph order by windgustmph desc limit 0,1';
   let avg = 'select AVG(windspeedmph) as wind from records where `date` between ? and ?';
@@ -288,10 +306,10 @@ async function asyncForEach(array, callback) {
 function getTimeframe(timeframe) {
     let dates = [];
     if(timeframe === 'yesterday') {
-        dates = [moment().startOf('day').subtract(1,'days').format('YYYY-MM-DD HH:mm:ss'),
-                 moment().endOf('day').subtract(1,'days').format('YYYY-MM-DD HH:mm:ss')];
+        dates = [moment.utc().startOf('day').subtract(1,'days').utcOffset(-6).format('YYYY-MM-DD HH:mm:ss'),
+                 moment.utc().endOf('day').subtract(1,'days').utcOffset(-6).format('YYYY-MM-DD HH:mm:ss')];
     } else {
-        dates = [moment().startOf(timeframe).format('YYYY-MM-DD HH:mm:ss'),moment().endOf(timeframe).format('YYYY-MM-DD HH:mm:ss')];
+        dates = [moment.utc().startOf(timeframe).utcOffset(-6).format('YYYY-MM-DD HH:mm:ss'),moment.utc().endOf(timeframe).utcOffset(-6).format('YYYY-MM-DD HH:mm:ss')];
     }
   return dates;
 }
@@ -302,7 +320,7 @@ app.get('/api/luna', async (req, res)  => {
   //var phases = lune.phase_hunt()
   const fullmoon = lune.phase_range(moment().toDate(),moment().add(30,'days').toDate(),lune.PHASE_FULL);
   const newmoon = lune.phase_range(moment().toDate(),moment().add(30,'days').toDate(),lune.PHASE_NEW);
-  const currentPhase = lune.phase()
+  const currentPhase = lune.phase( new Date());
   let names= ['New Moon','Waxing Crescent','First Quarter','Waxing Gibbous','Full Moon','Waning Gibbous',
   'Third Quarter','Waning Crescent','New Moon'];
   try {

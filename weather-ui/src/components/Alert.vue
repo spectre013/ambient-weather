@@ -51,7 +51,9 @@ export default {
     },
     watch: {
         forecast: function() {
-            this.alert = this.forecast.alerts[this.currentAlert];
+            if(this.forecast.hasOwnProperty('alerts')) {
+                this.alert = this.forecast.alerts[this.currentAlert];
+            }
         },
         currentAlert: function() {
             console.log(this.currentAlert);

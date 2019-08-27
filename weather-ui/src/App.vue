@@ -25,11 +25,20 @@
       <Indoor :live="live" :loc="'in'" :title="'Indoor'"/>
       <Indoor :live="live" :loc="'1'" :title="'Basement'"/>
       <Indoor :live="live" :loc="'2'" :title="'Master Bedroom'"/>
+
+    </div>
+    <div class="weatherfooter-container">
+      <Footer />
     </div>
     <ChartModal v-if="models.chart" @close="closeModal" :options="modalOptions"/>
     <AlertModal v-if="models.alert" :forecast="forecast" @close="closeModal" :options="modalOptions"/>
     <AlmanacModel v-if="models.almanac" @close="closeModal"/>
+    <Radar v-if="models.radar" @close="closeModal"/>
+    <MetarModal v-if="models.metar" :astro="astro" @close="closeModal"/>
+    <ForecastSummary v-if="models.forecastsummary" :forecast="forecast" @close="closeModal"/>
+    <ForecastHourly v-if="models.forecasthourly" :forecast="forecast" @close="closeModal"/>
   </div>
+
 </template>
 
 <script>
@@ -51,6 +60,11 @@ import Uv from './components/Uv';
 import ChartModal from './components/ChartModal';
 import AlertModal from './components/AlertModal';
 import AlmanacModel from './components/AlmancModel';
+import Footer from './components/Footer';
+import Radar from './components/Radar';
+import MetarModal from "./components/MetarModal";
+import ForecastSummary from "./components/ForecastSummary";
+import ForecastHourly from "./components/ForecastHourly";
 import axios from 'axios';
 
 export default {
@@ -70,9 +84,14 @@ export default {
     Indoor,
     Current,
     Uv,
+    Footer,
+    Radar,
     ChartModal,
     AlertModal,
-    AlmanacModel
+    AlmanacModel,
+    MetarModal,
+    ForecastSummary,
+    ForecastHourly
 
   },
   data () {
@@ -86,6 +105,10 @@ export default {
         chart:false,
         alert:false,
         almanac: false,
+        radar: false,
+        metar: false,
+        forecasthourly: false,
+        forecastsummary: false
       },
       modalOptions:null,
       socket : io('/', {path:'/api/ws'})
@@ -95,6 +118,7 @@ export default {
     showModal(type,options) {
       this.modalOptions = options;
       this.models[type] = true;
+      console.log(type, this.models[type]);
     },
     closeModal(type) {
       this.models[type] = false;
