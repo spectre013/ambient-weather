@@ -1,6 +1,6 @@
 apps:
   - script: './server.js'
-    name: 'data'
+    name: 'server'
     cwd: '/usr/local/app/'
   - script: './monitor.js'
     name: 'monitor'
