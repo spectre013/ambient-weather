@@ -73,6 +73,11 @@ spec:
                 secretKeyRef:
                   name: weather-secret
                   key: lon
+            - name: METAR
+              valueFrom:
+                secretKeyRef:
+                  name: weather-secret
+                  key: metar
       imagePullSecrets:
         - name: zoms
       restartPolicy: Always

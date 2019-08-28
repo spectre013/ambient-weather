@@ -1,4 +1,3 @@
-const path = require('path');
 const http = require('http');
 const express = require('express');
 const AmbientWeatherApi = require('ambient-weather-api');
@@ -75,8 +74,8 @@ app.get('/api/current', async (req, res)  => {
             }
         });
     let rain = {};
-    const start = moment.utc().utcOffset(-6).format('YYYY-MM-DD HH:mm:ss');
-    const end = moment.utc().utcOffset(-6).subtract(60, 'minutes').format('YYYY-MM-DD HH:mm:ss');
+    const start = moment.utc().utcOffset(6).format('YYYY-MM-DD HH:mm:ss');
+    const end = moment.utc().utcOffset(6).subtract(60, 'minutes').format('YYYY-MM-DD HH:mm:ss');
     const hourRain = 'select MAX(dailyrainin) as hourlyrain from records where `date` between ? and ?';
     console.log(start,end)
       await connection.query(hourRain,[end,start])
@@ -130,8 +129,8 @@ app.get('/api/trend/:type', async (req, res)  => {
     let avg=0;
     let current = 0;
     let temptrend = {trend:'',by:0};
-    const start = moment.utc().utcOffset(-6).format('YYYY-MM-DD HH:mm:ss');
-    const end = moment.utc().utcOffset(-6).subtract(30, 'minutes').format('YYYY-MM-DD HH:mm:ss');
+    const start = moment.utc().utcOffset(6).format('YYYY-MM-DD HH:mm:ss');
+    const end = moment.utc().utcOffset(6).subtract(30, 'minutes').format('YYYY-MM-DD HH:mm:ss');
     const curTemp = 'select AVG(tempf) as temp from records where `date` between ? and ?';
     await connection.query(curTemp, [end,start])
         .then((result) => {
@@ -165,8 +164,8 @@ app.get('/api/trend/:type', async (req, res)  => {
     let barotrend = {trend:'',by:0};
     let avg = 0;
     let current = 0;
-    const start = moment.utc().utcOffset(-6).format('YYYY-MM-DD HH:mm:ss');
-    const end = moment.utc().utcOffset(-6).subtract(3, 'hours').format('YYYY-MM-DD HH:mm:ss');
+    const start = moment.utc().utcOffset(6).format('YYYY-MM-DD HH:mm:ss');
+    const end = moment.utc().utcOffset(6).subtract(3, 'hours').format('YYYY-MM-DD HH:mm:ss');
     const barAvg = 'select AVG(baromrelin) as baro from records where `date` between ? and ?';
     await connection.query(barAvg, [end,start])
         .then((result) => {
@@ -205,18 +204,18 @@ app.get('/api/trend/:type', async (req, res)  => {
 app.get('/api/chart/:type/:period', async (req, res)  => {
     const type = req.params.type;
     const period = req.params.period;
-    let dates = getTimeframe('day');
+    let dates = getTimeframe(period);
     let start = dates[0];
     let end = dates[1];
     let dateformat = '%Y-%m-%d';
-    if(period === 'day') {
-        dateformat = '%H:%d:%s';
+    if(['day','yesterday'].includes(period)) {
+        dateformat = '%Y-%m-%d %H:%d:%s';
     }
-    //console.log(moment.utc().startOf(period).utcOffset(-6).toString(),moment.utc().endOf(period).utcOffset(-6).toString());
     let data = `select DATE_FORMAT(r.date,'${dateformat}') AS mmdd, max(${type}) max, min(${type}) min from records r where date between ? AND ? group by mmdd order by mmdd`;
     let json = {data1: [],data2: []};
-    //console.log(data,start,end);
-    await connection.query(data, [start, end])
+    const query = connection.format(data,[start,end]);
+    console.log(query)
+    await connection.query(query)
       .then(async (result) => {
         await asyncForEach(result[0], (record) => {
           json.data1.push({label: record.mmdd,y:parseFloat(record.max)});
@@ -266,7 +265,7 @@ app.get('/api/minmax/:field', async (req, res)  => {
                     let parts = key.split("_");
                     let period = parts[0];
                     let type = parts[1];
-                    let value = parts[3]
+                    let value = parts[3];
                     if(!data.hasOwnProperty(type)) {
                         data[type] = {};
                     }
@@ -306,10 +305,13 @@ async function asyncForEach(array, callback) {
 function getTimeframe(timeframe) {
     let dates = [];
     if(timeframe === 'yesterday') {
-        dates = [moment.utc().startOf('day').subtract(1,'days').utcOffset(-6).format('YYYY-MM-DD HH:mm:ss'),
-                 moment.utc().endOf('day').subtract(1,'days').utcOffset(-6).format('YYYY-MM-DD HH:mm:ss')];
+        dates = [moment.utc().startOf('day').subtract(2,'days').utcOffset(6).format('YYYY-MM-DD HH:mm:ss'),
+                 moment.utc().endOf('day').subtract(2,'days').utcOffset(6).format('YYYY-MM-DD HH:mm:ss')];
+    } else if(timeframe === 'day') {
+        dates = [moment.utc().startOf('day').subtract(1,'days').utcOffset(6).format('YYYY-MM-DD HH:mm:ss'),
+            moment.utc().endOf('day').subtract(1,'days').utcOffset(6).format('YYYY-MM-DD HH:mm:ss')];
     } else {
-        dates = [moment.utc().startOf(timeframe).utcOffset(-6).format('YYYY-MM-DD HH:mm:ss'),moment.utc().endOf(timeframe).utcOffset(-6).format('YYYY-MM-DD HH:mm:ss')];
+        dates = [moment.utc().startOf(timeframe).utcOffset(6).format('YYYY-MM-DD HH:mm:ss'),moment.utc().endOf(timeframe).utcOffset(6).format('YYYY-MM-DD HH:mm:ss')];
     }
   return dates;
 }

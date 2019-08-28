@@ -144,7 +144,7 @@ async function updateStatistics() {
                             let date = ', '+key+'_date = ?';
                             let insertData = [];
                             let val = 0
-                            let dt = moment().format('YYYY-MM-DD HH:mm:ss')
+                            let dt = moment().utc().utcOffset(6).format('YYYY-MM-DD HH:mm:ss')
                             if(typeof rows[0][0] !== 'undefined') {
                                 val = rows[0][0].value;
                                 dt = rows[0][0].date;
@@ -177,13 +177,16 @@ async function updateStatistics() {
 function getTimeframe(timeframe) {
     let dates = [];
     if(timeframe === 'yesterday') {
-        dates = [moment().startOf('day').subtract(1,'days').format('YYYY-MM-DD HH:mm:ss'),
-            moment().endOf('day').subtract(1,'days').format('YYYY-MM-DD HH:mm:ss')];
+        dates = [moment.utc().startOf('day').subtract(2,'days').utcOffset(6).format('YYYY-MM-DD HH:mm:ss'),
+            moment.utc().endOf('day').subtract(2,'days').utcOffset(6).format('YYYY-MM-DD HH:mm:ss')];
+    } else if(timeframe === 'day') {
+        dates = [moment.utc().startOf('day').subtract(1,'days').utcOffset(6).format('YYYY-MM-DD HH:mm:ss'),
+            moment.utc().endOf('day').subtract(1,'days').utcOffset(6).format('YYYY-MM-DD HH:mm:ss')];
     } else {
-        dates = [moment().startOf(timeframe).format('YYYY-MM-DD HH:mm:ss'),moment().endOf(timeframe).format('YYYY-MM-DD HH:mm:ss')];
+        dates = [moment.utc().startOf(timeframe).utcOffset(6).format('YYYY-MM-DD HH:mm:ss'),moment.utc().endOf(timeframe).utcOffset(6).format('YYYY-MM-DD HH:mm:ss')];
     }
     return dates;
-}
+}``
 
 async function asyncForEach(array, callback) {
     for (let index = 0; index < array.length; index++) {

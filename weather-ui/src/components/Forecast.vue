@@ -23,7 +23,7 @@
                   </div>
                   <darkskytemphihome>
                       <span>{{ day.temperatureHigh | toNumber }}&deg;</span>
-                  </darkskytemphihome>|&nbsp;
+                  </darkskytemphihome>&nbsp;|&nbsp;
                   <darkskytemplohome>
                       <span>{{ day.temperatureLow | toNumber }}&deg;</span>
                   </darkskytemplohome><br>
