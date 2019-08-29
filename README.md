@@ -5,6 +5,7 @@ This is a custom display for data from the Ambient Weather PWS api, and requires
 # Status
 Currently the status of this repo is in a beta state and is not complete. Bug reports are welcome but many features are not complete or still changing at this time 
 
+![GitHub Logo](image.png)
 
 # Setup
 Recommended set up is  using docker in a linux environment that is operational 24 hours a day. Though this set up could be applied to any system. 
