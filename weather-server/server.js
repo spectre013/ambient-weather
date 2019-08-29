@@ -129,12 +129,13 @@ app.get('/api/trend/:type', async (req, res)  => {
     let avg=0;
     let current = 0;
     let temptrend = {trend:'',by:0};
-    const start = moment.utc().utcOffset(6).format('YYYY-MM-DD HH:mm:ss');
-    const end = moment.utc().utcOffset(6).subtract(30, 'minutes').format('YYYY-MM-DD HH:mm:ss');
+    const start = moment.utc().subtract(30, 'minutes').format('YYYY-MM-DD HH:mm:ss');
+    const end = moment.utc().format('YYYY-MM-DD HH:mm:ss');
     const curTemp = 'select AVG(tempf) as temp from records where `date` between ? and ?';
-    await connection.query(curTemp, [end,start])
+    let q = connection.format(curTemp,[start,end]);
+    await connection.query(q)
         .then((result) => {
-          avg = result[0][0].temp;
+            avg = result[0][0].temp;
         }).catch((err) => {
           console.log(err);
           res.status(500).send(err);
@@ -148,7 +149,6 @@ app.get('/api/trend/:type', async (req, res)  => {
           console.log(err);
           res.status(500).send(err);
       });
-
       if(current > avg)  {
         //trend up
         temptrend.trend = 'up';
