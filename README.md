@@ -49,6 +49,8 @@ Brian will be maintaining on behalf of Brian Underdown.
 Please use the support available via the Github issues function. This project is completely separate from any of the Meteobridge-Weather34-Template repositories and any support for this version should be requested in this repository.  
 
 # This work is not permitted to be used in any other versions without prior permission.
+contact Brian @ https://github.com/weather34/Meteobridge-MB-SMART for permission.
+
 This work is licensed under a Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
 http://creativecommons.org/licenses/by-nc-nd/4.0/
 
