@@ -1,13 +1,15 @@
 <template>
 <div class="weather34box indoor">
-    <div class="title"><svg id="i-info" viewBox="0 0 32 32" width="9" height="9" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"><path d="M16 14 L16 23 M16 8 L16 10"></path><circle cx="16" cy="16" r="14"></circle></svg> Min | Max  <orange> Temps</orange></div>
+    <div class="title">
+        <svg id="i-info" viewBox="0 0 32 32" width="9" height="9" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"><path d="M16 14 L16 23 M16 8 L16 10"></path><circle cx="16" cy="16" r="14"></circle></svg>
+        &nbsp;<oblue>Min</oblue> | <ored>Max</ored>  Temperatures</div>
     <div class="value" v-if="temp">
         <div id="position2">
             <div class="topmin">
-                <topgreen1>{{ temp.min.month.value }}<smallwindunit>&deg;</smallwindunit></topgreen1>
+                <topblue1>{{ temp.min.year.value }}<smallwindunit>&deg;</smallwindunit></topblue1>
             </div>
-            <div class="minword">{{temp.min.month.date | mFormat }}</div>
-            <div class="mintimedate">{{temp.min.month.date | dayFormat }}</div>
+            <div class="minword">{{temp.min.year.date | mFormat }}</div>
+            <div class="mintimedate">{{temp.min.year.date | dayFormat }}</div>
             <div class="yearwordbig">{{temp.min.year.date | year }}</div>
             <div class="topmax">
                 <toporange1>{{ temp.max.year.value }}<smallwindunit>&deg;</smallwindunit></toporange1>

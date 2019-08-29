@@ -27,6 +27,8 @@ async function getConnection()
 
 getConnection();
 
+
+
 const api = new AmbientWeatherApi({
   apiKey: process.env.AMBIENT_WEATHER_API_KEY,
   applicationKey: process.env.AMBIENT_WEATHER_APPLICATION_KEY
@@ -177,11 +179,11 @@ async function updateStatistics() {
 function getTimeframe(timeframe) {
     let dates = [];
     if(timeframe === 'yesterday') {
-        dates = [moment.utc().startOf('day').subtract(2,'days').utcOffset(6).format('YYYY-MM-DD HH:mm:ss'),
-            moment.utc().endOf('day').subtract(2,'days').utcOffset(6).format('YYYY-MM-DD HH:mm:ss')];
-    } else if(timeframe === 'day') {
         dates = [moment.utc().startOf('day').subtract(1,'days').utcOffset(6).format('YYYY-MM-DD HH:mm:ss'),
             moment.utc().endOf('day').subtract(1,'days').utcOffset(6).format('YYYY-MM-DD HH:mm:ss')];
+    } else if(timeframe === 'day') {
+        dates = [moment.utc().startOf('day').utcOffset(6).format('YYYY-MM-DD HH:mm:ss'),
+            moment.utc().endOf('day').utcOffset(6).format('YYYY-MM-DD HH:mm:ss')];
     } else {
         dates = [moment.utc().startOf(timeframe).utcOffset(6).format('YYYY-MM-DD HH:mm:ss'),moment.utc().endOf(timeframe).utcOffset(6).format('YYYY-MM-DD HH:mm:ss')];
     }

@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import App from './App.vue';
 import computed from './mixins/temperature';
+import Vuex from 'vuex';
 
 Vue.config.productionTip = false
 Vue.config.ignoredElements = [/^darksky/,/^temp/,/^weather34/,/^span/,'oorange','orange','ogreen','spanelightning','ored','heatindex','spanmaxwind',
@@ -14,6 +15,19 @@ Vue.config.ignoredElements = [/^darksky/,/^temp/,/^weather34/,/^span/,'oorange',
 
 
 Vue.mixin(computed);
+Vue.use(Vuex);
+
+const store = new Vuex.Store({
+  state: {
+    live: {}
+  },
+  mutations: {
+    setLive (state, live) {
+      state.all = live
+    },
+  }
+})
+
 
 new Vue({
   render: h => h(App),

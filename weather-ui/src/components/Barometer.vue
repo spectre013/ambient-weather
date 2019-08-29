@@ -47,7 +47,7 @@
           <div class="pressuretext">
             <ogreen>{{ trend.trend}}</ogreen>
           </div>
-          <darkgrey>{{ current.baromrelin }} <span>inHg</span></darkgrey>
+          <darkgrey>{{ current.baromrelin | toFixed }} <span>inHg</span></darkgrey>
         </div>
       </div>
 
@@ -91,6 +91,9 @@ export default {
   },
   methods: {},
   filters: {
+    toFixed: function(bar) {
+      return bar.toFixed(2);
+    },
     now: function(date) {
       return moment(date).format("HH:mm:ss");
     },
