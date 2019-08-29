@@ -15,8 +15,6 @@ const database_config = {
   database : process.env.DB_DATABASE
 };
 
-console.log(database_config);
-
 let connection = {};
 async function getConnection()
 {
@@ -43,8 +41,10 @@ api.on('subscribed', res => {
   });
 
 api.on('data', data => {
-    console.log(data.date + ' current outdoor temperature is: ' + data.tempf + '°F');
-    update(data);
+    //console.log(moment(data.dateutc).format("YYYY-MM-DD HH:mm:ss") + ' current outdoor temperature is: ' + data.tempf + '°F');
+    update(data).then((insertData) => {
+        console.log(insertData.date, insertData.tempf+'°F', insertData.humidity+'%');
+    });
 });
 
 api.subscribe(process.env.AMBIENT_WEATHER_API_KEY);
@@ -52,7 +52,7 @@ api.subscribe(process.env.AMBIENT_WEATHER_API_KEY);
 async function update(data) {
     const randomNumber = Math.floor(Math.random() * 40) - 20;
     let insertData = {
-        date: moment(data.dateutc).format("YYYY-MM-DD HH:mm:ss"),
+        date: moment(data.dateutc).local().format("YYYY-MM-DD HH:mm:ss"),
         mac: '',
         winddir: data.winddir ,
         windgustdir: data.winddir - randomNumber, 
@@ -94,9 +94,12 @@ async function update(data) {
         } catch (e) {
             console.log('Error Updating Records', e);
         }
+
     updateStatistics().then(() => {
         console.log('Min Max Update complete');
-    }) ;
+    });
+
+    return insertData;
 }
 
 
@@ -145,8 +148,8 @@ async function updateStatistics() {
                             let value = key+'_value';
                             let date = ', '+key+'_date = ?';
                             let insertData = [];
-                            let val = 0
-                            let dt = moment().utc().utcOffset(6).format('YYYY-MM-DD HH:mm:ss')
+                            let val = 0;
+                            let dt = moment().format('YYYY-MM-DD HH:mm:ss');
                             if(typeof rows[0][0] !== 'undefined') {
                                 val = rows[0][0].value;
                                 dt = rows[0][0].date;
@@ -179,13 +182,13 @@ async function updateStatistics() {
 function getTimeframe(timeframe) {
     let dates = [];
     if(timeframe === 'yesterday') {
-        dates = [moment.utc().startOf('day').subtract(2,'days').utcOffset(6).format('YYYY-MM-DD HH:mm:ss'),
-            moment.utc().endOf('day').subtract(2,'days').utcOffset(6).format('YYYY-MM-DD HH:mm:ss')];
+        dates = [moment().startOf('day').subtract(1,'days').format('YYYY-MM-DD HH:mm:ss'),
+            moment().endOf('day').subtract(1,'days').format('YYYY-MM-DD HH:mm:ss')];
     } else if(timeframe === 'day') {
-        dates = [moment.utc().startOf('day').subtract(1,'days').utcOffset(6).format('YYYY-MM-DD HH:mm:ss'),
-            moment.utc().endOf('day').subtract(1,'days').utcOffset(6).format('YYYY-MM-DD HH:mm:ss')];
+        dates = [moment().startOf('day').format('YYYY-MM-DD HH:mm:ss'),
+            moment().endOf('day').format('YYYY-MM-DD HH:mm:ss')];
     } else {
-        dates = [moment.utc().startOf(timeframe).utcOffset(6).format('YYYY-MM-DD HH:mm:ss'),moment.utc().endOf(timeframe).utcOffset(6).format('YYYY-MM-DD HH:mm:ss')];
+        dates = [moment().startOf(timeframe).format('YYYY-MM-DD HH:mm:ss'),moment().endOf(timeframe).format('YYYY-MM-DD HH:mm:ss')];
     }
     return dates;
 }``

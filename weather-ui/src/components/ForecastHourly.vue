@@ -36,8 +36,8 @@
                         </div>
                     </main>
                 </div>
+                <button class="lity-close" type="button" aria-label="Close (Press escape to close)" @click="close">×</button>
             </section>
-            <button class="lity-close" type="button" aria-label="Close (Press escape to close)" @click="close">×</button>
         </div>
     </div>
 </template>

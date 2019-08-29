@@ -1,18 +1,22 @@
 
 <template>
     <div class="modal-backdrop">
-        <div class="modal" v-if="data && minmax">
-            <div class="weather34darkbrowser" :url="url"></div>
-            <div class="charDiv">
-                <div id="chartContainer" class="chartContainer"></div>
-            </div>
-            <div class="weather34browser-footer">
-                <span class="copyw">&nbsp;
-                    <svg id="i-external" viewBox="0 0 32 32" width="10" height="10" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"><path d="M14 9 L3 9 3 29 23 29 23 18 M18 4 L28 4 28 14 M28 4 L14 18"></path></svg>
-                    <a href="https://canvasjs.com" title="https://canvasjs.com" target="_blank">CanvasJs.com v2.3.1 GA (CC BY-NC 3.0) Non-Commercial-Version </a>
-                </span>
-            </div>
-            <button class="lity-close" type="button" aria-label="Close (Press escape to close)" @click="close" data-lity-close="">×</button>
+        <div class="modal">
+            <section class="modal-body">
+                <div id="body" v-if="data && minmax">
+                    <div class="weather34darkbrowser" :url="url"></div>
+                    <div class="charDiv">
+                        <div id="chartContainer" class="chartContainer"></div>
+                    </div>
+                    <div class="weather34browser-footer">
+                        <span class="copyw">&nbsp;
+                            <svg id="i-external" viewBox="0 0 32 32" width="10" height="10" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"><path d="M14 9 L3 9 3 29 23 29 23 18 M18 4 L28 4 28 14 M28 4 L14 18"></path></svg>
+                            <a href="https://canvasjs.com" title="https://canvasjs.com" target="_blank">CanvasJs.com v2.3.1 GA (CC BY-NC 3.0) Non-Commercial-Version </a>
+                        </span>
+                    </div>
+                </div>
+                <button class="lity-close" type="button" aria-label="Close (Press escape to close)" @click="close" data-lity-close="">×</button>
+            </section>
         </div>
     </div>
 </template>
@@ -208,27 +212,6 @@
 </script>
 
 <style scoped>
-    .modal-backdrop {
-        position: fixed;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 10000;
-    }
-
-    .modal {
-        background: #181818;
-        box-shadow: 2px 2px 20px 1px #000;
-        height: 550px;
-        width: 900px;
-        overflow-x: auto;
-        display: flex;
-        flex-direction: column;
-    }
     .copyw {
         position:absolute;
         color:#aaa;font-family:arial;
@@ -246,79 +229,6 @@
         border-radius:3px;
     }
 
-    .weather34chart-btn.close:after,
-    .weather34chart-btn.close:before {
-        color: #ccc;
-        position: absolute;
-        font-size: 1em;
-        font-family: Arial, Helvetica, sans-serif;
-        font-weight: 600
-    }
-
-    .weather34browser-header {
-        flex-basis: auto;
-        height: 18px;
-        background: #ebebeb;
-        background: rgba(56, 56, 60, 1);
-        border: 1px solid rgba(56, 56, 60, 1);
-        display: flex;
-        margin-top: -20px;
-        width: 100%;
-        max-width: 800px;
-        -webkit-border-top-left-radius: 5px;
-        -webkit-border-top-right-radius: 5px;
-        -moz-border-radius-topleft: 5px;
-        -moz-border-radius-topright: 5px;
-        border-top-left-radius: 5px;
-        border-top-right-radius: 5px;
-        margin-left: 0;
-    }
-
-    .weather34chart-btns {
-        position: absolute;
-        height: 35px;
-        display: inline-block;
-        padding: 0 10px;
-        line-height: 38px;
-        width: 55px;
-        flex-basis: auto;
-        top: 8px
-    }
-
-    .weather34chart-btn {
-        border-radius: 50%;
-        width: 15px;
-        height: 15px;
-        margin-left: 3px;
-        margin-bottom: 5px;
-        display: inline-block;
-    }
-
-    .weather34chart-btn.close {
-        background-color: #EC6D6B
-    }
-
-    .weather34chart-btn.close:before {
-        content: "x";
-        margin-top: -13px;
-        margin-left: 3px
-    }
-
-    .weather34chart-btn.close:after {
-        content: "close (esc)";
-        margin-top: -13px;
-        margin-left: 55px;
-        width: 200px
-    }
-
-    .weather34chart-btn.retract {
-        background-color: #FDBC40
-    }
-
-    .weather34chart-btn.expand {
-        background-color: #33C84A
-    }
-
     a {
         color: #aaa;
         text-decoration: none
@@ -328,55 +238,11 @@
         font-size: 12px
     }
 
-    .weather34browser-headertitle {
-        margin-left: 25%;
-        color: rgba(230, 232, 239, 1.000);
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 13px;
-        margin-top: 8px;
-    }
-
-    .weather34browser-footerlogo {
-        display: none
-    }
 
     .weather34browser-footer {
         font-size: 0.6rem
     }
 
-    .weatherchartposition {
-        margin-left: 3px;
-    }
-
-    .weather34darkbrowser {
-        position: relative;
-        width: 100%;
-        max-width: 98%;
-        max-height: 10px;
-        margin: 5px auto;
-        border-top-left-radius: 5px;
-        border-top-right-radius: 5px;
-        padding-top: 45px;
-        background-image: radial-gradient(circle, #EB7061 6px, transparent 8px), radial-gradient(circle, #F5D160 6px, transparent 8px), radial-gradient(circle, #81D982 6px, transparent 8px), radial-gradient(circle, rgba(97, 106, 114, 1) 2px, transparent 2px), radial-gradient(circle, rgba(97, 106, 114, 1) 2px, transparent 2px), radial-gradient(circle, rgba(97, 106, 114, 1) 2px, transparent 2px), linear-gradient(to bottom, rgba(59, 60, 63, 0.4) 40px, transparent 0);
-        background-position: left top, left top, left top, right top, right top, right top, 0 0;
-        background-size: 50px 45px, 90px 45px, 130px 45px, 50px 30px, 50px 45px, 50px 60px, 100%;
-        background-repeat: no-repeat, no-repeat;
-        font-family: Arial, Helvetica, sans-serif
-    }
-
-    .weather34darkbrowser[url]:after {
-        content: attr(url);
-        color: #aaa;
-        font-size: 1.15em;
-        position: absolute;
-        left: 0;
-        right: 0;
-        top: 0;
-        margin: 11px 50px 0 90px;
-        border-radius: 3px;
-        background: rgba(97, 106, 114, 0.3);
-        box-sizing: border-box
-    }
 
     .chartContainer {
         width: 99%;

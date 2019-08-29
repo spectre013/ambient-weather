@@ -6644,129 +6644,14 @@ valuetextheading1 {
   border: 0;
   font-weight: 400
 }
-
-
-
-.lity {
-  z-index: 9990;
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  white-space: nowrap;
-  background: rgba(33, 36, 40, 0.5);
-  outline: none !important;
-  opacity: 0;
-  margin: 0 auto
-}
-
-.lity.lity-opened {
-  opacity: 1
-}
-
-.lity.lity-closed {
-  opacity: 0
-}
-
-.lity * {
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box
-}
-
-.lity-wrap {
-  z-index: 9990;
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  text-align: center;
-  outline: none !important;
-  margin: 0 auto
-}
-
-.lity-wrap:before {
-  content: '';
-  display: inline-block;
-  height: 100%;
-  vertical-align: middle;
-  margin-right: -0.25em
-}
-
-.lity-loader {
-  z-index: 9991;
-  color: #fff;
-  position: absolute;
-  top: 50%;
-  margin-top: -0.8em;
-  width: 100%;
-  text-align: center;
-  font-size: 14px;
-  font-family: weathertext2, Helvetica, sans-serif;
-  opacity: 0;
-  -webkit-transition: opacity .3s ease;
-  -o-transition: opacity .3s ease;
-  transition: opacity .3s ease
-}
-
-.lity-loading .lity-loader {
-  opacity: 1
-}
-
-.lity-container {
-  z-index: 9992;
-  position: relative;
-  text-align: left;
-  vertical-align: middle;
-  display: inline-block;
-  white-space: normal;
-  max-width: 98%;
-  max-height: 98%;
-  outline: none !important;
-  margin: 0 auto
-}
-
-.lity-content {
-  z-index: 9993;
-  width: 100%;
-  max-width: 820px;
-  -webkit-transform: scale(1);
-  -ms-transform: scale(1);
-  -o-transform: scale(1);
-  transform: scale(1);
-}
-
-.lity-loading .lity-content,
-.lity-closed .lity-content {
-  -webkit-transform: scale(.8);
-  -ms-transform: scale(.8);
-  -o-transform: scale(.8);
-  transform: scale(.8)
-}
-
-.lity-content:after {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  display: block;
-  right: 0;
-  width: auto;
-  height: auto;
-  z-index: -1;
-}
-
-.lity-close {
+.modal-body .lity-close {
   position: absolute;
   z-index: 9994;
   width: 75px;
   height: 30px;
-  float: left;
-  margin-left: 20px;
-  top: 235px;
+  margin-left: 16px;
+  top: 58px;
+  left: 0;
   -webkit-appearance: none;
   cursor: pointer;
   text-decoration: none;
@@ -6809,58 +6694,6 @@ valuetextheading1 {
 
 .lity-close:active {
   color: rgba(86, 95, 103, 0);
-}
-
-.lity-image img {
-  max-width: 100%;
-  display: block;
-  line-height: 0;
-  border: 0
-}
-
-.lity-iframe .lity-container {
-  width: 100%;
-  max-width: 820px;
-  margin: 0 auto
-}
-
-.lity-iframe-container {
-  display: flex;
-  width: 98%;
-  max-width: 820px;
-  height: 0;
-  padding-top: 56.25%;
-  overflow: auto;
-  pointer-events: auto;
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-  -webkit-overflow-scrolling: touch;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  margin: 0 auto;
-}
-
-.lity-iframe-container iframe {
-  display: flex;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 98%;
-  max-width: 820px;
-  height: 98%;
-  -webkit-box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
-  background: rgba(30, 33, 36, 1.000);
-  background: linear-gradient(135deg, #212428 0%, #2f363f 100%);
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  margin: 0 auto
-}
-
-.lity-hide {
-  display: none
 }
 
 .tempconverter2 {
