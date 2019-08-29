@@ -1,4 +1,4 @@
-#Ambient Weather
+# Ambient Weather
 
 This is a custom display for data from the Ambient Weather PWS api, and requires an Ambient Weather Station. Currently also requires knowledge of Nodejs, Mysql to use. Docker can also be use but it optional.
 
