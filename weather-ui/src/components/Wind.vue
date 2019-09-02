@@ -58,17 +58,12 @@
     export default {
         name: 'wind',
         props: {
-            current: Object
+            current: Object,
+            wind: Object
         },
         data () {
             return {
-                wind: null,
                 beaufort: null
-            }
-        },
-        watch: {
-            current: function() {
-                axios.get('/api/wind').then(response => (this.wind = response.data))
             }
         },
         methods: {

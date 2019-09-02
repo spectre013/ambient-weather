@@ -125,7 +125,7 @@ app.get('/api/trend/:type', async (req, res)  => {
 
   const type = req.params.type;
 
-  if(type === 'temp') {
+  if(type.includes('temp')) {
     let avg=0;
     let current = 0;
     let temptrend = {trend:'',by:0};
@@ -252,38 +252,31 @@ app.get('/api/wind', async (req, res)  => {
 
 
 app.get('/api/minmax/:field', async (req, res)  => {
-  const field = req.params.field;
+  const field = '%'+req.params.field+'%';
   let data = {};
   try {
-      await connection.query("select * from stats where id = ?",[1])
+      await connection.query("select * from stat where id like ?",[field])
           .then((results) => {
-              let r = results[0][0];
-              let keys = Object.keys(r)
-              for (let index = 0; index < keys.length; index++) {
-                let key = keys[index];
-                if(key.includes(field)) {
-                    //month_max_humidity_value
-                    let parts = key.split("_");
-                    let period = parts[0];
-                    let type = parts[1];
-                    let value = parts[3];
-                    if(!data.hasOwnProperty(type)) {
-                        data[type] = {};
-                    }
-                    if(!data[type].hasOwnProperty(period)) {
-                        data[type][period] = {};
-                    }
-                    if(!data[type][period].hasOwnProperty(value)) {
-                        data[type][period][value] = {};
-                    }
-                    if(value === 'value' && !r[key]) {
-                        r[key] = 0.0;
-                    }
-                    data[type][period][value] = r[key];
-
+              let r = results[0];
+              for (let index = 0; index < r.length; index++) {
+                let key = r[index].id;
+                let parts = key.split("_");
+                let period = parts[0];
+                let type = parts[1];
+                if(!data.hasOwnProperty(type)) {
+                    data[type] = {};
                 }
-              }
+                if(!data[type].hasOwnProperty(period)) {
+                    data[type][period] = {};
+                }
 
+                data[type][period].date = moment(r[index].date).format('YYYY-MM-DD HH:mm:ss');
+                data[type][period].value = r[index].value;
+            }
+
+              if(field === 'tempf') {
+                  console.log(data);
+              }
           }).catch((err) => {
               console.log(err);
               res.status(500).send(err);

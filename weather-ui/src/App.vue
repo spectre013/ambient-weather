@@ -12,7 +12,7 @@
       <RainfallDetails :current="current"/>
     </div>
     <div class="weather-container">
-      <Wind :current="live"/>
+      <Wind :current="live" :wind="wind" />
       <Barometer :current="live" />
       <Daylight :astro="astro"/>
     </div>
@@ -101,6 +101,7 @@ export default {
       forecast: null,
       temp: null,
       astro: null,
+      wind: null,
       models :{
         chart:false,
         alert:false,
@@ -131,10 +132,16 @@ export default {
     this.socket.on('data', (data) => {
         this.live = data;
     });
-    axios.get('/api/minmax/tempf').then(response => (this.temp = response.data));
     axios.get('/api/forecast').then(response => (this.forecast = response.data));
-    axios.get('/api/current').then(response => (this.current = response.data));
     axios.get('/api/luna').then(response => (this.astro = response.data));
+    function updateData(self){
+      axios.get('/api/wind').then(response => (self.wind = response.data))
+      axios.get('/api/minmax/tempf').then(response => (self.temp = response.data));
+      axios.get('/api/current').then(response => (self.current = response.data));
+        setTimeout(function() { updateData(self); }, 60000);
+    }
+    updateData(this);
+
     window.addEventListener("keyup", e => {
         if(e.key === 'Escape') {
           Object.keys(this.models).forEach((modal) => {

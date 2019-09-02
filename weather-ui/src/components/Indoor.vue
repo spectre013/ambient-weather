@@ -80,8 +80,12 @@ export default {
         }
     },
     mounted() {
-        axios.get('/api/trend/temp').then(response => (this.trend = response.data))
-        axios.get('/api/minmax/temp'+this.loc+'f').then(response => (this.minmax = response.data));
+        function updateData(self){
+            axios.get('/api/trend/temp'+self.loc+'f').then(response => (self.trend = response.data))
+            axios.get('/api/minmax/temp'+self.loc+'f').then(response => (self.minmax = response.data));
+            setTimeout(function() { updateData(self); }, 60000);
+        }
+        updateData(this);
     },
     methods: {
 

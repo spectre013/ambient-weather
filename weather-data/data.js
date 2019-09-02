@@ -143,26 +143,42 @@ async function updateStatistics() {
                     if (err) throw err;
                 }).then(async (rows) => {
                     if(rows.length > 0) {
+                        let update = true;
                         try {
+                            const query  = `select * from stat where id like '${key}%'`;
+                            await connection.query(query)
+                                .then(([rows]) => {
+                                    if(rows.length === 0) {
+                                        update = false;
+                                    }
+                                });
+                        } catch (e) {
+                            console.log('Error Updating Records', e);
+                        }
 
-                            let value = key+'_value';
-                            let date = ', '+key+'_date = ?';
+
+                        try {
                             let insertData = [];
                             let val = 0;
                             let dt = moment().format('YYYY-MM-DD HH:mm:ss');
+
                             if(typeof rows[0][0] !== 'undefined') {
                                 val = rows[0][0].value;
-                                dt = rows[0][0].date;
+                                dt = moment(rows[0][0].date).local().format('YYYY-MM-DD HH:mm:ss');
                             }
                             insertData.push(val);
                             if(key.includes('avg')) {
-                                date = '';
-                            } else {
-                                insertData.push(dt);
+                                dt =  moment().format('YYYY-MM-DD HH:mm:ss');;
                             }
 
-                            const update  = `UPDATE stats SET ${value} = ?${date} WHERE id = 1`;
-                            await connection.query(update, insertData)
+                            let qry = '';
+                            if(update) {
+                                qry  = `UPDATE stat SET value = ${val}, date='${dt}' WHERE id ='${key}'`;
+                            } else {
+                                qry  = `insert into stat SET value = ${val}, date='${dt}', id = '${key}'`;
+                            }
+
+                            await connection.query(qry, insertData)
                                 .then(() => {
 
                                 });

@@ -64,6 +64,11 @@
             }
         },
         mounted: function() {
+            function updateData(self){
+                axios.get('/api/minmax/uv').then(response => (self.minmax = response.data));
+                setTimeout(function() { updateData(self); }, 60000);
+            }
+            updateData(this);
             axios.get('/api/minmax/uv').then(response => (this.minmax = response.data));
         },
         watch: {

@@ -17,7 +17,7 @@
 
         </div>
         <span class="moduletitle"> Temperature (<valuetitleunit>&deg;F</valuetitleunit>) </span><br>
-        <div id="temperature"  v-if="temp && current">
+        <div id="temperature"  v-if="temp && current && trend">
             <div class="updatedtime"><span><svg id="i-info" viewBox="0 0 32 32" width="6" height="6" fill="#9aba2f" stroke="#9aba2f" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"><path d="M16 14 L16 23 M16 8 L16 10"></path><circle cx="16" cy="16" r="14"></circle></svg>
                 {{current.date | now }} </span></div>
             <div class="tempcontainer">
@@ -96,7 +96,12 @@ export default {
     }
   },
   mounted() {
-      axios.get('/api/trend/temp').then(response => (this.trend = response.data))
+      function updateData(self){
+          axios.get('/api/trend/temp').then(response => (self.trend = response.data));
+          setTimeout(function() { updateData(self); }, 60000);
+      }
+      updateData(this);
+
   },
   methods: {
     openModal: function(type,options) {
