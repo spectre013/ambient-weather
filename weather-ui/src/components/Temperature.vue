@@ -38,7 +38,7 @@
                 <div class="heatcircle-content">
                     <valuetextheading1>Feels</valuetextheading1><br>
                     <div class="tempconverter1">
-                        <div v-bind:class="current.feelsLike | smallTempClass">{{ current.feelsLike }}<smalltempunit2>&deg;F<smalltempunit2></smalltempunit2>
+                        <div v-bind:class="current.feelslike | smallTempClass">{{ current.feelslike }}<smalltempunit2>&deg;F<smalltempunit2></smalltempunit2>
                         </smalltempunit2>
                         </div>
                     </div>
@@ -65,7 +65,7 @@
                     <div class="heatcircle-content">
                         <valuetextheading1>Dewpoint</valuetextheading1>
                         <div class="tempconverter1">
-                            <div v-bind:class="current.dewPoint | dewPointClass">&nbsp;{{ current.dewPoint }}<smalltempunit2>&deg;F</smalltempunit2></div>
+                            <div v-bind:class="current.dewpoint | dewPointClass">&nbsp;{{ current.dewpoint }}<smalltempunit2>&deg;F</smalltempunit2></div>
                         </div>
                     </div>
                 </div>
@@ -97,7 +97,7 @@ export default {
   },
   mounted() {
       function updateData(self){
-          axios.get('/api/trend/temp').then(response => (self.trend = response.data));
+          axios.get('/api/trend/tempf').then(response => (self.trend = response.data));
           setTimeout(function() { updateData(self); }, 60000);
       }
       updateData(this);
@@ -142,7 +142,7 @@ export default {
       return moment().format(format);
     },
     now: function (date) {
-        return moment(date).format('HH:mm:ss');
+        return moment(date).local().format('HH:mm:ss');
     },
     toCelcius: function(temp) {
         return ((temp -32) * 5/9).toFixed(2);

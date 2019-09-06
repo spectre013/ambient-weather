@@ -41,7 +41,6 @@ api.on('subscribed', res => {
   });
 
 api.on('data', data => {
-    //console.log(moment(data.dateutc).format("YYYY-MM-DD HH:mm:ss") + ' current outdoor temperature is: ' + data.tempf + '°F');
     update(data).then((insertData) => {
         console.log(insertData.date, insertData.tempf+'°F', insertData.humidity+'%');
     });
@@ -79,7 +78,7 @@ async function update(data) {
         solarradiation: data.solarradiation ,
         feelsLike: data.feelsLike ,
         dewPoint: data.dewPoint ,
-        lastRain: moment(data.lastRain ).format("YYYY-MM-DD HH:mm:ss")};
+        lastRain: moment(data.lastRain).local().format("YYYY-MM-DD HH:mm:ss")};
 
         try {
             const query  = 'INSERT INTO records SET ?';
@@ -139,6 +138,10 @@ async function updateStatistics() {
                 name = key;
                 qt = tf;
                 let query = queries[key];
+                // if(key.includes("tempf")) {
+                //     console.log(key, query.query, query.params);
+                // }
+
                 await connection.query(query.query,query.params , (err) => {
                     if (err) throw err;
                 }).then(async (rows) => {
@@ -164,7 +167,7 @@ async function updateStatistics() {
 
                             if(typeof rows[0][0] !== 'undefined') {
                                 val = rows[0][0].value;
-                                dt = moment(rows[0][0].date).local().format('YYYY-MM-DD HH:mm:ss');
+                                dt = moment(rows[0][0].date).format('YYYY-MM-DD HH:mm:ss');
                             }
                             insertData.push(val);
                             if(key.includes('avg')) {
@@ -200,14 +203,12 @@ function getTimeframe(timeframe) {
     if(timeframe === 'yesterday') {
         dates = [moment().startOf('day').subtract(1,'days').format('YYYY-MM-DD HH:mm:ss'),
             moment().endOf('day').subtract(1,'days').format('YYYY-MM-DD HH:mm:ss')];
-    } else if(timeframe === 'day') {
-        dates = [moment().startOf('day').format('YYYY-MM-DD HH:mm:ss'),
-            moment().endOf('day').format('YYYY-MM-DD HH:mm:ss')];
     } else {
-        dates = [moment().startOf(timeframe).format('YYYY-MM-DD HH:mm:ss'),moment().endOf(timeframe).format('YYYY-MM-DD HH:mm:ss')];
+        dates = [moment().startOf(timeframe).format('YYYY-MM-DD HH:mm:ss'),
+            moment().endOf(timeframe).format('YYYY-MM-DD HH:mm:ss')];
     }
     return dates;
-}``
+}
 
 async function asyncForEach(array, callback) {
     for (let index = 0; index < array.length; index++) {

@@ -15,7 +15,7 @@ spec:
         app: weather-server-deployment
     spec:
       containers:
-        - image: docker.zoms.net/weather-server:latest
+        - image: docker.zoms.net/weather-server:1.0
           name: weather-server-deployment
           imagePullPolicy: Always
           ports:
@@ -23,6 +23,10 @@ spec:
               containerPort: 3000
               protocol: TCP
           env:
+            - name: HOST
+              value: "127.0.0.1"
+            - name: PORT
+              value: "3000"
             - name: AMBIENT_WEATHER_API_KEY
               valueFrom:
                 secretKeyRef:

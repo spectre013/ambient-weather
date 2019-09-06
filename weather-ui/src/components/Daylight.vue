@@ -151,12 +151,14 @@ export default {
                     sunsetTime = moment(this.astro.tomorrow.date + " "+this.astro.tomorrow.sunrise+":00");
                 }
                 let duration = sunsetTime.diff(now);
+                console.log(sunsetTime, duration)
                 return moment.duration(duration).hours();
             },
             minTilSunSet: function() {
                 let sunsetTime = moment(this.astro.date + " "+this.astro.sunset+":00");
                 let now = moment();
                 let t = moment.duration(sunsetTime.diff(now)).minutes();
+
                 if( t <= 0 && this.hasSunset) {
                     sunsetTime = moment(this.astro.tomorrow.date + " "+this.astro.tomorrow.sunrise+":00");
                 }

@@ -1,17 +1,29 @@
-FROM node:10
-# Create app directory
-WORKDIR /usr/local/app
 
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
-COPY package*.json ./
+# STEP 1 build executable binary
+FROM golang:1.12.0-alpine as builder
+RUN apk update && apk add git
+RUN apk --update add ca-certificates
+RUN apk add --no-cache tzdata
+WORKDIR /weather-server
+#get dependancies
 
-RUN npm install
-# If you are building your code for production
-# RUN npm ci --only=production
-RUN npm install pm2 -g
-# Bundle app source
+# We want to populate the module cache based on the go.{mod,sum} files.
+COPY go.mod .
+COPY go.sum .
+
+RUN go mod download
+
 COPY . .
-ENV NODE_ENV production
-CMD ["pm2-runtime", "/usr/local/app/process.yml"]
+
+#build the binary
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags="-w -s" -o /go/bin/weather-server
+# STEP 2 build a small image
+# start from scratch
+FROM scratch
+ENV TZ America/Denver
+# Copy our static executable
+COPY --from=builder /go/bin/weather-server /go/bin/weather-server
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
+ENV GO_ENV production
+ENTRYPOINT ["/go/bin/weather-server"]

@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import App from './App.vue';
 import computed from './mixins/temperature';
-import Vuex from 'vuex';
+import VueNativeSock from 'vue-native-websocket'
 
 Vue.config.productionTip = false
 Vue.config.ignoredElements = [/^darksky/,/^temp/,/^weather34/,/^span/,'oorange','orange','ogreen','spanelightning','ored','heatindex','spanmaxwind',
@@ -11,22 +11,20 @@ Vue.config.ignoredElements = [/^darksky/,/^temp/,/^weather34/,/^span/,'oorange',
 'value','valuetext','smalluvunit','alertvalue','noalert','spanyellow','valuetitleunit','topblue1','smallwindunit','smallrainunita','valuetextheading1','raiblue',
   'smallrainunit2','rainratetextheading','maxred','hours','blueu','moonrisecolor','moonm','moonsetcolor','tgreen','topgreen1','smallwindunit','toporange1','minblue',
   'smalltempunit','smalltempunit2','smallrainunit','valuetext1','uviforecasthouryellow','trendmovementfallingx','redu','blue','articlegraph','uviforecasthourred','uviforecasthourorange',
-'stationid','yellow','green','darkskytempwindhome','darkskyiconcurrent','darkskyrainhome1','unit','blue1','windunit','gust'];
+'stationid','yellow','green','darkskytempwindhome','darkskyiconcurrent','darkskyrainhome1','unit','blue1','windunit','gust','purpleu','orange1','uv'];
 
 
 Vue.mixin(computed);
-Vue.use(Vuex);
+let wsurl = 'wss://'+window.location.host;
+if(window.location.protocol === 'http:') {
+  wsurl = 'ws://'+ window.location.host
+}
 
-const store = new Vuex.Store({
-  state: {
-    live: {}
-  },
-  mutations: {
-    setLive (state, live) {
-      state.all = live
-    },
-  }
-})
+wsurl += '/api/ws';
+
+Vue.use(VueNativeSock, wsurl, {
+  reconnection: true
+});
 
 
 new Vue({

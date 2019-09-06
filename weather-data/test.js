@@ -1,8 +1,63 @@
-const moment = require("moment");
+const mysql = require('mysql2/promise');
+const moment = require('moment');
+console.log("WILL NOT RUN AGAIN!! ")
+process.exit()
 
 
-console.log(moment.utc().startOf('day').utcOffset(6).format('YYYY-MM-DD HH:mm:ss'),
-    moment.utc().endOf('day').utcOffset(6).format('YYYY-MM-DD HH:mm:ss'))
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config();
+}
+
+const database_config = {
+    host     : process.env.DB_HOST,
+    user     : process.env.DB_USER,
+    password : process.env.DB_PASSWORD,
+    database : process.env.DB_DATABASE
+};
+
+let connection = {};
+async function getConnection()
+{
+    await mysql.createConnection(database_config).then(conn => {
+        connection = conn;
+    });
+}
+
+getConnection().then(() => {
+    fetch().then((data) => {
+        update(data).then();
+    });
+});
+
+async function fetch() {
+    let data = [];
+    try {
+        const query  = 'select id, date from records order by id desc';
+        await connection.query(query)
+            .then(([rows]) => {
+                for(let i=0; i < rows.length; i++) {
+                    //console.log(rows[i].id, rows[i].date, moment(rows[i].date).format("YYYY-MM-DD HH:mm:ss"))
+                    data.push({id:rows[i].id,date:moment(rows[i].date).format("YYYY-MM-DD HH:mm:ss")})
+                }
+            });
+    } catch (e) {
+        console.log('Error Updating Records', e);
+    }
+    return data
+}
+
+function update(data) {
+    let q = 'update records set date = ? where id = ?';
+    for(let i=0; i < data.length; i++) {
+        connection.execute(q, [moment.utc(data[i].date).local().format("YYYY-MM-DD HH:mm:ss"), data[i].id])
+            .then((r) => {
+                console.log(r);
+            })
+            .catch(error => {
+                console.log(error.message)
+            });
+    }
+}
 
 
 // let warnings = `Tsunami Warning | 1 |   | Tomato | 253 99 71 | FD6347

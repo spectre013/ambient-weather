@@ -1,4 +1,7 @@
-FROM node:10
+FROM node:10-alpine
+RUN apk add --no-cache tzdata
+ENV TZ America/Denver
+
 # Create app directory
 WORKDIR /usr/local/app
 

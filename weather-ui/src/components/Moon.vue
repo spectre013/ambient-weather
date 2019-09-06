@@ -29,7 +29,7 @@
                 </div>
                 <div class="newmoon1">
                     <svg id="weather34 new moon" viewBox="0 0 32 32" width="6" height="6" fill="#777" stroke="#777" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"><circle cx="16" cy="16" r="14"></circle><path d="M6 6 L26 26"></path></svg>
-                    Next New Moon <div class="nextnewmoon"><value><moonm>{{astro.newmoon | format }}</moonm></value>
+                    Next New Moon <div class="nextnewmoon"><value><moonm>{{astro.nextnewmoon | format }}</moonm></value>
                 </div>
                 </div>
                 <div class="moonset1"><svg id="weather34 moon set" viewBox="0 0 32 32" width="6" height="6" fill="none" stroke="#f26c4f" stroke-linecap="round" stroke-linejoin="round" stroke-width="10%"><path d="M30 12 L16 24 2 12"></path></svg>

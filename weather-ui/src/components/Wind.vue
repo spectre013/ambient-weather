@@ -18,8 +18,8 @@
                 <div class="windgustvalue">{{ current.windgustmph }}<div class="windunitgust">mph</div><div class="windunitidgust">Gust</div></div>
             </div>
             <div class="windspeedtrend1">
-                <valuetext>Max <max><value><maxred>{{ wind.wind.value }}</maxred></value></max>
-                    <supmb> mph</supmb><br> Gust ({{ wind.wind.date | timeFormat}})
+                <valuetext>Max <max><value><maxred>{{ wind.gust.value }}</maxred></value></max>
+                    <supmb> mph</supmb><br> Gust ({{ wind.gust.date | timeFormat}})
                 </valuetext>
             </div>
             <div class="windconverter">
@@ -53,7 +53,6 @@
 
 <script>
     import moment from 'moment';
-    import axios from 'axios';
 
     export default {
         name: 'wind',
@@ -68,7 +67,7 @@
         },
         methods: {
             windRun: function() {
-                let run = this.wind.avg.wind * moment().hours();
+                let run = this.wind.avg.value * moment().hours();
                 return run.toFixed(2);
             },
             getBeaufort:function() {

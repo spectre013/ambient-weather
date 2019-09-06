@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import io from 'socket.io-client';
+//import io from 'socket.io-client';
 import Forecast from './components/Forecast';
 import Time from './components/Time';
 import MinMax from './components/MinMax';
@@ -112,14 +112,12 @@ export default {
         forecastsummary: false
       },
       modalOptions:null,
-      socket : io('/', {path:'/api/ws'})
     }
   },
   methods: {
     showModal(type,options) {
       this.modalOptions = options;
       this.models[type] = true;
-      console.log(type, this.models[type]);
     },
     closeModal(type) {
       this.models[type] = false;
@@ -129,9 +127,9 @@ export default {
 
   },
   mounted () {
-    this.socket.on('data', (data) => {
-        this.live = data;
-    });
+    // this.socket.on('data', (data) => {
+    //     this.live = data;
+    // });
     axios.get('/api/forecast').then(response => (this.forecast = response.data));
     axios.get('/api/luna').then(response => (this.astro = response.data));
     function updateData(self){
@@ -141,7 +139,10 @@ export default {
         setTimeout(function() { updateData(self); }, 60000);
     }
     updateData(this);
-
+    this.$options.sockets.onmessage = (msg) => {
+      let data = JSON.parse(msg.data);
+      this.live = data
+    };
     window.addEventListener("keyup", e => {
         if(e.key === 'Escape') {
           Object.keys(this.models).forEach((modal) => {

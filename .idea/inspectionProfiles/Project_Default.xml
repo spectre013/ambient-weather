@@ -24,7 +24,7 @@
     <inspection_tool class="HtmlUnknownTag" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="myValues">
         <value>
-          <list size="310">
+          <list size="325">
             <item index="0" class="java.lang.String" itemvalue="nobr" />
             <item index="1" class="java.lang.String" itemvalue="noembed" />
             <item index="2" class="java.lang.String" itemvalue="comment" />
@@ -335,6 +335,21 @@
             <item index="307" class="java.lang.String" itemvalue="weather34menumarkerblue" />
             <item index="308" class="java.lang.String" itemvalue="topbarmetricc" />
             <item index="309" class="java.lang.String" itemvalue="topbarimperialf" />
+            <item index="310" class="java.lang.String" itemvalue="darkskywindhome" />
+            <item index="311" class="java.lang.String" itemvalue="orange1" />
+            <item index="312" class="java.lang.String" itemvalue="hilo" />
+            <item index="313" class="java.lang.String" itemvalue="darkskypreciphome" />
+            <item index="314" class="java.lang.String" itemvalue="darkskyweekday" />
+            <item index="315" class="java.lang.String" itemvalue="darkskytemphi" />
+            <item index="316" class="java.lang.String" itemvalue="darkskytemplo" />
+            <item index="317" class="java.lang.String" itemvalue="darkskysummary" />
+            <item index="318" class="java.lang.String" itemvalue="darkskywindspeed" />
+            <item index="319" class="java.lang.String" itemvalue="zerou" />
+            <item index="320" class="java.lang.String" itemvalue="value1" />
+            <item index="321" class="java.lang.String" itemvalue="precip" />
+            <item index="322" class="java.lang.String" itemvalue="blue1" />
+            <item index="323" class="java.lang.String" itemvalue="green" />
+            <item index="324" class="java.lang.String" itemvalue="temp" />
           </list>
         </value>
       </option>
