@@ -184,7 +184,7 @@ body {
   clear: both;
   font-size: 14px;
   line-height: 1.42857143;
-  cursor: url(mouse/weather34redcursor.png), n-resize;
+  cursor: url(mouse/weather34bluecursor.png), n-resize;
   color: silver;
 }
 
@@ -3627,11 +3627,14 @@ civil {
 #weather34sidebarMenu {
   position: absolute;
   left: 0;
+  width: 240px;
   top: 0;
   transform: translateX(-250px);
   transition: transform 250ms ease-in-out;
+  background: rgba(18, 18, 18, 1);
+  float: left;
   height: 900px;
-  z-index: 30
+  z-index: 30;
 }
 
 .weather34sidebarIconToggle,
@@ -3656,13 +3659,12 @@ input[type=checkbox] {
 }
 
 .weather34sidebarMenuInner li {
+  background: rgba(18, 18, 18, .7);
   list-style: none;
-  color: silver;
-  padding: 5px 5px 5px 10px;
+  padding: 0px 5px 3px 14px;
   cursor: pointer;
   border-bottom: 0;
-  font-size: 12px;
-  font-weight: 500
+  width: 240px;
 }
 
 .luxrate,
@@ -3674,7 +3676,10 @@ rainu {
   font-size: 15px;
   text-align: left;
   color: #ff8841;
-  font-weight: bold
+  font-weight: bold;
+  padding-top: 5px;
+  padding-bottom: 2px;
+  padding-left: 8px;
 }
 
 .weather34sidebarMenuInner li span {
@@ -8361,7 +8366,9 @@ weather34darkdaycircle {
 
 topbarimperial,
 topbarmetric {
-  display: flex;
+  position: absolute;
+  top: 10px;
+  right: 10px;
   -webkit-border-radius: 2px;
   border-radius: 2px;
   width: 1.7em;

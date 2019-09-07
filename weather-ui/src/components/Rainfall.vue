@@ -4,14 +4,14 @@
         <div class="value" v-if="current">
             <div id="position3">
                 <div class="topmin">
-                    <topblue1>{{ current.monthlyrainin }}<smallwindunit>in</smallwindunit></topblue1>
+                    <topblue1>{{ current.monthlyrainin | rainDisplay($store.getters.units) }}<smallwindunit>{{ rainLabel }}</smallwindunit></topblue1>
                 </div>
                 <div class="minword">{{ current.date | month }}</div>
                 <div class="mintimedate">Total
                 </div>
                 <div class="yearwordbig">{{ current.date | year}}</div>
                 <div class="topmax">
-                    <topblue1>{{ current.yearlyrainin }}<smallwindunit>in</smallwindunit></topblue1>
+                    <topblue1>{{ current.yearlyrainin  | rainDisplay($store.getters.units) }}<smallwindunit>{{ rainLabel }}</smallwindunit></topblue1>
                 </div>
                 <div class="maxword">{{ current.date | year }}</div>
                 <div class="maxtimedate">Total</div>

@@ -106,7 +106,7 @@ async function updateStatistics() {
     let queries = {};
     const types = ['MAX','MIN','AVG'];
     const periods = ['day','yesterday','month','year'];
-    const fields = ['tempf','tempinf','temp1f','temp2f','baromrelin','uv','humidity','windspeedmph','windgustmph','dewpoint'];
+    const fields = ['tempf','tempinf','temp1f','temp2f','baromrelin','uv','humidity','windspeedmph','windgustmph','dewpoint','humidityin','humidity1','humidity2'];
 
     try {
         periods.forEach((period) => {

@@ -22,10 +22,10 @@
                       <img :src="'css/darkskyicons/'+day.icon+'.svg'" width="45"><br>
                   </div>
                   <darkskytemphihome>
-                      <span>{{ day.temperatureHigh | toNumber }}&deg;</span>
+                      <span>{{ day.temperatureHigh | tempDisplay($store.getters.units) | toNumber}}&deg;</span>
                   </darkskytemphihome>&nbsp;|&nbsp;
                   <darkskytemplohome>
-                      <span>{{ day.temperatureLow | toNumber }}&deg;</span>
+                      <span>{{ day.temperatureLow | tempDisplay($store.getters.units) | toNumber }}&deg;</span>
                   </darkskytemplohome><br>
                   <img src="css/windicons/avgw.svg" width="20" v-bind:style="{transform:'rotate('+day.windBearing+'deg)'}">
                   <darkskytempwindhome>

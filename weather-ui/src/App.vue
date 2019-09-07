@@ -1,5 +1,6 @@
 <template>
-  <div id="app">
+  <div id="app" v-if="$store.getters.theme">
+    <Menu />
     <div class="weather2-container">
       <Time/>
       <MinMax :temp="temp" />
@@ -32,7 +33,7 @@
     </div>
     <ChartModal v-if="models.chart" @close="closeModal" :options="modalOptions"/>
     <AlertModal v-if="models.alert" :forecast="forecast" @close="closeModal" :options="modalOptions"/>
-    <AlmanacModel v-if="models.almanac" @close="closeModal"/>
+    <AlmanacModel v-if="models.almanac" @close="closeModal" :options="modalOptions"/>
     <Radar v-if="models.radar" @close="closeModal"/>
     <MetarModal v-if="models.metar" :astro="astro" @close="closeModal"/>
     <ForecastSummary v-if="models.forecastsummary" :forecast="forecast" @close="closeModal"/>
@@ -42,7 +43,7 @@
 </template>
 
 <script>
-//import io from 'socket.io-client';
+
 import Forecast from './components/Forecast';
 import Time from './components/Time';
 import MinMax from './components/MinMax';
@@ -65,6 +66,7 @@ import Radar from './components/Radar';
 import MetarModal from "./components/MetarModal";
 import ForecastSummary from "./components/ForecastSummary";
 import ForecastHourly from "./components/ForecastHourly";
+import Menu from "./components/Menu";
 import axios from 'axios';
 
 export default {
@@ -91,17 +93,20 @@ export default {
     AlmanacModel,
     MetarModal,
     ForecastSummary,
-    ForecastHourly
+    ForecastHourly,
+    Menu
 
   },
   data () {
     return {
+      loaded: false,
       live: null,
       current: null,
       forecast: null,
       temp: null,
       astro: null,
       wind: null,
+      theme: 'dark',
       models :{
         chart:false,
         alert:false,
@@ -121,15 +126,25 @@ export default {
     },
     closeModal(type) {
       this.models[type] = false;
-    }
+    },
+    unitsChange: function (argument) {
+      console.log(argument);
+    },
   },
   computed: {
 
   },
+  watch: {
+
+  },
+  beforeCreate() {
+    this.$store.dispatch('getSettings');
+  },
+  beforeMount() {
+        this.setStyle();
+        this.loaded = true;
+  },
   mounted () {
-    // this.socket.on('data', (data) => {
-    //     this.live = data;
-    // });
     axios.get('/api/forecast').then(response => (this.forecast = response.data));
     axios.get('/api/luna').then(response => (this.astro = response.data));
     function updateData(self){
@@ -152,6 +167,12 @@ export default {
     },this);
 
   },
+  created() {
+    this.$on('unitsChange', units => {
+      this.units = units;
+      console.log(units);
+    });
+  }
 }
 </script>
 

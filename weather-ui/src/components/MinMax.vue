@@ -6,13 +6,13 @@
     <div class="value" v-if="temp">
         <div id="position2">
             <div class="topmin">
-                <topblue1>{{ temp.min.year.value }}<smallwindunit>&deg;</smallwindunit></topblue1>
+                <topblue1>{{ temp.min.year.value | tempDisplay($store.getters.units) }}<smallwindunit>&deg;{{ tempLabel }}</smallwindunit></topblue1>
             </div>
             <div class="minword">{{temp.min.year.date | mFormat }}</div>
             <div class="mintimedate">{{temp.min.year.date | dayFormat }}</div>
             <div class="yearwordbig">{{temp.min.year.date | year }}</div>
             <div class="topmax">
-                <toporange1>{{ temp.max.year.value }}<smallwindunit>&deg;</smallwindunit></toporange1>
+                <toporange1>{{ temp.max.year.value | tempDisplay($store.getters.units) }}<smallwindunit>&deg;{{ tempLabel }}</smallwindunit></toporange1>
             </div>
             <div class="maxword">{{temp.max.year.date | year }}</div>
             <div class="maxtimedate">{{temp.max.year.date | dayFormat }}</div>
@@ -28,7 +28,7 @@ import moment from 'moment';
 export default {
   name: 'minmax',
     props: {
-      temp: Object,
+        temp: Object,
     },
     methods: {
 
@@ -51,7 +51,6 @@ export default {
         },
     },
     computed: {
-        
     },
 }
 </script>

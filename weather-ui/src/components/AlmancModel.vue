@@ -3,7 +3,7 @@
     <div class="modal-backdrop">
         <div class="modal">
             <section class="modal-body">
-                <div id="body" v-if="temp && humid && dew && maxtemp && maxdew && mintemp && mindew">
+                <div id="body" v-if="temp && humid && maxtemp && mintemp ">
                     <div class="weather34darkbrowser" url="Temperature Almanac"></div>
                     <main class="grid">
                         <article>
@@ -18,8 +18,8 @@
                                 </div>
                                 <div class="temperaturetrend">{{ temp.min.day.date | hourFormat }}</div>
                                 <div class="hitempypos">
-                                    <div class="hitempd">Dew Max<orange> {{ dew.max.day.value }}</orange>&deg;F {{ dew.max.day.date | hourFormat }}<br></div>
-                                    <div class="hitempd" style="margin-top:-5px;">Dew Min<blue>&nbsp;{{ dew.min.day.value }}</blue>&deg;F {{ dew.min.day.date | hourFormat }}<br></div>
+                                    <div class="hitempd" v-if="dew">Dew Max<orange> {{ dew.max.day.value }}</orange>&deg;F {{ dew.max.day.date | hourFormat }}<br></div>
+                                    <div class="hitempd" style="margin-top:-5px;" v-if="dew">Dew Min<blue>&nbsp;{{ dew.min.day.value }}</blue>&deg;F {{ dew.min.day.date | hourFormat }}<br></div>
                                 </div>
                                 <div class="hitempypos">
                                     <div class="hitempd1" style="margin-top:15px;">Hum Max<orange>&nbsp;{{ humid.max.day.value }}</orange>% {{ humid.max.day.date | hourFormat }}<br></div><br>
@@ -39,8 +39,8 @@
                                 </div>
                                 <div class="temperaturetrend">{{ temp.min.yesterday.date | hourFormat }}</div>
                                 <div class="hitempypos">
-                                    <div class="hitempd">Dew Max<orange> {{ dew.max.yesterday.value }}</orange>&deg;F {{ dew.max.yesterday.date | hourFormat }}<br></div>
-                                    <div class="hitempd" style="margin-top:-5px;">Dew Min<blue>&nbsp;{{ dew.min.yesterday.value }}</blue>&deg;F {{ dew.min.yesterday.date | hourFormat }}<br></div>
+                                    <div class="hitempd" v-if="dew">Dew Max<orange> {{ dew.max.yesterday.value }}</orange>&deg;F {{ dew.max.yesterday.date | hourFormat }}<br></div>
+                                    <div class="hitempd" style="margin-top:-5px;" v-if="dew">Dew Min<blue>&nbsp;{{ dew.min.yesterday.value }}</blue>&deg;F {{ dew.min.yesterday.date | hourFormat }}<br></div>
                                 </div>
                                 <div class="hitempypos">
                                     <div class="hitempd1" style="margin-top:15px;">Hum Max<orange>&nbsp;{{ humid.max.yesterday.value }}</orange>% {{ humid.max.yesterday.date | hourFormat }}<br></div><br>
@@ -59,9 +59,9 @@
                                     </div>
                                 </div>
                                 <div class="temperaturetrend">{{ temp.min.month.date | dayMonth }}</div>
-                                <div class="hitempypos">
-                                    <div class="hitempd">Dew Max<orange> {{ dew.max.month.value }}</orange>&deg;F {{ dew.max.month.date | dayMonth }}<br></div>
-                                    <div class="hitempd" style="margin-top:-5px;">Dew Min<blue>&nbsp;{{ dew.min.yesterday.value }}</blue>&deg;F {{ dew.min.month.date | dayMonth }}<br></div>
+                                <div class="hitempypos" >
+                                    <div class="hitempd" v-if="dew">Dew Max<orange> {{ dew.max.month.value }}</orange>&deg;F {{ dew.max.month.date | dayMonth }}<br></div>
+                                    <div class="hitempd" style="margin-top:-5px;" v-if="dew">Dew Min<blue>&nbsp;{{ dew.min.yesterday.value }}</blue>&deg;F {{ dew.min.month.date | dayMonth }}<br></div>
                                 </div>
                                 <div class="hitempypos">
                                     <div class="hitempd1" style="margin-top:15px;">Hum Max<orange>&nbsp;{{ humid.max.month.value }}</orange>% {{ humid.max.month.date | dayMonth }}<br></div><br>
@@ -81,8 +81,8 @@
                                 </div>
                                 <div class="temperaturetrend">{{ temp.min.year.date | dayMonth }}</div>
                                 <div class="hitempypos">
-                                    <div class="hitempd">Dew Max<orange> {{ dew.max.year.value }}</orange>&deg;F {{ dew.max.year.date | dayMonth }}<br></div>
-                                    <div class="hitempd" style="margin-top:-5px;">Dew Min<blue>&nbsp;{{ dew.min.year.value }}</blue>&deg;F {{ dew.min.year.date | dayMonth }}<br></div>
+                                    <div class="hitempd" v-if="dew">Dew Max<orange> {{ dew.max.year.value }}</orange>&deg;F {{ dew.max.year.date | dayMonth }}<br></div>
+                                    <div class="hitempd" style="margin-top:-5px;" v-if="dew">Dew Min<blue>&nbsp;{{ dew.min.year.value }}</blue>&deg;F {{ dew.min.year.date | dayMonth }}<br></div>
                                 </div>
                                 <div class="hitempypos">
                                     <div class="hitempd1" style="margin-top:15px;">Hum Max<orange>&nbsp;{{ humid.max.year.value }}</orange>% {{ humid.max.year.date | dayMonth }}<br></div><br>
@@ -105,7 +105,7 @@
                                 </div>
                             </div>
                         </article>
-                        <article style="height:110px;">
+                        <article style="height:110px;" v-if="maxdew && mindew">
                             <div class="actualt">Dewpoint All-Time </div>
                             <div class="temperaturecontainer">
                                 <div v-bind:class="maxdew.value | temperaturetoday">{{ maxdew.value }}<smalluvunit>&deg;F</smalluvunit>
@@ -154,7 +154,8 @@
             appName: {
                 type: String,
                 default: String
-            }
+            },
+            options: Object,
         },
         data () {
             return {
@@ -169,15 +170,17 @@
             }
         },
         mounted: function() {
-            axios.get('/api/chart/tempf/year').then(response => (this.data = response.data));
-            axios.get('/api/alltime/max/tempf').then(response => (this.maxtemp = response.data));
-            axios.get('/api/alltime/min/tempf').then(response => (this.mintemp = response.data));
-            axios.get('/api/alltime/max/dewPoint').then(response => (this.maxdew = response.data));
-            axios.get('/api/alltime/min/dewPoint').then(response => (this.mindew = response.data));
+            axios.get('/api/chart/'+this.options.tempfield+'/year').then(response => (this.data = response.data));
+            axios.get('/api/alltime/max/'+this.options.tempfield).then(response => (this.maxtemp = response.data));
+            axios.get('/api/alltime/min/'+this.options.tempfield).then(response => (this.mintemp = response.data));
+            axios.get('/api/minmax/'+this.options.tempfield).then(response => (this.temp = response.data));
+            axios.get('/api/minmax/'+this.options.humidfield).then(response => (this.humid = response.data));
 
-            axios.get('/api/minmax/tempf').then(response => (this.temp = response.data));
-            axios.get('/api/minmax/humidity').then(response => (this.humid = response.data));
-            axios.get('/api/minmax/dewpoint').then(response => (this.dew = response.data));
+            if(this.options.tempfield === 'tempf') {
+                axios.get('/api/alltime/max/dewPoint').then(response => (this.maxdew = response.data));
+                axios.get('/api/alltime/min/dewPoint').then(response => (this.mindew = response.data));
+                axios.get('/api/minmax/dewpoint').then(response => (this.dew = response.data));
+            }
         },
         filters: {
             hourFormat: function (date) {
@@ -720,12 +723,11 @@
         -o-border-radius: 3px;
         border-radius: 3px;
         background: rgba(74, 99, 111, 0.1);
-        padding: 5px;
+        padding: 2px 5px 5px 5px;
         font-family: Arial, Helvetica, sans-serif;
-        width: 170px;
+        width: 195px;
         height: 1.7em;
         font-size: 0.8rem;
-        padding-top: 2px;
         color: #aaa;
         align-items: center;
         justify-content: center;

@@ -1,5 +1,84 @@
 export default {
+    methods: {
+        setStyle: function() {
+            console.log(this.$store.getters.theme);
+            let rem = this.$store.getters.theme === 'dark' ? 'light' : 'dark';
+            let s = document.querySelector("body");
+            s.classList.replace(rem,this.$store.getters.theme);
+        },
+    },
+    computed: {
+        rainLabel: function() {
+            if(this.$store.getters.units === "metric") {
+                return "mm";
+            } else {
+                return "in"
+            }
+        },
+        baroLabel: function() {
+            if(this.$store.getters.units === "metric") {
+                return "hPA";
+            } else {
+                return "inHG"
+            }
+        },
+        baroLabelAlt: function() {
+            if(this.$store.getters.units === "metric") {
+                return "inHG";
+            } else {
+                return "hPA"
+            }
+        },
+        windLabel: function() {
+            if(this.$store.getters.speed === "mph") {
+                return "MPH";
+            } else {
+                return "M/S"
+            }
+        },
+        tempLabel: function()  {
+          if(this.$store.getters.units === "metric") {
+              return "C";
+          } else {
+              return "F"
+          }
+        },
+        tempLabelAlt: function()  {
+            if(this.$store.getters.units === "metric") {
+                return "F";
+            } else {
+                return "C"
+            }
+        }
+    },
     filters: {
+        rainDisplay: function(rn, units = 'imperial') {
+            if(units === 'metric') {
+                return (rn * 25.4).toFixed(2);
+            }
+            return rn;
+        },
+        baroDisplay: function(baro, units = 'imperial') {
+          let b = baro;
+          if(units === 'metric') {
+              return (baro * 33.86).toFixed(2);
+          }
+          return b;
+        },
+        windDisplay: function(wind,units = 'mph') {
+            let t = wind;
+            if(units === 'ms') {
+                t =  (wind / 2.237).toFixed(2);
+            }
+            return t;
+        },
+        tempDisplay: function(temp,units = 'imperial') {
+            let t = temp;
+            if(units === 'metric') {
+                t =  ((temp -32) * 5/9).toFixed(2);
+            }
+            return t;
+        },
         tempCircle: function(temp) {
             if(temp<=14){
                 return 'tempconvertercircle10';

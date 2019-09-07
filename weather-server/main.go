@@ -256,7 +256,7 @@ func alltime(w http.ResponseWriter, r *http.Request) {
 		Date  string  `json:"date"`
 		Value float64 `json:"value"`
 	}
-	rt := make([]Result, 0)
+	rt := Result{}
 	sel := fmt.Sprintf("%s(%s) as value,`date`", c, t)
 	group := fmt.Sprintf("`date`,%s", t)
 	orderby := fmt.Sprintf("%s%s ", t, order)

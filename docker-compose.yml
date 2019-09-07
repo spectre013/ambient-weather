@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  api-gateway:
+    build:
+      context: weather-data
+      dockerfile: Dockerfile
+    image: docker.zoms.net/weather-data:1.0
+  ui-server:
+    build:
+      context: weather-server
+      dockerfile: Dockerfile
+    image: docker.zoms.net/weather-server:1.0
+  fileupload:
+    build:
+      context: weather-ui
+      dockerfile: Dockerfile
+    image: docker.zoms.net/weather-ui:1.0
