@@ -29,17 +29,17 @@ Api keys will need to be acquired for the following interfaces
 
 Install Docker (https://www.docker.com/) follow instructions for your platform
 
-In weather-data run 
+To build the docker containers in the main directory run  
 
-- docker build . -t weather-ui
+```$bash
+$ docker-compose build
+```
 
-In weather-server run 
+To push to a repository 
 
-- docker build . -t weather-ui
-
-In weather-ui run 
-
-- docker build . -t weather-ui
+ ```$bash
+ $ docker-compose push
+ ```
 
 execute run.sh file in each folder and update the environment variables with your own values. Windows user rename the file to .bat and then run.
 
