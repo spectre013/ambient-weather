@@ -38,7 +38,6 @@
             }
         },
         mounted: function() {
-            console.log(this.options.time,this.options.type,this.options.field);
             if(this.options.type === 'temp') {
                 axios.get('/api/chart/'+this.options.field+'/'+this.options.time).then(response => (this.data = response.data));
                 axios.get('/api/minmax/tempf').then(response => (this.minmax = response.data));
@@ -67,7 +66,6 @@
                this.$parent.closeModal('chart');
             },
             drawChart: function(dataPoints1, dataPoints2,interval) {
-                console.log(interval);
                 let chart = new CanvasJS.Chart("chartContainer", {
                     backgroundColor: 'rgba(40, 45, 52,.4)',
                     animationEnabled: true,

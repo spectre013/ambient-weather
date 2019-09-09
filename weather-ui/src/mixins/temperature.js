@@ -1,7 +1,6 @@
 export default {
     methods: {
         setStyle: function() {
-            console.log(this.$store.getters.theme);
             let rem = this.$store.getters.theme === 'dark' ? 'light' : 'dark';
             let s = document.querySelector("body");
             s.classList.replace(rem,this.$store.getters.theme);

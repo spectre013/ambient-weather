@@ -28,10 +28,8 @@ export default new Vuex.Store({
                 let storedSettings = window.localStorage.getItem('settings');
                 if(!storedSettings) {
                     window.localStorage.setItem('settings',JSON.stringify(settings));
-                    //console.log('default',settings);
                 } else {
                     settings = JSON.parse(storedSettings);
-                    //console.log('stored',settings);
                 }
             }
             context.commit('setSettings', settings)
@@ -57,7 +55,6 @@ export default new Vuex.Store({
             return state.settings;
         },
         theme: (state) => {
-            console.log("instore", state.settings.theme);
             return state.settings.theme;
         },
         units: (state) => {
