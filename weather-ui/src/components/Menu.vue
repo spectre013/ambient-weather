@@ -17,7 +17,7 @@
             <ul class="weather34sidebarMenuInner">
                 <li class="header">ADMIN</li>
                 <li>
-                    <a href="#" target="_blank" title="WEATHERSTATION SETTINGS PAGE">
+                    <a href="#" title="WEATHERSTATION SETTINGS PAGE">
                         <weather34menumarkeryellow></weather34menumarkeryellow> Settings
                     </a>
                 </li>
