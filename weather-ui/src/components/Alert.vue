@@ -56,7 +56,6 @@ export default {
             }
         },
         currentAlert: function() {
-            console.log(this.currentAlert);
             this.alert = this.forecast.alerts[this.currentAlert];
         }
 
@@ -72,13 +71,11 @@ export default {
             this.$parent.showModal(type,options);
         },
         switchAlert(dir) {
-            console.log(dir, this.currentAlert);
             if(dir === 'up' && this.currentAlert > 0) {
                 this.currentAlert--;
             } else if(this.currentAlert < this.forecast.alerts.length) {
                 this.currentAlert++;
             }
-            console.log(dir, this.currentAlert);
         }
     },
     filters: {

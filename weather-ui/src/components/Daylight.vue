@@ -178,10 +178,15 @@ export default {
                 }
             },
             sunHasSet: function() {
-                let h = this.astro.sunset.split(":");
-                let sunset = moment().startOf('day').hour(h[0]).minute(h[1]);
-                let m = moment.duration(sunset.diff(moment())).minutes();
-                if(m <= 0) {
+                let ss = this.astro.sunset.split(":");
+                let sunset = moment().startOf('day').hour(ss[0]).minute(ss[1]);
+                let s = moment.duration(sunset.diff(moment())).minutes();
+
+                let sr = this.astro.sunrise.split(":");
+                let sunrise = moment().startOf('day').hour(sr[0]).minute(sr[1]);
+                let r = moment.duration(sunrise.diff(moment())).minutes();
+
+                if(s <= 0 || r >= 0) {
                     this.hasSunset = true;
                 } else {
                     this.hasSunset = false;

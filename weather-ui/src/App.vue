@@ -127,9 +127,6 @@ export default {
     closeModal(type) {
       this.models[type] = false;
     },
-    unitsChange: function (argument) {
-      console.log(argument);
-    },
   },
   computed: {
 
@@ -170,7 +167,6 @@ export default {
   created() {
     this.$on('unitsChange', units => {
       this.units = units;
-      console.log(units);
     });
   }
 }
