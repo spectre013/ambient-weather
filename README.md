@@ -1,6 +1,7 @@
 # Ambient Weather
 
 This is a custom display for data from the Ambient Weather PWS api, and requires an Ambient Weather Station. Currently also requires knowledge of Nodejs, Mysql to use. Docker can also be use but it optional.
+view live @ https://weather.zoms.net
 
 # Status
 Currently the status of this repo is in a beta state and is not complete. Bug reports are welcome but many features are not complete or still changing at this time 
