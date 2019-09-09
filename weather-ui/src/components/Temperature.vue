@@ -22,7 +22,7 @@
                 {{current.date | now }} </span></div>
             <div class="tempcontainer">
                 <div class="maxdata">{{temp.max.day.value | tempDisplay($store.getters.units) }}&deg; | {{ temp.min.day.value | tempDisplay($store.getters.units) }}&deg;</div>
-                <div v-bind:class="current.tempf | tempClass">{{ current.tempf | tempDisplay($store.getters.units) }}<smalltempunit>&deg;F</smalltempunit></div>
+                <div v-bind:class="current.tempf | tempClass">{{ current.tempf | tempDisplay($store.getters.units) }}<smalltempunit>&deg;{{ tempLabel }}</smalltempunit></div>
                 <div class="temptrendx">
                     <trendmovementfallingx v-if="trend.trend == 'down'">&nbsp;&nbsp;&nbsp;
                         <valuetext>Trend <svg id="falling" width="9" height="9" viewBox="0 0 24 24"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></polyline><polyline points="17 18 23 18 23 12" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></polyline></svg>
