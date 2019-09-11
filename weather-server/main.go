@@ -443,7 +443,7 @@ func makeRequest(url string, header map[string]string) ([]byte, error) {
 
 func getCurrent() ([]byte, error) {
 	rec := Record{}
-	db.Order("date desc").First(&rec)
+	db.Select("`id`,`date`,`baromabsin`,`baromrelin`,`dailyrainin`,`dewpoint`,`eventrainin`,`feelslike`,`hourlyrainin`,`humidity`,`humidity1`,`humidity2`,`humidityin`,`lastrain`,`maxdailygust`,`monthlyrainin`,`solarradiation`,`tempf`,`temp1f`,`temp2f`,`tempinf`,`totalrainin`,`uv`,`weeklyrainin`,`winddir`,`windgustmph`,`windspeedmph`,`yearlyrainin`").Order("date desc").First(&rec)
 	hourlyRain := getHourlyRain()
 	rec.Hourlyrain = hourlyRain
 	b, err := json.Marshal(rec)
@@ -455,10 +455,6 @@ func getCurrent() ([]byte, error) {
 }
 
 func getHourlyRain() float64 {
-	//select MAX(dailyrainin) as hourlyrain from records where `date` between ? and ?
-	//t := time.Now()
-	//year, month, day := t.Date()
-	//Date(year, month, day, 0, 0, 0, 0,loc)
 	start := time.Now()
 	end := start.Add(-60 * time.Minute)
 	var max float64
