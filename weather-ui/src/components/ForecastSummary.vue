@@ -36,12 +36,12 @@
                                                 <div class='darkskywindgust'>{{ day.windSpeed }} | {{ day.windGust }} mph</div>
                                                 <darkskytempwindhome>
                                                     <span>{{ day.summary }}</span>
-                                                </darkskytempwindhome><br>&nbsp;
+                                                </darkskytempwindhome><br>&nbsp;<br>
                                                 <darkskypreciphome v-if="day.precipType == 'snow'">
-                                                        <span>Snow <blue1>&nbsp;'.$darkskydayacumm.'</blue1> in</span>
-                                                </darkskypreciphome><br>
+                                                        <span>Snow <blue1>{{ day.precipAccumulation }}</blue1> in <blue1>{{ day.precipProbability }}</blue1>%</span>
+                                                </darkskypreciphome>
                                                 <darkskypreciphome v-if="day.precipType == 'rain'">
-                                                        <span>Rain <blue1>&nbsp; {{ day.precipIntensity }}</blue1>&nbsp; in &nbsp;<blue1>{{ day.precipProbability }}</blue1>%</span>
+                                                        <span>Rain <blue1>&nbsp; {{ day.precipIntensity }}</blue1> in <blue1>{{ day.precipProbability }}</blue1>%</span>
                                                 </darkskypreciphome>
 
                                             </div>
@@ -195,7 +195,7 @@
         color: #aaa;
         font-family: weathertext2, sans-serif;
         line-height: 11px;
-        margin-top: -35px;
+        margin-top: -65px;
         margin-left: 50px
     }
 
@@ -205,8 +205,8 @@
         color: #aaa;
         font-family: weathertext2, sans-serif;
         line-height: 11px;
-        margin-top: -30px;
-        margin-left: 75px
+        margin-top: -60px;
+        margin-left: 72px
     }
 
     .fsdarkskydiv {

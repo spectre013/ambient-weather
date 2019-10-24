@@ -7,7 +7,7 @@
             <div id="position4" v-if="forecast && alert">
                 <div class="eqcirclehomeregional">
                     <div class="eqtexthomeregional">
-                        <div class="uparrow" v-if="multipleAlerts" v-on:click="switchAlert('up')">
+                        <div class="uparrow" v-if="multipleAlerts && minAlerts" v-on:click="switchAlert('up')">
                             <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="16" height="16"><path d="m 13,6 -5,5 -5,-5 z" fill="#797979"/></svg>
                         </div>
                         <spanelightning>
@@ -16,7 +16,7 @@
                                     {{ alert.title }} <!-- : {{ alert.severity }} --> </span>
                             </a><br><span v-bind:class="alertColor">Expires {{ alert.expires | expire }}</span></alertvalue>
                         </spanelightning>
-                        <div class="downarrow" v-if="multipleAlerts" v-on:click="switchAlert('down')">
+                        <div class="downarrow" v-if="multipleAlerts &&  maxAlerts" v-on:click="switchAlert('down')">
                             <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="16" height="16"><path d="m 13,6 -5,5 -5,-5 z" fill="#797979"/></svg>
                         </div>
                     </div>
@@ -73,7 +73,7 @@ export default {
         switchAlert(dir) {
             if(dir === 'up' && this.currentAlert > 0) {
                 this.currentAlert--;
-            } else if(this.currentAlert < this.forecast.alerts.length) {
+            } else if(this.currentAlert <= this.forecast.alerts.length) {
                 this.currentAlert++;
             }
         }
@@ -86,6 +86,20 @@ export default {
   computed: {
     multipleAlerts: function() {
      return this.forecast.alerts.length > 1;
+    },
+    maxAlerts: function() {
+        let ret = true;
+        if(this.currentAlert + 1 >= this.forecast.alerts.length) {
+            ret = false;
+        }
+      return ret;
+    },
+    minAlerts: function() {
+      let ret = true;
+      if(this.currentAlert - 1 < 0) {
+          ret = false;
+      }
+      return ret;
     },
     hasName() {
         if (!this.forecast) return false;

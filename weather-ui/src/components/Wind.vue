@@ -71,7 +71,10 @@
                 return run.toFixed(2);
             },
             getBeaufort:function() {
-                let windkts = this.current.windspeedmph / 1.151;
+                let windkts = this.current.windspeedmph
+                if(this.current.windspeedmph > 0) {
+                    windkts = this.current.windspeedmph / 1.151;
+                }
                 let beaufort = 1;
                 if(windkts >= 64) {
                     beaufort = 12;
@@ -97,7 +100,10 @@
                     beaufort = 2;
                 } else if(windkts >= 1) {
                     beaufort = 1;
+                } else if(windkts < 1) {
+                    beaufort = 0;
                 }
+
                 return beaufort;
             },
             beaufortScale: function() {
