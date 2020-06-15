@@ -73,6 +73,7 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/api/ws", func(w http.ResponseWriter, r *http.Request) {
+		logger.Info("Websocket connection")
 		serveWs(hub, w, r)
 	})
 	//API

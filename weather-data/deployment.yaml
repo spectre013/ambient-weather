@@ -15,7 +15,7 @@ spec:
         app: weather-data-deployment
     spec:
       containers:
-        - image: docker.zoms.net/weather-data:1.0
+        - image: docker.zoms.net/weather-data:latest
           name: weather-data-deployment
           imagePullPolicy: Always
           ports:

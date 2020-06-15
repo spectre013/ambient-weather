@@ -4,6 +4,7 @@ import computed from './mixins/temperature';
 import VueNativeSock from 'vue-native-websocket'
 import store from './store/index'
 
+
 Vue.config.productionTip = false
 Vue.config.ignoredElements = [/^darksky/,/^temp/,/^weather34/,/^span/,'oorange','orange','ogreen','spanelightning','ored','heatindex','spanmaxwind',
 'rainf','spanwindtitle','spanmaxwind','oblue','yesterdaytimemax','spaneindoortemp','suptemp','trendmovementrising','trendmovementfalling','rainblue','grey',
