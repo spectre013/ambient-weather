@@ -109,10 +109,8 @@
                     return "Moderate";
                 } else if(uv >= 0) {
                     return "Low";
-                } else if(this.hasSunset && uv >= 0) {
+                } else if(this.hasSunset && uv <= 0) {
                     return "Below Horizon";
-                } else if(uv >= 0) {
-                    return "Low";
                 }
                 return "";
             },

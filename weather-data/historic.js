@@ -1,5 +1,5 @@
 const axios = require('axios');
-const mysql = require('mysql');
+const mysql = require('mysql2/promise');
 const moment = require('moment');
 require('dotenv').config()
 
@@ -13,11 +13,20 @@ const database_config = {
 const ambient = 'https://api.ambientweather.net/v1/devices';
 const mac = '84:F3:EB:20:DA:9E';
 const apiurl = `${ambient}/${mac}?apiKey=${process.env.AMBIENT_WEATHER_API_KEY}&applicationKey=${process.env.AMBIENT_WEATHER_APPLICATION_KEY}&endDate={date}&limit=288`;
-const connection = mysql.createConnection(database_config);
+let connection = {};
+async function getConnection()
+{
+    await mysql.createConnection(database_config).then(conn => {
+        connection = conn;
+    });
+}
+
+getConnection();
 
 let lastApiCall = moment();
+console.log(connection)
 
-connection.connect();
+
 const q = 'select `date` from records order by `date` desc';
 connection.query(q, [], function(err, results) {
     if (err) throw err;

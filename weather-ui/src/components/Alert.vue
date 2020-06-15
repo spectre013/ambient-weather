@@ -51,7 +51,7 @@ export default {
     },
     watch: {
         forecast: function() {
-            if(this.forecast.hasOwnProperty('alerts')) {
+            if(Object.prototype.hasOwnProperty.call(this.forecast,'alerts')) {
                 this.alert = this.forecast.alerts[this.currentAlert];
             }
         },

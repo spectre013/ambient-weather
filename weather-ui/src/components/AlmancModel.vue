@@ -1,4 +1,3 @@
-
 <template>
     <div class="modal-backdrop">
         <div class="modal">
@@ -144,6 +143,7 @@
     </div>
 </template>
 <script>
+    /* global CanvasJS */
     import moment from 'moment';
     import axios from 'axios';
 
@@ -181,6 +181,7 @@
                 axios.get('/api/alltime/min/dewPoint').then(response => (this.mindew = response.data));
                 axios.get('/api/minmax/dewpoint').then(response => (this.dew = response.data));
             }
+
         },
         filters: {
             hourFormat: function (date) {

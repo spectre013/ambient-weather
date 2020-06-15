@@ -23,30 +23,32 @@ async function getConnection()
     });
 }
 
-getConnection();
+getConnection().then(() => {
 
-
-
-const api = new AmbientWeatherApi({
-  apiKey: process.env.AMBIENT_WEATHER_API_KEY,
-  applicationKey: process.env.AMBIENT_WEATHER_APPLICATION_KEY
-});
-
-api.connect()
-api.on('connect', () => console.log('Connected to Ambient Weather Realtime API!'));
-api.on('subscribed', res => {
-    console.log('Subscribed')
-    var data = res.devices[0].lastData;
-    update(data);
-  });
-
-api.on('data', data => {
-    update(data).then((insertData) => {
-        console.log(insertData.date, insertData.tempf+'°F', insertData.humidity+'%');
+    const api = new AmbientWeatherApi({
+        apiKey: process.env.AMBIENT_WEATHER_API_KEY,
+        applicationKey: process.env.AMBIENT_WEATHER_APPLICATION_KEY
     });
+
+    api.connect()
+    api.on('connect', () => console.log('Connected to Ambient Weather Realtime API!'));
+    api.on('subscribed', res => {
+        console.log('Subscribed')
+        var data = res.devices[0].lastData;
+        update(data);
+    });
+
+    api.on('data', data => {
+        update(data).then((insertData) => {
+            console.log(insertData.date, insertData.tempf+'°F', insertData.humidity+'%');
+        });
+    });
+
+    api.subscribe(process.env.AMBIENT_WEATHER_API_KEY);
 });
 
-api.subscribe(process.env.AMBIENT_WEATHER_API_KEY);
+
+
 
 async function update(data) {
     const randomNumber = Math.floor(Math.random() * 40) - 20;
