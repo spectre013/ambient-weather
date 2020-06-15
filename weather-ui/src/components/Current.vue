@@ -1,4 +1,4 @@
-a<template>
+<template>
     <div class="weather-item">
         <div class="chartforecast">
             <!-- HOURLY & Outlook for homeweather station-->

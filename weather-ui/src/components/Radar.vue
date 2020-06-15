@@ -33,7 +33,7 @@
                 this.$parent.closeModal('radar');
             },
             initMap: function(mapEl) {
-                let map = L.map(mapEl).setView([38.725798,-104.66783], 7);
+                let map = L.map(mapEl).setView([38.7360,-104.6284], 7);
                 L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
                     maxZoom: 18,
                     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
@@ -50,7 +50,7 @@
 
                 let imageUrl = 'https://radar.weather.gov/RadarImg/N0R/PUX_N0R_0.gif',
                     imageBounds = [[35.928214846524, -101.42056117665],[40.9805982693759, -106.932252183394]];
-                L.marker([38.725798,-104.66783],{icon:greenIcon}).addTo(map);
+                L.marker([38.7360,-104.6285],{icon:greenIcon}).addTo(map);
                 L.imageOverlay(imageUrl, imageBounds,{opacity:.6}).addTo(map);
             },
         },
