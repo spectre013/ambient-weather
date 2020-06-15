@@ -1,4 +1,3 @@
-
 <template>
     <div class="modal-backdrop">
         <div class="modal">
@@ -22,6 +21,7 @@
 </template>
 
 <script>
+    /* global CanvasJS */
     import axios from 'axios';
     import moment from 'moment';
 
@@ -38,8 +38,8 @@
             }
         },
         mounted: function() {
-            if(this.options.type === 'temp') {
-                axios.get('/api/chart/'+this.options.field+'/'+this.options.time).then(response => (this.data = response.data));
+            if (this.options.type === 'temp') {
+                axios.get('/api/chart/' + this.options.field + '/' + this.options.time).then(response => (this.data = response.data));
                 axios.get('/api/minmax/tempf').then(response => (this.minmax = response.data));
             }
 

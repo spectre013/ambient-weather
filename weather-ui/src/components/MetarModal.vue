@@ -238,7 +238,7 @@
             },
             getData: function(type) {
                 for (let i = 0; i< this.metar[type].length; i++) {
-                    if(this.metar[type][i].hasOwnProperty('prefix')) {
+                    if(Object.prototype.hasOwnProperty.call(this.metar[type][i],'prefix')) {
                         if(this.metar[type][i].prefix !== "@") {
                             return this.metar[type][i];
                         }
