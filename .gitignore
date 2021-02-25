@@ -1,0 +1,4 @@
+node_modules
+.env
+client-0.0.5.jar
+weather.db
