@@ -83,7 +83,7 @@ func main() {
 	// Dont tweet if we are dev
 	if os.Getenv("LOGLEVEL") != "Debug" {
 		s := gocron.NewScheduler(loc)
-		s.Every(1).Hour().StartImmediately().Do(sendUpdate)
+		s.Every(1).Hour().StartAt(time.Now()).Do(sendUpdate)
 		if err != nil {
 			logger.Error(err)
 		}
@@ -692,7 +692,7 @@ func calculateStats(r Record) {
 		val := StatValue{}
 		v.Query = strings.Replace(v.Query, "?", "'%s'", -1)
 		v.Query = fmt.Sprintf(v.Query, v.Params[0], v.Params[1])
-		logger.Debug(v.Query)
+		//logger.Debug(v.Query)
 		rows := db.QueryRow(v.Query)
 		var err error
 		if strings.Contains(k, "avg") || strings.Contains(k, "lightning") {
@@ -721,15 +721,15 @@ func calculateStats(r Record) {
 		update := checkStat(k)
 		if update {
 			updateQuery := fmt.Sprintf("update stats set date = '%s', value=%.2f where id = '%s'", formatDate(stat.Date), stat.Value, stat.ID)
-			logger.Debug(updateQuery)
+			//logger.Debug(updateQuery)
 			_, err := tx.Exec(updateQuery)
 			if err != nil {
 				logger.Error(err)
 			}
 		} else {
 			updateQuery := fmt.Sprintf("insert into stats (id,date,value) values ('%s', '%s' ,%.2f)", stat.ID, formatDate(stat.Date), stat.Value)
-			logger.Debug(updateQuery)
-			_, err := db.Exec(updateQuery)
+			//logger.Debug(updateQuery)
+			_, err := tx.Exec(updateQuery)
 			if err != nil {
 				logger.Error(err)
 			}

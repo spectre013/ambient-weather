@@ -10,7 +10,7 @@ const api = new AmbientWeatherApi({
     apiKey: process.env.AMBIENT_WEATHER_API_KEY,
     applicationKey: process.env.AMBIENT_WEATHER_APPLICATION_KEY
 });
-console.log("Sending data to ",process.env.SERVER)
+
 api.connect()
 api.on('connect', () => console.log('Connected to Ambient Weather Realtime API!'));
 api.on('subscribed', res => {
@@ -28,6 +28,7 @@ api.subscribe(process.env.AMBIENT_WEATHER_API_KEY);
 
 
 function update(data) {
+    console.log(data)
     const randomNumber = Math.floor(Math.random() * 40) - 20;
     let d = {
         date: moment(data.dateutc).local().format("YYYY-MM-DDTHH:mm:ssZ"),
@@ -69,16 +70,14 @@ function update(data) {
         battlightning: data.batt_lightning
     };
     let options = {
-        uri: process.env.SERVER+'/api/apiin',
+        uri: 'http://localhost:3000/api/apiin',
         method: 'POST',
         json: d
     };
 
     request(options, function (error, response, body) {
         if (!error && response.statusCode == 200) {
-            console.log(body) // Print the shortened url.
-        } else {
-            console.log(error);
+            //console.log(body.id) // Print the shortened url.
         }
     });
     console.log(d.date, d.tempf+'°F', d.humidity+'%');
