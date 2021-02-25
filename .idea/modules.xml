@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/darksky.iml" filepath="$PROJECT_DIR$/darksky.iml" />
+      <module fileurl="file://$USER_HOME$/go/src/dataconvert/dataconvert.iml" filepath="$USER_HOME$/go/src/dataconvert/dataconvert.iml" />
     </modules>
   </component>
 </project>

@@ -4,6 +4,7 @@
   "description": "",
   "main": "data.js",
   "scripts": {
+    "start": "node data.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -13,6 +14,7 @@
     "dotenv": "^8.2.0",
     "moment": "^2.26.0",
     "mysql2": "^1.7.0",
-    "pm2": "^4.4.0"
+    "pm2": "^4.4.0",
+    "request": "^2.88.2"
   }
 }

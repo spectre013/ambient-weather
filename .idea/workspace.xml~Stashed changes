@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="a921439e-ac2f-4356-800f-ed90ec624bb1" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+    <list default="true" id="c913d101-cae1-4648-baed-7dcf5f7db781" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/../Weather34-AuroraMKII/Weather34-AuroraMKII.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Weather34-AuroraMKII/request.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/ambient-weather.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Weather34-AuroraMKII/console-settings.php" beforeDir="false" afterPath="$PROJECT_DIR$/../Weather34-AuroraMKII/console-settings.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Weather34-AuroraMKII/livedata.php" beforeDir="false" afterPath="$PROJECT_DIR$/../Weather34-AuroraMKII/livedata.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -14,10 +22,7 @@
   </component>
   <component name="GOROOT" url="file:///usr/local/opt/go/libexec" />
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-  </component>
-  <component name="GitToolBoxStore">
-    <option name="projectConfigVersion" value="2" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../Weather34-AuroraMKII" />
   </component>
   <component name="GoLibraries">
     <option name="indexEntireGoPath" value="false" />
@@ -26,7 +31,7 @@
     <option name="context" value="kubernetes-admin@kubernetes" />
     <option name="namespace" value="default" />
   </component>
-  <component name="ProjectId" id="1nRahKLpgOr2xiOFfmUvaW0L2wt" />
+  <component name="ProjectId" id="1n15D9BsbVdFUALt97VEIZsr0Nw" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -35,51 +40,47 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="configurable..is.expanded" value="false" />
-    <property name="configurable.GoLibrariesConfigurable.is.expanded" value="true" />
     <property name="go.import.settings.migrated" value="true" />
+    <property name="go.sdk.automatically.set" value="true" />
     <property name="go.tried.to.enable.integration.vgo.integrator" value="true" />
     <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
     <property name="node.js.path.for.package.tslint" value="project" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="nodejs_package_manager_path" value="npm" />
     <property name="project.structure.last.edited" value="Modules" />
-    <property name="project.structure.proportion" value="0.15" />
-    <property name="project.structure.side.proportion" value="0.2" />
-    <property name="settings.editor.selected.configurable" value="com.goide.configuration.GoLibrariesConfigurableProvider" />
+    <property name="project.structure.proportion" value="0.0" />
+    <property name="project.structure.side.proportion" value="0.0" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
-  <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/weather-data" />
-      <recent name="$PROJECT_DIR$/weather-historic" />
-      <recent name="$PROJECT_DIR$/weather-server" />
-      <recent name="$PROJECT_DIR$" />
-    </key>
-  </component>
-  <component name="RubyModuleManagerSettings">
-    <option name="blackListedRootsPaths">
-      <list>
-        <option value="$PROJECT_DIR$" />
-        <option value="$PROJECT_DIR$/../Weather34-AuroraMKII" />
-      </list>
-    </option>
+  <component name="RunManager">
+    <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
+      <option name="arquillianRunConfiguration">
+        <value>
+          <option name="containerStateName" value="" />
+        </value>
+      </option>
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="project-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="a921439e-ac2f-4356-800f-ed90ec624bb1" name="Default Changelist" comment="" />
-      <created>1611355476018</created>
+      <changelist id="c913d101-cae1-4648-baed-7dcf5f7db781" name="Default Changelist" comment="" />
+      <created>1610544635919</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1611355476018</updated>
-      <workItem from="1611355478041" duration="776000" />
-      <workItem from="1614125921818" duration="2455000" />
-      <workItem from="1614186646848" duration="4125000" />
-      <workItem from="1614203429020" duration="4510000" />
+      <updated>1610544635919</updated>
+      <workItem from="1610544638856" duration="557000" />
+      <workItem from="1611260714377" duration="8267000" />
     </task>
     <servers />
   </component>
@@ -87,13 +88,15 @@
     <option name="version" value="3" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
     <option name="oldMeFiltersMigrated" value="true" />
-  </component>
-  <component name="VgoProject">
-    <integration-enabled>true</integration-enabled>
-  </component>
-  <component name="XSLT-Support.FileAssociations.UIState">
-    <expand />
-    <select />
   </component>
 </project>
