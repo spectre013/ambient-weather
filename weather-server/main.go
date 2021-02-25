@@ -90,7 +90,7 @@ func main() {
 		s.StartAsync()
 	}
 	// Set up Alerts
-	go startAlerts()
+	//go startAlerts()
 
 	// Setup Web Sockets
 	hub := newHub()
@@ -652,9 +652,9 @@ func calculateStats(r Record) {
 				if (f == "dailyrainin" && t == "MAX") || f != "dailyrainin" {
 					if !strings.Contains(f, "lightning") {
 
-						q := fmt.Sprintf("select IFNULL(CAST(%s AS DECIMAL(10,2)),0.0) as value, `date` from records where `date` between ? and ? order by %s%s limit 0,1", f, f, order)
+						q := fmt.Sprintf("select '%s' as id, IFNULL(CAST(%s AS DECIMAL(10,2)),0.0) as value, `date` from records where `date` between ? and ? order by %s%s limit 0,1",key, f, f, order)
 						if t == "AVG" {
-							q = fmt.Sprintf("select IFNULL(CAST(%s(%s) AS DECIMAL(10,2)),0.0) as value from records where `date` between ? and ? order by %s limit 0,1", t, f, f)
+							q = fmt.Sprintf("select '%s' as id,  IFNULL(CAST(%s(%s) AS DECIMAL(10,2)),0.0) as value from records where `date` between ? and ? order by %s limit 0,1", key, t, f, f)
 						}
 						queries[key] = Query{
 							Query:  q,
@@ -666,13 +666,13 @@ func calculateStats(r Record) {
 				if strings.Contains(f, "lightning") && t == "MAX" {
 					q := ""
 					if p == "month" || p == "year" {
-						q = `
-						SELECT SUM(A.value) as value 
+						q = fmt.Sprintf(`
+						SELECT '%s' as id, SUM(A.value) as value, date
 						FROM (SELECT DATE_FORMAT(date,'%%Y-%%m-%%d') as ldate, MAX(lightningday) value FROM records where date between ? and ? GROUP BY ldate) A
 						GROUP BY MONTH(A.ldate) order by MONTH(A.ldate) desc limit 0,1
-						`
+						`,key)
 					} else {
-						q = fmt.Sprintf(`SELECT lightningday value FROM records where date between ? and ? order by value desc limit 0,1`)
+						q = fmt.Sprintf(`SELECT '%s' as id,lightningday as value FROM records where date between ? and ? order by value desc limit 0,1`,key)
 					}
 					queries[key] = Query{
 						Query:  q,
@@ -684,54 +684,57 @@ func calculateStats(r Record) {
 		}
 	}
 	start := time.Now()
-
+	tx, err := db.Begin()
+	if err != nil {
+		logger.Error(err)
+	}
 	for k, v := range queries {
-		val := StatValue{}
+		v.Query = strings.Replace(v.Query, "%", "%%", -1)
 		v.Query = strings.Replace(v.Query, "?", "'%s'", -1)
-		v.Query = fmt.Sprintf(v.Query, v.Params[0], v.Params[1])
-		logger.Debug(v.Query)
-		rows := db.QueryRow(v.Query)
-		var err error
-		if strings.Contains(k, "avg") || strings.Contains(k, "lightning") {
-			err = rows.Scan(&val.Value)
-		} else {
-			err = rows.Scan(&val.Value, &val.Date)
-		}
-		if err != nil {
-			if err == sql.ErrNoRows {
-				logger.Error("Zero Rows Found", v.Query)
-			} else {
-				logger.Error("Scan: %v", err)
-				logger.Error("SQL: %s", v.Query)
-			}
+		v.Query = fmt.Sprintf(v.Query, formatDate(v.Params[0]), formatDate(v.Params[1]))
+		d:= "dest.date = src.date,"
+		if strings.Contains(k,"avg") {
+			d = ""
 		}
 
-		if strings.Contains(k, "avg") || strings.Contains(k, "lightning") {
-			val.Date = time.Now()
-		}
-		stat := Stat{
-			ID:    k,
-			Date:  val.Date,
-			Value: val.Value,
-		}
 
 		update := checkStat(k)
 		if update {
-			updateQuery := fmt.Sprintf("update stats set date = '%s', value=%.2f where id = '%s'", formatDate(stat.Date), stat.Value, stat.ID)
-			logger.Debug(updateQuery)
-			_, err := db.Exec(updateQuery)
+			updateQuery := fmt.Sprintf(`
+				UPDATE
+					stats AS dest,
+					(
+						%s
+					) AS src
+				SET
+					%s
+					dest.value = src.value
+				WHERE
+					dest.id = '%s';
+			`,v.Query,d,k)
+			//logger.Debug(updateQuery)
+			_, err := tx.Exec(updateQuery)
 			if err != nil {
+				logger.Debug(updateQuery)
 				logger.Error(err)
 			}
 		} else {
-			updateQuery := fmt.Sprintf("insert into stats (id,date,value) values ('%s', '%s' ,%.2f)", stat.ID, formatDate(stat.Date), stat.Value)
-			logger.Debug(updateQuery)
-			_, err := db.Exec(updateQuery)
+			updateQuery := fmt.Sprintf(`
+				insert into stats (id,value,date)
+				%s
+			`,k)
+			//logger.Debug(updateQuery)
+			_, err := tx.Exec(updateQuery)
 			if err != nil {
 				logger.Error(err)
 			}
 		}
 	}
+	err = tx.Commit()
+	if err != nil {
+		logger.Error(err)
+	}
+
 
 	elapsed := time.Since(start)
 	log.Printf("Update took %s", elapsed)
