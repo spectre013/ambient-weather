@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="ProjectModuleManager">
-    <modules>
-      <module fileurl="file://$PROJECT_DIR$/darksky.iml" filepath="$PROJECT_DIR$/darksky.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../go/src/dataconvert/dataconvert.iml" filepath="$PROJECT_DIR$/../go/src/dataconvert/dataconvert.iml" />
-    </modules>
-  </component>
-</project>
