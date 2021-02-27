@@ -1,8 +1,12 @@
 import Vue from 'vue';
-import App from './App.vue';
 import computed from './mixins/temperature';
 import VueNativeSock from 'vue-native-websocket'
 import store from './store/index'
+import VueRouter from 'vue-router'
+
+import App from './App.vue';
+import Home from './components/Home.vue';
+import Forecast from "./components/Forecast";
 
 
 Vue.config.productionTip = false
@@ -16,7 +20,7 @@ Vue.config.ignoredElements = [/^darksky/,/^temp/,/^weather34/,/^span/,'oorange',
 'stationid','yellow','green','darkskytempwindhome','darkskyiconcurrent','darkskyrainhome1','unit','blue1','windunit','gust','purpleu','orange1','uv','topbarmetricc',
   'topbarimperialf','topbarimperial','topbarmetric'];
 
-
+Vue.use(VueRouter)
 Vue.mixin(computed);
 let wsurl = 'wss://'+window.location.host;
 if(window.location.protocol === 'http:') {
@@ -30,7 +34,18 @@ Vue.use(VueNativeSock, wsurl, {
 });
 
 
+const routes = [
+  { path: '/', component: Home },
+  { path: '/forecast', component: Forecast },
+];
+
+export default routes;
+
+const router = new VueRouter({mode: 'history', routes});
+
 new Vue({
-  store: store,
+  router,
+  store,
   render: h => h(App),
 }).$mount('#app')
+
