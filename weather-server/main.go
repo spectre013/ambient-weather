@@ -7,9 +7,9 @@ import (
 	"github.com/IvanMenshykov/MoonPhase"
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/go-co-op/gocron"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
+	_ "github.com/lib/pq"
 	"io/ioutil"
 	"log"
 	"math"
@@ -55,12 +55,17 @@ func main() {
 	logger.Info("Setting Debug Level to ", logLevel)
 	logger.SetLevel(logLevel)
 
-	dburi := fmt.Sprintf("%s:%s@tcp(%s:3306)/%s?charset=utf8&parseTime=true&loc=Local", os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), os.Getenv("DB_DATABASE"))
-	db, err = sql.Open("mysql", dburi)
+	dburi := fmt.Sprintf("user=%s password=%s host=%s port=5432 dbname=%s sslmode=disable", os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), os.Getenv("DB_DATABASE"))
+	db, err = sql.Open("postgres", dburi)
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
+
+	err = db.Ping()
+	if err != nil {
+		panic(err)
+	}
 
 	loc, err = time.LoadLocation("America/Denver")
 	if err != nil {
@@ -83,7 +88,7 @@ func main() {
 	// Dont tweet if we are dev
 	if os.Getenv("LOGLEVEL") != "Debug" {
 		s := gocron.NewScheduler(loc)
-		s.Every(1).Hour().StartImmediately().Do(sendUpdate)
+		//s.Every(1).Hour().StartImmediately().Do(sendUpdate)
 		if err != nil {
 			logger.Error(err)
 		}
@@ -326,10 +331,10 @@ func alltime(w http.ResponseWriter, r *http.Request) {
 		Value float64 `json:"value"`
 	}
 	rt := Result{}
-	sel := fmt.Sprintf("%s as value,`date`", t)
+	sel := fmt.Sprintf("%s as value,recorded", t)
 	orderby := fmt.Sprintf("%s%s ", t, order)
 
-	query := fmt.Sprintf("select %s from records order by %s limit 0,1", sel, orderby)
+	query := fmt.Sprintf("select %s from records order by %s limit 1", sel, orderby)
 	logger.Info(query)
 	rows := db.QueryRow(query)
 	err := rows.Scan(&rt.Value, &rt.Date)
@@ -392,7 +397,7 @@ func trend(w http.ResponseWriter, r *http.Request) {
 			logger.Error("Scan: %v", err)
 		}
 	}
-	currentQuery := "select id,mac,date,baromabsin,baromrelin,battout,batt1,Batt2,Batt3,Batt4,Batt5,Batt6,Batt7,Batt8,Batt9,Batt10,co2,dailyrainin,dewpoint,eventrainin,feelslike,hourlyrainin,humidity,humidity1,humidity2,humidity3,humidity4,humidity5,humidity6,humidity7,humidity8,humidity9,humidity10,humidityin,lastrain,maxdailygust,relay1,relay2,relay3,relay4,relay5,relay6,relay7,relay8,relay9,relay10,monthlyrainin,solarradiation,tempf,temp1f,temp2f,temp3f,temp4f,temp5f,temp6f,temp7f,temp8f,temp9f,temp10f,tempinf,totalrainin,uv,weeklyrainin,winddir,windgustmph,windgustdir,windspeedmph,yearlyrainin,hourlyrain,lightningday,lightninghour,lightningtime,lightningdistance,battlightning from records order by date desc limit 0,1"
+	currentQuery := "select id,mac,date,baromabsin,baromrelin,battout,batt1,Batt2,Batt3,Batt4,Batt5,Batt6,Batt7,Batt8,Batt9,Batt10,co2,dailyrainin,dewpoint,eventrainin,feelslike,hourlyrainin,humidity,humidity1,humidity2,humidity3,humidity4,humidity5,humidity6,humidity7,humidity8,humidity9,humidity10,humidityin,lastrain,maxdailygust,relay1,relay2,relay3,relay4,relay5,relay6,relay7,relay8,relay9,relay10,monthlyrainin,solarradiation,tempf,temp1f,temp2f,temp3f,temp4f,temp5f,temp6f,temp7f,temp8f,temp9f,temp10f,tempinf,totalrainin,uv,weeklyrainin,winddir,windgustmph,windgustdir,windspeedmph,yearlyrainin,hourlyrain,lightningday,lightninghour,lightningtime,lightningdistance,battlightning from records order by date desc limit 1"
 	logger.Debug(currentQuery)
 	crows := db.QueryRow(currentQuery)
 	err = crows.Scan(&cr.ID, &cr.Mac, &cr.Date, &cr.Baromabsin, &cr.Baromrelin, &cr.Battout, &cr.Batt1, &cr.Batt2, &cr.Batt3, &cr.Batt4, &cr.Batt5, &cr.Batt6, &cr.Batt7, &cr.Batt8, &cr.Batt9, &cr.Batt10, &cr.Co2, &cr.Dailyrainin, &cr.Dewpoint, &cr.Eventrainin, &cr.Feelslike, &cr.Hourlyrainin, &cr.Humidity, &cr.Humidity1, &cr.Humidity2, &cr.Humidity3, &cr.Humidity4, &cr.Humidity5, &cr.Humidity6, &cr.Humidity7, &cr.Humidity8, &cr.Humidity9, &cr.Humidity10, &cr.Humidityin, &cr.Lastrain, &cr.Maxdailygust, &cr.Relay1, &cr.Relay2, &cr.Relay3, &cr.Relay4, &cr.Relay5, &cr.Relay6, &cr.Relay7, &cr.Relay8, &cr.Relay9, &cr.Relay10, &cr.Monthlyrainin, &cr.Solarradiation, &cr.Tempf, &cr.Temp1f, &cr.Temp2f, &cr.Temp3f, &cr.Temp4f, &cr.Temp5f, &cr.Temp6f, &cr.Temp7f, &cr.Temp8f, &cr.Temp9f, &cr.Temp10f, &cr.Tempinf, &cr.Totalrainin, &cr.Uv, &cr.Weeklyrainin, &cr.Winddir, &cr.Windgustmph, &cr.Windgustdir, &cr.Windspeedmph, &cr.Yearlyrainin, &cr.Hourlyrain, &cr.Lightningday, &cr.Lightninghour, &cr.Lightningtime, &cr.Lightningdistance, &cr.Battlightning)
@@ -453,10 +458,10 @@ func wind(w http.ResponseWriter, r *http.Request) {
 	var avg float64
 	var avgdir float64
 
-	maxSpeed := fmt.Sprintf("select windspeedmph as value, `date` from records where date BETWEEN '%s' AND '%s' order by windspeedmph desc limit 0,1", formatDate(end), formatDate(start))
-	maxGust := fmt.Sprintf("select windgustmph as value, `date` from records where date BETWEEN '%s' AND '%s' order by windgustmph desc limit 0,1", formatDate(end), formatDate(start))
-	avgSpeed := fmt.Sprintf("select AVG(windspeedmph) as value from records where date BETWEEN '%s' AND '%s'", formatDate(end), formatDate(start))
-	avgDir := fmt.Sprintf("select AVG(winddir) as value from records where date BETWEEN '%s' AND '%s'", formatDate(end), formatDate(start))
+	maxSpeed := fmt.Sprintf("select windspeedmph as value, recorded from records where recorded BETWEEN '%s' AND '%s' order by windspeedmph desc limit 1", formatDate(end), formatDate(start))
+	maxGust := fmt.Sprintf("select windgustmph as value, recorded from records where recorded BETWEEN '%s' AND '%s' order by windgustmph desc limit 1", formatDate(end), formatDate(start))
+	avgSpeed := fmt.Sprintf("select AVG(windspeedmph) as value from records where recorded BETWEEN '%s' AND '%s'", formatDate(end), formatDate(start))
+	avgDir := fmt.Sprintf("select AVG(winddir) as value from records where recorded BETWEEN '%s' AND '%s'", formatDate(end), formatDate(start))
 
 	logger.Debug(maxSpeed)
 	mrows := db.QueryRow(maxSpeed)
@@ -579,11 +584,11 @@ func makeRequest(url string, header map[string]string) ([]byte, error) {
 }
 
 func getCurrent() ([]byte, error) {
-	query := `select id,mac,date,baromabsin,baromrelin,battout,Batt1,Batt2,Batt3,Batt4,Batt5,Batt6,Batt7,Batt8,Batt9,Batt10,co2,dailyrainin,dewpoint,eventrainin,feelslike,
+	query := `select id,mac,recorded,baromabsin,baromrelin,battout,Batt1,Batt2,Batt3,Batt4,Batt5,Batt6,Batt7,Batt8,Batt9,Batt10,co2,dailyrainin,dewpoint,eventrainin,feelslike,
 				hourlyrainin,hourlyrain,humidity,humidity1,humidity2,humidity3,humidity4,humidity5,humidity6,humidity7,humidity8,humidity9,humidity10,humidityin,lastrain,
 				maxdailygust,relay1,relay2,relay3,relay4,relay5,relay6,relay7,relay8,relay9,relay10,monthlyrainin,solarradiation,tempf,temp1f,temp2f,temp3f,temp4f,temp5f,temp6f,temp7f,temp8f,temp9f,temp10f,
 				tempinf,totalrainin,uv,weeklyrainin,winddir,windgustmph,windgustdir,windspeedmph,yearlyrainin,battlightning,lightningday,lightninghour,lightningtime,lightningdistance 
-				from records order by date desc limit 0,1`
+				from records order by recorded desc limit 1`
 	rec := getRecord(query)
 
 	hourlyRain := getHourlyRain()
@@ -600,7 +605,7 @@ func getHourlyRain() float64 {
 	start := time.Now()
 	end := start.Add(-60 * time.Minute)
 	var max float64
-	query := fmt.Sprintf("select dailyrainin from records where date BETWEEN '%s' AND '%s' order by dailyrainin desc limit 0,1", formatDate(end), formatDate(start))
+	query := fmt.Sprintf("select dailyrainin from records where recorded BETWEEN '%s' AND '%s' order by dailyrainin desc limit 1", formatDate(end), formatDate(start))
 	logger.Debug(query)
 	crows := db.QueryRow(query)
 	err := crows.Scan(&max)
@@ -639,7 +644,7 @@ func calculateStats(r Record) {
 
 	types := []string{"MAX", "MIN", "AVG"}
 	periods := []string{"day", "yesterday", "month", "year"}
-	fields := []string{"tempf", "tempinf", "temp1f", "temp2f","temp3f", "baromrelin", "uv", "humidity", "windspeedmph", "windgustmph", "dewpoint", "humidityin", "humidity1", "humidity2","humidity3", "dailyrainin", "lightning"}
+	fields := []string{"tempf", "tempinf", "temp1f", "temp2f", "temp3f", "baromrelin", "uv", "humidity", "windspeedmph", "windgustmph", "dewpoint", "humidityin", "humidity1", "humidity2", "humidity3", "dailyrainin", "lightning"}
 	queries := make(map[string]Query)
 	for _, p := range periods {
 		for _, t := range types {
@@ -652,9 +657,9 @@ func calculateStats(r Record) {
 				if (f == "dailyrainin" && t == "MAX") || f != "dailyrainin" {
 					if !strings.Contains(f, "lightning") {
 
-						q := fmt.Sprintf("select '%s' as id, IFNULL(CAST(%s AS DECIMAL(10,2)),0.0) as value, `date` from records where `date` between ? and ? order by %s%s limit 0,1",key, f, f, order)
+						q := fmt.Sprintf("select '%s' as id, CAST(COALESCE(%s,0.0) AS decimal(10,2)) as value, recorded from records where recorded between ? and ? order by %s%s limit 1", key, f, f, order)
 						if t == "AVG" {
-							q = fmt.Sprintf("select '%s' as id,  IFNULL(CAST(%s(%s) AS DECIMAL(10,2)),0.0) as value from records where `date` between ? and ? order by %s limit 0,1", key, t, f, f)
+							q = fmt.Sprintf("select '%s' as id,  CAST(COALESCE(%s(%s),0.0) AS decimal(10,2)) as value from records where recorded between ? and ? limit 1", key, t, f)
 						}
 						queries[key] = Query{
 							Query:  q,
@@ -667,12 +672,12 @@ func calculateStats(r Record) {
 					q := ""
 					if p == "month" || p == "year" {
 						q = fmt.Sprintf(`
-						SELECT '%s' as id, SUM(A.value) as value, date
-						FROM (SELECT DATE_FORMAT(date,'%%Y-%%m-%%d') as ldate, MAX(lightningday) value FROM records where date between ? and ? GROUP BY ldate) A
-						GROUP BY MONTH(A.ldate) order by MONTH(A.ldate) desc limit 0,1
-						`,key)
+						SELECT '%s' as id, SUM(A.value) as value
+						FROM (SELECT TO_CHAR(recorded,'YYY-MM-DD') as ldate, CAST(COALESCE(MAX(lightningday),0.0) AS decimal(10,2)) as value FROM records where recorded between ? and ? GROUP BY ldate) A
+						GROUP BY A.ldate order by A.ldate desc limit 1
+						`, key)
 					} else {
-						q = fmt.Sprintf(`SELECT '%s' as id,lightningday as value FROM records where date between ? and ? order by value desc limit 0,1`,key)
+						q = fmt.Sprintf(`SELECT '%s' as id, CAST(COALESCE(lightningday,0.0) AS decimal(10,2)) as value, recorded FROM records where recorded between ? and ? order by value desc limit 1`, key)
 					}
 					queries[key] = Query{
 						Query:  q,
@@ -689,44 +694,47 @@ func calculateStats(r Record) {
 		logger.Error(err)
 	}
 	for k, v := range queries {
-		v.Query = strings.Replace(v.Query, "%", "%%", -1)
 		v.Query = strings.Replace(v.Query, "?", "'%s'", -1)
 		v.Query = fmt.Sprintf(v.Query, formatDate(v.Params[0]), formatDate(v.Params[1]))
-		d:= "dest.date = src.date,"
-		if strings.Contains(k,"avg") {
+		d := "recorded = src.recorded,"
+		if strings.Contains(k, "avg") || (strings.Contains(v.Query, "MAX(lightningday)")) {
 			d = ""
 		}
-
 
 		update := checkStat(k)
 		if update {
 			updateQuery := fmt.Sprintf(`
-				UPDATE
-					stats AS dest,
-					(
-						%s
-					) AS src
-				SET
+				UPDATE stats set
+				%s
+				value = src.value
+				from (
 					%s
-					dest.value = src.value
+					) AS src
 				WHERE
-					dest.id = '%s';
-			`,v.Query,d,k)
+					stats.id = '%s';
+			`, d, v.Query, k)
 			//logger.Debug(updateQuery)
 			_, err := tx.Exec(updateQuery)
 			if err != nil {
 				logger.Debug(updateQuery)
 				logger.Error(err)
+				break
 			}
 		} else {
+			insert := "insert into stats (id,value,recorded)"
+			if strings.Contains(k, "avg") || (strings.Contains(v.Query, "MAX(lightningday)")) {
+				insert = "insert into stats (id,value)"
+			}
 			updateQuery := fmt.Sprintf(`
-				insert into stats (id,value,date)
 				%s
-			`,k)
+				%s
+			`, insert, v.Query)
 			//logger.Debug(updateQuery)
 			_, err := tx.Exec(updateQuery)
 			if err != nil {
+				logger.Debug(updateQuery)
 				logger.Error(err)
+				break
 			}
 		}
 	}
@@ -734,7 +742,6 @@ func calculateStats(r Record) {
 	if err != nil {
 		logger.Error(err)
 	}
-
 
 	elapsed := time.Since(start)
 	log.Printf("Update took %s", elapsed)
@@ -760,9 +767,9 @@ func formatDate(date time.Time) string {
 	return date.Format(format)
 }
 func insertRecord(r Record) bool {
-	query := fmt.Sprintf(`insert into records (id,mac,date,baromabsin,baromrelin,battout,batt1,Batt2,Batt3,Batt4,Batt5,Batt6,Batt7,Batt8,Batt9,Batt10,co2,dailyrainin,dewpoint,eventrainin,feelslike,hourlyrainin,humidity,humidity1,humidity2,humidity3,humidity4,humidity5,humidity6,humidity7,humidity8,humidity9,humidity10,humidityin,lastrain,maxdailygust,relay1,relay2,relay3,relay4,relay5,relay6,relay7,relay8,relay9,relay10,monthlyrainin,solarradiation,tempf,temp1f,temp2f,temp3f,temp4f,temp5f,temp6f,temp7f,temp8f,temp9f,temp10f,tempinf,totalrainin,uv,weeklyrainin,winddir,windgustmph,windgustdir,windspeedmph,yearlyrainin,hourlyrain,lightningday,lightninghour,lightningtime,lightningdistance,battlightning) values
-			(%d,'%s','%s',%f,%f,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%f,%f,%f,%f,%f,%f,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,'%s',%f,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%d,%f,%d,%f,%f,%f,%d,%d,'%s',%f,%d)				
-	`, r.ID, r.Mac, formatDate(r.Date), r.Baromabsin, r.Baromrelin, r.Battout, r.Batt1, r.Batt2, r.Batt3, r.Batt4, r.Batt5, r.Batt6, r.Batt7, r.Batt8, r.Batt9, r.Batt10, r.Co2, r.Dailyrainin, r.Dewpoint, r.Eventrainin, r.Feelslike, r.Hourlyrainin, r.Humidity, r.Humidity1, r.Humidity2, r.Humidity3, r.Humidity4, r.Humidity5, r.Humidity6, r.Humidity7, r.Humidity8, r.Humidity9, r.Humidity10, r.Humidityin, formatDate(r.Lastrain), r.Maxdailygust, r.Relay1, r.Relay2, r.Relay3, r.Relay4, r.Relay5, r.Relay6, r.Relay7, r.Relay8, r.Relay9, r.Relay10, r.Monthlyrainin, r.Solarradiation, r.Tempf, r.Temp1f, r.Temp2f, r.Temp3f, r.Temp4f, r.Temp5f, r.Temp6f, r.Temp7f, r.Temp8f, r.Temp9f, r.Temp10f, r.Tempinf, r.Totalrainin, r.Uv, r.Weeklyrainin, r.Winddir, r.Windgustmph, r.Windgustdir, r.Windspeedmph, r.Yearlyrainin, r.Hourlyrain, r.Lightningday, r.Lightninghour, formatDate(r.Lightningtime), r.Lightningdistance, r.Battlightning)
+	query := fmt.Sprintf(`insert into records (id,mac,recorded,baromabsin,baromrelin,battout,batt1,Batt2,Batt3,Batt4,Batt5,Batt6,Batt7,Batt8,Batt9,Batt10,co2,dailyrainin,dewpoint,eventrainin,feelslike,hourlyrainin,humidity,humidity1,humidity2,humidity3,humidity4,humidity5,humidity6,humidity7,humidity8,humidity9,humidity10,humidityin,lastrain,maxdailygust,relay1,relay2,relay3,relay4,relay5,relay6,relay7,relay8,relay9,relay10,monthlyrainin,solarradiation,tempf,temp1f,temp2f,temp3f,temp4f,temp5f,temp6f,temp7f,temp8f,temp9f,temp10f,tempinf,totalrainin,uv,weeklyrainin,winddir,windgustmph,windgustdir,windspeedmph,yearlyrainin,hourlyrain,lightningday,lightninghour,lightningtime,lightningdistance,battlightning) values
+			(DEFAULT,'%s','%s',%f,%f,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%f,%f,%f,%f,%f,%f,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,'%s',%f,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%d,%f,%d,%f,%f,%f,%d,%d,'%s',%f,%d)				
+	`, r.Mac, formatDate(r.Date), r.Baromabsin, r.Baromrelin, r.Battout, r.Batt1, r.Batt2, r.Batt3, r.Batt4, r.Batt5, r.Batt6, r.Batt7, r.Batt8, r.Batt9, r.Batt10, r.Co2, r.Dailyrainin, r.Dewpoint, r.Eventrainin, r.Feelslike, r.Hourlyrainin, r.Humidity, r.Humidity1, r.Humidity2, r.Humidity3, r.Humidity4, r.Humidity5, r.Humidity6, r.Humidity7, r.Humidity8, r.Humidity9, r.Humidity10, r.Humidityin, formatDate(r.Lastrain), r.Maxdailygust, r.Relay1, r.Relay2, r.Relay3, r.Relay4, r.Relay5, r.Relay6, r.Relay7, r.Relay8, r.Relay9, r.Relay10, r.Monthlyrainin, r.Solarradiation, r.Tempf, r.Temp1f, r.Temp2f, r.Temp3f, r.Temp4f, r.Temp5f, r.Temp6f, r.Temp7f, r.Temp8f, r.Temp9f, r.Temp10f, r.Tempinf, r.Totalrainin, r.Uv, r.Weeklyrainin, r.Winddir, r.Windgustmph, r.Windgustdir, r.Windspeedmph, r.Yearlyrainin, r.Hourlyrain, r.Lightningday, r.Lightninghour, formatDate(r.Lightningtime), r.Lightningdistance, r.Battlightning)
 	logger.Debug(query)
 	_, err := db.Exec(query)
 	if err != nil {
@@ -779,7 +786,7 @@ func getRecord(sqlStatement string) Record {
 	err := rows.Scan(&r.ID, &r.Mac, &r.Date, &r.Baromabsin, &r.Baromrelin, &r.Battout, &r.Batt1, &r.Batt2, &r.Batt3, &r.Batt4, &r.Batt5, &r.Batt6, &r.Batt7, &r.Batt8, &r.Batt9, &r.Batt10, &r.Co2, &r.Dailyrainin, &r.Dewpoint, &r.Eventrainin, &r.Feelslike, &r.Hourlyrainin, &r.Hourlyrain, &r.Humidity, &r.Humidity1, &r.Humidity2, &r.Humidity3, &r.Humidity4, &r.Humidity5, &r.Humidity6, &r.Humidity7, &r.Humidity8, &r.Humidity9, &r.Humidity10, &r.Humidityin, &r.Lastrain, &r.Maxdailygust, &r.Relay1, &r.Relay2, &r.Relay3, &r.Relay4, &r.Relay5, &r.Relay6, &r.Relay7, &r.Relay8, &r.Relay9, &r.Relay10, &r.Monthlyrainin, &r.Solarradiation, &r.Tempf, &r.Temp1f, &r.Temp2f, &r.Temp3f, &r.Temp4f, &r.Temp5f, &r.Temp6f, &r.Temp7f, &r.Temp8f, &r.Temp9f, &r.Temp10f, &r.Tempinf, &r.Totalrainin, &r.Uv, &r.Weeklyrainin, &r.Winddir, &r.Windgustmph, &r.Windgustdir, &r.Windspeedmph, &r.Yearlyrainin, &r.Battlightning, &r.Lightningday, &r.Lightninghour, &r.Lightningtime, &r.Lightningdistance)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			logger.Error("Zero Rows Found", sqlStatement)
+			logger.Error("Zero Rows Found ", sqlStatement)
 		} else {
 			logger.Error("Scan: %v", err)
 		}
