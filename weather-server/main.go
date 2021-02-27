@@ -250,9 +250,9 @@ func chart(w http.ResponseWriter, r *http.Request) {
 	p := vars["period"]
 	t = cleanString(t)
 	dates := getTimeframe(p)
-	dateformat := "DATE_FORMAT(date,'%Y-%m-%d')"
+	dformat := "TO_CHAR(recorded,'YYY-MM-DD')"
 	if p == "day" || p == "yesterday" {
-		dateformat = "DATE_FORMAT(date,'%H:%d:%s')"
+		dformat = "TO_CHAR(recorded,'YYY-MM-DD HH24:MI:SS')"
 	}
 
 	type Chart struct {
@@ -267,12 +267,13 @@ func chart(w http.ResponseWriter, r *http.Request) {
 	rt := make([]Result, 0)
 	where := ""
 	if t == "dailyrainin" {
-		where = fmt.Sprintf("%s AS mmdd, max(%s) AS max", dateformat, t)
+		where = fmt.Sprintf("%s AS mmdd, max(%s) AS max", dformat, t)
 	} else {
-		where = fmt.Sprintf("%s AS mmdd, max(%s) AS max, min(%s) AS min", dateformat, t, t)
+		where = fmt.Sprintf("%s AS mmdd, max(%s) AS max, min(%s) AS min", dformat, t, t)
 	}
 
-	query := fmt.Sprintf("select %s from records where date BETWEEN '%s' AND '%s' group by mmdd order by mmdd", where, dates[0], dates[1])
+	query := fmt.Sprintf("select %s from records where recorded BETWEEN '%s' AND '%s' group by mmdd order by mmdd", where, formatDate(dates[0]), formatDate(dates[1]))
+	logger.Debug(query)
 	rows, err := db.Query(query)
 	if err != nil {
 		log.Println(err)
@@ -386,7 +387,7 @@ func trend(w http.ResponseWriter, r *http.Request) {
 	var avg float64
 	cr := Record{}
 
-	avgQuery := fmt.Sprintf("select %s from records where date BETWEEN '%s' AND '%s'", sel, formatDate(end), formatDate(start))
+	avgQuery := fmt.Sprintf("select %s from records where recorded BETWEEN '%s' AND '%s'", sel, formatDate(end), formatDate(start))
 	logger.Debug(avgQuery)
 	rows := db.QueryRow(avgQuery)
 	err := rows.Scan(&avg)
@@ -397,7 +398,7 @@ func trend(w http.ResponseWriter, r *http.Request) {
 			logger.Error("Scan: %v", err)
 		}
 	}
-	currentQuery := "select id,mac,date,baromabsin,baromrelin,battout,batt1,Batt2,Batt3,Batt4,Batt5,Batt6,Batt7,Batt8,Batt9,Batt10,co2,dailyrainin,dewpoint,eventrainin,feelslike,hourlyrainin,humidity,humidity1,humidity2,humidity3,humidity4,humidity5,humidity6,humidity7,humidity8,humidity9,humidity10,humidityin,lastrain,maxdailygust,relay1,relay2,relay3,relay4,relay5,relay6,relay7,relay8,relay9,relay10,monthlyrainin,solarradiation,tempf,temp1f,temp2f,temp3f,temp4f,temp5f,temp6f,temp7f,temp8f,temp9f,temp10f,tempinf,totalrainin,uv,weeklyrainin,winddir,windgustmph,windgustdir,windspeedmph,yearlyrainin,hourlyrain,lightningday,lightninghour,lightningtime,lightningdistance,battlightning from records order by date desc limit 1"
+	currentQuery := "select id,mac,recorded,baromabsin,baromrelin,battout,batt1,Batt2,Batt3,Batt4,Batt5,Batt6,Batt7,Batt8,Batt9,Batt10,co2,dailyrainin,dewpoint,eventrainin,feelslike,hourlyrainin,humidity,humidity1,humidity2,humidity3,humidity4,humidity5,humidity6,humidity7,humidity8,humidity9,humidity10,humidityin,lastrain,maxdailygust,relay1,relay2,relay3,relay4,relay5,relay6,relay7,relay8,relay9,relay10,monthlyrainin,solarradiation,tempf,temp1f,temp2f,temp3f,temp4f,temp5f,temp6f,temp7f,temp8f,temp9f,temp10f,tempinf,totalrainin,uv,weeklyrainin,winddir,windgustmph,windgustdir,windspeedmph,yearlyrainin,hourlyrain,lightningday,lightninghour,lightningtime,lightningdistance,battlightning from records order by recorded desc limit 1"
 	logger.Debug(currentQuery)
 	crows := db.QueryRow(currentQuery)
 	err = crows.Scan(&cr.ID, &cr.Mac, &cr.Date, &cr.Baromabsin, &cr.Baromrelin, &cr.Battout, &cr.Batt1, &cr.Batt2, &cr.Batt3, &cr.Batt4, &cr.Batt5, &cr.Batt6, &cr.Batt7, &cr.Batt8, &cr.Batt9, &cr.Batt10, &cr.Co2, &cr.Dailyrainin, &cr.Dewpoint, &cr.Eventrainin, &cr.Feelslike, &cr.Hourlyrainin, &cr.Humidity, &cr.Humidity1, &cr.Humidity2, &cr.Humidity3, &cr.Humidity4, &cr.Humidity5, &cr.Humidity6, &cr.Humidity7, &cr.Humidity8, &cr.Humidity9, &cr.Humidity10, &cr.Humidityin, &cr.Lastrain, &cr.Maxdailygust, &cr.Relay1, &cr.Relay2, &cr.Relay3, &cr.Relay4, &cr.Relay5, &cr.Relay6, &cr.Relay7, &cr.Relay8, &cr.Relay9, &cr.Relay10, &cr.Monthlyrainin, &cr.Solarradiation, &cr.Tempf, &cr.Temp1f, &cr.Temp2f, &cr.Temp3f, &cr.Temp4f, &cr.Temp5f, &cr.Temp6f, &cr.Temp7f, &cr.Temp8f, &cr.Temp9f, &cr.Temp10f, &cr.Tempinf, &cr.Totalrainin, &cr.Uv, &cr.Weeklyrainin, &cr.Winddir, &cr.Windgustmph, &cr.Windgustdir, &cr.Windspeedmph, &cr.Yearlyrainin, &cr.Hourlyrain, &cr.Lightningday, &cr.Lightninghour, &cr.Lightningtime, &cr.Lightningdistance, &cr.Battlightning)
