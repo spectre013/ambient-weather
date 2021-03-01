@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-docker build . --no-cache -t docker.zoms.net/weather-ui:1.1
+docker build . --no-cache -t docker.zoms.net/production/weather-ui:1.5
 if [[ $1 == 'push' ]]
 then
-    docker push docker.zoms.net/weather-ui:1.1
+    docker push docker.zoms.net/production/weather-ui:1.5
 fi

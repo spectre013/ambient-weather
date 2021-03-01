@@ -2,8 +2,13 @@
     <div class="weather-item">
         <div class="chartforecast">
         <span class="yearpopup">
-            <span class="yearpopup"> <a alt="Indoor Guide" title="Indoor Guide" href="homeindoor.php" data-lity=""><svg viewBox="0 0 32 32" width="8" height="8" fill="none" stroke="#777" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"><path d="M14 9 L3 9 3 29 23 29 23 18 M18 4 L28 4 28 14 M28 4 L14 18"></path></svg> Indoor Guide </a></span>
-            <span class="yearpopup"> <a alt="Moon Info" title="Moon Info" href="mooninfo.php" data-lity=""><svg viewBox="0 0 32 32" width="8" height="8" fill="none" stroke="#777" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"><path d="M14 9 L3 9 3 29 23 29 23 18 M18 4 L28 4 28 14 M28 4 L14 18"></path></svg> Moon Info </a></span></span></div><span class="moduletitle">Moon Phase</span>
+<!--            <span class="yearpopup"> -->
+<!--                <a alt="Indoor Guide" title="Indoor Guide" href="homeindoor.php" data-lity=""><svg viewBox="0 0 32 32" width="8" height="8" fill="none" stroke="#777" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"><path d="M14 9 L3 9 3 29 23 29 23 18 M18 4 L28 4 28 14 M28 4 L14 18"></path></svg> Indoor Guide </a>-->
+<!--            </span>-->
+<!--            <span class="yearpopup"> <a alt="Moon Info" title="Moon Info" href="mooninfo.php" data-lity=""><svg viewBox="0 0 32 32" width="8" height="8" fill="none" stroke="#777" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"><path d="M14 9 L3 9 3 29 23 29 23 18 M18 4 L28 4 28 14 M28 4 L14 18"></path></svg> Moon Info </a></span>-->
+        </span>
+        </div>
+        <span class="moduletitle">Moon Phase</span>
         <div id="dldata" v-if="astro">
             <div class="updatedtime1"><span><svg id="i-info" viewBox="0 0 32 32" width="6" height="6" fill="#9aba2f" stroke="#9aba2f" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"><path d="M16 14 L16 23 M16 8 L16 10"></path><circle cx="16" cy="16" r="14"></circle>
                 </svg> {{ now }}</span></div>

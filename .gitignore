@@ -25,3 +25,5 @@ yarn-error.log*
 *.sw?
 
 weather-server/ambient-weather
+
+.idea

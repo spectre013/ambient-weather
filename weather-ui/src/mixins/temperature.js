@@ -55,7 +55,7 @@ export default {
             if(units === 'metric') {
                 return (rn * 25.4).toFixed(2);
             }
-            return rn;
+            return rn.toFixed(2);
         },
         baroDisplay: function(baro, units = 'imperial') {
           let b = baro;

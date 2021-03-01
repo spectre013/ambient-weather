@@ -2,12 +2,29 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="00d9fd06-6f56-4407-9a94-e9140b8ab9d5" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/weather-ui/LICENSE.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/weather-ui/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/weather-ui/public/img/lightning.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/weather-ui/src/components/Home.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/weather-ui/src/components/Lightining.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/weather-ui/src/components/RainfallAlmanac.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ambient-weather.iml" beforeDir="false" afterPath="$PROJECT_DIR$/ambient-weather.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/weather-ui/.dockerignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/weather-ui/build.sh" beforeDir="false" afterPath="$PROJECT_DIR$/weather-ui/build.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/weather-ui/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/weather-ui/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/weather-ui/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/weather-ui/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/weather-ui/src/App.vue" beforeDir="false" afterPath="$PROJECT_DIR$/weather-ui/src/App.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/weather-ui/src/components/Barometer.vue" beforeDir="false" afterPath="$PROJECT_DIR$/weather-ui/src/components/Barometer.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/weather-ui/src/components/Forecast.vue" beforeDir="false" afterPath="$PROJECT_DIR$/weather-ui/src/components/Forecast.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/weather-ui/src/components/Moon.vue" beforeDir="false" afterPath="$PROJECT_DIR$/weather-ui/src/components/Moon.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/weather-ui/src/components/Radar.vue" beforeDir="false" afterPath="$PROJECT_DIR$/weather-ui/src/components/Radar.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/weather-ui/src/components/RainfallDetails.vue" beforeDir="false" afterPath="$PROJECT_DIR$/weather-ui/src/components/RainfallDetails.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/weather-ui/src/components/Temperature.vue" beforeDir="false" afterPath="$PROJECT_DIR$/weather-ui/src/components/Temperature.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/weather-ui/src/components/Time.vue" beforeDir="false" afterPath="$PROJECT_DIR$/weather-ui/src/components/Time.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/weather-ui/src/components/Uv.vue" beforeDir="false" afterPath="$PROJECT_DIR$/weather-ui/src/components/Uv.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/weather-ui/src/components/Wind.vue" beforeDir="false" afterPath="$PROJECT_DIR$/weather-ui/src/components/Wind.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/weather-ui/src/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/weather-ui/src/main.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/weather-ui/src/mixins/temperature.js" beforeDir="false" afterPath="$PROJECT_DIR$/weather-ui/src/mixins/temperature.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

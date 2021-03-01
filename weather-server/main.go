@@ -526,7 +526,6 @@ func minmax(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	f := vars["field"]
 	s := getStats()
-
 	minmax := make(map[string]map[string]StatValue)
 
 	for _, v := range s {
@@ -792,6 +791,7 @@ func getRecord(sqlStatement string) Record {
 			logger.Error("Scan: %v", err)
 		}
 	}
+	fmt.Println(r.Date)
 
 	return r
 }

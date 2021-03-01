@@ -1,15 +1,15 @@
 <template>
     <div class="weather-item">
         <div class="chartforecast">
-        <span class="yearpopup">
-            <span class="yearpopup">
-                <a alt="UV Guide" title="UV Guide" href="uvindex.php" data-lity="">
-                    <svg viewBox="0 0 32 32" width="8" height="8" fill="none" stroke="#777" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"> <path d="M14 9 L3 9 3 29 23 29 23 18 M18 4 L28 4 28 14 M28 4 L14 18"></path>
-                    </svg> UV Guide </a></span> <span class="yearpopup"><a alt="UV Almanac" title="UV Almanac" href="uvalmanac.php" data-lity=""> <svg viewBox="0 0 32 32" width="8" height="8" fill="none" stroke="#777" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
-                        <path d="M14 9 L3 9 3 29 23 29 23 18 M18 4 L28 4 28 14 M28 4 L14 18"></path>
-                    </svg> UV Almanac </a></span><span class="yearpopup"> <a alt="Solar Almanac" title="Solar Almanac" href="solaralmanac.php" data-lity=""><svg viewBox="0 0 32 32" width="8" height="8" fill="none" stroke="#777" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
-                        <path d="M14 9 L3 9 3 29 23 29 23 18 M18 4 L28 4 28 14 M28 4 L14 18"></path>
-                    </svg> Solar Almanac </a></span></span>
+<!--        <span class="yearpopup">-->
+<!--            <span class="yearpopup">-->
+<!--                <a alt="UV Guide" title="UV Guide" href="uvindex.php" data-lity="">-->
+<!--                    <svg viewBox="0 0 32 32" width="8" height="8" fill="none" stroke="#777" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"> <path d="M14 9 L3 9 3 29 23 29 23 18 M18 4 L28 4 28 14 M28 4 L14 18"></path>-->
+<!--                    </svg> UV Guide </a></span> <span class="yearpopup"><a alt="UV Almanac" title="UV Almanac" href="uvalmanac.php" data-lity=""> <svg viewBox="0 0 32 32" width="8" height="8" fill="none" stroke="#777" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">-->
+<!--                        <path d="M14 9 L3 9 3 29 23 29 23 18 M18 4 L28 4 28 14 M28 4 L14 18"></path>-->
+<!--                    </svg> UV Almanac </a></span><span class="yearpopup"> <a alt="Solar Almanac" title="Solar Almanac" href="solaralmanac.php" data-lity=""><svg viewBox="0 0 32 32" width="8" height="8" fill="none" stroke="#777" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">-->
+<!--                        <path d="M14 9 L3 9 3 29 23 29 23 18 M18 4 L28 4 28 14 M28 4 L14 18"></path>-->
+<!--                    </svg> Solar Almanac </a></span></span>-->
         </div>
         <span class="moduletitle">UV | Solar Radiation</span>
         <div id="uvi" v-if="current && minmax && astro">

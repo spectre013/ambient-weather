@@ -139,7 +139,7 @@ export default {
       return moment().format(format);
     },
     now: function (date) {
-        return moment(date).local().format('HH:mm:ss');
+        return moment(date).utc().format('HH:mm:ss');
     },
     toCelcius: function(temp,units) {
         if(units === 'imperial') {
