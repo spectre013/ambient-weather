@@ -1,6 +1,6 @@
 const moment = require('moment');
 const AmbientWeatherApi = require("ambient-weather-api");
-const request = require('request');
+const axios = require('axios');
 
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
@@ -52,8 +52,10 @@ function update(data) {
         uv: data.uv ,
         temp1f: data.temp1f ,
         temp2f: data.temp2f ,
-        humidity1: data.humidity1 ,
-        humidity2: data.humidity2 ,
+        temp3f: data.temp3f ,
+        humidity1: data.humidity1,
+        humidity2: data.humidity2,
+        humidity3: data.humidity3,
         solarradiation: data.solarradiation ,
         feelsLike: data.feelsLike ,
         dewPoint: data.dewPoint ,
@@ -68,18 +70,13 @@ function update(data) {
         battin: data.battin,
         battlightning: data.batt_lightning
     };
-    let options = {
-        uri: process.env.SERVER+'/api/apiin',
-        method: 'POST',
-        json: d
-    };
 
-    request(options, function (error, response, body) {
-        if (!error && response.statusCode == 200) {
-            console.log(body) // Print the shortened url.
-        } else {
-            console.log(error);
-        }
-    });
+    axios.post(process.env.SERVER+'/api/apiin', d)
+        .then((r) => {
+
+        }).catch((e) => {
+        console.log(e.message);
+    })
+
     console.log(d.date, d.tempf+'°F', d.humidity+'%');
 }

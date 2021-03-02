@@ -18,7 +18,7 @@ Vue.config.ignoredElements = [/^darksky/,/^temp/,/^weather34/,/^span/,'oorange',
   'smallrainunit2','rainratetextheading','maxred','hours','blueu','moonrisecolor','moonm','moonsetcolor','tgreen','topgreen1','smallwindunit','toporange1','minblue',
   'smalltempunit','smalltempunit2','smallrainunit','valuetext1','uviforecasthouryellow','trendmovementfallingx','redu','blue','articlegraph','uviforecasthourred','uviforecasthourorange',
 'stationid','yellow','green','darkskytempwindhome','darkskyiconcurrent','darkskyrainhome1','unit','blue1','windunit','gust','purpleu','orange1','uv','topbarmetricc',
-  'topbarimperialf','topbarimperial','topbarmetric'];
+  'topbarimperialf','topbarimperial','topbarmetric','strikeicon','laststrike'];
 
 Vue.use(VueRouter)
 Vue.mixin(computed);

@@ -7,7 +7,7 @@ import (
 //Stat Stat Table structure
 type Stat struct {
 	ID    string
-	Date  time.Time
+	Recorded  time.Time
 	Value float64
 }
 
@@ -22,7 +22,7 @@ type Stats struct {
 //StatValue date and value of minmax
 type StatValue struct {
 	Value float64   `json:"value"`
-	Date  time.Time `json:"date"`
+	Recorded  time.Time `json:"date"`
 }
 
 //Trend response
@@ -92,7 +92,7 @@ type Tomorrow struct {
 type Record struct {
 	ID                int       `json:"id" db:"id"`
 	Mac               string    `json:"mac" db:"mac"`
-	Date              time.Time `json:"date" db:"recorded"`
+	Recorded              time.Time `json:"date" db:"recorded"`
 	Baromabsin        float64   `json:"baromabsin" db:"baromabsin"`
 	Baromrelin        float64   `json:"baromrelin" db:"baromrelin"`
 	Battout           int       `json:"battout" db:"battout"`
