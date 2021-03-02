@@ -89,6 +89,7 @@ func main() {
 	if os.Getenv("LOGLEVEL") != "Debug" {
 		s := gocron.NewScheduler(loc)
 		//s.Every(1).Hour().StartImmediately().Do(sendUpdate)
+		s.Every(1).Hour().StartAt(time.Now()).Do(sendUpdate)
 		if err != nil {
 			logger.Error(err)
 		}
