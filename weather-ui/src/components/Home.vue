@@ -23,9 +23,9 @@
             <Indoor :live="live" :loc="'in'" :title="'Indoor'"/>
         </div>
         <div class="weather-container">
-            <Indoor :live="live" :loc="'1'" :title="'Master'"/>
-            <Indoor :live="live" :loc="'2'" :title="'Basement'"/>
+            <Indoor :live="live" :loc="'2'" :title="'Master'"/>
             <Indoor :live="live" :loc="'3'" :title="'Office'"/>
+          <Indoor :live="live" :loc="'1'" :title="'Basement'"/>
         </div>
         <div class="weatherfooter-container">
             <Footer />
