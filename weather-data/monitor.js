@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-
 const pm2 = require('pm2');
 
 pm2.connect(function(err) {

@@ -1,4 +1,4 @@
-FROM node:10-alpine
+FROM node:lts-alpine
 RUN apk add --no-cache tzdata
 ENV TZ America/Denver
 

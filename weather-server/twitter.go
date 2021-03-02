@@ -40,9 +40,19 @@ func sendUpdate() {
 				tempinf,totalrainin,uv,weeklyrainin,winddir,windgustmph,windgustdir,windspeedmph,yearlyrainin,battlightning,lightningday,lightninghour,lightningtime,lightningdistance 
 				from records order by date desc limit 0,1`
 	rec := getRecord(query)
-	t := fmt.Sprintf("Temp: %.2f°F Sustained winds at %.2fmph, gusts to: %.2fmph, Rain: %.2fin Lightning: %d Today #COwx #KCOCOLOR663", rec.Tempf, rec.Windspeedmph, rec.Windgustmph, rec.Dailyrainin, rec.Lightningday)
+	t := buildMessage(rec)
 	_, _, err := client.Statuses.Update(t, nil)
 	if err != nil {
 		logger.Println(err)
 	}
+}
+
+func buildMessage(rec Record) string {
+	t := ""
+	if rec.Tempf < 50 {
+		t = fmt.Sprintf("Temp: %.2f°F Sustained winds at %.2fmph, gusts to: %.2fmph, Feels like %.2f #COwx #KCOCOLOR663", rec.Tempf, rec.Windspeedmph, rec.Windgustmph, rec.Feelslike)
+	} else {
+		t = fmt.Sprintf("Temp: %.2f°F Sustained winds at %.2fmph, gusts to: %.2fmph, Rain: %.2fin Lightning: %d Today #COwx #KCOCOLOR663", rec.Tempf, rec.Windspeedmph, rec.Windgustmph, rec.Dailyrainin, rec.Lightningday)
+	}
+	return t
 }

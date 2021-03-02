@@ -7,7 +7,7 @@ import (
 //Stat Stat Table structure
 type Stat struct {
 	ID    string
-	Date  time.Time
+	Recorded  time.Time
 	Value float64
 }
 
@@ -22,7 +22,7 @@ type Stats struct {
 //StatValue date and value of minmax
 type StatValue struct {
 	Value float64   `json:"value"`
-	Date  time.Time `json:"date"`
+	Recorded  time.Time `json:"date"`
 }
 
 //Trend response
@@ -92,7 +92,7 @@ type Tomorrow struct {
 type Record struct {
 	ID                int       `json:"id" db:"id"`
 	Mac               string    `json:"mac" db:"mac"`
-	Date              time.Time `json:"date" db:"date"`
+	Recorded              time.Time `json:"date" db:"recorded"`
 	Baromabsin        float64   `json:"baromabsin" db:"baromabsin"`
 	Baromrelin        float64   `json:"baromrelin" db:"baromrelin"`
 	Battout           int       `json:"battout" db:"battout"`
@@ -191,26 +191,26 @@ type Property struct {
 		UGC  []string `json:"UGC"`
 		SAME []string `json:"SAME"`
 	} `json:"geocode"`
-	AffectedZones []string    `json:"affectedZones"`
-	References    []interface{}    `json:"references"`
-	Sent          time.Time   `json:"sent"`
-	Effective     time.Time   `json:"effective"`
-	Onset         time.Time   `json:"onset"`
-	Expires       time.Time   `json:"expires"`
-	Ends          time.Time   `json:"ends"`
-	Status        string      `json:"status"`
-	MessageType   string      `json:"messageType"`
-	Category      string      `json:"category"`
-	Severity      string      `json:"severity"`
-	Certainty     string      `json:"certainty"`
-	Urgency       string      `json:"urgency"`
-	Event         string      `json:"event"`
-	Sender        string      `json:"sender"`
-	SenderName    string      `json:"senderName"`
-	Headline      string      `json:"headline"`
-	Description   string      `json:"description"`
-	Instruction   interface{} `json:"instruction"`
-	Response      string      `json:"response"`
+	AffectedZones []string      `json:"affectedZones"`
+	References    []interface{} `json:"references"`
+	Sent          time.Time     `json:"sent"`
+	Effective     time.Time     `json:"effective"`
+	Onset         time.Time     `json:"onset"`
+	Expires       time.Time     `json:"expires"`
+	Ends          time.Time     `json:"ends"`
+	Status        string        `json:"status"`
+	MessageType   string        `json:"messageType"`
+	Category      string        `json:"category"`
+	Severity      string        `json:"severity"`
+	Certainty     string        `json:"certainty"`
+	Urgency       string        `json:"urgency"`
+	Event         string        `json:"event"`
+	Sender        string        `json:"sender"`
+	SenderName    string        `json:"senderName"`
+	Headline      string        `json:"headline"`
+	Description   string        `json:"description"`
+	Instruction   interface{}   `json:"instruction"`
+	Response      string        `json:"response"`
 	Parameters    struct {
 		NWSheadline  []string `json:"NWSheadline"`
 		PIL          []string `json:"PIL"`
