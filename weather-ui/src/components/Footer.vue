@@ -15,7 +15,7 @@
             </a>
         </div>
         <div class="footertext">
-           <svg id="i-info" viewBox="0 0 32 32" width="9" height="9" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"><path d="M16 14 L16 23 M16 8 L16 10"></path><circle cx="16" cy="16" r="14"></circle></svg>&nbsp;(<value>WS-2000 <maxred>Osprey</maxred></value>) Ambient Weather(<value><maxred>1.0</maxred></value>)&nbsp;
+           <svg id="i-info" viewBox="0 0 32 32" width="9" height="9" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"><path d="M16 14 L16 23 M16 8 L16 10"></path><circle cx="16" cy="16" r="14"></circle></svg>&nbsp;(<value>WS-2000 <maxred>Osprey</maxred></value>) Ambient Weather(<value><maxred>1.5</maxred></value>)&nbsp;
            <svg id="i-info" viewBox="0 0 32 32" width="9" height="9" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"><path d="M16 14 L16 23 M16 8 L16 10"></path><circle cx="16" cy="16" r="14"></circle></svg>&nbsp;WH32B x3  WH31B<br>
         </div>
         <div class="footertext">
