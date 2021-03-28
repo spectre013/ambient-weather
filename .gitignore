@@ -2,9 +2,11 @@ node_modules
 .env
 client-0.0.5.jar
 weather.db
+.idea/
+*.iml
 ambient-weather
 ambient.sql
-
+bfg-1.13.2.jar
 .DS_Store
 /dist
 
