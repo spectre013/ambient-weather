@@ -7,9 +7,8 @@ before_script:
 
 
 ui:
-  stage:build
+  stage: build
   script:
-    -
     - cd weather-ui
     - docker build -t docker.zoms.net/production/weather-ui:1.5.1 .
     - docker push docker.zoms.net/production/weather-ui:1.5.1
@@ -17,18 +16,16 @@ ui:
 
 
 server:
-  stage:build
+  stage: build
   script:
-    -
     - cd weather-ui
     - docker build -t docker.zoms.net/production/weather-server:1.5 .
     - docker push docker.zoms.net/production/weather-server:1.5
     - cd ../
 
 data:
-  stage:build
+  stage: build
   script:
-    -
     - cd weather-ui
     - docker build -t docker.zoms.net/production/weather-data:1.5 .
     - docker push docker.zoms.net/production/weather-data:1.5
