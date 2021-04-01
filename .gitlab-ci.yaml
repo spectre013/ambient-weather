@@ -1,0 +1,39 @@
+stages:
+  - build
+
+before_script:
+  - docker login https://docker.zoms.net -u $docker_username -p $docker_password
+  - docker info
+
+
+ui:
+  stage:build
+  script:
+    -
+    - cd weather-ui
+    - docker build -t docker.zoms.net/production/weather-ui:1.5.1 .
+    - docker push docker.zoms.net/production/weather-ui:1.5.1
+    - cd ../
+
+
+server:
+  stage:build
+  script:
+    -
+    - cd weather-ui
+    - docker build -t docker.zoms.net/production/weather-server:1.5 .
+    - docker push docker.zoms.net/production/weather-server:1.5
+    - cd ../
+
+data:
+  stage:build
+  script:
+    -
+    - cd weather-ui
+    - docker build -t docker.zoms.net/production/weather-data:1.5 .
+    - docker push docker.zoms.net/production/weather-data:1.5
+    - cd ../
+
+#job 4:
+#  stage: deploy
+#  script: make deploy

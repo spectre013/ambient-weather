@@ -138,9 +138,9 @@ export default {
     chartDates: function(format) {
       return moment().format(format);
     },
-    now: function (date) {
-        return moment(date).utc().format('HH:mm:ss');
-    },
+   now: function (date) {
+     return moment(date).format('HH:mm:ss');
+   },
     toCelcius: function(temp,units) {
         if(units === 'imperial') {
             return ((temp -32) * 5/9).toFixed(2);
