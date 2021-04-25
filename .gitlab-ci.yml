@@ -10,6 +10,7 @@ ui:
   stage: build
   script:
     - cd weather-ui
+    - ls -l
     - docker build -t docker.zoms.net/production/weather-ui:1.6 .
     - docker push docker.zoms.net/production/weather-ui:1.6
     - cd ../
@@ -19,6 +20,7 @@ server:
   stage: build
   script:
     - cd weather-server
+    - ls -l
     - docker build -t docker.zoms.net/production/weather-server:1.6 .
     - docker push docker.zoms.net/production/weather-server:1.6
     - cd ../
@@ -27,6 +29,7 @@ data:
   stage: build
   script:
     - cd weather-data
+    - ls -l
     - docker build -t docker.zoms.net/production/weather-data:1.6 .
     - docker push docker.zoms.net/production/weather-data:1.6
     - cd ../
