@@ -15,4 +15,4 @@ docker run --name weather-server -d -p 3000:3000 \
 -e LAT=38.725798 \
 -e LON=-104.66783 \
 -e LOGLEVEL=Debug \
-docker.zoms.net/weather-server:latest
+docker.zoms.net/weather-server:1.6
