@@ -1,5 +1,7 @@
 import {useState, useEffect} from "react";
 import moment from "moment";
+import './time.scss'
+
 const Time = () => {
 
 
@@ -14,16 +16,7 @@ const Time = () => {
     }, []);
 
     return (
-    <div className="weather34box clock">
-        <div className="title">
-            <svg id="i-info" viewBox="0 0 32 32" width="10" height="10" fill="none" stroke="currentcolor"
-                 stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
-                <path d="M16 14 L16 23 M16 8 L16 10"></path>
-                <circle cx="16" cy="16" r="14"></circle>
-            </svg>
-            Weather Station <orange> Time </orange>
-        </div>
-        <div className="value">
+        <div className="value clock">
             <div id="position1">
                 <div className="calendar34">
                     <svg id="weather34clock icon" width="16pt" height="16pt" viewBox="0 0 720 720"
@@ -46,7 +39,6 @@ const Time = () => {
             </span>
             </div>
         </div>
-    </div>
     );
 }
 

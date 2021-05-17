@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import Time from "./Time";
+import Time from "./elements/Time";
+import SBox from "./containers/SBOX";
+import RainSmall from "./elements/RainSmall";
 
 const Weather = () => {
     const [conditions, setConditions] = useState([]);
@@ -25,8 +27,20 @@ const Weather = () => {
     return (
         <div>
             <div className="weather2-container">
-                <Time />
+                <SBox title={<>Weather Station <span className="orange"> Time </span></>}>
+                    <Time />
+                </SBox>
+                <SBox title={<>Rainfall<span className="blue"> Data </span></>}>
+                    <RainSmall conditions={conditions}  />
+                </SBox>
+                <SBox title={<>Rainfall<span className="blue"> Data </span></>}>
+
+                </SBox>
+                <SBox title={<>Rainfall<span className="blue"> Data </span></>}>
+
+                </SBox>
             </div>
+            {conditions.tempf}
         </div>
     );
 };

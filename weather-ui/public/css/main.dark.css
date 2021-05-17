@@ -121,7 +121,7 @@ h6 {
 .weather-item,
 .weather2-alert,
 .weather2-alert.weatherfooter-item,
-.weather2-clock,
+.weather2-d,
 .weather2-container,
 .weather2-indoor,
 .weather2-item,
@@ -1982,10 +1982,7 @@ lightningrain {
   display: none
 }
 
-.weather34box.alert,
-.weather34box.clock,
-.weather34box.earthquake,
-.weather34box.indoor {
+.weather34box {
   background-color: rgba(33, 34, 39, .8);
   -webkit-box-shadow: inset 0 18px rgba(97, 106, 114, .1);
   box-shadow: inset 0 18px rgba(97, 106, 114, .1);
