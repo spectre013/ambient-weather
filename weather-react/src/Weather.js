@@ -27,16 +27,16 @@ const Weather = () => {
     return (
         <div>
             <div className="weather2-container">
-                <SBox title={<>Weather Station <span className="orange"> Time </span></>}>
+                <SBox title={<> Weather Station <span className="orange"> Time </span></>}>
                     <Time />
                 </SBox>
-                <SBox title={<>Rainfall<span className="blue"> Data </span></>}>
-                    <RainSmall conditions={conditions}  />
-                </SBox>
-                <SBox title={<>Rainfall<span className="blue"> Data </span></>}>
+                <SBox title={<> <span className="oblue">Min</span> | <span className="ored">Max</span>  Temperatures</>}>
 
                 </SBox>
-                <SBox title={<>Rainfall<span className="blue"> Data </span></>}>
+                <SBox title={<> Rainfall<span className="oblue"> Data </span></>}>
+                    <RainSmall conditions={conditions}  />
+                </SBox>
+                <SBox title={<> Rainfall<span className="blue"> Data </span></>}>
 
                 </SBox>
             </div>

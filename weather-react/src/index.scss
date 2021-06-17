@@ -164,12 +164,12 @@ hr {
 
 @font-face {
   font-family: clock;
-  src: url(fonts/clock3-webfont.woff) format("woff"), url(fonts/clock3.ttf) format("truetype")
+  src: url(./assets/fonts/clock3-webfont.woff) format("woff"), url(./assets/fonts/clock3.ttf) format("truetype")
 }
 
 @font-face {
   font-family: weathertext2;
-  src: url(fonts/verbatim-regular.woff) format("woff"), url(fonts/verbatim-regular.woff2) format("woff2"), url(fonts/verbatim-regular.ttf) format("truetype")
+  src: url(./assets/fonts/verbatim-regular.woff) format("woff"), url(./assets/fonts/verbatim-regular.woff2) format("woff2"), url(./assets/fonts/verbatim-regular.ttf) format("truetype")
 }
 
 *,
@@ -184,7 +184,7 @@ body {
   clear: both;
   font-size: 14px;
   line-height: 1.42857143;
-  cursor: url(mouse/weather34bluecursor.png), n-resize;
+  cursor: url(./assets/mouse/weather34bluecursor.png), n-resize;
   color: silver;
 }
 
@@ -2167,8 +2167,8 @@ spanm5 {
 
 .windgrey1,
 oorange,
-orange,
-ored,
+.orange,
+.ored,
 ored1,
 red,
 rise {
@@ -5502,7 +5502,7 @@ wfstriketoday {
   left: -100px
 }
 
-topblue1,
+.topblue1,
 topgreen1,
 toporange1,
 topred1,
@@ -5592,7 +5592,7 @@ topyellow2 {
   margin-left: 30px
 }
 
-smallwindunit {
+.smallwindunit {
   font-size: .45rem;
   font-family: Arial, Helvetica, system, sans-serif;
   padding-left: 2px
@@ -6174,7 +6174,7 @@ fall,
 lowtempspan,
 lowtemptitle,
 monthrainspan,
-oblue,
+.oblue,
 oblueh1,
 rainblue,
 rainblue1,
@@ -6188,7 +6188,7 @@ windchill {
 
 .raintoday1,
 .suncircleblue,
-topblue1 {
+.topblue1 {
   background: #3b9cac
 }
 
@@ -6240,7 +6240,7 @@ tgreen, .tgreen {
   color: #90b12a
 }
 
-oblue,
+.oblue,
 tblue, .tblue {
   color: #3b9cac
 }
@@ -6311,7 +6311,7 @@ rainu {
   left: 14px;
   bottom: 0;
   width: 100px;
-  background: url(rain/rainmarker.svg) no-repeat
+  background: url(./assets/rain/rainmarker.svg) no-repeat
 }
 
 #weather34rainbeaker:after,
@@ -7747,7 +7747,7 @@ weather34feelsrate {
 .raintoday1,
 .suncircleblue,
 indoorblue1,
-topblue1 {
+.topblue1 {
   background: #3b9cac
 }
 
