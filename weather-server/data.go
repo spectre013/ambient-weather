@@ -92,7 +92,7 @@ type Tomorrow struct {
 type Record struct {
 	ID                int       `json:"id" db:"id"`
 	Mac               string    `json:"mac" db:"mac"`
-	Recorded              time.Time `json:"date" db:"recorded"`
+	Recorded          time.Time `json:"date" db:"recorded"`
 	Baromabsin        float64   `json:"baromabsin" db:"baromabsin"`
 	Baromrelin        float64   `json:"baromrelin" db:"baromrelin"`
 	Battout           int       `json:"battout" db:"battout"`

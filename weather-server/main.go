@@ -16,6 +16,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -83,12 +84,12 @@ func main() {
 	client, err = getClient(&creds)
 	if err != nil {
 		log.Println("Error getting Twitter Client")
+		log.Printf("Credentials: %v\n", creds)
 		log.Println(err)
 	}
 	// Dont tweet if we are dev
 	if os.Getenv("LOGLEVEL") != "Debug" {
 		s := gocron.NewScheduler(loc)
-		//s.Every(1).Hour().StartImmediately().Do(sendUpdate)
 		s.Every(1).Hour().StartAt(time.Now()).Do(sendUpdate)
 		if err != nil {
 			logger.Error(err)
@@ -119,6 +120,7 @@ func main() {
 	r.HandleFunc("/api/alltime/{calc}/{type}", loggingMiddleware(alltime))
 	r.HandleFunc("/api/metar", loggingMiddleware(metar))
 	r.HandleFunc("/api/apiin", loggingMiddleware(apiin))
+	r.HandleFunc("/api/receiver", loggingMiddleware(ambientin))
 	//Index
 	r.HandleFunc("/", loggingMiddleware(home))
 
@@ -173,6 +175,142 @@ func apiin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write([]byte("Success"))
+}
+
+func ambientin(w http.ResponseWriter, r *http.Request) {
+	output := map[string]interface{}{}
+
+	in := map[string]string{}
+	in["baromabsin"] = "float"
+	in["baromrelin"] = "float"
+	in["batt_co2"] = "int"
+	in["battlightning"] = "int"
+	in["batt1"] = "int"
+	in["batt2"] = "int"
+	in["batt3"] = "int"
+	in["battin"] = "int"
+	in["battout"] = "int"
+	in["dailyrainin"] = "float"
+	in["dateutc"] = "string"
+	in["eventrainin"] = "float"
+	in["hourlyrainin"] = "float"
+	in["humidity"] = "int"
+	in["humidity1"] = "int"
+	in["humidity2"] = "int"
+	in["humidity3"] = "int"
+	in["humidityin"] = "int"
+	in["lightningday"] = "int"
+	in["lightningdistance"] = "int"
+	in["lightningtime"] = "string"
+	in["maxdailygust"] = "float"
+	in["monthlyrainin"] = "float"
+	in["solarradiation"] = "float"
+	in["temp1f"] = "float"
+	in["temp2f"] = "float"
+	in["temp3f"] = "float"
+	in["tempf"] = "float"
+	in["tempinf"] = "float"
+	in["uv"] = "int"
+	in["weeklyrainin"] = "float"
+	in["winddir"] = "int"
+	in["windgustmph"] = "float"
+	in["windspeedmph"] = "float"
+	in["yearlyrainin"] = "float"
+
+	values := r.URL.Query()
+	for k, v := range values {
+		k = strings.Replace(k,"_","",-1)
+		val := v[0]
+		switch in[k] {
+		case "int":
+			i,err := strconv.Atoi(val)
+			if err != nil {
+				log.Printf("%s - %s\n",err,val)
+			}
+			output[k] = i
+			break
+		case "float":
+			f,err := strconv.ParseFloat(val,64)
+			if err != nil {
+				log.Printf("%s - %s\n",err,val)
+			}
+			output[k] = f
+			break
+		default:
+			if k == "PASSKEY" {
+				k = "mac"
+			}
+
+			output[k] = v[0]
+
+			if k == "lightningtime" {
+				i, err := strconv.ParseInt(v[0], 10, 64)
+				if err != nil {
+					panic(err)
+				}
+				output[k] = time.Unix(i, 0)
+			}
+
+		}
+	}
+	output["date"] = time.Now()
+	lastrainquery := "select recorded from records r where dailyrainin > 0 order by recorded desc limit 1"
+
+
+
+	logger.Debug(lastrainquery)
+	crows := db.QueryRow(lastrainquery)
+	var lrain time.Time
+	err := crows.Scan(&lrain)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			logger.Error("Zero Rows Found", lastrainquery)
+		} else {
+			logger.Error("Scan: %v", err)
+		}
+	}
+	output["lastrain"] = lrain
+
+	b, err := json.Marshal(output)
+	if err != nil {
+		log.Println(err)
+	}
+
+	rec := Record{}
+	err = json.Unmarshal(b,&rec)
+	if err != nil {
+		log.Println(err)
+	}
+
+	rec.Dewpoint = dewpoint(rec.Tempf,rec.Humidity)
+	if rec.Tempf >= 50 {
+		rec.Feelslike = heatIndex(rec.Tempf,rec.Humidity)
+	} else {
+		rec.Feelslike = windChill(rec.Tempf,rec.Windspeedmph)
+	}
+
+	inserted := insertRecord(rec)
+	if inserted {
+		go calculateStats(rec)
+	}
+}
+
+func heatIndex(T float64, humidity int) float64 {
+	RH := float64(humidity)
+	return -42.379 + 2.04901523*T + 10.14333127*RH - .22475541*T*RH - .00683783*T*T - .05481717*RH*RH + .00122874*T*T*RH + .00085282*T*RH*RH - .00000199*T*T*RH*RH
+}
+
+func windChill(T float64, W float64) float64 {
+	 return 0.0817*(3.71*(math.Pow(W, 0.5)) + 5.81-0.25*W)*(T-91.4)+91.4
+}
+func dewpoint(temp float64, humidity int) float64 {
+	tc := (temp - 32) * 5/9
+	L := math.Log(float64(humidity) / 100)
+	M := 17.27 * tc
+	N := 237.3 + tc
+	B := (L + (M / N)) / 17.27
+	dp := (237.3 * B) / (1 - B)
+	return (dp * 9/5) + 32
 }
 
 func forecast(w http.ResponseWriter, r *http.Request) {
