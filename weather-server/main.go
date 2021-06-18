@@ -79,7 +79,7 @@ func main() {
 		ConsumerKey:       os.Getenv("CONSUMER_KEY"),
 		ConsumerSecret:    os.Getenv("CONSUMER_SECRET"),
 	}
-
+	
 	client, err = getClient(&creds)
 	if err != nil {
 		log.Println("Error getting Twitter Client")
