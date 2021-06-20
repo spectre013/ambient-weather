@@ -74,9 +74,9 @@ export default {
         tempDisplay: function(temp,units = 'imperial') {
             let t = temp;
             if(units === 'metric') {
-                t =  ((temp -32) * 5/9).toFixed(2);
+                t =  ((temp -32) * 5/9);
             }
-            return t;
+            return t.toFixed(2);
         },
         tempCircle: function(temp) {
             if(temp<=14){

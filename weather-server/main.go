@@ -218,6 +218,9 @@ func ambientin(w http.ResponseWriter, r *http.Request) {
 	in["yearlyrainin"] = "float"
 
 	values := r.URL.Query()
+	if len(values) == 0 {
+		return
+	}
 	for k, v := range values {
 		k = strings.Replace(k,"_","",-1)
 		val := v[0]
