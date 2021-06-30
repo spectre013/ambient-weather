@@ -141,7 +141,7 @@ func getJob(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(r))
 		break
 	case "tc":
-		r := fmt.Sprintf("Last Run: %s, Next Run: %s",tf.LastRun(),tf.NextRun())
+		r := fmt.Sprintf("Last Run: %s, Next Run: %s",tc.LastRun(),tc.NextRun())
 		w.Write([]byte(r))
 		break
 	}
