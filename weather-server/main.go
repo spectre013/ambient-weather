@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/IvanMenshykov/MoonPhase"
 	"github.com/dghubble/go-twitter/twitter"
-	"github.com/go-co-op/gocron"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	_ "github.com/lib/pq"
@@ -74,30 +73,6 @@ func main() {
 		return
 	}
 
-	creds := Credentials{
-		AccessToken:       os.Getenv("ACCESS_TOKEN"),
-		AccessTokenSecret: os.Getenv("ACCESS_TOKEN_SECRET"),
-		ConsumerKey:       os.Getenv("CONSUMER_KEY"),
-		ConsumerSecret:    os.Getenv("CONSUMER_SECRET"),
-	}
-	
-	client, err = getClient(&creds)
-	if err != nil {
-		log.Println("Error getting Twitter Client")
-		log.Printf("Credentials: %v\n", creds)
-		log.Println(err)
-	}
-	// Dont tweet if we are dev
-	if os.Getenv("LOGLEVEL") != "Debug" {
-		s := gocron.NewScheduler(loc)
-		s.Every(1).Hour().StartAt(time.Now()).Do(sendUpdate)
-		if err != nil {
-			logger.Error(err)
-		}
-		s.StartAsync()
-	}
-	// Set up Alerts
-	//go startAlerts()
 
 	// Setup Web Sockets
 	hub := newHub()
