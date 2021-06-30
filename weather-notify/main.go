@@ -92,7 +92,7 @@ func main() {
 		tc, err = s.Every(conditions).Minute().Do(twitterConditions)
 		tf, err = s.Every(forecast).Minute().Do(twitterForecast)
 	} else {
-		tc, err = s.Cron("* 0 * * *").Do(twitterConditions)
+		tc, err = s.Cron("0 * * * *").Do(twitterConditions)
 		tf, err = s.Cron("* 6,12,18 * * *").Do(twitterForecast)
 	}
 
