@@ -38,7 +38,7 @@
                 <div class="heatcircle-content">
                     <valuetextheading1>Feels</valuetextheading1><br>
                     <div class="tempconverter1">
-                        <div v-bind:class="current.feelslike | smallTempClass">{{ current.feelslike | tempDisplay($store.getters.units) }}<smalltempunit2>&deg;{{ tempLabel }}<smalltempunit2></smalltempunit2>
+                        <div v-bind:class="current.feelslike | smallTempClass">{{ current.feelslike | tempDisplay($store.getters.units,2) }}<smalltempunit2>&deg;{{ tempLabel }}<smalltempunit2></smalltempunit2>
                         </smalltempunit2>
                         </div>
                     </div>
