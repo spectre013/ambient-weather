@@ -25,5 +25,5 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
-
+weather-notify/weather-notify
 weather-server/ambient-weather
