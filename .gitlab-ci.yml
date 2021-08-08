@@ -2,6 +2,7 @@ stages:
   - build
 
 before_script:
+  - docker login $DOCKER_REGISTRY -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
   - docker info
 
 
@@ -9,8 +10,8 @@ ui:
   stage: build
   script:
     - cd weather-ui
-    - docker build -t docker.zoms.net/production/weather-ui:1.6 .
-    - docker push docker.zoms.net/production/weather-ui:1.6
+    - docker build -t $DOCKER_REGISTRY/production/weather-ui:1.6 .
+    - docker push $DOCKER_REGISTRY/production/weather-ui:1.6
     - cd ../
 
 
@@ -18,14 +19,14 @@ server:
   stage: build
   script:
     - cd weather-server
-    - docker build -t docker.zoms.net/production/weather-server:1.6 .
-    - docker push docker.zoms.net/production/weather-server:1.6
+    - docker build -t $DOCKER_REGISTRY/production/weather-server:1.6 .
+    - docker push $DOCKER_REGISTRY/production/weather-server:1.6
     - cd ../
 
 notify:
   stage: build
   script:
     - cd weather-notify
-    - docker build -t docker.zoms.net/production/weather-notify:1.0 .
-    - docker push docker.zoms.net/production/weather-notify:1.0
+    - docker build -t $DOCKER_REGISTRY/production/weather-notify:1.0 .
+    - docker push $DOCKER_REGISTRY/production/weather-notify:1.0
     - cd ../
