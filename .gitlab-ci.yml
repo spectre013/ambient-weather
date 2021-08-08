@@ -2,7 +2,6 @@ stages:
   - build
 
 before_script:
-  - docker login https://docker.zoms.net -u $docker_username -p $docker_password
   - docker info
 
 
