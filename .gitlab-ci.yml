@@ -3,7 +3,6 @@ stages:
 
 before_script:
   - docker login $DOCKER_REGISTRY -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-  - docker info
 
 
 ui:
