@@ -279,7 +279,8 @@ func heatIndex(T float64, humidity int) float64 {
 }
 
 func windChill(T float64, W float64) float64 {
-	 return 0.0817*(3.71*(math.Pow(W, 0.5)) + 5.81-0.25*W)*(T-91.4)+91.4
+	return 13.12 + 0.6215*T -  11.37*math.Pow(W, 0.16) + 0.3965*T*math.Pow(W, 0.16)
+	//return 0.0817*(3.71*(math.Pow(W, 0.5)) + 5.81-0.25*W)*(T-91.4)+91.4
 }
 func dewpoint(temp float64, humidity int) float64 {
 	tc := (temp - 32) * 5/9
