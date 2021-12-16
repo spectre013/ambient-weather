@@ -2,6 +2,7 @@ stages:
   - build
 
 before_script:
+  - curl -v https://docker.zoms.net/v2/_catalog
   - docker login $DOCKER_REGISTRY -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
 
 
