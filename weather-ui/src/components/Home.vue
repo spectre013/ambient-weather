@@ -139,7 +139,6 @@
             this.loaded = true;
         },
         mounted () {
-            axios.get('/api/forecast').then(response => (this.forecast = response.data));
             axios.get('/api/luna').then(response => (this.astro = response.data));
             function updateData(self){
                 axios.get('/api/wind').then(response => (self.wind = response.data))

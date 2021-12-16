@@ -1,39 +1,14 @@
 package main
 
 import (
-	"net/http"
-	"net/http/httptest"
 	"testing"
 )
 
 // TestHelloName calls greetings.Hello with a name, checking
 // for a valid return value.
-func TestHealthCheckHandler(t *testing.T) {
-	// Create a request to pass to our handler. We don't have any query parameters for now, so we'll
-	// pass 'nil' as the third parameter.
-	req, err := http.NewRequest("GET", "/health-check", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
+func TestHeadIndex(t *testing.T) {
+	//0.5 * ($t + 61.0 + (($t - 68.0) * 1.2) + ($rh * 0.094))
+    //-42.379 + 2.04901523 * $t + 10.1433127*$rh - .22475441*$t*$rh - .00683783 *$t * $t - .05481717 * $rh * $rh + .00122874*$t*$t*$rh + .00085282 *$t * $rh *$rh - .00000199 *$t *$t *$rh * $rh;$a = 0;if ($rh < 13 && ($t >= 80 && $t <= 112)) {$a=((13 - $rh ) / 4) * sqrt((17-abs($t - 95))/17);$a = -$a;};if ($rh > 85 && ($t >= 80 && $t <= 87)) {$a=(($rh - 85)/10) * ((87 - $t) / 5)
 
-	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(apiin)
 
-	// Our handlers satisfy http.Handler, so we can call their ServeHTTP method
-	// directly and pass in our Request and ResponseRecorder.
-	handler.ServeHTTP(rr, req)
-
-	// Check the status code is what we expect.
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusOK)
-	}
-
-	// Check the response body is what we expect.
-	expected := `Success`
-	if rr.Body.String() != expected {
-		t.Errorf("handler returned unexpected body: got %v want %v",
-			rr.Body.String(), expected)
-	}
 }

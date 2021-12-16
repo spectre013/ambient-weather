@@ -275,13 +275,20 @@ func ambientin(w http.ResponseWriter, r *http.Request) {
 
 func heatIndex(T float64, humidity int) float64 {
 	RH := float64(humidity)
-	return -42.379 + 2.04901523*T + 10.14333127*RH - .22475541*T*RH - .00683783*T*T - .05481717*RH*RH + .00122874*T*T*RH + .00085282*T*RH*RH - .00000199*T*T*RH*RH
+	feelsLike := -42.379 + 2.04901523*T + 10.14333127*RH - .22475541*T*RH - .00683783*T*T - .05481717*RH*RH + .00122874*T*T*RH + .00085282*T*RH*RH - .00000199*T*T*RH*RH
+	if RH < 13 && T >= 80 && T <= 112 {
+		feelsLike = feelsLike - ((13-RH)/4)*math.Sqrt((17-math.Abs (T-95.))/17)
+		if RH > 85 && T >= 80 && T <= 87 {
+			feelsLike = feelsLike + ((RH-85)/10)*((87-RH)/5)
+		}
+	}
+	return toFixed(feelsLike, 2)
 }
 
 func windChill(T float64, W float64) float64 {
-	return 13.12 + 0.6215*T -  11.37*math.Pow(W, 0.16) + 0.3965*T*math.Pow(W, 0.16)
-	//return 0.0817*(3.71*(math.Pow(W, 0.5)) + 5.81-0.25*W)*(T-91.4)+91.4
+	return toFixed(35.74 + (0.6215*T) - 35.75*(math.Pow(W,0.16)) + ((0.4275*T)*(math.Pow(W,0.16))), 2)
 }
+
 func dewpoint(temp float64, humidity int) float64 {
 	tc := (temp - 32) * 5/9
 	L := math.Log(float64(humidity) / 100)
@@ -532,11 +539,11 @@ func trend(w http.ResponseWriter, r *http.Request) {
 		if cr.Tempf > avg {
 			//trend up
 			trend.Trend = "up"
-			trend.By = toFixed(cr.Tempf - avg)
+			trend.By = toFixed(cr.Tempf - avg, 2)
 		} else {
 			//trend down
 			trend.Trend = "down"
-			trend.By = toFixed(avg - cr.Tempf)
+			trend.By = toFixed(avg - cr.Tempf, 2)
 		}
 	} else {
 		if cr.Baromrelin > avg {
@@ -744,8 +751,13 @@ func home(w http.ResponseWriter, r *http.Request) {
 	w.Write(b)
 }
 
-func toFixed(x float64) float64 {
-	return math.Round(x*100) / 100
+func round(num float64) int {
+	return int(num + math.Copysign(0.5, num))
+}
+
+func toFixed(num float64, precision int) float64 {
+	output := math.Pow(10, float64(precision))
+	return float64(round(num * output)) / output
 }
 
 func cleanString(s string) string {

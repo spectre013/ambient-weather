@@ -61,6 +61,10 @@ func main() {
 	logger.Info("Setting Debug Level to ", logLevel)
 	logger.SetLevel(logLevel)
 
+	if os.Getenv("LOGLEVEL") == "Debug" {
+		fmt.Sprintf("user=%s password=%s host=%s port=5432 dbname=%s sslmode=disable\n", os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), os.Getenv("DB_DATABASE"))
+	}
+
 	dburi := fmt.Sprintf("user=%s password=%s host=%s port=5432 dbname=%s sslmode=disable", os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), os.Getenv("DB_DATABASE"))
 	db, err = sql.Open("postgres", dburi)
 	if err != nil {
@@ -70,6 +74,7 @@ func main() {
 
 	err = db.Ping()
 	if err != nil {
+		fmt.Println(dburi)
 		panic(err)
 	}
 
