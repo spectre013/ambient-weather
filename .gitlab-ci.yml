@@ -4,16 +4,10 @@ stages:
   - lint
   - build docker
 
-before_script:
-  - curl -v https://docker.zoms.net/v2/_catalog
-  - docker login $DOCKER_REGISTRY -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-
-
 pre-process:
   stage: prepare
   script:
     - ls -l
-    - echo $CI_PROJECT_DIR
   artifacts:
     paths:
       - $CI_PROJECT_DIR
@@ -39,6 +33,7 @@ lint ui:
   stage: lint
   script:
     - cd weather-ui
+    - ls -l 
     - npm run lint
   artifacts:
     paths:
