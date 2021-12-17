@@ -4,12 +4,6 @@ stages:
   - lint
   - build docker
 
-cache:
-  paths:
-    - node_modules/
-    - .npm
-
-
 pre-process:
   stage: prepare
   script:
@@ -24,16 +18,16 @@ build:
   script:
     - cd weather-ui
     - npm install
+  artifacts:
+    paths:
+      - npm_modules/
+    expire_in: 1 day
 
 lint server:
   stage: lint
   script:
     - cd weather-server
     - staticcheck ./...
-  artifacts:
-    paths:
-      - $CI_PROJECT_DIR
-    expire_in: 1 day
 
 lint ui:
   stage: lint
@@ -41,10 +35,6 @@ lint ui:
     - cd weather-ui
     - ls -l
     - npm run lint
-  artifacts:
-    paths:
-      - $CI_PROJECT_DIR
-    expire_in: 1 day
 
 
 ui:
@@ -53,10 +43,6 @@ ui:
     - cd weather-ui
     - docker build -t $DOCKER_REGISTRY/production/weather-ui:1.6 .
     - docker push $DOCKER_REGISTRY/production/weather-ui:1.6
-  artifacts:
-    paths:
-      - $CI_PROJECT_DIR
-    expire_in: 1 day
 
 server:
   stage: build docker
@@ -64,10 +50,6 @@ server:
     - cd weather-server
     - docker build -t $DOCKER_REGISTRY/production/weather-server:1.7 .
     - docker push $DOCKER_REGISTRY/production/weather-server:1.7
-  artifacts:
-    paths:
-      - $CI_PROJECT_DIR
-    expire_in: 1 day
 
 notify:
   stage: build docker
@@ -75,7 +57,4 @@ notify:
     - cd weather-notify
     - docker build -t $DOCKER_REGISTRY/production/weather-notify:1.0 .
     - docker push $DOCKER_REGISTRY/production/weather-notify:1.0
-  artifacts:
-    paths:
-      - $CI_PROJECT_DIR
-    expire_in: 1 day
+
