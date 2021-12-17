@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/IvanMenshykov/MoonPhase"
-	"github.com/dghubble/go-twitter/twitter"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	_ "github.com/lib/pq"
@@ -33,7 +32,6 @@ var upgrader = websocket.Upgrader{
 var db *sql.DB
 var logger = logrus.New()
 var loc *time.Location
-var client *twitter.Client
 
 func init() {
 	logger.Out = os.Stdout
@@ -206,14 +204,12 @@ func ambientin(w http.ResponseWriter, r *http.Request) {
 				log.Printf("%s - %s\n",err,val)
 			}
 			output[k] = i
-			break
 		case "float":
 			f,err := strconv.ParseFloat(val,64)
 			if err != nil {
 				log.Printf("%s - %s\n",err,val)
 			}
 			output[k] = f
-			break
 		default:
 			if k == "PASSKEY" {
 				k = "mac"
@@ -686,6 +682,10 @@ func makeRequest(url string, header map[string]string) ([]byte, error) {
 	logger.Debug(url)
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		logger.Error(err)
+		return nil, err
+	}
 	if _, ok := header["User-Agent"]; !ok {
 		req.Header.Add("User-Agent", `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.27 Safari/537.36`)
 	}
@@ -747,8 +747,8 @@ func getHourlyRain() float64 {
 func home(w http.ResponseWriter, r *http.Request) {
 	res := map[string]string{}
 	res["message"] = "Zoms.net weather API visit https://weather.zoms.net for more information"
-	b, _ := json.Marshal(r)
-	w.Write(b)
+	b, _ := json.Marshal(res)
+	_,_ = w.Write(b)
 }
 
 func round(num float64) int {
@@ -944,6 +944,7 @@ func getStats() []Stat {
 	}
 	return stats
 }
+
 func getRecords(sqlStatement string) []Record {
 	rec := make([]Record, 0)
 	rows, err := db.Query(sqlStatement)
