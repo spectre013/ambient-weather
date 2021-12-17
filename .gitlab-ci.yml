@@ -4,6 +4,12 @@ stages:
   - lint
   - build docker
 
+cache:
+  paths:
+    - node_modules/
+    - .npm
+
+
 pre-process:
   stage: prepare
   script:
@@ -33,7 +39,7 @@ lint ui:
   stage: lint
   script:
     - cd weather-ui
-    - ls -l 
+    - ls -l
     - npm run lint
   artifacts:
     paths:
