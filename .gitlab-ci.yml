@@ -4,6 +4,7 @@ stages:
   - build docker
 
 cache:
+  untracked: true
   key: ${CI_COMMIT_REF_SLUG}
   paths:
     - node_modules/
