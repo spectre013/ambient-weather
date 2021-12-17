@@ -1,5 +1,6 @@
 {
-  extends: ['vue'],
-  plugins: ['vue'],
-  rules: {}
+  "extends": [
+    "eslint:recommended",
+    "plugin:vue/recommended"
+  ]
 }
