@@ -1,27 +1,19 @@
 stages:
-  - prepare
   - build
   - lint
   - build docker
 
-pre-process:
-  stage: prepare
-  script:
-    - ls -l
-  artifacts:
-    paths:
-      - $CI_PROJECT_DIR
-    expire_in: 1 day
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
 
-build:
+build ui:
   stage: build
   script:
     - cd weather-ui
     - npm install
-  artifacts:
-    paths:
-      - npm_modules/
-    expire_in: 1 day
+
 
 lint server:
   stage: lint
