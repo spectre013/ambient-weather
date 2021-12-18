@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/go-co-op/gocron"
 	"github.com/gorilla/mux"
@@ -13,7 +12,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	// other imports
@@ -101,7 +99,6 @@ func main() {
 		forecast = 1
 		tc, err = s.Every(conditions).Minute().Do(twitterConditions)
 		tf, err = s.Every(forecast).Minute().Do(twitterForecast)
-		wa, err = s.Every(forecast).Minute().Do(alertCheck)
 	} else {
 		tc, err = s.Cron(os.Getenv("TC_CRON")).Do(twitterConditions)
 		tf, err = s.Cron(os.Getenv("TF_CRON")).Do(twitterForecast)
@@ -183,35 +180,6 @@ func getClient(creds *Credentials) (*twitter.Client, error) {
 	return client, nil
 }
 
-func alertCheck() bool {
-	uri := "https://api.weather.gov/alerts/active?area=CO"
-
-	if !LastModified.IsZero() {
-		_, err := alertRequest("HEAD", uri)
-		if err != nil {
-			logger.Error(err)
-			return false
-		}
-	}
-
-	res, err := alertRequest("GET", uri)
-	if err != nil {
-		logger.Error()
-		return false
-	}
-	alerts := Alerts{}
-	err = json.Unmarshal(res, &alerts)
-	if err != nil {
-		logger.Error(err)
-	}
-	for k, v := range alerts.Features {
-		if strings.Contains(v.Properties.AreaDesc,"El Paso") {
-			fmt.Println(k, v.Properties.Event)
-		}
-	}
-
-	return true
-}
 
 func twitterConditions() {
 	query := `select id,mac,recorded,baromabsin,baromrelin,co2,dailyrainin,dewpoint,eventrainin,feelslike,
@@ -313,46 +281,4 @@ func makeRequest(url string, header map[string]string) ([]byte, error) {
 		return nil, err
 	}
 	return body, nil
-}
-
-func alertRequest(t string, url string) (body []byte, err error) {
-	body = []byte("")
-	client := &http.Client{}
-	req, err := http.NewRequest(t, url, nil)
-	req.Header.Add("User-Agent", `Zoms Weather, wxcos@zoms.net`)
-
-	resp, err := client.Do(req)
-	if err != nil || resp.StatusCode != 200 {
-		err = errors.New("server responded with an error")
-		return body, err
-	}
-	if _, ok := resp.Header["Last-Modified"]; ok {
-		lModified := ""
-		if len(resp.Header["Last-Modified"]) > 0 {
-			lModified = resp.Header["Last-Modified"][0]
-		}
-		l, err := time.Parse("Mon, 2 Jan 2006 15:04:05 GMT", lModified)
-		if err != nil {
-			return []byte(""), err
-		}
-		logger.Info(l.Before(LastModified), l, LastModified)
-		if (l.Before(LastModified) || l.Equal(LastModified)) && !LastModified.IsZero() {
-			logger.Debug("No Updates")
-			logger.Debug(l, LastModified)
-			err = errors.New("cached")
-			return body, err
-		}
-	}
-	logger.Debug("Alert Updates")
-	if t != "head" {
-		body, err = ioutil.ReadAll(resp.Body)
-		if err != nil {
-			logger.Error(err)
-			return
-		}
-		l, _ := time.Parse("Mon, 2 Jan 2006 15:04:05 GMT", resp.Header["Last-Modified"][0])
-		LastModified = l
-	}
-
-	return
 }

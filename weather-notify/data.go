@@ -92,10 +92,6 @@ type Forecast struct {
 		Version string `json:"@version"`
 	} `json:"@context"`
 	Type     string `json:"type"`
-	Geometry struct {
-		Type        string          `json:"type"`
-		Coordinates [][][][]float64 `json:"coordinates"`
-	} `json:"geometry"`
 	Properties struct {
 		Zone    string `json:"zone"`
 		Updated string `json:"updated"`
