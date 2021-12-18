@@ -71,7 +71,6 @@ func main() {
 		return
 	}
 
-
 	// Setup Web Sockets
 	hub := newHub()
 	go hub.run()
@@ -195,19 +194,19 @@ func ambientin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	for k, v := range values {
-		k = strings.Replace(k,"_","",-1)
+		k = strings.Replace(k, "_", "", -1)
 		val := v[0]
 		switch in[k] {
 		case "int":
-			i,err := strconv.Atoi(val)
+			i, err := strconv.Atoi(val)
 			if err != nil {
-				log.Printf("%s - %s\n",err,val)
+				log.Printf("%s - %s\n", err, val)
 			}
 			output[k] = i
 		case "float":
-			f,err := strconv.ParseFloat(val,64)
+			f, err := strconv.ParseFloat(val, 64)
 			if err != nil {
-				log.Printf("%s - %s\n",err,val)
+				log.Printf("%s - %s\n", err, val)
 			}
 			output[k] = f
 		default:
@@ -230,8 +229,6 @@ func ambientin(w http.ResponseWriter, r *http.Request) {
 	output["date"] = time.Now()
 	lastrainquery := "select recorded from records r where dailyrainin > 0 order by recorded desc limit 1"
 
-
-
 	logger.Debug(lastrainquery)
 	crows := db.QueryRow(lastrainquery)
 	var lrain time.Time
@@ -251,16 +248,16 @@ func ambientin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rec := Record{}
-	err = json.Unmarshal(b,&rec)
+	err = json.Unmarshal(b, &rec)
 	if err != nil {
 		log.Println(err)
 	}
 
-	rec.Dewpoint = dewpoint(rec.Tempf,rec.Humidity)
+	rec.Dewpoint = dewpoint(rec.Tempf, rec.Humidity)
 	if rec.Tempf >= 50 {
-		rec.Feelslike = heatIndex(rec.Tempf,rec.Humidity)
+		rec.Feelslike = heatIndex(rec.Tempf, rec.Humidity)
 	} else {
-		rec.Feelslike = windChill(rec.Tempf,rec.Windspeedmph)
+		rec.Feelslike = windChill(rec.Tempf, rec.Windspeedmph)
 	}
 
 	inserted := insertRecord(rec)
@@ -273,7 +270,7 @@ func heatIndex(T float64, humidity int) float64 {
 	RH := float64(humidity)
 	feelsLike := -42.379 + 2.04901523*T + 10.14333127*RH - .22475541*T*RH - .00683783*T*T - .05481717*RH*RH + .00122874*T*T*RH + .00085282*T*RH*RH - .00000199*T*T*RH*RH
 	if RH < 13 && T >= 80 && T <= 112 {
-		feelsLike = feelsLike - ((13-RH)/4)*math.Sqrt((17-math.Abs (T-95.))/17)
+		feelsLike = feelsLike - ((13-RH)/4)*math.Sqrt((17-math.Abs(T-95.))/17)
 		if RH > 85 && T >= 80 && T <= 87 {
 			feelsLike = feelsLike + ((RH-85)/10)*((87-RH)/5)
 		}
@@ -282,17 +279,17 @@ func heatIndex(T float64, humidity int) float64 {
 }
 
 func windChill(T float64, W float64) float64 {
-	return toFixed(35.74 + (0.6215*T) - 35.75*(math.Pow(W,0.16)) + ((0.4275*T)*(math.Pow(W,0.16))), 2)
+	return toFixed(35.74+(0.6215*T)-35.75*(math.Pow(W, 0.16))+((0.4275*T)*(math.Pow(W, 0.16))), 2)
 }
 
 func dewpoint(temp float64, humidity int) float64 {
-	tc := (temp - 32) * 5/9
+	tc := (temp - 32) * 5 / 9
 	L := math.Log(float64(humidity) / 100)
 	M := 17.27 * tc
 	N := 237.3 + tc
 	B := (L + (M / N)) / 17.27
 	dp := (237.3 * B) / (1 - B)
-	return (dp * 9/5) + 32
+	return (dp * 9 / 5) + 32
 }
 
 func forecast(w http.ResponseWriter, r *http.Request) {
@@ -535,11 +532,11 @@ func trend(w http.ResponseWriter, r *http.Request) {
 		if cr.Tempf > avg {
 			//trend up
 			trend.Trend = "up"
-			trend.By = toFixed(cr.Tempf - avg, 2)
+			trend.By = toFixed(cr.Tempf-avg, 2)
 		} else {
 			//trend down
 			trend.Trend = "down"
-			trend.By = toFixed(avg - cr.Tempf, 2)
+			trend.By = toFixed(avg-cr.Tempf, 2)
 		}
 	} else {
 		if cr.Baromrelin > avg {
@@ -568,8 +565,8 @@ func trend(w http.ResponseWriter, r *http.Request) {
 }
 func wind(w http.ResponseWriter, r *http.Request) {
 	type Result struct {
-		Reccorded  time.Time `json:"date"`
-		Value float64   `json:"value"`
+		Reccorded time.Time `json:"date"`
+		Value     float64   `json:"value"`
 	}
 	start := time.Now()
 	end := start.Add(-30 * time.Minute)
@@ -748,7 +745,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 	res := map[string]string{}
 	res["message"] = "Zoms.net weather API visit https://weather.zoms.net for more information"
 	b, _ := json.Marshal(res)
-	_,_ = w.Write(b)
+	_, _ = w.Write(b)
 }
 
 func round(num float64) int {
@@ -757,7 +754,7 @@ func round(num float64) int {
 
 func toFixed(num float64, precision int) float64 {
 	output := math.Pow(10, float64(precision))
-	return float64(round(num * output)) / output
+	return float64(round(num*output)) / output
 }
 
 func cleanString(s string) string {

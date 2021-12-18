@@ -6,9 +6,9 @@ import (
 
 //Stat Stat Table structure
 type Stat struct {
-	ID    string
-	Recorded  time.Time
-	Value float64
+	ID       string
+	Recorded time.Time
+	Value    float64
 }
 
 //Stats for building minmax values
@@ -21,8 +21,8 @@ type Stats struct {
 
 //StatValue date and value of minmax
 type StatValue struct {
-	Value float64   `json:"value"`
-	Recorded  time.Time `json:"date"`
+	Value    float64   `json:"value"`
+	Recorded time.Time `json:"date"`
 }
 
 //Trend response
@@ -165,5 +165,3 @@ type Record struct {
 	Lightningdistance float64   `json:"lightningdistance" db:"lightningdistance"`
 	Lightningtime     time.Time `json:"lightningtime" db:"lightningtime"`
 }
-
-
