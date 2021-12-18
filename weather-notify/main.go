@@ -26,14 +26,12 @@ var loc *time.Location
 var client *twitter.Client
 var tc *gocron.Job
 var tf *gocron.Job
-var wa *gocron.Job
 var LastModified time.Time
 
 func init() {
 	logger.Out = os.Stdout
 	logger.SetLevel(logrus.InfoLevel)
 }
-
 
 func main() {
 	var err error
@@ -60,7 +58,7 @@ func main() {
 	logger.SetLevel(logLevel)
 
 	if os.Getenv("LOGLEVEL") == "Debug" {
-		fmt.Sprintf("user=%s password=%s host=%s port=5432 dbname=%s sslmode=disable\n", os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), os.Getenv("DB_DATABASE"))
+		fmt.Printf("user=%s password=%s host=%s port=5432 dbname=%s sslmode=disable\n", os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), os.Getenv("DB_DATABASE"))
 	}
 
 	dburi := fmt.Sprintf("user=%s password=%s host=%s port=5432 dbname=%s sslmode=disable", os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), os.Getenv("DB_DATABASE"))
@@ -98,13 +96,23 @@ func main() {
 		conditions = 1
 		forecast = 1
 		tc, err = s.Every(conditions).Minute().Do(twitterConditions)
+		if err != nil {
+			logger.Error(err)
+		}
 		tf, err = s.Every(forecast).Minute().Do(twitterForecast)
+		if err != nil {
+			logger.Error(err)
+		}
 	} else {
 		tc, err = s.Cron(os.Getenv("TC_CRON")).Do(twitterConditions)
+		if err != nil {
+			logger.Error(err)
+		}
 		tf, err = s.Cron(os.Getenv("TF_CRON")).Do(twitterForecast)
+		if err != nil {
+			logger.Error(err)
+		}
 	}
-
-
 
 	if err != nil {
 		logger.Error(tc, tf, err)
@@ -145,13 +153,11 @@ func getJob(w http.ResponseWriter, r *http.Request) {
 	t := vars["jobid"]
 	switch t {
 	case "tf":
-		r := fmt.Sprintf("Last Run: %s, Next Run: %s",tf.LastRun(),tf.NextRun())
+		r := fmt.Sprintf("Last Run: %s, Next Run: %s", tf.LastRun(), tf.NextRun())
 		w.Write([]byte(r))
-		break
 	case "tc":
-		r := fmt.Sprintf("Last Run: %s, Next Run: %s",tc.LastRun(),tc.NextRun())
+		r := fmt.Sprintf("Last Run: %s, Next Run: %s", tc.LastRun(), tc.NextRun())
 		w.Write([]byte(r))
-		break
 	}
 }
 
@@ -180,7 +186,6 @@ func getClient(creds *Credentials) (*twitter.Client, error) {
 	return client, nil
 }
 
-
 func twitterConditions() {
 	query := `select id,mac,recorded,baromabsin,baromrelin,co2,dailyrainin,dewpoint,eventrainin,feelslike,
 				hourlyrainin,hourlyrain,humidity,humidity1,humidity2,humidity3,humidityin,lastrain,
@@ -194,27 +199,30 @@ func twitterConditions() {
 
 }
 func twitterForecast() {
-	f,err := getForecast()
+	f, err := getForecast()
 	if err != nil {
 		logger.Error(err)
 	}
 	name := f.Properties.Periods[0].Name
 	details := f.Properties.Periods[0].Detailedforecast
-	t := fmt.Sprintf("%s ~ %s #COwx #KCOCOLOR663",name,details)
+	t := fmt.Sprintf("%s ~ %s #COwx #KCOCOLOR663", name, details)
 	tweet(t)
 }
 
-func getForecast() (Forecast,error) {
- url := "https://api.weather.gov/zones/forecast/COZ085/forecast"
+func getForecast() (Forecast, error) {
+	url := "https://api.weather.gov/zones/forecast/COZ085/forecast"
 	header := map[string]string{}
 	res, err := makeRequest(url, header)
-	f:= Forecast{}
-	err = json.Unmarshal(res,&f)
 	if err != nil {
 		logger.Error(err)
-		return Forecast{},err
 	}
-	return f,nil
+	f := Forecast{}
+	err = json.Unmarshal(res, &f)
+	if err != nil {
+		logger.Error(err)
+		return Forecast{}, err
+	}
+	return f, nil
 
 }
 
@@ -261,6 +269,9 @@ func makeRequest(url string, header map[string]string) ([]byte, error) {
 	logger.Debug(url)
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		logger.Error(err)
+	}
 	if _, ok := header["User-Agent"]; !ok {
 		req.Header.Add("User-Agent", `weather.zoms.net, brian@brianpaulson.com`)
 	}

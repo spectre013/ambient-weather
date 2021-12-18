@@ -91,7 +91,7 @@ type Forecast struct {
 	Context struct {
 		Version string `json:"@version"`
 	} `json:"@context"`
-	Type     string `json:"type"`
+	Type       string `json:"type"`
 	Properties struct {
 		Zone    string `json:"zone"`
 		Updated string `json:"updated"`
