@@ -257,7 +257,11 @@ func ambientin(w http.ResponseWriter, r *http.Request) {
 	if rec.Tempf >= 50 {
 		rec.Feelslike = heatIndex(rec.Tempf, rec.Humidity)
 	} else {
-		rec.Feelslike = windChill(rec.Tempf, rec.Windspeedmph)
+		if rec.Windgustmph > 3 {
+			rec.Feelslike = windChill(rec.Tempf, rec.Windspeedmph)
+		} else {
+			rec.Feelslike = rec.Tempf
+		}
 	}
 
 	inserted := insertRecord(rec)
