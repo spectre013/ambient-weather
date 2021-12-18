@@ -1,62 +1,65 @@
 <template>
-    <div class="weather-item">
-        <div class="chartforecast">
-<!--            <span class="yearpopup"> <a alt="windspeed almanac" title="windspeed almanac" href="w34windalmanac.php" data-lity=""><svg viewBox="0 0 32 32" width="8" height="8" fill="none" stroke="#777" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"><path d="M14 9 L3 9 3 29 23 29 23 18 M18 4 L28 4 28 14 M28 4 L14 18"></path></svg> Almanac </a></span>-->
-<!--            <span class="todaypopup"> <a alt="Wind Speed" title="Wind Speed" href="w34highcharts/dark-charts.html?chart='windplot'&amp;span='weekly'&amp;temp='C'&amp;pressure='hPa'&amp;wind='mph'&amp;rain='mm" data-lity=""><svg version="1.1" width="8pt" height="8pt" x="0px" y="0px" viewBox="0 0 496 496" style="enable-background:new 0 0 496 496;" xml:space="preserve"><path style="fill:#719FA3;" d="M496,428c0,6.4-5.6,12-12,12H12c-6.4,0-12-5.6-12-12l0,0c0-6.4,5.6-12,12-12h472 C490.4,416,496,421.6,496,428L496,428z"></path><rect x="24" y="56" style="fill:#1589AD;" width="88" height="344"></rect><polyline style="fill:#04567F;" points="24,56 112,56 112,400 "></polyline><rect x="144" y="128" style="fill:#24966A;" width="88" height="272"></rect><polyline style="fill:#007763;" points="144,128 232,128 232,400 "></polyline><rect x="264" y="208" style="fill:#E8961F;" width="88" height="192"></rect><polyline style="fill:#E57520;" points="264,208 352,208 352,400 "></polyline><rect x="384" y="272" style="fill:#D32A0F;" width="88" height="128"></rect><polyline style="fill:#AF1909;" points="384,272 472,272 472,400 "></polyline><g></g></svg> Speed</a></span>-->
-<!--            <span class="todaypopup"> <a alt="Wind Direction" title="Wind Direction" href="w34highcharts/dark-charts.html?chart='winddirplot'&amp;span='weekly'&amp;temp='C'&amp;pressure='hPa'&amp;wind='mph'&amp;rain='mm" data-lity=""><svg version="1.1" width="8pt" height="8pt" x="0px" y="0px" viewBox="0 0 496 496" style="enable-background:new 0 0 496 496;" xml:space="preserve"><path style="fill:#719FA3;" d="M496,428c0,6.4-5.6,12-12,12H12c-6.4,0-12-5.6-12-12l0,0c0-6.4,5.6-12,12-12h472 C490.4,416,496,421.6,496,428L496,428z"></path><rect x="24" y="56" style="fill:#1589AD;" width="88" height="344"></rect><polyline style="fill:#04567F;" points="24,56 112,56 112,400 "></polyline><rect x="144" y="128" style="fill:#24966A;" width="88" height="272"></rect><polyline style="fill:#007763;" points="144,128 232,128 232,400 "></polyline><rect x="264" y="208" style="fill:#E8961F;" width="88" height="192"></rect><polyline style="fill:#E57520;" points="264,208 352,208 352,400 "></polyline><rect x="384" y="272" style="fill:#D32A0F;" width="88" height="128"></rect><polyline style="fill:#AF1909;" points="384,272 472,272 472,400 "></polyline><g></g></svg> Direct.</a></span>-->
-<!--            <span class="todaypopup"> <a alt="Wind Rose" title="Wind Rose" href="w34highcharts/dark-charts.html?chart='windroseplot'&amp;span='weekly'&amp;temp='C'&amp;pressure='hPa'&amp;wind='mph'&amp;rain='mm" data-lity=""><svg version="1.1" width="8pt" height="8pt" x="0px" y="0px" viewBox="0 0 496 496" style="enable-background:new 0 0 496 496;" xml:space="preserve"><path style="fill:#719FA3;" d="M496,428c0,6.4-5.6,12-12,12H12c-6.4,0-12-5.6-12-12l0,0c0-6.4,5.6-12,12-12h472 C490.4,416,496,421.6,496,428L496,428z"></path><rect x="24" y="56" style="fill:#1589AD;" width="88" height="344"></rect><polyline style="fill:#04567F;" points="24,56 112,56 112,400 "></polyline><rect x="144" y="128" style="fill:#24966A;" width="88" height="272"></rect><polyline style="fill:#007763;" points="144,128 232,128 232,400 "></polyline><rect x="264" y="208" style="fill:#E8961F;" width="88" height="192"></rect><polyline style="fill:#E57520;" points="264,208 352,208 352,400 "></polyline><rect x="384" y="272" style="fill:#D32A0F;" width="88" height="128"></rect><polyline style="fill:#AF1909;" points="384,272 472,272 472,400 "></polyline><g></g></svg> Wind Rose</a></span>-->
-<!--            <span class="monthpopup"><a href="windywind.php" title="Windy.com Wind Map" alt="Windy.com Wind Map" data-lity=""><svg viewBox="0 0 32 32" width="8" height="8" fill="none" stroke="#777" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"><path d="M14 9 L3 9 3 29 23 29 23 18 M18 4 L28 4 28 14 M28 4 L14 18"></path></svg> Map</a></span>-->
-        </div>
-        <span class="moduletitle">Direction | Wind (<valuetitleunit>{{ windLabel }}</valuetitleunit>)</span><br>
-        <div id="windspeed" v-if="wind && current">
-            <div class="updatedtime"><span><svg id="i-info" viewBox="0 0 32 32" width="6" height="6" fill="#9aba2f" stroke="#9aba2f" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"><path d="M16 14 L16 23 M16 8 L16 10"></path><circle cx="16" cy="16" r="14"></circle></svg>
-                {{current.date | now }}</span></div> <br>
-            <div class="windspeedvalues">
-                <div class="windspeedvalue">{{ current.windspeedmph | windDisplay($store.getters.speed) }}<div class="windunitidspeed">Currently</div>
-                    <div class="windunitspeed">{{ windLabel }}</div>
-                </div>
-                <div class="windgustvalue">{{ current.windgustmph | windDisplay($store.getters.speed)}}<div class="windunitgust">{{ windLabel }}</div><div class="windunitidgust">Gust</div></div>
-            </div>
-            <div class="windspeedtrend1">
-                <valuetext>Max <max><value><maxred>{{ wind.gust.value | windDisplay($store.getters.speed) }}</maxred></value></max>
-                    <supmb> {{ windLabel }}</supmb><br> Gust ({{ wind.gust.date | timeFormat}})
-                </valuetext>
-            </div>
-            <div class="windconverter">
-                <div :class="windConvertCircle">
-                    {{ current.windgustmph | toKTS }}
-                    <smallrainunit>&nbsp;kts</smallrainunit>
-                </div>
-            </div>
-            <div class="homeweathercompass1">
-                <div class="homeweathercompass-line1">
-                    <div class="thearrow2" v-bind:style="{transform:'rotate('+current.winddir+'deg)'}"></div>
-                    <!--                    <div class="thearrow1" v-bind:style="{transform:'rotate('+current.winddir+'deg)'}"></div>-->
-                </div>
-                <div class="text1">
-                    <div class="windvalue1" id="windvalue">{{ current.winddir }}&deg;</div>
-                </div>
-                <div class="windirectiontext1">
-                    <span> {{ current.winddir | degToCompass}}<br></span> </div>
-            </div>
-            <div class="weather34windrun"><svg id="weather34 windrun symbol" viewBox="0 0 24 24" width="9pt" height="9pt" fill="#3b9cac"><path d="M13,16H3a1,1,0,0,0,0,2H13a1,1,0,0,0,0-2ZM3,8H21a1,1,0,0,0,0-2H3A1,1,0,0,0,3,8Zm18,3H3a1,1,0,0,0,0,2H21a1,1,0,0,0,0-2Z"></path></svg><grey>
-                <valuetext1>&nbsp;{{ windRun() | windDisplay($store.getters.speed) }}<grey><weather34windrunspan>mi</weather34windrunspan></grey></valuetext1></grey>
-            </div><br>
-            <div class="windrun1">Wind Run</div>
-            <div :class="beaufortClass">
-                <span v-html="beaufortSvg"></span>&nbsp;{{ getBeaufort() }} <weather34bftspan>BFT</weather34bftspan>
-            </div>
-            <div class="beaufort1">{{ beaufortText }}</div>
-        </div>
+  <div class="weather-item">
+    <div class="chartforecast">
+      <!--            <span class="yearpopup"> <a alt="windspeed almanac" title="windspeed almanac" href="w34windalmanac.php" data-lity=""><svg viewBox="0 0 32 32" width="8" height="8" fill="none" stroke="#777" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"><path d="M14 9 L3 9 3 29 23 29 23 18 M18 4 L28 4 28 14 M28 4 L14 18"></path></svg> Almanac </a></span>-->
+      <!--            <span class="todaypopup"> <a alt="Wind Speed" title="Wind Speed" href="w34highcharts/dark-charts.html?chart='windplot'&amp;span='weekly'&amp;temp='C'&amp;pressure='hPa'&amp;wind='mph'&amp;rain='mm" data-lity=""><svg version="1.1" width="8pt" height="8pt" x="0px" y="0px" viewBox="0 0 496 496" style="enable-background:new 0 0 496 496;" xml:space="preserve"><path style="fill:#719FA3;" d="M496,428c0,6.4-5.6,12-12,12H12c-6.4,0-12-5.6-12-12l0,0c0-6.4,5.6-12,12-12h472 C490.4,416,496,421.6,496,428L496,428z"></path><rect x="24" y="56" style="fill:#1589AD;" width="88" height="344"></rect><polyline style="fill:#04567F;" points="24,56 112,56 112,400 "></polyline><rect x="144" y="128" style="fill:#24966A;" width="88" height="272"></rect><polyline style="fill:#007763;" points="144,128 232,128 232,400 "></polyline><rect x="264" y="208" style="fill:#E8961F;" width="88" height="192"></rect><polyline style="fill:#E57520;" points="264,208 352,208 352,400 "></polyline><rect x="384" y="272" style="fill:#D32A0F;" width="88" height="128"></rect><polyline style="fill:#AF1909;" points="384,272 472,272 472,400 "></polyline><g></g></svg> Speed</a></span>-->
+      <!--            <span class="todaypopup"> <a alt="Wind Direction" title="Wind Direction" href="w34highcharts/dark-charts.html?chart='winddirplot'&amp;span='weekly'&amp;temp='C'&amp;pressure='hPa'&amp;wind='mph'&amp;rain='mm" data-lity=""><svg version="1.1" width="8pt" height="8pt" x="0px" y="0px" viewBox="0 0 496 496" style="enable-background:new 0 0 496 496;" xml:space="preserve"><path style="fill:#719FA3;" d="M496,428c0,6.4-5.6,12-12,12H12c-6.4,0-12-5.6-12-12l0,0c0-6.4,5.6-12,12-12h472 C490.4,416,496,421.6,496,428L496,428z"></path><rect x="24" y="56" style="fill:#1589AD;" width="88" height="344"></rect><polyline style="fill:#04567F;" points="24,56 112,56 112,400 "></polyline><rect x="144" y="128" style="fill:#24966A;" width="88" height="272"></rect><polyline style="fill:#007763;" points="144,128 232,128 232,400 "></polyline><rect x="264" y="208" style="fill:#E8961F;" width="88" height="192"></rect><polyline style="fill:#E57520;" points="264,208 352,208 352,400 "></polyline><rect x="384" y="272" style="fill:#D32A0F;" width="88" height="128"></rect><polyline style="fill:#AF1909;" points="384,272 472,272 472,400 "></polyline><g></g></svg> Direct.</a></span>-->
+      <!--            <span class="todaypopup"> <a alt="Wind Rose" title="Wind Rose" href="w34highcharts/dark-charts.html?chart='windroseplot'&amp;span='weekly'&amp;temp='C'&amp;pressure='hPa'&amp;wind='mph'&amp;rain='mm" data-lity=""><svg version="1.1" width="8pt" height="8pt" x="0px" y="0px" viewBox="0 0 496 496" style="enable-background:new 0 0 496 496;" xml:space="preserve"><path style="fill:#719FA3;" d="M496,428c0,6.4-5.6,12-12,12H12c-6.4,0-12-5.6-12-12l0,0c0-6.4,5.6-12,12-12h472 C490.4,416,496,421.6,496,428L496,428z"></path><rect x="24" y="56" style="fill:#1589AD;" width="88" height="344"></rect><polyline style="fill:#04567F;" points="24,56 112,56 112,400 "></polyline><rect x="144" y="128" style="fill:#24966A;" width="88" height="272"></rect><polyline style="fill:#007763;" points="144,128 232,128 232,400 "></polyline><rect x="264" y="208" style="fill:#E8961F;" width="88" height="192"></rect><polyline style="fill:#E57520;" points="264,208 352,208 352,400 "></polyline><rect x="384" y="272" style="fill:#D32A0F;" width="88" height="128"></rect><polyline style="fill:#AF1909;" points="384,272 472,272 472,400 "></polyline><g></g></svg> Wind Rose</a></span>-->
+      <!--            <span class="monthpopup"><a href="windywind.php" title="Windy.com Wind Map" alt="Windy.com Wind Map" data-lity=""><svg viewBox="0 0 32 32" width="8" height="8" fill="none" stroke="#777" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"><path d="M14 9 L3 9 3 29 23 29 23 18 M18 4 L28 4 28 14 M28 4 L14 18"></path></svg> Map</a></span>-->
     </div>
+    <span class="moduletitle">Direction | Wind (<valuetitleunit>{{ windLabel }}</valuetitleunit>)</span><br>
+    <div id="windspeed" v-if="wind && current">
+      <Header :current="current" />
+      <br>
+      <div class="windspeedvalues">
+        <div class="windspeedvalue">{{ current.windspeedmph | windDisplay($store.getters.speed) }}<div class="windunitidspeed">Currently</div>
+          <div class="windunitspeed">{{ windLabel }}</div>
+        </div>
+        <div class="windgustvalue">{{ current.windgustmph | windDisplay($store.getters.speed)}}<div class="windunitgust">{{ windLabel }}</div><div class="windunitidgust">Gust</div></div>
+      </div>
+      <div class="windspeedtrend1">
+        <valuetext>Max <max><value><maxred>{{ wind.gust.value | windDisplay($store.getters.speed) }}</maxred></value></max>
+          <supmb> {{ windLabel }}</supmb><br> Gust ({{ wind.gust.date | timeFormat}})
+        </valuetext>
+      </div>
+      <div class="windconverter">
+        <div :class="windConvertCircle">
+          {{ current.windgustmph | toKTS }}
+          <smallrainunit>&nbsp;kts</smallrainunit>
+        </div>
+      </div>
+      <div class="homeweathercompass1">
+        <div class="homeweathercompass-line1">
+          <div class="thearrow2" v-bind:style="{transform:'rotate('+current.winddir+'deg)'}"></div>
+          <!--                    <div class="thearrow1" v-bind:style="{transform:'rotate('+current.winddir+'deg)'}"></div>-->
+        </div>
+        <div class="text1">
+          <div class="windvalue1" id="windvalue">{{ current.winddir }}&deg;</div>
+        </div>
+        <div class="windirectiontext1">
+          <span> {{ current.winddir | degToCompass}}<br></span> </div>
+      </div>
+      <div class="weather34windrun"><svg id="weather34 windrun symbol" viewBox="0 0 24 24" width="9pt" height="9pt" fill="#3b9cac"><path d="M13,16H3a1,1,0,0,0,0,2H13a1,1,0,0,0,0-2ZM3,8H21a1,1,0,0,0,0-2H3A1,1,0,0,0,3,8Zm18,3H3a1,1,0,0,0,0,2H21a1,1,0,0,0,0-2Z"></path></svg><grey>
+        <valuetext1>&nbsp;{{ windRun() | windDisplay($store.getters.speed) }}<grey><weather34windrunspan>mi</weather34windrunspan></grey></valuetext1></grey>
+      </div><br>
+      <div class="windrun1">Wind Run</div>
+      <div :class="beaufortClass">
+        <span v-html="beaufortSvg"></span>&nbsp;{{ getBeaufort() }} <weather34bftspan>BFT</weather34bftspan>
+      </div>
+      <div class="beaufort1">{{ beaufortText }}</div>
+    </div>
+  </div>
 </template>
 
 <script>
     import moment from 'moment';
+    import Current from "./Current";
+    import Header from "./Header";
 
     export default {
         name: 'wind',
-        props: {
+      components: {Header, Current},
+      props: {
             current: Object,
             wind: Object
         },

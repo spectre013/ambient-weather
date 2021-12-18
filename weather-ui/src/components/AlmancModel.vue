@@ -1,146 +1,147 @@
 <template>
-    <div class="modal-backdrop">
-        <div class="modal">
-            <section class="modal-body">
-                <div id="body" v-if="temp && humid && maxtemp && mintemp ">
-                    <div class="weather34darkbrowser" url="Temperature Almanac"></div>
-                    <main class="grid">
-                        <article>
-                            <div class="actualt">Temperature Today </div>
-                            <div class="temperaturecontainer">
-                                <div v-bind:class="temp.max.day.value | temperaturetoday">{{ temp.max.day.value }}<smalluvunit>&deg;F</smalluvunit>
-                                </div>
-                                <div class="temperaturetrend">{{ temp.max.day.date | hourFormat }}</div>
-                                <div class="temperaturecontainer">
-                                    <div v-bind:class="temp.min.day.value | temperaturetoday">{{ temp.min.day.value }}<smalluvunit>&deg;F</smalluvunit>
-                                    </div>
-                                </div>
-                                <div class="temperaturetrend">{{ temp.min.day.date | hourFormat }}</div>
-                                <div class="hitempypos">
-                                    <div class="hitempd" v-if="dew">Dew Max<orange> {{ dew.max.day.value }}</orange>&deg;F {{ dew.max.day.date | hourFormat }}<br></div>
-                                    <div class="hitempd" style="margin-top:-5px;" v-if="dew">Dew Min<blue>&nbsp;{{ dew.min.day.value }}</blue>&deg;F {{ dew.min.day.date | hourFormat }}<br></div>
-                                </div>
-                                <div class="hitempypos">
-                                    <div class="hitempd1" style="margin-top:15px;">Hum Max<orange>&nbsp;{{ humid.max.day.value }}</orange>% {{ humid.max.day.date | hourFormat }}<br></div><br>
-                                    <div class="hitempd1" style="margin-top:16px;">Hum Min<blue>&nbsp;{{ humid.min.day.value }}</blue>% {{ humid.min.day.date | hourFormat }}<br></div><br>
-                                </div>
-                            </div>
-                        </article>
-                        <article>
-                            <div class="actualt">Temperature Yesterday </div>
-                            <div class="temperaturecontainer">
-                                <div v-bind:class="temp.max.yesterday.value | temperaturetoday">{{ temp.max.yesterday.value }}<smalluvunit>&deg;F</smalluvunit>
-                                </div>
-                                <div class="temperaturetrend">{{ temp.max.yesterday.date | hourFormat }}</div>
-                                <div class="temperaturecontainer">
-                                    <div v-bind:class="temp.min.yesterday.value | temperaturetoday">{{ temp.min.yesterday.value }}<smalluvunit>&deg;F</smalluvunit>
-                                    </div>
-                                </div>
-                                <div class="temperaturetrend">{{ temp.min.yesterday.date | hourFormat }}</div>
-                                <div class="hitempypos">
-                                    <div class="hitempd" v-if="dew">Dew Max<orange> {{ dew.max.yesterday.value }}</orange>&deg;F {{ dew.max.yesterday.date | hourFormat }}<br></div>
-                                    <div class="hitempd" style="margin-top:-5px;" v-if="dew">Dew Min<blue>&nbsp;{{ dew.min.yesterday.value }}</blue>&deg;F {{ dew.min.yesterday.date | hourFormat }}<br></div>
-                                </div>
-                                <div class="hitempypos">
-                                    <div class="hitempd1" style="margin-top:15px;">Hum Max<orange>&nbsp;{{ humid.max.yesterday.value }}</orange>% {{ humid.max.yesterday.date | hourFormat }}<br></div><br>
-                                    <div class="hitempd1" style="margin-top:16px;">Hum Min<blue>&nbsp;{{ humid.min.yesterday.value }}</blue>% {{ humid.min.yesterday.date | hourFormat }}<br></div><br>
-                                </div>
-                            </div>
-                        </article>
-                        <article>
-                            <div class="actualt">Temperature {{ temp.max.month.date | monthYear }} </div>
-                            <div class="temperaturecontainer">
-                                <div v-bind:class="temp.max.month.value | temperaturetoday">{{ temp.max.month.value }}<smalluvunit>&deg;F</smalluvunit>
-                                </div>
-                                <div class="temperaturetrend">{{ temp.max.month.date | dayMonth }}</div>
-                                <div class="temperaturecontainer">
-                                    <div v-bind:class="temp.min.month.value | temperaturetoday">{{ temp.min.month.value }}<smalluvunit>&deg;F</smalluvunit>
-                                    </div>
-                                </div>
-                                <div class="temperaturetrend">{{ temp.min.month.date | dayMonth }}</div>
-                                <div class="hitempypos" >
-                                    <div class="hitempd" v-if="dew">Dew Max<orange> {{ dew.max.month.value }}</orange>&deg;F {{ dew.max.month.date | dayMonth }}<br></div>
-                                    <div class="hitempd" style="margin-top:-5px;" v-if="dew">Dew Min<blue>&nbsp;{{ dew.min.yesterday.value }}</blue>&deg;F {{ dew.min.month.date | dayMonth }}<br></div>
-                                </div>
-                                <div class="hitempypos">
-                                    <div class="hitempd1" style="margin-top:15px;">Hum Max<orange>&nbsp;{{ humid.max.month.value }}</orange>% {{ humid.max.month.date | dayMonth }}<br></div><br>
-                                    <div class="hitempd1" style="margin-top:16px;">Hum Min<blue>&nbsp;{{ humid.min.month.value }}</blue>% {{ humid.min.month.date | dayMonth }}<br></div><br>
-                                </div>
-                            </div>
-                        </article>
-                        <article>
-                            <div class="actualt">Temperature {{ temp.max.year.date | yearFormat }} </div>
-                            <div class="temperaturecontainer">
-                                <div v-bind:class="temp.max.year.value | temperaturetoday">{{ temp.max.year.value }}<smalluvunit>&deg;F</smalluvunit>
-                                </div>
-                                <div class="temperaturetrend">{{ temp.max.year.date | dayMonth }}</div>
-                                <div class="temperaturecontainer">
-                                    <div v-bind:class="temp.min.year.value | temperaturetoday">{{ temp.min.year.value }}<smalluvunit>&deg;F</smalluvunit>
-                                    </div>
-                                </div>
-                                <div class="temperaturetrend">{{ temp.min.year.date | dayMonth }}</div>
-                                <div class="hitempypos">
-                                    <div class="hitempd" v-if="dew">Dew Max<orange> {{ dew.max.year.value }}</orange>&deg;F {{ dew.max.year.date | dayMonth }}<br></div>
-                                    <div class="hitempd" style="margin-top:-5px;" v-if="dew">Dew Min<blue>&nbsp;{{ dew.min.year.value }}</blue>&deg;F {{ dew.min.year.date | dayMonth }}<br></div>
-                                </div>
-                                <div class="hitempypos">
-                                    <div class="hitempd1" style="margin-top:15px;">Hum Max<orange>&nbsp;{{ humid.max.year.value }}</orange>% {{ humid.max.year.date | dayMonth }}<br></div><br>
-                                    <div class="hitempd1" style="margin-top:16px;">Hum Min<blue>&nbsp;{{ humid.min.year.value }}</blue>% {{ humid.min.year.date | dayMonth }}<br></div><br>
-                                </div>
-                            </div>
-                        </article>
-                        <article style="height:110px;">
-                            <div class="actualt">Temperature All-Time </div>
-                            <div class="temperaturecontainer">
-                                <div v-bind:class="maxtemp.value | temperaturetoday">{{ maxtemp.value }}<smalluvunit>&deg;F</smalluvunit>
-                                </div>
-                                <div class="temperaturecontainer">
-                                    <div v-bind:class="mintemp.value | temperaturetoday">{{ mintemp.value }}<smalluvunit>&deg;F</smalluvunit>
-                                    </div>
-                                </div>
-                                <div class="hitempypos">
-                                    <div class="hitempd2">{{ maxtemp.date | fullFormat }}<br></div>
-                                    <div class="hitempd2" style="margin-top:25px;">{{ mintemp.date | fullFormat }}</div>
-                                </div>
-                            </div>
-                        </article>
-                        <article style="height:110px;" v-if="maxdew && mindew">
-                            <div class="actualt">Dewpoint All-Time </div>
-                            <div class="temperaturecontainer">
-                                <div v-bind:class="maxdew.value | temperaturetoday">{{ maxdew.value }}<smalluvunit>&deg;F</smalluvunit>
-                                </div>
-                                <div class="temperaturecontainer">
-                                    <div v-bind:class="mindew.value | temperaturetoday">{{ mindew.value }}<smalluvunit>&deg;F</smalluvunit>
-                                    </div>
-                                </div>
-                                <div class="hitempypos">
-                                    <div class="hitempd2">{{ maxdew.date | fullFormat }}<br></div>
-                                    <div class="hitempd2" style="margin-top:25px;">{{ mindew.date | fullFormat }}</div>
-                                </div>
-                            </div>
-                        </article>
-                        <article style="height:60px;width:250px;">
-                            <div class="lotemp">
-                                <svg id="i-info" viewBox="0 0 32 32" width="9" height="9" fill="none" stroke="currentcolor"
-                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
-                                    <path d="M16 14 L16 23 M16 8 L16 10"></path>
-                                    <circle cx="16" cy="16" r="14"></circle>
-                                </svg>
-                                <a href="https://canvasjs.com" title="https://canvasjs.com" target="_blank" style="font-size:8px;">
-                                    Charts rendered and compiled using CanvasJs.com v2.3.1 GA (CC BY-NC 3.0) Non-Commercial-Version </a>
-                            </div><br>
-                        </article>
-                    </main>
-                    <main class="grid1">
-                        <articlegraph>
-                            <div ref="chart" id="chartContainer2"></div>
-                        </articlegraph>
-                    </main>
+  <div class="modal-backdrop">
+    <div class="modal">
+      <section class="modal-body">
+        <div id="body" v-if="temp && humid && maxtemp && mintemp ">
+          <div class="weather34darkbrowser" url="Temperature Almanac"></div>
+          <main class="grid">
+            <article>
+              <div class="actualt">Temperature Today </div>
+              <div class="temperaturecontainer">
+                <div v-bind:class="temp.max.day.value | temperaturetoday">{{ temp.max.day.value }}<smalluvunit>&deg;F</smalluvunit>
                 </div>
-                <button class="lity-close" type="button" aria-label="Close (Press escape to close)" @click="close">×</button>
-            </section>
-        </div>
-    </div>
+                <div class="temperaturetrend">{{ temp.max.day.date | hourFormat }}</div>
+                <div class="temperaturecontainer">
+                  <div v-bind:class="temp.min.day.value | temperaturetoday">{{ temp.min.day.value }}<smalluvunit>&deg;F</smalluvunit></div>
+                </div>
+                <div class="temperaturetrend">{{ temp.min.day.date | hourFormat }}</div>
+                <div class="hitempypos">
+                  <div class="hitempd" v-if="dew">Dew Max<orange> {{ dew.max.day.value }}</orange>&deg;F {{ dew.max.day.date | hourFormat }}<br></div>
+                  <div class="hitempd" style="margin-top:-5px;" v-if="dew">Dew Min<blue>&nbsp;{{ dew.min.day.value }}</blue>&deg;F {{ dew.min.day.date | hourFormat }}<br></div>
+                </div>
+                <div class="hitempypos">
+                  <div class="hitempd1" style="margin-top:15px;">Hum Max<orange>&nbsp;{{ humid.max.day.value }}</orange>% {{ humid.max.day.date | hourFormat }}<br>
+</div><br>
+                  <div class="hitempd1" style="margin-top:16px;">Hum Min<blue>&nbsp;{{ humid.min.day.value }}</blue>% {{ humid.min.day.date | hourFormat }}<br>
+                  </div><br>
+                              </div>
+                          </div>
+                      </article>
+                      <article>
+                          <div class="actualt">Temperature Yesterday </div>
+                          <div class="temperaturecontainer">
+                              <div v-bind:class="temp.max.yesterday.value | temperaturetoday">{{ temp.max.yesterday.value }}<smalluvunit>&deg;F</smalluvunit>
+                              </div>
+                              <div class="temperaturetrend">{{ temp.max.yesterday.date | hourFormat }}</div>
+                              <div class="temperaturecontainer">
+                                  <div v-bind:class="temp.min.yesterday.value | temperaturetoday">{{ temp.min.yesterday.value }}<smalluvunit>&deg;F</smalluvunit>
+                                  </div>
+                              </div>
+                              <div class="temperaturetrend">{{ temp.min.yesterday.date | hourFormat }}</div>
+                              <div class="hitempypos">
+                                  <div class="hitempd" v-if="dew">Dew Max<orange> {{ dew.max.yesterday.value }}</orange>&deg;F {{ dew.max.yesterday.date | hourFormat }}<br></div>
+                                  <div class="hitempd" style="margin-top:-5px;" v-if="dew">Dew Min<blue>&nbsp;{{ dew.min.yesterday.value }}</blue>&deg;F {{ dew.min.yesterday.date | hourFormat }}<br></div>
+                              </div>
+                              <div class="hitempypos">
+                                  <div class="hitempd1" style="margin-top:15px;">Hum Max<orange>&nbsp;{{ humid.max.yesterday.value }}</orange>% {{ humid.max.yesterday.date | hourFormat }}<br></div><br>
+                                  <div class="hitempd1" style="margin-top:16px;">Hum Min<blue>&nbsp;{{ humid.min.yesterday.value }}</blue>% {{ humid.min.yesterday.date | hourFormat }}<br></div><br>
+                              </div>
+                          </div>
+                      </article>
+                      <article>
+                          <div class="actualt">Temperature {{ temp.max.month.date | monthYear }} </div>
+                          <div class="temperaturecontainer">
+                              <div v-bind:class="temp.max.month.value | temperaturetoday">{{ temp.max.month.value }}<smalluvunit>&deg;F</smalluvunit>
+                              </div>
+                              <div class="temperaturetrend">{{ temp.max.month.date | dayMonth }}</div>
+                              <div class="temperaturecontainer">
+                                  <div v-bind:class="temp.min.month.value | temperaturetoday">{{ temp.min.month.value }}<smalluvunit>&deg;F</smalluvunit>
+                                  </div>
+                              </div>
+                              <div class="temperaturetrend">{{ temp.min.month.date | dayMonth }}</div>
+                              <div class="hitempypos" >
+                                  <div class="hitempd" v-if="dew">Dew Max<orange> {{ dew.max.month.value }}</orange>&deg;F {{ dew.max.month.date | dayMonth }}<br></div>
+                                  <div class="hitempd" style="margin-top:-5px;" v-if="dew">Dew Min<blue>&nbsp;{{ dew.min.yesterday.value }}</blue>&deg;F {{ dew.min.month.date | dayMonth }}<br></div>
+                              </div>
+                              <div class="hitempypos">
+                                  <div class="hitempd1" style="margin-top:15px;">Hum Max<orange>&nbsp;{{ humid.max.month.value }}</orange>% {{ humid.max.month.date | dayMonth }}<br></div><br>
+                                  <div class="hitempd1" style="margin-top:16px;">Hum Min<blue>&nbsp;{{ humid.min.month.value }}</blue>% {{ humid.min.month.date | dayMonth }}<br></div><br>
+                              </div>
+                          </div>
+                      </article>
+                      <article>
+                          <div class="actualt">Temperature {{ temp.max.year.date | yearFormat }} </div>
+                          <div class="temperaturecontainer">
+                              <div v-bind:class="temp.max.year.value | temperaturetoday">{{ temp.max.year.value }}<smalluvunit>&deg;F</smalluvunit>
+                              </div>
+                              <div class="temperaturetrend">{{ temp.max.year.date | dayMonth }}</div>
+                              <div class="temperaturecontainer">
+                                  <div v-bind:class="temp.min.year.value | temperaturetoday">{{ temp.min.year.value }}<smalluvunit>&deg;F</smalluvunit>
+                                  </div>
+                              </div>
+                              <div class="temperaturetrend">{{ temp.min.year.date | dayMonth }}</div>
+                              <div class="hitempypos">
+                                  <div class="hitempd" v-if="dew">Dew Max<orange> {{ dew.max.year.value }}</orange>&deg;F {{ dew.max.year.date | dayMonth }}<br></div>
+                                  <div class="hitempd" style="margin-top:-5px;" v-if="dew">Dew Min<blue>&nbsp;{{ dew.min.year.value }}</blue>&deg;F {{ dew.min.year.date | dayMonth }}<br></div>
+                              </div>
+                              <div class="hitempypos">
+                                  <div class="hitempd1" style="margin-top:15px;">Hum Max<orange>&nbsp;{{ humid.max.year.value }}</orange>% {{ humid.max.year.date | dayMonth }}<br></div><br>
+                                  <div class="hitempd1" style="margin-top:16px;">Hum Min<blue>&nbsp;{{ humid.min.year.value }}</blue>% {{ humid.min.year.date | dayMonth }}<br></div><br>
+                              </div>
+                          </div>
+                      </article>
+                      <article style="height:110px;">
+                          <div class="actualt">Temperature All-Time </div>
+                          <div class="temperaturecontainer">
+                              <div v-bind:class="maxtemp.value | temperaturetoday">{{ maxtemp.value }}<smalluvunit>&deg;F</smalluvunit>
+                              </div>
+                              <div class="temperaturecontainer">
+                                  <div v-bind:class="mintemp.value | temperaturetoday">{{ mintemp.value }}<smalluvunit>&deg;F</smalluvunit>
+                                  </div>
+                              </div>
+                              <div class="hitempypos">
+                                  <div class="hitempd2">{{ maxtemp.date | fullFormat }}<br></div>
+                                  <div class="hitempd2" style="margin-top:25px;">{{ mintemp.date | fullFormat }}</div>
+                              </div>
+                          </div>
+                      </article>
+                      <article style="height:110px;" v-if="maxdew && mindew">
+                          <div class="actualt">Dewpoint All-Time </div>
+                          <div class="temperaturecontainer">
+                              <div v-bind:class="maxdew.value | temperaturetoday">{{ maxdew.value }}<smalluvunit>&deg;F</smalluvunit>
+                              </div>
+                              <div class="temperaturecontainer">
+                                  <div v-bind:class="mindew.value | temperaturetoday">{{ mindew.value }}<smalluvunit>&deg;F</smalluvunit>
+                                  </div>
+                              </div>
+                              <div class="hitempypos">
+                                  <div class="hitempd2">{{ maxdew.date | fullFormat }}<br></div>
+                                  <div class="hitempd2" style="margin-top:25px;">{{ mindew.date | fullFormat }}</div>
+                              </div>
+                          </div>
+                      </article>
+                      <article style="height:60px;width:250px;">
+                          <div class="lotemp">
+                              <svg id="i-info" viewBox="0 0 32 32" width="9" height="9" fill="none" stroke="currentcolor"
+                                  stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+                                  <path d="M16 14 L16 23 M16 8 L16 10"></path>
+                                  <circle cx="16" cy="16" r="14"></circle>
+                              </svg>
+                              <a href="https://canvasjs.com" title="https://canvasjs.com" target="_blank" style="font-size:8px;">
+                                  Charts rendered and compiled using CanvasJs.com v2.3.1 GA (CC BY-NC 3.0) Non-Commercial-Version </a>
+                          </div><br>
+                      </article>
+                  </main>
+                  <main class="grid1">
+                      <articlegraph>
+                          <div ref="chart" id="chartContainer2"></div>
+                      </articlegraph>
+                  </main>
+              </div>
+              <button class="lity-close" type="button" aria-label="Close (Press escape to close)" @click="close">×</button>
+          </section>
+      </div>
+  </div>
 </template>
 <script>
     /* global CanvasJS */
