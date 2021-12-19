@@ -6,7 +6,25 @@
       >)</span
     ><br />
     <div id="windspeed" v-if="wind && current">
-      <Header :current="current" />
+      <div class="updatedtime">
+        <span
+          ><svg
+            id="i-info"
+            viewBox="0 0 32 32"
+            width="6"
+            height="6"
+            fill="#9aba2f"
+            stroke="#9aba2f"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="6.25%"
+          >
+            <path d="M16 14 L16 23 M16 8 L16 10"></path>
+            <circle cx="16" cy="16" r="14"></circle>
+          </svg>
+          {{ current.date | now }}
+        </span>
+      </div>
       <br />
       <div class="windspeedvalues">
         <div class="windspeedvalue">
@@ -86,12 +104,9 @@
 
 <script>
 import moment from 'moment';
-import Current from './Current';
-import Header from './BoxHeader';
 
 export default {
   name: 'wind',
-  components: { Header },
   props: {
     current: {},
     wind: {},

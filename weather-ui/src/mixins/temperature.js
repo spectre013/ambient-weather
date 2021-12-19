@@ -82,7 +82,7 @@ export default {
       if (temp <= 14) {
         return 'tempconvertercircle10';
       } else if (temp <= 23) {
-        return 'tempconvertercircle5';
+        return 'tempconvertercircle0-5';
       } else if (temp <= 32) {
         return 'tempconvertercirclezero';
       } else if (temp <= 41) {

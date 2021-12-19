@@ -108,7 +108,6 @@
           v-on:click="openModal('chart', { time: 'day', type: 'temp', field: 'temp' + loc + 'f' })"
         >
           <svg
-            version="1.1"
             width="8pt"
             height="8pt"
             x="0px"
@@ -219,8 +218,8 @@
       <div class="tempconverter2">
         <div v-bind:class="temp | tempCircle">
           {{ temp | toCelcius($store.getters.units)
-          }}<smalltempunit2
-            >&deg;{{ tempLabelAlt }}<smalltempunit2></smalltempunit2>
+          }}<smalltempunit2>
+            &nbsp;&deg;{{ tempLabelAlt }}<smalltempunit2></smalltempunit2>
           </smalltempunit2>
         </div>
       </div>

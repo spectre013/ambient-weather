@@ -108,12 +108,12 @@
             <div class="button-dial-label-small">{{ lightning.max.yesterday.value }}</div>
           </div>
         </div>
-        <div class="lightningyear-mod2">
-          Strikes {{ current.date | month }} <orange> {{ lightning.max.month.value }}</orange>
-        </div>
-        <div class="lightningmonth-mod2">
-          Strikes {{ current.date | year }} <orange> {{ lightning.max.year.value }}</orange>
-        </div>
+      </div>
+      <div class="lightningyear-mod2">
+        Strikes {{ current.date | month }} <orange> {{ lightning.max.month.value }}</orange>
+      </div>
+      <div class="lightningmonth-mod2">
+        Strikes {{ current.date | year }} <orange> {{ lightning.max.year.value }}</orange>
       </div>
     </div>
   </div>
@@ -253,18 +253,12 @@ export default {
   display: flex;
   font-size: 12px;
   color: var(--body-text-dark);
-  position: absolute;
-  float: none;
-  margin-left: -140px;
-  margin-top: 105px;
+  position: relative;
+  top: -30px;
+  left: 30px;
   width: 8.25rem;
   line-height: 1;
   height: 25px;
-  border-radius: 2px;
-  -webkit-border-radius: 2px;
-  -moz-border-radius: 2px;
-  -ms-border-radius: 2px;
-  -o-border-radius: 2px;
   font-family: weathertext2, sans-serif;
   -webkit-box-pack: center;
   -ms-flex-pack: center;
@@ -275,24 +269,19 @@ export default {
   background-color: hsla(204, 31%, 21%, 0.229);
   text-transform: none;
 }
+
 .lightningmonth-mod2 {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
   font-size: 12px;
   color: var(--body-text-dark);
-  position: absolute;
-  float: none;
-  margin-left: 140px;
-  margin-top: 105px;
+  position: relative;
+  top: -55px;
+  left: 171px;
   width: 8.25rem;
   line-height: 1;
   height: 25px;
-  border-radius: 2px;
-  -webkit-border-radius: 2px;
-  -moz-border-radius: 2px;
-  -ms-border-radius: 2px;
-  -o-border-radius: 2px;
   font-family: weathertext2;
   -webkit-box-pack: center;
   -ms-flex-pack: center;

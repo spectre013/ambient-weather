@@ -5,7 +5,7 @@
     </div>
     <span class="moduletitle">Moon Phase</span>
     <div id="dldata" v-if="astro">
-      <div class="updatedtime1">
+      <div class="updatedtime">
         <span
           ><svg
             id="i-info"
