@@ -1,68 +1,67 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import Vue from 'vue';
+import Vuex from 'vuex';
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    settings: {}
+    settings: {},
   },
   mutations: {
-    setTheme (state, theme) {
-      state.settings.theme = theme
+    setTheme(state, theme) {
+      state.settings.theme = theme;
     },
-    setUnits (state, units) {
-      state.settings.units = units
+    setUnits(state, units) {
+      state.settings.units = units;
     },
-    setSpeed (state, speed) {
-      state.settings.speed = speed
+    setSpeed(state, speed) {
+      state.settings.speed = speed;
     },
-    setSettings (state, settings) {
-      state.settings = settings
-    }
+    setSettings(state, settings) {
+      state.settings = settings;
+    },
   },
   actions: {
-    getSettings (context) {
-      let settings = { 'theme': 'dark', 'units': 'imperial', 'speed': 'mph' }
-      if (typeof (Storage) !== 'undefined') {
-        const storedSettings = window.localStorage.getItem('settings')
+    getSettings(context) {
+      let settings = { theme: 'dark', units: 'imperial', speed: 'mph' };
+      if (typeof Storage !== 'undefined') {
+        const storedSettings = window.localStorage.getItem('settings');
         if (!storedSettings) {
-          window.localStorage.setItem('settings', JSON.stringify(settings))
+          window.localStorage.setItem('settings', JSON.stringify(settings));
         } else {
-          settings = JSON.parse(storedSettings)
+          settings = JSON.parse(storedSettings);
         }
       }
-      context.commit('setSettings', settings)
+      context.commit('setSettings', settings);
     },
-    setSettings (context, settings) {
-      if (typeof (Storage) !== 'undefined') {
-        window.localStorage.setItem('settings', JSON.stringify(settings))
+    setSettings(context, settings) {
+      if (typeof Storage !== 'undefined') {
+        window.localStorage.setItem('settings', JSON.stringify(settings));
       }
-      context.commit('setSettings', settings)
+      context.commit('setSettings', settings);
     },
-    setUnits (context, units) {
-      context.commit('setUnits', units)
+    setUnits(context, units) {
+      context.commit('setUnits', units);
     },
-    setTheme (context, theme) {
-      context.commit('setTheme', theme)
+    setTheme(context, theme) {
+      context.commit('setTheme', theme);
     },
-    setSpeed (context, speed) {
-      context.commit('setSpeed', speed)
-    }
+    setSpeed(context, speed) {
+      context.commit('setSpeed', speed);
+    },
   },
   getters: {
     settings: (state) => {
-      return state.settings
+      return state.settings;
     },
     theme: (state) => {
-      return state.settings.theme
+      return state.settings.theme;
     },
     units: (state) => {
-      return state.settings.units
+      return state.settings.units;
     },
     speed: (state) => {
-      return state.settings.speed
-    }
-  }
-
-})
+      return state.settings.speed;
+    },
+  },
+});
