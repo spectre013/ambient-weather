@@ -287,6 +287,9 @@ func getJob(w http.ResponseWriter, r *http.Request) {
 	case "tc":
 		r := fmt.Sprintf("Last Run: %s, Next Run: %s", tc.LastRun(), tc.NextRun())
 		w.Write([]byte(r))
+	case "aj":
+		r := fmt.Sprintf("Last Run: %s, Next Run: %s", aj.LastRun(), aj.NextRun())
+		w.Write([]byte(r))
 	}
 }
 
