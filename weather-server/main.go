@@ -254,7 +254,7 @@ func ambientin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rec.Dewpoint = dewpoint(rec.Tempf, rec.Humidity)
-	if rec.Tempf >= 50 {
+	if rec.Tempf >= 70 {
 		rec.Feelslike = heatIndex(rec.Tempf, rec.Humidity)
 	} else {
 		if rec.Windgustmph > 3 {
