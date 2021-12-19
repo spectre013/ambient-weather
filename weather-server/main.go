@@ -572,8 +572,9 @@ func wind(w http.ResponseWriter, r *http.Request) {
 		Reccorded time.Time `json:"date"`
 		Value     float64   `json:"value"`
 	}
-	start := time.Now()
-	end := start.Add(-30 * time.Minute)
+	dates := getTimeframe("day")
+	start := dates[1]
+	end := dates[0]
 
 	max := Result{}
 	maxgust := Result{}

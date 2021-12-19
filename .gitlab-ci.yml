@@ -40,8 +40,8 @@ ui:
   stage: build docker
   script:
     - cd weather-ui
-    - docker build -t $DOCKER_REGISTRY/production/weather-ui:1.6 .
-    - docker push $DOCKER_REGISTRY/production/weather-ui:1.6
+    - docker build -t $DOCKER_REGISTRY/production/weather-ui:1.7 .
+    - docker push $DOCKER_REGISTRY/production/weather-ui:1.7
 
 server:
   stage: build docker
