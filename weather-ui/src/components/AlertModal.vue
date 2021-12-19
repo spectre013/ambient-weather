@@ -20,14 +20,22 @@
                 >
                   <path d="M16 3 L30 29 2 29 Z M16 11 L16 19 M16 23 L16 25"></path>
                 </svg>
-                {{ alert.title }}
+                {{ alert.event }}
               </h1>
+              <h3 v-bind:class="alertColor">{{ alert.headline }}</h3>
+              <div class="alertinfo">
+                <div v-bind:class="alertColor">Effective: {{ alert.effective | dates }}</div>
+                <div v-bind:class="alertColor">Ends: {{ alert.end | dates }}</div>
+                <div v-bind:class="alertColor">Certainty: {{ alert.certainty }}</div>
+                <div v-bind:class="alertColor">Response: {{ alert.response }}</div>
+              </div>
               <div class="alertText">
-                <span v-bind:class="alertColor">Alert Description: </span> {{ alert.description }}
+                <span v-bind:class="alertColor">Alert Description: </span>
+                <span v-html="alert.description"></span>
               </div>
               <div class="targetarea">
                 <span v-bind:class="alertColor">Regions Affected: </span>
-                <span>{{ joinRegions }}</span>
+                <span>{{ alert.areadesc }}</span>
               </div>
             </article>
           </main>
@@ -46,10 +54,12 @@
 </template>
 
 <script>
+import moment from 'moment';
+
 export default {
   name: 'alertmodal',
   props: {
-    forecast: Object,
+    alerts: Array,
     options: Object,
   },
   data() {
@@ -62,22 +72,33 @@ export default {
       this.$parent.closeModal('alert');
     },
   },
+  filters: {
+    renderDesc: function (desc) {
+      console.log(desc);
+      desc.replace('\n', '<br />');
+      return desc;
+    },
+    dates: function (date) {
+      console.log(date);
+      date = moment(date).utcOffset(7);
+      return date.format('HH:mm DD MMM');
+    },
+  },
   computed: {
     url: function () {
-      return `Weather Alerts -  ${this.alert.title}`;
+      return `Weather Alerts -  ${this.alert.event}`;
     },
     alertColor: function () {
-      if (this.alert.title.startsWith('911')) {
+      if (this.alert.event.startsWith('911')) {
         return 'Telephone Outage 911'.toLowerCase().replace(/\s+/g, '-');
       }
-      return this.alert.title.toLowerCase().replace(/\s+/g, '-');
-    },
-    joinRegions: function () {
-      return this.alert.regions.join(', ');
+      return this.alert.event.toLowerCase().replace(/\s+/g, '-');
     },
   },
   mounted: function () {
-    this.alert = this.forecast.alerts[this.options.alert];
+    this.alert = this.alerts[this.options.alert];
+    this.alert.description = this.alert.description.replaceAll('\n', '<br />');
+    console.log(this.alert);
   },
 };
 </script>
@@ -87,11 +108,28 @@ h1 {
   font-size: 22px;
   text-align: center;
 }
+h3 {
+  font-size: 16px;
+  text-align: center;
+}
 .alertText {
   color: silver;
 }
 .targetarea {
   margin-top: 10px;
   color: silver;
+}
+table {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+td {
+  margin: 2px;
+  padding: 5px;
+}
+.alertinfo div {
+  display: table;
+  width: 23%;
 }
 </style>

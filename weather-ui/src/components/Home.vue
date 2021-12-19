@@ -5,7 +5,7 @@
       <Time />
       <MinMax :temp="temp" />
       <Rainfall :current="current" />
-      <Alert :forecast="forecast" />
+      <Alert :alerts="alerts" />
     </div>
     <div class="weather-container">
       <Temperature :current="live" :temp="temp" v-on:openModal="showModal" />
@@ -31,12 +31,7 @@
       <Footer />
     </div>
     <ChartModal v-if="models.chart" @close="closeModal" :options="modalOptions" />
-    <AlertModal
-      v-if="models.alert"
-      :forecast="forecast"
-      @close="closeModal"
-      :options="modalOptions"
-    />
+    <AlertModal v-if="models.alert" :alerts="alerts" @close="closeModal" :options="modalOptions" />
     <AlmanacModel v-if="models.almanac" @close="closeModal" :options="modalOptions" />
     <Radar v-if="models.radar" @close="closeModal" />
     <MetarModal v-if="models.metar" :astro="astro" @close="closeModal" />
@@ -98,7 +93,7 @@ export default {
       loaded: false,
       live: null,
       current: null,
-      forecast: null,
+      alerts: null,
       temp: null,
       lightning: null,
       astro: null,
@@ -111,8 +106,6 @@ export default {
         rainfallalmanac: false,
         radar: false,
         metar: false,
-        forecasthourly: false,
-        forecastsummary: false,
       },
       modalOptions: null,
     };
@@ -142,14 +135,14 @@ export default {
       axios.get('/api/minmax/tempf').then((response) => (self.temp = response.data));
       axios.get('/api/minmax/lightning').then((response) => (self.lightning = response.data));
       axios.get('/api/current').then((response) => (self.current = response.data));
+      axios.get('/api/alerts').then((response) => (self.alerts = response.data));
       setTimeout(function () {
         updateData(self);
       }, 60000);
     }
     updateData(this);
     this.$options.sockets.onmessage = (msg) => {
-      let data = JSON.parse(msg.data);
-      this.live = data;
+      this.live = JSON.parse(msg.data);
     };
     window.addEventListener(
       'keyup',

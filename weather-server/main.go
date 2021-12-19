@@ -86,7 +86,7 @@ func main() {
 	r.HandleFunc("/api/minmax/{field}", loggingMiddleware(minmax))
 	r.HandleFunc("/api/trend/{type}", loggingMiddleware(trend))
 	r.HandleFunc("/api/wind", loggingMiddleware(wind))
-	r.HandleFunc("/api/forecast", loggingMiddleware(forecast))
+	r.HandleFunc("/api/alerts", loggingMiddleware(alerts))
 	r.HandleFunc("/api/luna", loggingMiddleware(astro))
 	r.HandleFunc("/api/chart/{type}/{period}", loggingMiddleware(chart))
 	r.HandleFunc("/api/alltime/{calc}/{type}", loggingMiddleware(alltime))
@@ -296,15 +296,38 @@ func dewpoint(temp float64, humidity int) float64 {
 	return (dp * 9 / 5) + 32
 }
 
-func forecast(w http.ResponseWriter, r *http.Request) {
-	header := map[string]string{}
-	url := fmt.Sprintf("https://api.darksky.net/forecast/%s/%s,%s", os.Getenv("DARKSKY"), os.Getenv("LAT"), os.Getenv("LON"))
-	res, err := makeRequest(url, header)
+func alerts(w http.ResponseWriter, r *http.Request) {
+	now := time.Now().UTC()
+	alertsSql := fmt.Sprintf("select * from alerts where onset <= '%s' and ends >= '%s'", formatDate(now), formatDate(now))
+	rows, err := db.Query(alertsSql)
+	if err != nil {
+		logger.Error(err)
+	}
+	alerts := make([]Alert,0)
+	for rows.Next() {
+		a := Alert{}
+		err := rows.Scan(&a.ID, &a.Alertid, &a.Wxtype, &a.Areadesc, &a.Sent, &a.Effective, &a.Onset, &a.Expires, &a.Ends, &a.Status, &a.Messagetype, &a.Category, &a.Severity, &a.Certainty, &a.Urgency, &a.Event, &a.Sender, &a.SenderName, &a.Headline, &a.Description, &a.Instruction, &a.Response)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				logger.Error("Zero Rows Found ", alertsSql)
+			} else {
+				logger.Error("Scan: %v", err)
+			}
+		}
+
+		a.Sent = a.Sent.In(loc)
+		a.Effective = a.Effective.In(loc)
+		a.Onset = a.Onset.In(loc)
+		a.Ends = a.Ends.In(loc)
+
+		alerts = append(alerts, a)
+	}
+	b, err := json.Marshal(&alerts)
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
-	w.Write(res)
+	w.Write(b)
 }
 
 func metar(w http.ResponseWriter, r *http.Request) {

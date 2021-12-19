@@ -103,6 +103,31 @@ type Forecast struct {
 	} `json:"properties"`
 }
 
+type Alert struct {
+	ID          int
+	Alertid     string
+	Wxtype      string
+	Areadesc    string
+	Sent        string
+	Effective   string
+	Onset       string
+	Expires     string
+	Ends        string
+	Status      string
+	Messagetype string
+	Category    string
+	Severity    string
+	Certainty   string
+	Urgency     string
+	Event       string
+	Sender      string
+	SenderName  string
+	Headline    string
+	Description string
+	Instruction string
+	Response    string
+}
+
 type Alerts struct {
 	Type     string `json:"type"`
 	Features []struct {
@@ -154,3 +179,4 @@ type Property struct {
 		BLOCKCHANNEL []string `json:"BLOCKCHANNEL"`
 	} `json:"parameters"`
 }
+

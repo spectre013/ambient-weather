@@ -17,8 +17,8 @@
       </svg>
       Weather <ored>Advisory </ored>
     </div>
-    <div class="value" v-if="hasName">
-      <div id="position4" v-if="forecast && alert">
+    <div class="value" v-if="alerts && alert">
+      <div id="position4">
         <div class="eqcirclehomeregional">
           <div class="eqtexthomeregional">
             <div class="uparrow" v-if="multipleAlerts && minAlerts" v-on:click="switchAlert('up')">
@@ -43,11 +43,11 @@
                     >
                       <path d="M16 3 L30 29 2 29 Z M16 11 L16 19 M16 23 L16 25"></path>
                     </svg>
-                    {{ alert.title }}
+                    {{ alert.event }}
                     <!-- : {{ alert.severity }} -->
                   </span> </a
                 ><br /><span v-bind:class="alertColor"
-                  >Expires {{ alert.expires | expire }}</span
+                  >Expires {{ alert.end | expire }}</span
                 ></alertvalue
               >
             </spanelightning>
@@ -82,7 +82,7 @@ import moment from 'moment';
 export default {
   name: 'alerts',
   props: {
-    forecast: Object,
+    alerts: Array,
   },
   data() {
     return {
@@ -91,13 +91,13 @@ export default {
     };
   },
   watch: {
-    forecast: function () {
-      if (Object.prototype.hasOwnProperty.call(this.forecast, 'alerts')) {
-        this.alert = this.forecast.alerts[this.currentAlert];
+    alerts: function () {
+      if (this.alerts.length > 0) {
+        this.alert = this.alerts[this.currentAlert];
       }
     },
     currentAlert: function () {
-      this.alert = this.forecast.alerts[this.currentAlert];
+      this.alert = this.alerts[this.currentAlert];
     },
   },
   mounted() {},
@@ -118,16 +118,16 @@ export default {
   },
   filters: {
     expire: function (date) {
-      return moment.unix(date).format('HH:mm DD MMM');
+      return moment(date).format('HH:mm DD MMM');
     },
   },
   computed: {
     multipleAlerts: function () {
-      return this.forecast.alerts.length > 1;
+      return this.alerts.length > 1;
     },
     maxAlerts: function () {
       let ret = true;
-      if (this.currentAlert + 1 >= this.forecast.alerts.length) {
+      if (this.currentAlert + 1 >= this.alerts.length) {
         ret = false;
       }
       return ret;
@@ -139,15 +139,11 @@ export default {
       }
       return ret;
     },
-    hasName() {
-      if (!this.forecast) return false;
-      return this.containsKey(this.forecast, 'alerts');
-    },
     alertColor: function () {
-      if (this.alert.title.startsWith('911')) {
+      if (this.alert.event.startsWith('911')) {
         return 'Telephone Outage 911'.replace(/\s+/g, '-');
       }
-      return this.alert.title.toLowerCase().replace(/\s+/g, '-');
+      return this.alert.event.toLowerCase().replace(/\s+/g, '-');
     },
   },
 };

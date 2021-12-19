@@ -165,3 +165,28 @@ type Record struct {
 	Lightningdistance float64   `json:"lightningdistance" db:"lightningdistance"`
 	Lightningtime     time.Time `json:"lightningtime" db:"lightningtime"`
 }
+
+type Alert struct {
+	ID          int `json:"id"`
+	Alertid     string `json:"alertid"`
+	Wxtype      string  `json:"wxtype"`
+	Areadesc    string  `json:"areadesc"`
+	Sent        time.Time  `json:"sent"`
+	Effective   time.Time  `json:"effective"`
+	Onset       time.Time  `json:"onset"`
+	Expires     time.Time  `json:"expires"`
+	Ends        time.Time  `json:"end"`
+	Status      string  `json:"status"`
+	Messagetype string  `json:"messagetype"`
+	Category    string  `json:"category"`
+	Severity    string  `json:"severity"`
+	Certainty   string  `json:"certainty"`
+	Urgency     string  `json:"urgency"`
+	Event       string  `json:"event"`
+	Sender      string  `json:"sender"`
+	SenderName  string  `json:"senderName"`
+	Headline    string `json:"headline"`
+	Description string `json:"description"`
+	Instruction string  `json:"instruction"`
+	Response    string  `json:"response"`
+}
