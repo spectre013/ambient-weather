@@ -28,7 +28,7 @@ var loc *time.Location
 var client *twitter.Client
 var tc *gocron.Job
 var tf *gocron.Job
-var alerts *gocron.Job
+var aj *gocron.Job
 var LastModified time.Time
 
 func init() {
@@ -107,7 +107,7 @@ func main() {
 		if err != nil {
 			logger.Error(err)
 		}
-		alerts, err = s.Every(alert).Minute().Do(updateAlerts)
+		aj, err = s.Every(alert).Minute().Do(updateAlerts)
 		if err != nil {
 			logger.Error(err)
 		}
@@ -120,7 +120,7 @@ func main() {
 		if err != nil {
 			logger.Error(err)
 		}
-		alerts, err = s.Cron(os.Getenv("ALERT_CRON")).Do(updateAlerts)
+		aj, err = s.Cron(os.Getenv("ALERT_CRON")).Do(updateAlerts)
 		if err != nil {
 			logger.Error(err)
 		}
@@ -235,6 +235,10 @@ func alertRequest(t string, url string) (body []byte, err error) {
 	body = []byte("")
 	client := &http.Client{}
 	req, err := http.NewRequest(t, url, nil)
+	if err != nil {
+		logger.Error(err)
+	}
+
 	req.Header.Add("User-Agent", `Zoms Weather, wxcos@zoms.net`)
 
 	resp, err := client.Do(req)
@@ -388,36 +392,6 @@ func getRecord(sqlStatement string) Record {
 	}
 
 	return r
-}
-
-func alertCheck() bool {
-	uri := "https://api.weather.gov/alerts/active?area=CO"
-
-	if !LastModified.IsZero() {
-		_, err := alertRequest("HEAD", uri)
-		if err != nil {
-			logger.Error(err)
-			return false
-		}
-	}
-
-	res, err := alertRequest("GET", uri)
-	if err != nil {
-		logger.Error()
-		return false
-	}
-	alerts := Alerts{}
-	err = json.Unmarshal(res, &alerts)
-	if err != nil {
-		logger.Error(err)
-	}
-	for k, v := range alerts.Features {
-		if strings.Contains(v.Properties.AreaDesc,"El Paso") {
-			fmt.Println(k, v.Properties.Event)
-		}
-	}
-
-	return true
 }
 
 func makeRequest(url string, header map[string]string) ([]byte, error) {
