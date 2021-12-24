@@ -212,7 +212,7 @@ func getAlerts() []Property {
 
 	res, err := alertRequest("GET", uri)
 	if err != nil {
-		logger.Error()
+		logger.Error(err)
 		return result
 	}
 	alerts := Alerts{}
@@ -223,7 +223,6 @@ func getAlerts() []Property {
 
 	for _, v := range alerts.Features {
 		if strings.Contains(v.Properties.AreaDesc, "El Paso") {
-			fmt.Println(v.Properties.Event, v.Properties.Ends)
 			result = append(result, v.Properties)
 		}
 	}
@@ -246,23 +245,23 @@ func alertRequest(t string, url string) (body []byte, err error) {
 		err = errors.New("server responded with an error")
 		return body, err
 	}
-	if _, ok := resp.Header["Last-Modified"]; ok {
-		lModified := ""
-		if len(resp.Header["Last-Modified"]) > 0 {
-			lModified = resp.Header["Last-Modified"][0]
-		}
-		l, err := time.Parse("Mon, 2 Jan 2006 15:04:05 GMT", lModified)
-		if err != nil {
-			return []byte(""), err
-		}
-		logger.Info(l.Before(LastModified), l, LastModified)
-		if (l.Before(LastModified) || l.Equal(LastModified)) && !LastModified.IsZero() {
-			logger.Debug("No Updates")
-			logger.Debug(l, LastModified)
-			err = errors.New("cached")
-			return body, err
-		}
-	}
+		//if _, ok := resp.Header["Last-Modified"]; ok {
+		//	lModified := ""
+		//	if len(resp.Header["Last-Modified"]) > 0 {
+		//		lModified = resp.Header["Last-Modified"][0]
+		//	}
+		//	l, err := time.Parse("Mon, 2 Jan 2006 15:04:05 GMT", lModified)
+		//	if err != nil {
+		//		return []byte(""), err
+		//	}
+		//	logger.Info(l.Before(LastModified), l, LastModified)
+		//	if (l.Before(LastModified) || l.Equal(LastModified)) && !LastModified.IsZero() {
+		//		logger.Debug("No Updates")
+		//		logger.Debug(l, LastModified)
+		//		err = errors.New("cached")
+		//		return body, err
+		//	}
+		//}
 	logger.Debug("Alert Updates")
 	if t != "head" {
 		body, err = ioutil.ReadAll(resp.Body)
