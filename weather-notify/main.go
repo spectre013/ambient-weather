@@ -174,7 +174,7 @@ func updateAlerts() {
 
 	iAlerts := getAlerts()
 	for _,v := range iAlerts {
-		rows := db.QueryRow(checkSql)
+		rows := db.QueryRow(checkSql,v.IDURI)
 		var id int
 		err := rows.Scan(&id)
 		if err != nil {
