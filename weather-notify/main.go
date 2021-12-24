@@ -185,7 +185,7 @@ func updateAlerts() {
 				logger.Error("Scan: %v", err)
 			}
 		}
-		if id != -1 {
+		if id == -1 {
 			_, err := db.Exec(insertSql, v.IDURI, v.Type, v.AreaDesc, v.Sent.UTC(), v.Effective.UTC(), v.Onset.UTC(),
 				v.Expires.UTC(), v.Ends.UTC(), v.Status,
 				v.MessageType, v.Category, v.Severity, v.Certainty, v.Urgency, v.Event, v.Sender, v.SenderName,
