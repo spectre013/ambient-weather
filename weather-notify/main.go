@@ -190,6 +190,7 @@ func updateAlerts() {
 				v.Expires.UTC(), v.Ends.UTC(), v.Status,
 				v.MessageType, v.Category, v.Severity, v.Certainty, v.Urgency, v.Event, v.Sender, v.SenderName,
 				v.Headline, v.Description, v.Instruction, v.Response)
+			logger.Info(fmt.Sprintf("Inserted Alert %s", v.Headline))
 			if err != nil {
 				logger.Error(err)
 			}
