@@ -169,12 +169,10 @@ func updateAlerts() {
 	`
 
 
-	checkSql := `select alertid from alerts where alertid = '%s'`
-
-
 	iAlerts := getAlerts()
 	for _,v := range iAlerts {
-		rows := db.QueryRow(checkSql,v.IDURI)
+		checkSql := fmt.Sprintf(`select alertid from alerts where alertid = '%s'`,v.IDURI)
+		rows := db.QueryRow(checkSql)
 		var id int
 		err := rows.Scan(&id)
 		if err != nil {
