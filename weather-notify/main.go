@@ -169,7 +169,7 @@ func updateAlerts() {
 	`
 
 
-	checkSql := `select id from alerts where alertid = '%s'`
+	checkSql := `select alertid from alerts where alertid = '%s'`
 
 
 	iAlerts := getAlerts()
