@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/fogleman/gg"
 	"github.com/go-co-op/gocron"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -16,10 +17,10 @@ import (
 	"strings"
 	"time"
 
-	// other imports
-	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
 	_ "github.com/lib/pq"
+	// other imports
+	"github.com/spectre013/go-twitter/twitter"
 )
 
 var db *sql.DB
@@ -30,6 +31,7 @@ var tc *gocron.Job
 var tf *gocron.Job
 var aj *gocron.Job
 var LastModified time.Time
+var days = []string{"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"}
 
 func init() {
 	logger.Out = os.Stdout
@@ -168,10 +170,9 @@ func updateAlerts() {
 		values (DEFAULT,$1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21)
 	`
 
-
 	iAlerts := getAlerts()
-	for _,v := range iAlerts {
-		checkSql := fmt.Sprintf(`select id from alerts where alertid = '%s'`,v.IDURI)
+	for _, v := range iAlerts {
+		checkSql := fmt.Sprintf(`select id from alerts where alertid = '%s'`, v.IDURI)
 		rows := db.QueryRow(checkSql)
 		var id int
 		err := rows.Scan(&id)
@@ -194,7 +195,6 @@ func updateAlerts() {
 			}
 		}
 	}
-
 
 }
 
@@ -244,23 +244,7 @@ func alertRequest(t string, url string) (body []byte, err error) {
 		err = errors.New("server responded with an error")
 		return body, err
 	}
-		//if _, ok := resp.Header["Last-Modified"]; ok {
-		//	lModified := ""
-		//	if len(resp.Header["Last-Modified"]) > 0 {
-		//		lModified = resp.Header["Last-Modified"][0]
-		//	}
-		//	l, err := time.Parse("Mon, 2 Jan 2006 15:04:05 GMT", lModified)
-		//	if err != nil {
-		//		return []byte(""), err
-		//	}
-		//	logger.Info(l.Before(LastModified), l, LastModified)
-		//	if (l.Before(LastModified) || l.Equal(LastModified)) && !LastModified.IsZero() {
-		//		logger.Debug("No Updates")
-		//		logger.Debug(l, LastModified)
-		//		err = errors.New("cached")
-		//		return body, err
-		//	}
-		//}
+
 	logger.Debug("Alert Updates")
 	if t != "head" {
 		body, err = ioutil.ReadAll(resp.Body)
@@ -325,7 +309,7 @@ func twitterConditions() {
 				from records order by recorded desc limit 1`
 	rec := getRecord(query)
 	t := buildMessage(rec)
-	tweet(t)
+	tweet(t, false)
 
 }
 func twitterForecast() {
@@ -336,7 +320,12 @@ func twitterForecast() {
 	name := f.Properties.Periods[0].Name
 	details := f.Properties.Periods[0].Detailedforecast
 	t := fmt.Sprintf("%s ~ %s #COwx #KCOCOLOR663", name, details)
-	tweet(t)
+	tweet(t,false)
+}
+
+func twitterForecastImage() {
+	createImage()
+	tweet("Colorado Springs Forecast #COwx #KCOCOLOR663", true)
 }
 
 func getForecast() (Forecast, error) {
@@ -366,12 +355,16 @@ func buildMessage(rec Record) string {
 	return t
 }
 
-func tweet(message string) {
+func tweet(message string, includeImage bool) {
 	if logger.Level == logrus.DebugLevel {
 		logger.Info(message)
 	}
 
 	if logger.Level != logrus.DebugLevel {
+		if includeImage {
+			client.Statuses.
+		}
+
 		_, _, err := client.Statuses.Update(message, nil)
 		if err != nil {
 			logger.Println(err)
@@ -393,6 +386,120 @@ func getRecord(sqlStatement string) Record {
 	}
 
 	return r
+}
+
+func createImage() {
+
+	img := gg.NewContext(2300, 1000)
+	img.SetHexColor("#142a4d")
+	img.Clear()
+
+	img.SetHexColor("#FFFFFF")
+	img.SetLineWidth(1)
+	img.DrawLine(0, 120, 2300, 120)
+	img.Stroke()
+
+	if err := img.LoadFontFace("/System/Library/Fonts/Supplemental/Arial.ttf", 96); err != nil {
+		panic(err)
+	}
+
+	img.SetHexColor("#FFFFFF")
+	img.DrawStringAnchored("COLORADO SPRINGS", 525, 60, 0.5, 0.5)
+
+	img = DrawVerticle(img)
+
+	img.SetHexColor("#FFFFFF")
+	img.DrawRectangle(0, 824, 2300, 176)
+	img.Fill()
+	img = DaysOfWeek(img)
+	img = ForecastValues(img)
+
+	img.SavePNG("image.png")
+
+}
+
+func ForecastValues(img *gg.Context) *gg.Context {
+	if err := img.LoadFontFace("/System/Library/Fonts/Supplemental/Arial Black.ttf", 108); err != nil {
+		panic(err)
+	}
+	forecast, err := getForecastImage()
+	if err != nil {
+		fmt.Println(err)
+	}
+	offSet := 163.0
+	for i, v := range forecast.Days {
+
+		img.SetHexColor("#FFFFFF")
+		img.DrawStringAnchored(fmt.Sprintf("%d", int(v.Tempmax)), 326*float64(i)+offSet, 700, 0.5, 0.5)
+		im, err := gg.LoadImage(fmt.Sprintf("icons/%s.png", v.Icon))
+		if err != nil {
+			log.Fatal(err)
+		}
+		img.DrawImage(im, 326*i+50, 300)
+	}
+	if err := img.LoadFontFace("/System/Library/Fonts/Supplemental/Arial.ttf", 88); err != nil {
+		panic(err)
+	}
+
+	for i, v := range forecast.Days {
+		if i < 6 {
+			img.SetHexColor("#142a4d")
+			img.DrawStringAnchored(fmt.Sprintf("%d", int(v.Tempmin)), 326*float64(i+1), 875, 0.5, 0.5)
+		}
+	}
+
+	return img
+}
+
+func DaysOfWeek(img *gg.Context) *gg.Context {
+	if err := img.LoadFontFace("/System/Library/Fonts/Supplemental/Arial Black.ttf", 76); err != nil {
+		panic(err)
+	}
+	today := int(time.Now().Weekday())
+	daysLeft := 7
+	col := 0.0
+	offSet := 163.0
+	for t := today; t < len(days); t++ {
+		img.SetHexColor("#FFFFFF")
+		img.DrawStringAnchored(days[t], 326*col+offSet, 200, 0.5, 0.5)
+		daysLeft--
+		col = col + 1.0
+	}
+	for w := 0; w < daysLeft; w++ {
+		img.SetHexColor("#FFFFFF")
+		img.DrawStringAnchored(days[w], 326*col+offSet, 200, 0.5, 0.5)
+		col = col + 1.0
+	}
+	return img
+}
+
+func DrawVerticle(img *gg.Context) *gg.Context {
+	img.SetHexColor("#FFFFFF")
+	img.SetLineWidth(1)
+	for i := 0.0; i < 7.0; i++ {
+		img.DrawLine(326*i, 120, 326*i, 824)
+		img.Stroke()
+	}
+	img.DrawLine(2299, 120, 2299, 824)
+	img.Stroke()
+	return img
+}
+
+func getForecastImage() (ForecastImage, error) {
+	url := fmt.Sprintf("https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/Colorado%%20Springs?unitGroup=us&iconSets=icon2&include=days&key=%s&contentType=json", os.Getenv("WEATHER_API"))
+	header := map[string]string{}
+	res, err := makeRequest(url, header)
+	if err != nil {
+		logger.Error(err)
+	}
+	f := ForecastImage{}
+	err = json.Unmarshal(res, &f)
+	if err != nil {
+		logger.Error(err)
+		return ForecastImage{}, err
+	}
+	return f, nil
+
 }
 
 func makeRequest(url string, header map[string]string) ([]byte, error) {
