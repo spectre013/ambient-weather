@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"database/sql"
 	"encoding/json"
 	"errors"
@@ -10,26 +11,28 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
+	"io"
 	"io/ioutil"
 	"log"
+	"mime/multipart"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/dghubble/oauth1"
 	_ "github.com/lib/pq"
-	// other imports
-	"github.com/spectre013/go-twitter/twitter"
 )
 
 var db *sql.DB
 var logger = logrus.New()
 var loc *time.Location
-var client *twitter.Client
+var client *http.Client
 var tc *gocron.Job
 var tf *gocron.Job
 var aj *gocron.Job
+var fj *gocron.Job
 var LastModified time.Time
 var days = []string{"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"}
 
@@ -85,7 +88,10 @@ func main() {
 		return
 	}
 
-	client, err = getClient(&creds)
+	//client, err = getClient(&creds)
+	config := oauth1.NewConfig(creds.ConsumerKey, creds.ConsumerSecret)
+	token := oauth1.NewToken(creds.AccessToken, creds.AccessTokenSecret)
+	client = config.Client(oauth1.NoContext, token)
 	if err != nil {
 		log.Println("Error getting Twitter Client")
 		log.Printf("Credentials: %v\n", creds)
@@ -113,6 +119,10 @@ func main() {
 		if err != nil {
 			logger.Error(err)
 		}
+		fj, err = s.Every(forecast).Minute().Do(twitterForecastImage)
+		if err != nil {
+			logger.Error(err)
+		}
 	} else {
 		tc, err = s.Cron(os.Getenv("TC_CRON")).Do(twitterConditions)
 		if err != nil {
@@ -126,6 +136,10 @@ func main() {
 		if err != nil {
 			logger.Error(err)
 		}
+		fj, err = s.Cron(os.Getenv("FI_CRON")).Do(twitterForecastImage)
+		if err != nil {
+			logger.Error(err)
+		}
 	}
 
 	if err != nil {
@@ -136,6 +150,7 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/job/{jobid}", loggingMiddleware(getJob))
+	r.HandleFunc("/force/{type}", loggingMiddleware(force))
 	srv := &http.Server{
 		Handler: r,
 		Addr:    ":" + os.Getenv("PORT"),
@@ -275,30 +290,46 @@ func getJob(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getClient(creds *Credentials) (*twitter.Client, error) {
-	// Pass in your consumer key (API Key) and your Consumer Secret (API Secret)
-	config := oauth1.NewConfig(creds.ConsumerKey, creds.ConsumerSecret)
-	// Pass in your Access Token and your Access Token Secret
-	token := oauth1.NewToken(creds.AccessToken, creds.AccessTokenSecret)
-
-	httpClient := config.Client(oauth1.NoContext, token)
-	client := twitter.NewClient(httpClient)
-
-	// Verify Credentials
-	verifyParams := &twitter.AccountVerifyParams{
-		SkipStatus:   twitter.Bool(true),
-		IncludeEmail: twitter.Bool(true),
+func force(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	t := vars["type"]
+	switch t {
+	case "conditions":
+		twitterConditions()
+		break
+	case "forecast":
+		twitterForecast()
+		break
+	case "forecastImage":
+		twitterForecastImage()
+		break
 	}
-
-	// we can retrieve the user and verify if the credentials
-	// we have used successfully allow us to log in!
-	user, _, err := client.Accounts.VerifyCredentials(verifyParams)
-	if err != nil {
-		return nil, err
-	}
-	logger.Info("Logged ", user.Name, " into Twitter")
-	return client, nil
 }
+
+//func getClient(creds *Credentials) (*twitter.Client, error) {
+//	// Pass in your consumer key (API Key) and your Consumer Secret (API Secret)
+//	config := oauth1.NewConfig(creds.ConsumerKey, creds.ConsumerSecret)
+//	// Pass in your Access Token and your Access Token Secret
+//	token := oauth1.NewToken(creds.AccessToken, creds.AccessTokenSecret)
+//
+//	httpClient := config.Client(oauth1.NoContext, token)
+//	client := twitter.NewClient(httpClient)
+//
+//	// Verify Credentials
+//	verifyParams := &twitter.AccountVerifyParams{
+//		SkipStatus:   twitter.Bool(true),
+//		IncludeEmail: twitter.Bool(true),
+//	}
+//
+//	// we can retrieve the user and verify if the credentials
+//	// we have used successfully allow us to log in!
+//	user, _, err := client.Accounts.VerifyCredentials(verifyParams)
+//	if err != nil {
+//		return nil, err
+//	}
+//	logger.Info("Logged ", user.Name, " into Twitter")
+//	return client, nil
+//}
 
 func twitterConditions() {
 	query := `select id,mac,recorded,baromabsin,baromrelin,co2,dailyrainin,dewpoint,eventrainin,feelslike,
@@ -320,18 +351,17 @@ func twitterForecast() {
 	name := f.Properties.Periods[0].Name
 	details := f.Properties.Periods[0].Detailedforecast
 	t := fmt.Sprintf("%s ~ %s #COwx #KCOCOLOR663", name, details)
-	tweet(t,false)
+	tweet(t, false)
 }
 
 func twitterForecastImage() {
-	createImage()
 	tweet("Colorado Springs Forecast #COwx #KCOCOLOR663", true)
 }
 
 func getForecast() (Forecast, error) {
 	url := "https://api.weather.gov/zones/forecast/COZ085/forecast"
 	header := map[string]string{}
-	res, err := makeRequest(url, header)
+	res, err := makeRequest(url, "GET", nil, header)
 	if err != nil {
 		logger.Error(err)
 	}
@@ -356,20 +386,78 @@ func buildMessage(rec Record) string {
 }
 
 func tweet(message string, includeImage bool) {
+
 	if logger.Level == logrus.DebugLevel {
 		logger.Info(message)
+		if includeImage {
+			res := uploadImage()
+			logger.Info(res.MediaID)
+		}
 	}
-
+	values := url.Values{"status": {message}}
 	if logger.Level != logrus.DebugLevel {
 		if includeImage {
-			client.Statuses.
+			res := uploadImage()
+			values = url.Values{"status": {message}, "media_ids": {fmt.Sprintf("%d", res.MediaID)}}
 		}
 
-		_, _, err := client.Statuses.Update(message, nil)
+		// post status with media id
+		resp, err := client.PostForm("https://api.twitter.com/1.1/statuses/update.json", values)
+		// parse response
+		_, err = ioutil.ReadAll(resp.Body)
 		if err != nil {
-			logger.Println(err)
+			fmt.Printf("Error: %s\n", err)
 		}
 	}
+}
+
+func Open(f string) *os.File {
+	r, err := os.Open(f)
+	if err != nil {
+		panic(err)
+	}
+	return r
+}
+
+func uploadImage() *MediaResponse {
+	var err error
+	createImage()
+
+	// create body form
+	b := &bytes.Buffer{}
+	form := multipart.NewWriter(b)
+
+	// create media paramater
+	fw, err := form.CreateFormFile("media", "image.png")
+	if err != nil {
+		panic(err)
+	}
+	// open file
+	opened, err := os.Open("image.png")
+	if err != nil {
+		panic(err)
+	}
+	// copy to form
+	_, err = io.Copy(fw, opened)
+	if err != nil {
+		panic(err)
+	}
+	// close form
+	form.Close()
+
+	// upload media
+	resp, err := client.Post("https://upload.twitter.com/1.1/media/upload.json?media_category=tweet_image", form.FormDataContentType(), bytes.NewReader(b.Bytes()))
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+	}
+	defer resp.Body.Close()
+
+	// decode response and get media id
+	m := &MediaResponse{}
+	_ = json.NewDecoder(resp.Body).Decode(m)
+
+	return m
+
 }
 
 func getRecord(sqlStatement string) Record {
@@ -488,7 +576,7 @@ func DrawVerticle(img *gg.Context) *gg.Context {
 func getForecastImage() (ForecastImage, error) {
 	url := fmt.Sprintf("https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/Colorado%%20Springs?unitGroup=us&iconSets=icon2&include=days&key=%s&contentType=json", os.Getenv("WEATHER_API"))
 	header := map[string]string{}
-	res, err := makeRequest(url, header)
+	res, err := makeRequest(url, "GET", nil, header)
 	if err != nil {
 		logger.Error(err)
 	}
@@ -502,10 +590,10 @@ func getForecastImage() (ForecastImage, error) {
 
 }
 
-func makeRequest(url string, header map[string]string) ([]byte, error) {
+func makeRequest(url string, method string, inputbody io.Reader, header map[string]string) ([]byte, error) {
 	logger.Debug(url)
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest(method, url, inputbody)
 	if err != nil {
 		logger.Error(err)
 	}

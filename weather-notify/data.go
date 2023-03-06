@@ -279,3 +279,15 @@ type ForecastImage struct {
 		} `json:"KCOS"`
 	} `json:"stations"`
 }
+
+type MediaResponse struct {
+	MediaID          int64  `json:"media_id"`
+	MediaIDString    string `json:"media_id_string"`
+	MediaKey         string `json:"media_key"`
+	Size             int    `json:"size"`
+	ExpiresAfterSecs int    `json:"expires_after_secs"`
+	ProcessingInfo   struct {
+		State          string `json:"state"`
+		CheckAfterSecs int    `json:"check_after_secs"`
+	} `json:"processing_info"`
+}

@@ -9,7 +9,7 @@ ambient.sql
 bfg-1.13.2.jar
 .DS_Store
 /dist
-
+image.png
 
 # Log files
 npm-debug.log*
