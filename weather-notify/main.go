@@ -521,7 +521,7 @@ func ForecastValues(img *gg.Context) *gg.Context {
 
 		img.SetHexColor("#FFFFFF")
 		img.DrawStringAnchored(fmt.Sprintf("%d", int(v.Tempmax)), 326*float64(i)+offSet, 700, 0.5, 0.5)
-		im, err := gg.LoadImage(fmt.Sprintf("icons/%s.png", v.Icon))
+		im, err := gg.LoadImage(fmt.Sprintf("/go/bin/icons/%s.png", v.Icon))
 		if err != nil {
 			log.Fatal(err)
 		}
