@@ -10,16 +10,16 @@ WORKDIR /weather-notify
 # We want to populate the module cache based on the go.{mod,sum} files.
 COPY . .
 RUN go mod download
-RUN ls -l 
+RUN ls -l
 #build the binary
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags="-w -s" -o /go/bin/weather-notify
 # STEP 2 build a small image
 # start from scratch
-FROM scratch
+FROM ubuntu:latest
 ENV TZ America/Denver
 # Copy our static executable
-COPY --from=builder /weather-notify/fonts/ /go/bin/
-COPY --from=builder /weather-notify/icons/ /go/bin/
+COPY --from=builder /weather-notify/fonts/ /go/bin/fonts/
+COPY --from=builder /weather-notify/icons/ /go/bin/icons/
 COPY --from=builder /go/bin/weather-notify /go/bin/weather-notify
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
