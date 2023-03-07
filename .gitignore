@@ -5,6 +5,8 @@ weather.db
 .idea/
 *.iml
 ambient-weather
+ambient-weather.exe
+weather-notify.exe
 ambient.sql
 bfg-1.13.2.jar
 .DS_Store
