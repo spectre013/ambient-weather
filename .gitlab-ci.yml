@@ -19,12 +19,14 @@ build ui:
 lint server:
   stage: lint
   script:
+    - export PATH=$PATH:/usr/local/go/bin
     - cd weather-server
     - staticcheck ./...
 
 lint notify:
   stage: lint
   script:
+    - export PATH=$PATH:/usr/local/go/bin
     - cd weather-notify
     - staticcheck ./...
 
@@ -32,7 +34,6 @@ lint ui:
   stage: lint
   script:
     - cd weather-ui
-    - ls -l
     - npm run lint
 
 
@@ -47,13 +48,13 @@ server:
   stage: build docker
   script:
     - cd weather-server
-    - docker build -t $DOCKER_REGISTRY/production/weather-server:1.7 .
-    - docker push $DOCKER_REGISTRY/production/weather-server:1.7
+    - docker build -t $DOCKER_REGISTRY/production/weather-server:1.8 .
+    - docker push $DOCKER_REGISTRY/production/weather-server:1.8
 
 notify:
   stage: build docker
   script:
     - cd weather-notify
-    - docker build -t $DOCKER_REGISTRY/production/weather-notify:1.0 .
-    - docker push $DOCKER_REGISTRY/production/weather-notify:1.0
+    - docker build -t $DOCKER_REGISTRY/production/weather-notify:1.1 .
+    - docker push $DOCKER_REGISTRY/production/weather-notify:1.1
 
