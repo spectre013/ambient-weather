@@ -22,8 +22,8 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflag
 FROM scratch
 ENV TZ America/Denver
 # Copy our static executable
-COPY --from=builder fonts/ /go/bin/
-COPY --from=builder icons/ /go/bin/
+COPY --from=builder /weather-notify/fonts/ /go/bin/
+COPY --from=builder /weather-notify/icons/ /go/bin/
 COPY --from=builder /go/bin/weather-notify /go/bin/weather-notify
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
