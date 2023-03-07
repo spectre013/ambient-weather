@@ -489,7 +489,7 @@ func createImage() {
 	img.DrawLine(0, 120, 2300, 120)
 	img.Stroke()
 
-	if err := img.LoadFontFace("/System/Library/Fonts/Supplemental/Arial.ttf", 96); err != nil {
+	if err := img.LoadFontFace("fonts/Arial.ttf", 96); err != nil {
 		panic(err)
 	}
 
@@ -509,7 +509,7 @@ func createImage() {
 }
 
 func ForecastValues(img *gg.Context) *gg.Context {
-	if err := img.LoadFontFace("/System/Library/Fonts/Supplemental/Arial Black.ttf", 108); err != nil {
+	if err := img.LoadFontFace("fonts/Arial Black.ttf", 108); err != nil {
 		panic(err)
 	}
 	forecast, err := getForecastImage()
@@ -527,7 +527,7 @@ func ForecastValues(img *gg.Context) *gg.Context {
 		}
 		img.DrawImage(im, 326*i+50, 300)
 	}
-	if err := img.LoadFontFace("/System/Library/Fonts/Supplemental/Arial.ttf", 88); err != nil {
+	if err := img.LoadFontFace("fonts/Arial.ttf", 88); err != nil {
 		panic(err)
 	}
 
@@ -542,7 +542,7 @@ func ForecastValues(img *gg.Context) *gg.Context {
 }
 
 func DaysOfWeek(img *gg.Context) *gg.Context {
-	if err := img.LoadFontFace("/System/Library/Fonts/Supplemental/Arial Black.ttf", 76); err != nil {
+	if err := img.LoadFontFace("fonts/Arial Black.ttf", 76); err != nil {
 		panic(err)
 	}
 	today := int(time.Now().Weekday())
