@@ -12,7 +12,6 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 	"io"
-	"io/ioutil"
 	"log"
 	"mime/multipart"
 	"net/http"
@@ -262,7 +261,7 @@ func alertRequest(t string, url string) (body []byte, err error) {
 
 	logger.Debug("Alert Updates")
 	if t != "head" {
-		body, err = ioutil.ReadAll(resp.Body)
+		body, err = io.ReadAll(resp.Body)
 		if err != nil {
 			logger.Error(err)
 			return
@@ -287,6 +286,9 @@ func getJob(w http.ResponseWriter, r *http.Request) {
 	case "aj":
 		r := fmt.Sprintf("Last Run: %s, Next Run: %s", aj.LastRun(), aj.NextRun())
 		w.Write([]byte(r))
+	case "fj":
+		r := fmt.Sprintf("Last Run: %s, Next Run: %s", fj.LastRun(), fj.NextRun())
+		w.Write([]byte(r))
 	}
 }
 
@@ -296,13 +298,10 @@ func force(w http.ResponseWriter, r *http.Request) {
 	switch t {
 	case "conditions":
 		twitterConditions()
-		break
 	case "forecast":
 		twitterForecast()
-		break
 	case "forecastImage":
 		twitterForecastImage()
-		break
 	}
 }
 
@@ -403,10 +402,13 @@ func tweet(message string, includeImage bool) {
 
 		// post status with media id
 		resp, err := client.PostForm("https://api.twitter.com/1.1/statuses/update.json", values)
-		// parse response
-		_, err = ioutil.ReadAll(resp.Body)
 		if err != nil {
-			fmt.Printf("Error: %s\n", err)
+			logger.Error("Error: %s\n", err)
+		}
+		// parse response
+		_, err = io.ReadAll(resp.Body)
+		if err != nil {
+			logger.Error("Error: %s\n", err)
 		}
 	}
 }
@@ -611,7 +613,7 @@ func makeRequest(url string, method string, inputbody io.Reader, header map[stri
 		return nil, err
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		logger.Error(err)
 		return nil, err
