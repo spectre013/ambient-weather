@@ -16,12 +16,6 @@ app.use(VueNativeSock, wsurl, {
     reconnection: true,
 });
 
-app.config.globalProperties.$filters = {
-    currencyUSD(value) {
-        return '$' + value
-    }
-}
-
 app.use(router)
 
 app.mount('#app')

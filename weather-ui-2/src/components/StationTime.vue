@@ -1,7 +1,7 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { onMounted, watch } from 'vue'
 import moment from 'moment';
-
+let timer = null;
 let currentDate = moment();
 
 function showTime() {
@@ -9,11 +9,11 @@ function showTime() {
 }
 
 function timeShow() {
-  this.showTime();
-  if (this._timer) clearInterval(this._timer);
+  showTime();
+  if (timer) clearInterval(timer);
 
-  this._timer = setInterval(() => {
-    this.showTime();
+  timer = setInterval(() => {
+    showTime();
   }, 1000);
 }
 
@@ -26,33 +26,14 @@ function dateFormat(date) {
 }
 
 onMounted(() => {
-  this.date = moment();
+  currentDate = moment();
   timeShow();
 });
 
-watch(showTime, () => {
-
+watch(currentDate, () => {
+  timeShow();
 })
 
-
-export default {
-  name: 'stationtime',
-  data() {
-    return {
-      date: moment(),
-    };
-  },
-  watch: {
-    time() {
-      this.show();
-    },
-  },
-  mounted() {
-    this.date = moment();
-    this.show();
-  },
-
-};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
@@ -119,8 +100,8 @@ export default {
         </div>
         <span id="theTime">
           <div class="weatherclock34">
-            {{ currentDate | dateFormat }}
-            <div class="orangeclock">{{ currentDate | timeFormat }}</div>
+            {{ dateFormat(currentDate) }}
+            <div class="orangeclock">{{ timeFormat(currentDate) }}</div>
           </div>
         </span>
       </div>
