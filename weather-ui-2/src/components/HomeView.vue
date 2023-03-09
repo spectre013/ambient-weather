@@ -1,5 +1,5 @@
 <script setup>
-import {ref, onMounted} from 'vue';
+import {ref, onMounted, onBeforeMount} from 'vue';
 import axios from 'axios';
 import StationTime from './StationTime.vue'
 
@@ -41,45 +41,48 @@ let models = ref({
       radar: false,
       metar: false,
 });
-// let modalOptions = ref(null)
-// function showModal(type, options) {
-//   this.modalOptions = options;
-//   this.models[type] = true;
-// }
-// function closeModal(type) {
-//   this.models[type] = false;
-// }
+let modalOptions = ref(null)
+
+function showModal(type, options) {
+  modalOptions.value = options;
+  models[type] = true;
+}
+function closeModal(type) {
+  models[type] = false;
+}
 
 
-  // beforeCreate() {
-  //   this.$store.dispatch('getSettings');
-  // },
-  // beforeMount() {
-  //   this.setStyle();
-  //   this.loaded = true;
-  // },
+// beforeCreate() {
+//   this.$store.dispatch('getSettings');
+
+
+onBeforeMount(() => {
+  //this.setStyle();
+  loaded.value = true;
+});
+
 onMounted(() => {
-    axios.get('/api/luna').then((response) => (this.astro = response.data));
-    function updateData(self) {
-      axios.get('/api/wind').then((response) => (self.wind = response.data));
-      axios.get('/api/minmax/tempf').then((response) => (self.temp = response.data));
-      axios.get('/api/minmax/lightning').then((response) => (self.lightning = response.data));
-      axios.get('/api/current').then((response) => (self.current = response.data));
-      axios.get('/api/alerts').then((response) => (self.alerts = response.data));
+    axios.get('/api/luna').then((response) => (astro.value = response.data));
+    function updateData() {
+      axios.get('/api/wind').then((response) => (wind.value = response.data));
+      axios.get('/api/minmax/tempf').then((response) => (temp.value = response.data));
+      axios.get('/api/minmax/lightning').then((response) => (lightning.value = response.data));
+      axios.get('/api/current').then((response) => (current.value = response.data));
+      axios.get('/api/alerts').then((response) => (alerts.value = response.data));
       setTimeout(function () {
         updateData(self);
       }, 60000);
     }
-    updateData(this);
+    updateData();
     this.$options.sockets.onmessage = (msg) => {
-      this.live = JSON.parse(msg.data);
+      live.value = JSON.parse(msg.data);
     };
     window.addEventListener(
       'keyup',
       (e) => {
         if (e.key === 'Escape') {
-          Object.keys(this.models).forEach((modal) => {
-            this.closeModal(modal);
+          Object.keys(models).forEach((modal) => {
+            closeModal(modal);
           });
         }
       },
