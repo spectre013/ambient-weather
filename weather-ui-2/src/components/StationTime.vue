@@ -1,20 +1,11 @@
 <script setup>
-import { onMounted, watch } from 'vue'
+import { onMounted, ref } from 'vue'
 import moment from 'moment';
 let timer = null;
-let currentDate = moment();
+let currentDate = ref(moment());
 
 function showTime() {
-  currentDate = moment();
-}
-
-function timeShow() {
-  showTime();
-  if (timer) clearInterval(timer);
-
-  timer = setInterval(() => {
-    showTime();
-  }, 1000);
+  currentDate.value = moment();
 }
 
 function timeFormat(date) {
@@ -26,13 +17,14 @@ function dateFormat(date) {
 }
 
 onMounted(() => {
-  currentDate = moment();
-  timeShow();
+  showTime();
+  if (timer) clearInterval(timer);
+
+  timer = setInterval(() => {
+    showTime();
+  }, 1000);
 });
 
-watch(currentDate, () => {
-  timeShow();
-})
 
 </script>
 

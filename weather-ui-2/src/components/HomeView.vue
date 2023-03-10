@@ -1,9 +1,9 @@
 <script setup>
-import {ref, onMounted, onBeforeMount} from 'vue';
+import {ref, onMounted, onBeforeMount, getCurrentInstance} from 'vue';
 import axios from 'axios';
 import StationTime from './StationTime.vue'
+import MinMax from './MinMax.vue';
 
-// import MinMax from './MinMax';
 // import Rainfall from './Rainfall';
 // import Alert from './Alert';
 // import Temperature from './Temperature';
@@ -41,7 +41,10 @@ let models = ref({
       radar: false,
       metar: false,
 });
+
 let modalOptions = ref(null)
+
+const { proxy } = getCurrentInstance();
 
 function showModal(type, options) {
   modalOptions.value = options;
@@ -50,7 +53,6 @@ function showModal(type, options) {
 function closeModal(type) {
   models[type] = false;
 }
-
 
 // beforeCreate() {
 //   this.$store.dispatch('getSettings');
@@ -73,10 +75,13 @@ onMounted(() => {
         updateData(self);
       }, 60000);
     }
+
     updateData();
-    this.$options.sockets.onmessage = (msg) => {
+
+    proxy.$socket.onmessage = ({msg}) => {
+      console.log(msg);
       live.value = JSON.parse(msg.data);
-    };
+    }
     window.addEventListener(
       'keyup',
       (e) => {
@@ -98,10 +103,10 @@ onMounted(() => {
 </script>
 <template>
   <div id="app">
-    <Menu />
+<!--    <Menu />-->
     <div class="weather2-container">
       <StationTime />
-      <!--      <MinMax :temp="temp" />-->
+      <MinMax :temp="temp" />
       <!--      <Rainfall :current="current" />-->
       <!--      <Alert :alerts="alerts" />-->
     </div>
