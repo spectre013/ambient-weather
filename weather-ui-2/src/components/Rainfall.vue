@@ -20,47 +20,44 @@
     <div class="value" v-if="current">
       <div id="position3">
         <div class="topmin">
-          <topblue1
-            >{{ current.monthlyrainin | rainDisplay($store.getters.units)
-            }}<smallwindunit>{{ rainLabel }}</smallwindunit></topblue1
-          >
+          <topblue1>
+            {{ weather.rainDisplay(props.current.monthlyrainin, store.getters.units) }}
+            <smallwindunit>{{ weather.rainLabel(store) }}</smallwindunit></topblue1>
         </div>
-        <div class="minword">{{ current.date | month }}</div>
+        <div class="minword">{{ month(props.current.date) }}</div>
         <div class="mintimedate">Total</div>
-        <div class="yearwordbig">{{ current.date | year }}</div>
+        <div class="yearwordbig">{{ year(props.current.date) }}</div>
         <div class="topmax">
-          <topblue1
-            >{{ current.yearlyrainin | rainDisplay($store.getters.units)
-            }}<smallwindunit>{{ rainLabel }}</smallwindunit></topblue1
-          >
+          <topblue1>
+            {{ weather.rainDisplay(props.current.yearlyrainin, store.getters.units) }}
+            <smallwindunit>{{ weather.rainLabel(store) }}</smallwindunit>
+          </topblue1>
         </div>
-        <div class="maxword">{{ current.date | year }}</div>
+        <div class="maxword">{{ year(props.current.date) }}</div>
         <div class="maxtimedate">Total</div>
       </div>
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
+import * as weather from '@/weather'
 import moment from 'moment';
+import { useStore } from 'vuex'
 
-export default {
-  name: 'rainfall',
-  props: {
-    current: Object,
-  },
-  mounted() {},
-  methods: {},
-  filters: {
-    year: function (date) {
-      return moment(date).format('YYYY');
-    },
-    month: function (date) {
-      return moment(date).format('MMM');
-    },
-  },
-  computed: {},
-};
+const store = useStore()
+const props = defineProps({
+  current: Object
+});
+
+function year(date) {
+  return moment(date).format('YYYY');
+}
+function month(date) {
+  return moment(date).format('MMM');
+}
+
+
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

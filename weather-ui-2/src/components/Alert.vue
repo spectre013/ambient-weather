@@ -17,7 +17,7 @@
       </svg>
       Weather <ored>Advisory </ored>
     </div>
-    <div class="value" v-if="alerts && alert">
+    <div class="value" v-if="props.alerts && alert">
       <div id="position4">
         <div class="eqcirclehomeregional">
           <div class="eqtexthomeregional">
@@ -76,77 +76,140 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { getCurrentInstance } from "vue";
 import moment from 'moment';
+import {ref} from "vue";
 
-export default {
-  name: 'alerts',
-  props: {
-    alerts: Array,
-  },
-  data() {
-    return {
-      alert: null,
-      currentAlert: 0,
-    };
-  },
-  watch: {
-    alerts: function () {
-      if (this.alerts.length > 0) {
-        this.alert = this.alerts[this.currentAlert];
-      }
-    },
-    currentAlert: function () {
-      this.alert = this.alerts[this.currentAlert];
-    },
-  },
-  mounted() {},
-  methods: {
-    containsKey(obj, key) {
-      return Object.keys(obj).includes(key);
-    },
-    openModal: function (type, options) {
-      this.$parent.showModal(type, options);
-    },
-    switchAlert(dir) {
-      if (dir === 'up' && this.currentAlert > 0) {
-        this.currentAlert--;
-      } else if (this.currentAlert <= this.forecast.alerts.length) {
-        this.currentAlert++;
-      }
-    },
-  },
-  filters: {
-    expire: function (date) {
-      return moment(date).format('HH:mm DD MMM');
-    },
-  },
-  computed: {
-    multipleAlerts: function () {
-      return this.alerts.length > 1;
-    },
-    maxAlerts: function () {
-      let ret = true;
-      if (this.currentAlert + 1 >= this.alerts.length) {
-        ret = false;
-      }
-      return ret;
-    },
-    minAlerts: function () {
-      let ret = true;
-      if (this.currentAlert - 1 < 0) {
-        ret = false;
-      }
-      return ret;
-    },
-    alertColor: function () {
-      if (this.alert.event.startsWith('911')) {
-        return 'Telephone Outage 911'.replace(/\s+/g, '-');
-      }
-      return this.alert.event.toLowerCase().replace(/\s+/g, '-');
-    },
-  },
-};
+const instance = getCurrentInstance();
+const props = defineProps({
+  alerts: Array
+});
+let alert = ref(null)
+let currentAlert = ref(0)
+
+// watch: {
+//   alerts: function () {
+//     if (this.alerts.length > 0) {
+//       this.alert = this.alerts[this.currentAlert];
+//     }
+//   },
+//   currentAlert: function () {
+//     this.alert = this.alerts[this.currentAlert];
+//   },
+// },
+
+function containsKey(obj, key) {
+  return Object.keys(obj).includes(key);
+}
+function openModal(type, options) {
+  this.instance.parent.showModal(type, options);
+}
+function switchAlert(dir) {
+  if (dir === 'up' && this.currentAlert > 0) {
+    this.currentAlert--;
+  } else if (this.currentAlert <= this.forecast.alerts.length) {
+    this.currentAlert++;
+  }
+}
+
+function expire(date) {
+  return moment(date).format('HH:mm DD MMM');
+}
+
+function multipleAlerts() {
+  return props.alerts.length > 1;
+}
+function maxAlerts() {
+  let ret = true;
+  if (this.currentAlert + 1 >= props.alerts.length) {
+    ret = false;
+  }
+  return ret;
+}
+function minAlerts() {
+  let ret = true;
+  if (this.currentAlert - 1 < 0) {
+    ret = false;
+  }
+  return ret;
+}
+function alertColor() {
+  if (this.alert.event.startsWith('911')) {
+    return 'Telephone Outage 911'.replace(/\s+/g, '-');
+  }
+  return this.alert.event.toLowerCase().replace(/\s+/g, '-');
+}
+
+
+// export default {
+//   name: 'alerts',
+//   props: {
+//     alerts: Array,
+//   },
+//   data() {
+//     return {
+//       alert: null,
+//       currentAlert: 0,
+//     };
+//   },
+//   watch: {
+//     alerts: function () {
+//       if (this.alerts.length > 0) {
+//         this.alert = this.alerts[this.currentAlert];
+//       }
+//     },
+//     currentAlert: function () {
+//       this.alert = this.alerts[this.currentAlert];
+//     },
+//   },
+//   mounted() {},
+//   methods: {
+//     containsKey(obj, key) {
+//       return Object.keys(obj).includes(key);
+//     },
+//     openModal: function (type, options) {
+//       this.$parent.showModal(type, options);
+//     },
+//     switchAlert(dir) {
+//       if (dir === 'up' && this.currentAlert > 0) {
+//         this.currentAlert--;
+//       } else if (this.currentAlert <= this.forecast.alerts.length) {
+//         this.currentAlert++;
+//       }
+//     },
+//   },
+//   filters: {
+//     expire: function (date) {
+//       return moment(date).format('HH:mm DD MMM');
+//     },
+//   },
+//   computed: {
+//     multipleAlerts: function () {
+//       return this.alerts.length > 1;
+//     },
+//     maxAlerts: function () {
+//       let ret = true;
+//       if (this.currentAlert + 1 >= this.alerts.length) {
+//         ret = false;
+//       }
+//       return ret;
+//     },
+//     minAlerts: function () {
+//       let ret = true;
+//       if (this.currentAlert - 1 < 0) {
+//         ret = false;
+//       }
+//       return ret;
+//     },
+//     alertColor: function () {
+//       if (this.alert.event.startsWith('911')) {
+//         return 'Telephone Outage 911'.replace(/\s+/g, '-');
+//       }
+//       return this.alert.event.toLowerCase().replace(/\s+/g, '-');
+//     },
+//   },
+// };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

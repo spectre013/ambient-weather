@@ -3,10 +3,9 @@ import {ref, onMounted, onBeforeMount, getCurrentInstance} from 'vue';
 import axios from 'axios';
 import StationTime from './StationTime.vue'
 import MinMax from './MinMax.vue';
-
-// import Rainfall from './Rainfall';
-// import Alert from './Alert';
-// import Temperature from './Temperature';
+import Rainfall from './Rainfall.vue';
+import Alert from './Alert.vue';
+import Temperature from './Temperature.vue';
 // import RainfallDetails from './RainfallDetails';
 // import Wind from './Wind';
 // import Barometer from './Barometer';
@@ -71,6 +70,7 @@ onMounted(() => {
       axios.get('/api/minmax/lightning').then((response) => (lightning.value = response.data));
       axios.get('/api/current').then((response) => (current.value = response.data));
       axios.get('/api/alerts').then((response) => (alerts.value = response.data));
+
       setTimeout(function () {
         updateData(self);
       }, 60000);
@@ -107,14 +107,14 @@ onMounted(() => {
     <div class="weather2-container">
       <StationTime />
       <MinMax :temp="temp" />
-      <!--      <Rainfall :current="current" />-->
-      <!--      <Alert :alerts="alerts" />-->
+      <Rainfall :current="current" />
+      <Alert :alerts="alerts" />
     </div>
-    <!--    <div class="weather-container">-->
-    <!--      <Temperature :current="live" :temp="temp" v-on:openModal="showModal" />-->
-    <!--      <Wind :current="live" :wind="wind" />-->
-    <!--      <RainfallDetails :current="current" />-->
-    <!--    </div>-->
+    <div class="weather-container">
+      <Temperature :current="live" :temp="temp" v-on:openModal="showModal" />
+<!--      <Wind :current="live" :wind="wind" />-->
+<!--      <RainfallDetails :current="current" />-->
+    </div>
     <!--    <div class="weather-container">-->
     <!--      <Barometer :current="live" />-->
     <!--      <Moon :astro="astro" />-->
