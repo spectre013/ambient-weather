@@ -55,7 +55,7 @@
             <polyline style="fill: #af1909" points="384,272 472,272 472,400 "></polyline>
             <g></g>
           </svg>
-          {{ 'Y' | chartDates }}
+          {{ chartDates('Y') }}
         </a></span
       >
       <span class="todaypopup">
@@ -90,7 +90,7 @@
             <polyline style="fill: #af1909" points="384,272 472,272 472,400 "></polyline>
             <g></g>
           </svg>
-          {{ 'MMM' | chartDates }}
+          {{ chartDates('MMM') }}
         </a></span
       >
       <span class="todaypopup">
@@ -131,10 +131,10 @@
       >
     </div>
     <span class="moduletitle">
-      Temperature (<valuetitleunit>&deg;{{ tempLabel }}</valuetitleunit
+      Temperature (<valuetitleunit>&deg;{{ weather.tempLabel(store) }}</valuetitleunit
       >) </span
     ><br />
-    <div id="temperature" v-if="temp && current && trend">
+    <div id="temperature" v-if="props.temp && props.current && trend">
       <div class="updatedtime">
         <span
           ><svg
@@ -151,17 +151,17 @@
             <path d="M16 14 L16 23 M16 8 L16 10"></path>
             <circle cx="16" cy="16" r="14"></circle>
           </svg>
-          {{ current.date | now }}
+          {{ now(props.current.date) }}
         </span>
       </div>
       <div class="tempcontainer">
         <div class="maxdata">
-          {{ temp.max.day.value | tempDisplay($store.getters.units) }}&deg; |
-          {{ temp.min.day.value | tempDisplay($store.getters.units) }}&deg;
+          {{ weather.tempDisplay(props.temp.max.day.value, store.getters.units) }}&deg; |
+          {{ weather.tempDisplay(props.temp.min.day.value, store.getters.units) }}&deg;
         </div>
-        <div v-bind:class="current.tempf | tempClass">
-          {{ current.tempf | tempDisplay($store.getters.units)
-          }}<smalltempunit>&deg;{{ tempLabel }}</smalltempunit>
+        <div v-bind:class="weather.tempClass(props.current.tempf)">
+          {{ weather.tempDisplay(props.current.tempf, store.getters.units) }}
+          <smalltempunit>&deg;{{ weather.tempLabel(store) }}</smalltempunit>
         </div>
         <div class="temptrendx">
           <trendmovementfallingx v-if="trend.trend == 'down'"
@@ -220,11 +220,9 @@
         <div class="heatcircle-content">
           <valuetextheading1>Feels</valuetextheading1><br />
           <div class="tempconverter1">
-            <div v-bind:class="current.feelslike | smallTempClass">
-              {{ current.feelslike | tempDisplay($store.getters.units, 2)
-              }}<smalltempunit2
-                >&deg;{{ tempLabel }}<smalltempunit2></smalltempunit2>
-              </smalltempunit2>
+            <div v-bind:class="weather.smallTempClass(props.current.feelslike)">
+              {{ weather.tempDisplay(props.current.feelslike, store.getters.units, 2) }}
+              <smalltempunit2>&deg;{{ weather.tempLabel(store) }}</smalltempunit2>
             </div>
           </div>
         </div>
@@ -232,9 +230,9 @@
           <div class="heatcircle-content">
             <valuetextheading1>Avg Today</valuetextheading1>
             <div class="tempconverter1">
-              <div v-bind:class="temp.avg.day.value | smallTempClass">
-                {{ temp.avg.day.value | tempDisplay($store.getters.units)
-                }}<smalltempunit2>&deg;{{ tempLabel }}</smalltempunit2>
+              <div v-bind:class="weather.smallTempClass(props.temp.avg.day.value)">
+                {{ weather.tempDisplay(props.temp.avg.day.value, store.getters.units) }}
+                <smalltempunit2>&deg;{{ weather.tempLabelAlt(store) }}</smalltempunit2>
               </div>
             </div>
           </div>
@@ -243,8 +241,8 @@
           <div class="heatcircle-content">
             <valuetextheading1>Humidity</valuetextheading1>
             <div class="tempconverter1">
-              <div v-bind:class="current.humidity | humidityClass">
-                {{ current.humidity }}<smalltempunit2>%</smalltempunit2>
+              <div v-bind:class="weather.humidityClass(props.current.humidity)">
+                {{ props.current.humidity }}<smalltempunit2>%</smalltempunit2>
               </div>
             </div>
           </div>
@@ -253,20 +251,18 @@
           <div class="heatcircle-content">
             <valuetextheading1>Dewpoint</valuetextheading1>
             <div class="tempconverter1">
-              <div v-bind:class="current.dewpoint | dewPointClass">
-                &nbsp;{{ current.dewpoint | tempDisplay($store.getters.units)
-                }}<smalltempunit2>&deg;{{ tempLabel }}</smalltempunit2>
+              <div v-bind:class="weather.dewPointClass(props.current.dewpoint)">
+                &nbsp;{{ weather.tempDisplay(props.current.dewpoint, store.getters.units) }}
+                <smalltempunit2>&deg;{{ weather.tempLabel(store) }}</smalltempunit2>
               </div>
             </div>
           </div>
         </div>
       </div>
       <div class="tempconverter2">
-        <div v-bind:class="current.tempf | tempCircle">
-          {{ current.tempf | toCelcius($store.getters.units)
-          }}<smalltempunit2
-            >&deg;{{ tempLabelAlt }}<smalltempunit2></smalltempunit2>
-          </smalltempunit2>
+        <div v-bind:class="weather.tempCircle(props.current.tempf)">
+          {{ toCelcius(props.current.tempf, store.getters.units) }}
+          <smalltempunit2>&deg;{{ weather.tempLabelAlt(store) }}</smalltempunit2>
         </div>
       </div>
     </div>
@@ -286,16 +282,16 @@ const props = defineProps({
   temp: Object,
   current: Object
 });
-let trend = ref(null)
-
+let trend = ref(0)
+console.log(props)
 onMounted(() => {
-    function updateData(self) {
-      axios.get('/api/trend/tempf').then((response) => (self.trend = response.data));
+    function updateData() {
+      axios.get('/api/trend/tempf').then((response) => (trend.value = response.data));
       setTimeout(function () {
         updateData(self);
       }, 60000);
     }
-    updateData(this);
+    updateData();
   });
 
 function openModal(type, options) {
@@ -342,7 +338,6 @@ function toCelcius(temp, units) {
   }
   return temp;
 }
-};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
