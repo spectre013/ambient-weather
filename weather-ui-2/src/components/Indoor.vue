@@ -6,7 +6,10 @@
           alt="almanac temperature"
           title="almanac temperature"
           href="#"
-          v-on:click="openModal('almanac', { tempfield: 'tempf', humidfield: 'humidity' })"
+          v-on:click="
+            openModal('almanac', { tempfield: 'temp' + props.loc + 'f', humidfield: 'humidity' + props.loc })
+          "
+          data-lity=""
         >
           <svg
             viewBox="0 0 32 32"
@@ -25,7 +28,7 @@
       >
       <span class="yearpopup">
         <a
-          v-on:click="openModal('chart', { time: 'year', type: 'temp', field: 'tempf' })"
+          v-on:click="openModal('chart', { time: 'year', type: 'temp', field: 'temp' + props.loc + 'f' })"
           alt="Temperature"
           title="Temperature"
           href="#"
@@ -42,8 +45,8 @@
           >
             <path
               style="fill: #719fa3"
-              d="M496,428c0,6.4-5.6,12-12,12H12c-6.4,0-12-5.6-12-12l0,0c0-6.4,5.6-12,12-12h472 C490.4,416,496,421.6,496
-              ,428L496,428z"
+              d="M496,428c0,6.4-5.6,12-12,12H12c-6.4,0-12-5.6-12-12l0,0c0-6.4,5.6-12,12-12h472 C490.4,416,496,421.6,
+              496,428L496,428z"
             ></path>
             <rect x="24" y="56" style="fill: #1589ad" width="88" height="344"></rect>
             <polyline style="fill: #04567f" points="24,56 112,56 112,400 "></polyline>
@@ -64,9 +67,12 @@
           title="Feels Like"
           href="#"
           data-lity=""
-          v-on:click="openModal('chart', { time: 'month', type: 'temp', field: 'tempf' })"
+          v-on:click="
+            openModal('chart', { time: 'month', type: 'temp', field: 'temp' + props.loc + 'f' })
+          "
         >
           <svg
+            version="1.1"
             width="8pt"
             height="8pt"
             x="0px"
@@ -99,10 +105,9 @@
           title="Greenhouse"
           href="#"
           data-lity=""
-          v-on:click="openModal('chart', { time: 'day', type: 'temp', field: 'tempf' })"
+          v-on:click="openModal('chart', { time: 'day', type: 'temp', field: 'temp' + props.loc + 'f' })"
         >
           <svg
-            version="1.1"
             width="8pt"
             height="8pt"
             x="0px"
@@ -113,8 +118,8 @@
           >
             <path
               style="fill: #719fa3"
-              d="M496,428c0,6.4-5.6,12-12,12H12c-6.4,0-12-5.6-12-12l0,0c0-6.4,5.6-12,12-12h472 C490.4,416,496,421.6,496
-              ,428L496,428z"
+              d="M496,428c0,6.4-5.6,12-12,12H12c-6.4,0-12-5.6-12-12l0,0c0-6.4,5.6-12,12-12h472 C490.4,416,496,421.6,
+              496,428L496,428z"
             ></path>
             <rect x="24" y="56" style="fill: #1589ad" width="88" height="344"></rect>
             <polyline style="fill: #04567f" points="24,56 112,56 112,400 "></polyline>
@@ -130,11 +135,11 @@
         ></span
       >
     </div>
-    <span class="moduletitle">
-      Temperature (<valuetitleunit>&deg;{{ weather.tempLabel(store) }}</valuetitleunit
+    <span class="moduletitle" v-if="title">
+      {{ props.title }} (<valuetitleunit>&deg;{{ weather.tempLabel(store) }}</valuetitleunit
       >) </span
     ><br />
-    <div id="temperature" v-if="props.temp && props.current && trend">
+    <div id="temperature" v-if="live && minmax && trend">
       <div class="updatedtime">
         <span
           ><svg
@@ -151,78 +156,27 @@
             <path d="M16 14 L16 23 M16 8 L16 10"></path>
             <circle cx="16" cy="16" r="14"></circle>
           </svg>
-          {{ now(props.current.date) }}
+          {{ now(props.live.date) }}
         </span>
       </div>
       <div class="tempcontainer">
         <div class="maxdata">
-          {{ weather.tempDisplay(props.temp.max.day.value, store.getters.units) }}&deg; |
-          {{ weather.tempDisplay(props.temp.min.day.value, store.getters.units) }}&deg;
+          {{ weather.tempDisplay(minmax.max.day.value, store.getters.units) }}&deg; |
+          {{ weather.tempDisplay(minmax.min.day.value, store.getters.units) }}&deg;
         </div>
-        <div v-bind:class="weather.tempClass(props.current.tempf)">
-          {{ weather.tempDisplay(props.current.tempf, store.getters.units) }}
-          <smalltempunit>&deg;{{ weather.tempLabel(store) }}</smalltempunit>
+        <div class="maxdata"></div>
+        <div v-bind:class="weather.tempClass(temp())">
+          {{ weather.tempDisplay(temp(), store.getters.units)
+          }}<smalltempunit>&deg;{{ weather.tempLabel(store) }}</smalltempunit>
         </div>
-        <div class="temptrendx">
-          <trendmovementfallingx v-if="trend.trend == 'down'"
-            >&nbsp;&nbsp;&nbsp;
-            <valuetext
-              >Trend
-              <svg id="falling" width="9" height="9" viewBox="0 0 24 24">
-                <polyline
-                  points="23 18 13.5 8.5 8.5 13.5 1 6"
-                  fill="none"
-                  stroke="currentcolor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                ></polyline>
-                <polyline
-                  points="17 18 23 18 23 12"
-                  fill="none"
-                  stroke="currentcolor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                ></polyline>
-              </svg>
-              {{ trend.by }}&deg;</valuetext
-            >
-          </trendmovementfallingx>
-          <trendmovementfallingx v-if="trend.trend == 'up'"
-            >&nbsp;&nbsp;&nbsp;
-            <valuetext
-              >Trend
-              <svg id="falling" width="9" height="9" viewBox="0 0 24 24">
-                <polyline
-                  points="23 18 13.5 8.5 8.5 13.5 1 6"
-                  fill="none"
-                  stroke="currentcolor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                ></polyline>
-                <polyline
-                  points="17 18 23 18 23 12"
-                  fill="none"
-                  stroke="currentcolor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                ></polyline>
-              </svg>
-              {{ trend.by }}&deg;</valuetext
-            >
-          </trendmovementfallingx>
-        </div>
+        <div class="temptrendx"></div>
       </div>
       <div class="heatcircle">
         <div class="heatcircle-content">
-          <valuetextheading1>Feels</valuetextheading1><br />
+          <valuetextheading1>Humidity</valuetextheading1><br />
           <div class="tempconverter1">
-            <div v-bind:class="weather.smallTempClass(props.current.feelslike)">
-              {{ weather.tempDisplay(props.current.feelslike, store.getters.units, 2) }}
-              <smalltempunit2>&deg;{{ weather.tempLabel(store) }}</smalltempunit2>
+            <div v-bind:class="weather.smallTempClass(humidity())">
+              {{ humidity() }}<smalltempunit2>%</smalltempunit2>
             </div>
           </div>
         </div>
@@ -230,75 +184,82 @@
           <div class="heatcircle-content">
             <valuetextheading1>Avg Today</valuetextheading1>
             <div class="tempconverter1">
-              <div v-bind:class="weather.smallTempClass(props.temp.avg.day.value)">
-                {{ weather.tempDisplay(props.temp.avg.day.value, store.getters.units) }}
-                <smalltempunit2>&deg;{{ weather.tempLabelAlt(store) }}</smalltempunit2>
+              <div v-bind:class="weather.smallTempClass(minmax.avg.day.value)">
+                {{ weather.tempDisplay(minmax.avg.day.value, store.getters.units) }}
+                <smalltempunit2>&deg;{{ weather.tempLabel(store) }}</smalltempunit2>
               </div>
             </div>
           </div>
         </div>
         <div class="heatcircle3">
           <div class="heatcircle-content">
-            <valuetextheading1>Humidity</valuetextheading1>
+            <valuetextheading1>High</valuetextheading1>
             <div class="tempconverter1">
-              <div v-bind:class="weather.humidityClass(props.current.humidity)">
-                {{ props.current.humidity }}<smalltempunit2>%</smalltempunit2>
+              <div v-bind:class="weather.smallTempClass(minmax.max.day.value)">
+                {{ weather.tempDisplay(minmax.max.day.value, store.getters.units) }}
+                <smalltempunit2>&deg;{{ weather.tempLabel(store) }}</smalltempunit2>
               </div>
             </div>
           </div>
         </div>
         <div class="heatcircle4">
           <div class="heatcircle-content">
-            <valuetextheading1>Dewpoint</valuetextheading1>
+            <valuetextheading1>Low</valuetextheading1>
             <div class="tempconverter1">
-              <div v-bind:class="weather.dewPointClass(props.current.dewpoint)">
-                &nbsp;{{ weather.tempDisplay(props.current.dewpoint, store.getters.units) }}
-                <smalltempunit2>&deg;{{ weather.tempLabel(store) }}</smalltempunit2>
+              <div v-bind:class="weather.smallTempClass(minmax.min.day.value)">
+                &nbsp;{{ weather.tempDisplay(minmax.min.day.value, store.getters.units) }}
+                <smalltempunit2>&deg;{{ weather.tempLabel(store) }}</smalltempunit2>&nbsp;
               </div>
             </div>
           </div>
         </div>
       </div>
       <div class="tempconverter2">
-        <div v-bind:class="weather.tempCircle(props.current.tempf)">
-          {{ toCelcius(props.current.tempf, store.getters.units) }}
-          <smalltempunit2>&deg;{{ weather.tempLabelAlt(store) }}</smalltempunit2>
+        <div v-bind:class="weather.tempCircle(temp())">
+          {{ toCelcius(temp(), store.getters.units) }}
+          <smalltempunit2>&nbsp;&deg;{{ weather.tempLabelAlt(store) }}</smalltempunit2>
         </div>
       </div>
     </div>
     <br />
   </div>
 </template>
-
 <script setup>
-import axios from 'axios';
-import * as weather from '@/weather'
+import * as weather from '@/weather';
 import moment from 'moment';
-import { useStore } from 'vuex';
-import {ref, onMounted } from 'vue';
+import axios from 'axios';
+import {onMounted, ref} from "vue";
+import {useStore} from "vuex";
 
 const store = useStore()
 const props = defineProps({
-  temp: Object,
-  current: Object,
+  title: String,
+  loc: String,
+  live: Object,
 });
-let trend = ref(0)
-const emit = defineEmits(['openModal'])
+
+let trend=ref(null);
+let minmax=ref(null);
 
 onMounted(() => {
-    function updateData() {
-      axios.get('/api/trend/tempf').then((response) => (trend.value = response.data));
-      setTimeout(function () {
-        updateData(self);
-      }, 60000);
-    }
-    updateData();
-  });
+  function updateData() {
+    axios
+        .get('/api/trend/temp' + props.loc + 'f')
+        .then((response) => (trend.value = response.data));
+    axios
+        .get('/api/minmax/temp' + props.loc + 'f')
+        .then((response) => (minmax.value = response.data));
+    setTimeout(function () {
+      updateData(self);
+    }, 60000);
+  }
+  updateData(this);
+});
+
 
 function openModal(type, options) {
-  emit('openModal',{type:type,options:options})
+  this.$parent.showModal(type, options);
 }
-
 function chartDates(format) {
   return moment().format(format);
 }
@@ -311,7 +272,21 @@ function toCelcius(temp, units) {
   }
   return temp;
 }
+function temp() {
+  let key = 'temp' + props.loc.toLowerCase() + 'f';
+  return props.live[key];
+}
+function humidity() {
+  let key = 'humidity' + props.loc;
+  return props.live[key];
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped></style>
+<style scoped>
+#home {
+  position: relative;
+  top: 10px;
+  left: 5px;
+}
+</style>

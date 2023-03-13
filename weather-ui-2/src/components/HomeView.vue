@@ -1,27 +1,29 @@
 <script setup>
-import {ref, onMounted, onBeforeMount, getCurrentInstance} from 'vue';
+import {ref, onMounted, onBeforeMount} from 'vue';
 import axios from 'axios';
 import StationTime from './StationTime.vue'
 import MinMax from './MinMax.vue';
 import Rainfall from './Rainfall.vue';
 import Alert from './Alert.vue';
 import Temperature from './Temperature.vue';
-// import RainfallDetails from './RainfallDetails';
-// import Wind from './Wind';
-// import Barometer from './Barometer';
-// import Daylight from './Daylight';
-// import Moon from './Moon';
-// import Indoor from './Indoor';
-// import Lightining from './Lightining';
-// import Uv from './Uv';
+import RainfallDetails from './RainfallDetails.vue';
+import Wind from './Wind.vue';
+import Barometer from './Barometer.vue';
+import Daylight from './Daylight.vue';
+import Moon from './Moon.vue';
+import Indoor from './Indoor.vue';
+import Lightining from './Lightining.vue';
+import Uv from './Uv.vue';
 // import ChartModal from './ChartModal';
 // import AlertModal from './AlertModal';
-// import AlmanacModel from './AlmancModel';
-// import Footer from './Footer';
+import AlmanacModel from './AlmancModel.vue';
+import Footer from './Footer.vue';
 // import Radar from './Radar';
 // import MetarModal from './MetarModal';
 // import RainfallAlmanac from './RainfallAlmanac';
 // import Menu from './Menu';
+import {useStore} from "vuex";
+
 
 let loaded = ref(false);
 let live = ref(null);
@@ -36,29 +38,26 @@ let models = ref({
   chart: false,
   alert: false,
   almanac: false,
-  rainfallalmanac: false,
-      radar: false,
-      metar: false,
+  rainfall: false,
+  radar: false,
+  metar: false,
 });
+const store = useStore()
+let modalOptions = ref(null);
+let connection = null;
 
-let modalOptions = ref(null)
-
-const { proxy } = getCurrentInstance();
-
-function showModal(type, options) {
-  modalOptions.value = options;
-  models[type] = true;
+function showModal(values) {
+  console.log(models.value['almanac'], values);
+  modalOptions.value = values.options;
+  models.value['almanac'] = true;
 }
 function closeModal(type) {
-  models[type] = false;
+  models[type].value = false;
 }
 
-// beforeCreate() {
-//   this.$store.dispatch('getSettings');
-
-
 onBeforeMount(() => {
-  //this.setStyle();
+  //setStyle();
+  store.dispatch('getSettings');
   loaded.value = true;
 });
 
@@ -77,11 +76,26 @@ onMounted(() => {
     }
 
     updateData();
-
-    proxy.$socket.onmessage = ({msg}) => {
-      console.log(msg);
-      live.value = JSON.parse(msg.data);
+    let wsurl = 'wss://' + window.location.host;
+    if (window.location.protocol === 'http:') {
+      wsurl = 'ws://' + window.location.host;
     }
+    wsurl += '/api/ws';
+    connection = new WebSocket(wsurl);
+
+    connection.addEventListener('open', () => {
+      console.log('Connection Open!');
+    });
+
+    // Listen for messages
+    connection.addEventListener('message', (event) => {
+      live.value = JSON.parse(event.data);
+    });
+
+    connection.onerror = function(error) {
+      console.log(`[error]`,error);
+    };
+
     window.addEventListener(
       'keyup',
       (e) => {
@@ -111,31 +125,31 @@ onMounted(() => {
       <Alert :alerts="alerts" />
     </div>
     <div class="weather-container">
-      <Temperature :current="live" :temp="temp" v-on:openModal="showModal" />
-<!--      <Wind :current="live" :wind="wind" />-->
-<!--      <RainfallDetails :current="current" />-->
+      <Temperature :current="live" :temp="temp" @openModal="showModal" />
+      <Wind :current="live" :wind="wind" />
+      <RainfallDetails :current="current" />
     </div>
-    <!--    <div class="weather-container">-->
-    <!--      <Barometer :current="live" />-->
-    <!--      <Moon :astro="astro" />-->
-    <!--      <Daylight :astro="astro" />-->
-    <!--    </div>-->
-    <!--    <div class="weather-container">-->
-    <!--      <Uv :current="live" :astro="astro" />-->
-    <!--      <Lightining :current="live" :stats="lightning" />-->
-    <!--      <Indoor :live="live" :loc="'in'" :title="'Indoor'" />-->
-    <!--    </div>-->
-    <!--    <div class="weather-container">-->
-    <!--      <Indoor :live="live" :loc="'2'" :title="'Master'" />-->
-    <!--      <Indoor :live="live" :loc="'3'" :title="'Office'" />-->
-    <!--      <Indoor :live="live" :loc="'1'" :title="'Basement'" />-->
-    <!--    </div>-->
-    <!--    <div class="weatherfooter-container">-->
-    <!--      <Footer />-->
-    <!--    </div>-->
+        <div class="weather-container">
+          <Barometer :current="live" />
+          <Moon :astro="astro" />
+          <Daylight :astro="astro" />
+        </div>
+        <div class="weather-container">
+          <Uv :current="live" :astro="astro" />
+          <Lightining :current="live" :stats="lightning" />
+          <Indoor :live="live" :loc="'in'" :title="'Indoor'" />
+        </div>
+        <div class="weather-container">
+          <Indoor :live="live" :loc="'2'" :title="'Master'" />
+          <Indoor :live="live" :loc="'3'" :title="'Office'" />
+          <Indoor :live="live" :loc="'1'" :title="'Basement'" />
+        </div>
+        <div class="weatherfooter-container">
+          <Footer />
+        </div>
     <!--    <ChartModal v-if="models.chart" @close="closeModal" :options="modalOptions" />-->
     <!--    <AlertModal v-if="models.alert" :alerts="alerts" @close="closeModal" :options="modalOptions" />-->
-    <!--    <AlmanacModel v-if="models.almanac" @close="closeModal" :options="modalOptions" />-->
+        <AlmanacModel v-if="models.almanac" @close="closeModal" :options="modalOptions" />
     <!--    <Radar v-if="models.radar" @close="closeModal" />-->
     <!--    <MetarModal v-if="models.metar" :astro="astro" @close="closeModal" />-->
     <!--    <RainfallAlmanac v-if="models.rainfallalmanac" :current="current" @close="closeModal" />-->

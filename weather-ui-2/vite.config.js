@@ -108,6 +108,13 @@ export default defineConfig({
             'topbarmetric',
             'strikeicon',
             'laststrike',
+            'weather34windrunspan',
+            'weather34bftspan',
+            'weather34-barometerlimitmax',
+            'weather34-barometerlimitmin',
+            'weather34darkdaycircle',
+            'weather34daylightdaycircle',
+            'weather34',
         ].includes(tag)
       }
     }
@@ -123,10 +130,10 @@ export default defineConfig({
         target: 'http://localhost:3000',
         changeOrigin: true,
       },
-      // '/api/ws': {
-      //     target: 'ws://localhost:3000',
-      //     ws: true
-      // },
+      '/api/ws': {
+          target: 'ws://localhost:3000',
+          ws: true
+      },
     },
   },
 })

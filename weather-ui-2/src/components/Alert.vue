@@ -99,11 +99,9 @@ let currentAlert = ref(0)
 //   },
 // },
 
-function containsKey(obj, key) {
-  return Object.keys(obj).includes(key);
-}
+
 function openModal(type, options) {
-  this.instance.parent.showModal(type, options);
+  instance.parent.showModal(type, options);
 }
 function switchAlert(dir) {
   if (dir === 'up' && this.currentAlert > 0) {
