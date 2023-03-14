@@ -1,23 +1,23 @@
 <template>
   <div class="weather-item">
     <div class="chartforecast">
-      <span class="yearpopup">
-        <a v-on:click="openModal('rainfallalmanac', {})" alt="Rainfall" title="Rainfall" href="#"
-          ><svg
-            viewBox="0 0 32 32"
-            width="8"
-            height="8"
-            fill="none"
-            stroke="#777"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="6.25%"
-          >
-            <path d="M14 9 L3 9 3 29 23 29 23 18 M18 4 L28 4 28 14 M28 4 L14 18"></path>
-          </svg>
-          Almanac
-        </a></span
-      >
+<!--      <span class="yearpopup">-->
+<!--        <a v-on:click="openModal('rainfallalmanac', {})" alt="Rainfall" title="Rainfall" href="#"-->
+<!--          ><svg-->
+<!--            viewBox="0 0 32 32"-->
+<!--            width="8"-->
+<!--            height="8"-->
+<!--            fill="none"-->
+<!--            stroke="#777"-->
+<!--            stroke-linecap="round"-->
+<!--            stroke-linejoin="round"-->
+<!--            stroke-width="6.25%"-->
+<!--          >-->
+<!--            <path d="M14 9 L3 9 3 29 23 29 23 18 M18 4 L28 4 28 14 M28 4 L14 18"></path>-->
+<!--          </svg>-->
+<!--          Almanac-->
+<!--        </a></span-->
+<!--      >-->
       <!-- <span class="todaypopup">
       <a alt="Rainfall" title="Rainfall" href="w34highcharts/dark-charts.html?chart='rainplot'&amp;span='weekly'&amp;
       temp='C'&amp;pressure='hPa'&amp;wind='mph'&amp;rain='mm" data-lity=""><svg version="1.1" width="8pt" height="8pt"

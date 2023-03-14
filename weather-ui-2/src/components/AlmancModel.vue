@@ -244,6 +244,7 @@ import {onMounted, ref} from 'vue';
 import moment from 'moment';
 import axios from 'axios';
 import * as weather from '@/weather'
+const emit = defineEmits(['closeModal'])
 
 const props = defineProps({
   minmax: Object,
@@ -285,6 +286,17 @@ onMounted(() => {
     axios.get('/api/alltime/min/dewPoint').then((response) => (mindew.value = response.data));
     axios.get('/api/minmax/dewpoint').then((response) => (dew.value = response.data));
   }
+
+  function checkDom() {
+    if (document.querySelector('#chartContainer2')) {
+      drawChart(data.value.data1, data.value.data2);
+    } else {
+      setTimeout(function () {
+        checkDom();
+      }, 500);
+    }
+  }
+  checkDom();
 });
 
 function hourFormat(date) {
@@ -303,7 +315,7 @@ function fullFormat(date) {
   return moment(date).format('Do MMM Y');
 }
 function close() {
-  this.$parent.closeModal('almanac');
+  emit('closeModal','almanac')
 }
 function drawChart(dataPoints1, dataPoints2) {
     let chart = new CanvasJS.Chart('chartContainer2', {
@@ -433,20 +445,6 @@ function drawChart(dataPoints1, dataPoints2) {
     chart.render();
 }
 
-  // watch: {
-  //   data() {
-  //     function checkDom(that) {
-  //       if (document.querySelector('#chartContainer2')) {
-  //         that.drawChart(that.data.data1, that.data.data2);
-  //       } else {
-  //         setTimeout(function () {
-  //           checkDom(that);
-  //         }, 500);
-  //       }
-  //     }
-  //     checkDom(this);
-  //   },
-  // },
 
 </script>
 

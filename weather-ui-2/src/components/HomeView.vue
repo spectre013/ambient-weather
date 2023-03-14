@@ -14,13 +14,13 @@ import Moon from './Moon.vue';
 import Indoor from './Indoor.vue';
 import Lightining from './Lightining.vue';
 import Uv from './Uv.vue';
-// import ChartModal from './ChartModal';
+import ChartModal from './ChartModal.vue';
 // import AlertModal from './AlertModal';
 import AlmanacModel from './AlmancModel.vue';
 import Footer from './Footer.vue';
 // import Radar from './Radar';
 // import MetarModal from './MetarModal';
-// import RainfallAlmanac from './RainfallAlmanac';
+import RainfallAlmanac from './RainfallAlmanac.vue';
 // import Menu from './Menu';
 import {useStore} from "vuex";
 
@@ -46,13 +46,13 @@ const store = useStore()
 let modalOptions = ref(null);
 let connection = null;
 
-function showModal(values) {
-  console.log(models.value['almanac'], values);
+function show(values) {
+  console.log(values);
   modalOptions.value = values.options;
-  models.value['almanac'] = true;
+  models.value[values.type] = true;
 }
-function closeModal(type) {
-  models[type].value = false;
+function close(event) {
+  models.value[event] = false;
 }
 
 onBeforeMount(() => {
@@ -100,8 +100,8 @@ onMounted(() => {
       'keyup',
       (e) => {
         if (e.key === 'Escape') {
-          Object.keys(models).forEach((modal) => {
-            closeModal(modal);
+          Object.keys(models.value).forEach((modal) => {
+            close(modal);
           });
         }
       },
@@ -125,7 +125,7 @@ onMounted(() => {
       <Alert :alerts="alerts" />
     </div>
     <div class="weather-container">
-      <Temperature :current="live" :temp="temp" @openModal="showModal" />
+      <Temperature :current="live" :temp="temp" @openModal="show"  @closeModal="close"/>
       <Wind :current="live" :wind="wind" />
       <RainfallDetails :current="current" />
     </div>
@@ -140,19 +140,19 @@ onMounted(() => {
           <Indoor :live="live" :loc="'in'" :title="'Indoor'" />
         </div>
         <div class="weather-container">
-          <Indoor :live="live" :loc="'2'" :title="'Master'" />
-          <Indoor :live="live" :loc="'3'" :title="'Office'" />
-          <Indoor :live="live" :loc="'1'" :title="'Basement'" />
+          <Indoor :live="live" :loc="'2'" :title="'Master'" @openModal="show"  @closeModal="close"/>
+          <Indoor :live="live" :loc="'3'" :title="'Office'" @openModal="show"  @closeModal="close"/>
+          <Indoor :live="live" :loc="'1'" :title="'Basement'" @openModal="show"  @closeModal="close"/>
         </div>
         <div class="weatherfooter-container">
           <Footer />
         </div>
-    <!--    <ChartModal v-if="models.chart" @close="closeModal" :options="modalOptions" />-->
+        <ChartModal v-if="models.chart" @closeModal="close" :options="modalOptions" />
     <!--    <AlertModal v-if="models.alert" :alerts="alerts" @close="closeModal" :options="modalOptions" />-->
-        <AlmanacModel v-if="models.almanac" @close="closeModal" :options="modalOptions" />
+        <AlmanacModel v-if="models.almanac" @closeModal="close" :options="modalOptions" />
     <!--    <Radar v-if="models.radar" @close="closeModal" />-->
     <!--    <MetarModal v-if="models.metar" :astro="astro" @close="closeModal" />-->
-    <!--    <RainfallAlmanac v-if="models.rainfallalmanac" :current="current" @close="closeModal" />-->
+<!--        <RainfallAlmanac v-if="models.rainfallalmanac" :current="current" @closeModal="close" />-->
   </div>
 </template>
 
