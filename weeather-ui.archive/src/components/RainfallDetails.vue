@@ -1,23 +1,23 @@
 <template>
   <div class="weather-item">
     <div class="chartforecast">
-<!--      <span class="yearpopup">-->
-<!--        <a v-on:click="openModal('rainfallalmanac', {})" alt="Rainfall" title="Rainfall" href="#"-->
-<!--          ><svg-->
-<!--            viewBox="0 0 32 32"-->
-<!--            width="8"-->
-<!--            height="8"-->
-<!--            fill="none"-->
-<!--            stroke="#777"-->
-<!--            stroke-linecap="round"-->
-<!--            stroke-linejoin="round"-->
-<!--            stroke-width="6.25%"-->
-<!--          >-->
-<!--            <path d="M14 9 L3 9 3 29 23 29 23 18 M18 4 L28 4 28 14 M28 4 L14 18"></path>-->
-<!--          </svg>-->
-<!--          Almanac-->
-<!--        </a></span-->
-<!--      >-->
+      <span class="yearpopup">
+        <a v-on:click="openModal('rainfallalmanac', {})" alt="Rainfall" title="Rainfall" href="#"
+          ><svg
+            viewBox="0 0 32 32"
+            width="8"
+            height="8"
+            fill="none"
+            stroke="#777"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="6.25%"
+          >
+            <path d="M14 9 L3 9 3 29 23 29 23 18 M18 4 L28 4 28 14 M28 4 L14 18"></path>
+          </svg>
+          Almanac
+        </a></span
+      >
       <!-- <span class="todaypopup">
       <a alt="Rainfall" title="Rainfall" href="w34highcharts/dark-charts.html?chart='rainplot'&amp;span='weekly'&amp;
       temp='C'&amp;pressure='hPa'&amp;wind='mph'&amp;rain='mm" data-lity=""><svg version="1.1" width="8pt" height="8pt"
@@ -32,7 +32,7 @@
         </g></svg> Rainfall </a></span>-->
     </div>
     <span class="moduletitle"
-      >Rainfall Today (<valuetitleunit>{{ weather.rainLabel(store) }}</valuetitleunit
+      >Rainfall Today (<valuetitleunit>{{ rainLabel }}</valuetitleunit
       >)</span
     ><br />
     <div id="rainfall" v-if="current">
@@ -52,7 +52,7 @@
             <path d="M16 14 L16 23 M16 8 L16 10"></path>
             <circle cx="16" cy="16" r="14"></circle>
           </svg>
-          {{ now(props.current.date) }}</span
+          {{ current.date | now }}</span
         >
       </div>
       <div class="weather34i-rairate-bar">
@@ -64,28 +64,30 @@
       </div>
       <div class="raincontainer1">
         <div class="raintoday1">
-          {{ weather.rainDisplay(props.current.dailyrainin, store.getters.units) }}
-          <sup><smallrainunita>{{ weather.rainLabel(store) }}</smallrainunita></sup>
+          {{ current.dailyrainin | rainDisplay($store.getters.units)
+          }}<sup
+            ><smallrainunita>{{ rainLabel }}</smallrainunita></sup
+          >
         </div>
       </div>
       <div class="heatcircle">
         <div class="heatcircle-content">
-          &nbsp;<valuetextheading1>{{ year(props.current.date) }}</valuetextheading1> <br />
+          &nbsp;<valuetextheading1>{{ current.date | year }}</valuetextheading1> <br />
           <div class="tempconverter1">
             <div class="rainmodulehome">
-              <raiblue>{{ weather.rainDisplay(props.current.yearlyrainin, store.getters.units) }}</raiblue>
-              <smallrainunit2>{{ weather.rainLabel(store) }}<smallrainunit2></smallrainunit2> </smallrainunit2>
+              <raiblue>{{ current.yearlyrainin | rainDisplay($store.getters.units) }}</raiblue>
+              <smallrainunit2>{{ rainLabel }}<smallrainunit2></smallrainunit2> </smallrainunit2>
             </div>
           </div>
         </div>
         <div class="heatcircle2">
           <div class="heatcircle-content">
-            &nbsp;&nbsp;&nbsp;<valuetextheading1>{{ month(props.current.date) }}</valuetextheading1>
+            &nbsp;&nbsp;&nbsp;<valuetextheading1>{{ current.date | month }}</valuetextheading1>
             <br />
             <div class="tempconverter1">
               <div class="rainmodulehome">
-                <raiblue>{{ weather.rainDisplay(props.current.monthlyrainin, store.getters.units) }}</raiblue>
-                <smallrainunit2>{{ weather.rainLabel(store) }}</smallrainunit2>
+                <raiblue>{{ current.monthlyrainin | rainDisplay($store.getters.units) }}</raiblue>
+                <smallrainunit2>{{ rainLabel }}</smallrainunit2>
               </div>
             </div>
           </div>
@@ -95,8 +97,8 @@
             &nbsp;&nbsp;<valuetextheading1>Last Hour</valuetextheading1><br />
             <div class="tempconverter1">
               <div class="rainmodulehome">
-                <raiblue>{{ weather.rainDisplay(props.current.hourlyrain, store.getters.units) }}</raiblue>
-                <smallrainunit2>{{ weather.rainLabel(store) }}</smallrainunit2>
+                <raiblue>{{ current.hourlyrain | rainDisplay($store.getters.units) }}</raiblue>
+                <smallrainunit2>{{ rainLabel }}</smallrainunit2>
               </div>
             </div>
           </div>
@@ -106,8 +108,8 @@
             &nbsp;&nbsp;<valuetextheading1>Last 24hr</valuetextheading1><br />
             <div class="tempconverter1">
               <div class="rainmodulehome">
-                <raiblue>{{ weather.rainDisplay(props.current.dailyrainin, store.getters.units) }}</raiblue>
-                <smallrainunit2>{{ weather.rainLabel(store) }}</smallrainunit2>
+                <raiblue>{{ current.dailyrainin | rainDisplay($store.getters.units) }}</raiblue>
+                <smallrainunit2>{{ rainLabel }}</smallrainunit2>
               </div>
             </div>
           </div>
@@ -115,54 +117,59 @@
       </div>
       <div class="rainconverter">
         <div class="rainconvertercircle">
-          <raiblue>Last Rain:</raiblue> {{ full(props.current.lastrain) }}<smallrainunit> </smallrainunit>
+          <raiblue>Last Rain:</raiblue> {{ current.lastrain | full
+          }}<smallrainunit> </smallrainunit>
         </div>
       </div>
       <div class="rainrateextra">
         <div class="rainratemodulehome">
           <rainratetextheading>&nbsp;Rate&nbsp;</rainratetextheading>
-          <raiblue>{{ weather.rainDisplay(props.current.hourlyrainin, store.getters.units) }}</raiblue>
-          <smallrainunit2>{{ weather.rainLabel(store) }}</smallrainunit2>
+          <raiblue>{{ current.hourlyrainin | rainDisplay($store.getters.units) }}</raiblue>
+          <smallrainunit2>{{ rainLabel }}</smallrainunit2>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<script setup>
-import * as weather from '@/weather'
+<script>
 import moment from 'moment';
-import {useStore} from "vuex";
 
-
-const store = useStore()
-const props = defineProps({
-  current: Object
-});
-
-// function openModal(type, options) {
-//   this.instance.parent.showModal(type, options);
-// }
-
-function year(date) {
-  return moment(date).format('YYYY');
-}
-function month(date) {
-  return moment(date).format('MMM');
-}
-function full(date) {
-  return moment(date).format('YYYY-MM-DD HH:mm:ss');
-}
-function now(date) {
-  return moment(date).format('HH:mm:ss');
-}
-function rainLevel() {
-  let rain = props.current.dailyrainin;
-  if (rain > 0) {
-    return { height: rain * 50.8 + 'px' };
-  }
-  return { height: 0 + 'px' };
-}
+export default {
+  name: 'raindetails',
+  props: {
+    current: Object,
+  },
+  mounted() {},
+  methods: {
+    openModal: function (type, options) {
+      this.$parent.showModal(type, options);
+    },
+  },
+  filters: {
+    year: function (date) {
+      return moment(date).format('YYYY');
+    },
+    month: function (date) {
+      return moment(date).format('MMM');
+    },
+    full: function (date) {
+      return moment(date).format('YYYY-MM-DD HH:mm:ss');
+    },
+    now: function (date) {
+      return moment(date).format('HH:mm:ss');
+    },
+  },
+  computed: {
+    rainLevel: function () {
+      let rain = this.current.dailyrainin;
+      if (rain > 0) {
+        return { height: rain * 50.8 + 'px' };
+      }
+      return { height: 0 + 'px' };
+    },
+  },
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

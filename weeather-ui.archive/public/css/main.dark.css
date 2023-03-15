@@ -5351,8 +5351,7 @@ trendmovementsteadyx {
   font-size: .75em;
   color: #fff;
   margin: 5px auto auto;
-  left: 10%;
-  z-index: 1;
+  left: 14%
 }
 
 .simsekcontainer,
@@ -9051,6 +9050,7 @@ weather34menumarkerlight {
   }
 
   .weather-item {
+    margin-top: 32px;
     margin-bottom: -28px
   }
 

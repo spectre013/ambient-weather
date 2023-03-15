@@ -24,8 +24,8 @@
               </h1>
               <h3 v-bind:class="alertColor">{{ alert.headline }}</h3>
               <div class="alertinfo">
-                <div v-bind:class="alertColor">Effective: {{ dates(alert.effective) }}</div>
-                <div v-bind:class="alertColor">Ends: {{ dates(alert.end) }}</div>
+                <div v-bind:class="alertColor">Effective: {{ alert.effective | dates }}</div>
+                <div v-bind:class="alertColor">Ends: {{ alert.end | dates }}</div>
                 <div v-bind:class="alertColor">Certainty: {{ alert.certainty }}</div>
                 <div v-bind:class="alertColor">Response: {{ alert.response }}</div>
               </div>
@@ -54,53 +54,53 @@
 </template>
 
 <script>
-// import moment from 'moment';
-//
-// export default {
-//   name: 'alertmodal',
-//   props: {
-//     alerts: Array,
-//     options: Object,
-//   },
-//   data() {
-//     return {
-//       alert: null,
-//     };
-//   },
-//   methods: {
-//     close: function () {
-//       this.$parent.closeModal('alert');
-//     },
-//   },
-//   filters: {
-//     renderDesc: function (desc) {
-//       console.log(desc);
-//       desc.replace('\n', '<br />');
-//       return desc;
-//     },
-//     dates: function (date) {
-//       console.log(date);
-//       date = moment(date).utcOffset(7);
-//       return date.format('HH:mm DD MMM');
-//     },
-//   },
-//   computed: {
-//     url: function () {
-//       return `Weather Alerts -  ${this.alert.event}`;
-//     },
-//     alertColor: function () {
-//       if (this.alert.event.startsWith('911')) {
-//         return 'Telephone Outage 911'.toLowerCase().replace(/\s+/g, '-');
-//       }
-//       return this.alert.event.toLowerCase().replace(/\s+/g, '-');
-//     },
-//   },
-//   mounted: function () {
-//     this.alert = this.alerts[this.options.alert];
-//     this.alert.description = this.alert.description.replaceAll('\n', '<br />');
-//     console.log(this.alert);
-//   },
-// };
+import moment from 'moment';
+
+export default {
+  name: 'alertmodal',
+  props: {
+    alerts: Array,
+    options: Object,
+  },
+  data() {
+    return {
+      alert: null,
+    };
+  },
+  methods: {
+    close: function () {
+      this.$parent.closeModal('alert');
+    },
+  },
+  filters: {
+    renderDesc: function (desc) {
+      console.log(desc);
+      desc.replace('\n', '<br />');
+      return desc;
+    },
+    dates: function (date) {
+      console.log(date);
+      date = moment(date).utcOffset(7);
+      return date.format('HH:mm DD MMM');
+    },
+  },
+  computed: {
+    url: function () {
+      return `Weather Alerts -  ${this.alert.event}`;
+    },
+    alertColor: function () {
+      if (this.alert.event.startsWith('911')) {
+        return 'Telephone Outage 911'.toLowerCase().replace(/\s+/g, '-');
+      }
+      return this.alert.event.toLowerCase().replace(/\s+/g, '-');
+    },
+  },
+  mounted: function () {
+    this.alert = this.alerts[this.options.alert];
+    this.alert.description = this.alert.description.replaceAll('\n', '<br />');
+    console.log(this.alert);
+  },
+};
 </script>
 
 <style scoped>

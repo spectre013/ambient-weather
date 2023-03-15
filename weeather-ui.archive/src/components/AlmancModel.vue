@@ -8,35 +8,35 @@
             <article>
               <div class="actualt">Temperature Today</div>
               <div class="temperaturecontainer">
-                <div v-bind:class="weather.temperaturetoday(temp.max.day.value)">
+                <div v-bind:class="temp.max.day.value | temperaturetoday">
                   {{ temp.max.day.value }}<smalluvunit>&deg;F</smalluvunit>
                 </div>
-                <div class="temperaturetrend">{{ hourFormat(temp.max.day.date) }}</div>
+                <div class="temperaturetrend">{{ temp.max.day.date | hourFormat }}</div>
                 <div class="temperaturecontainer">
-                  <div v-bind:class="weather.temperaturetoday(temp.min.day.value)">
+                  <div v-bind:class="temp.min.day.value | temperaturetoday">
                     {{ temp.min.day.value }}<smalluvunit>&deg;F</smalluvunit>
                   </div>
                 </div>
-                <div class="temperaturetrend">{{ hourFormat(temp.min.day.date) }}</div>
+                <div class="temperaturetrend">{{ temp.min.day.date | hourFormat }}</div>
                 <div class="hitempypos">
                   <div class="hitempd" v-if="dew">
-                    Dew Max<orange> {{ dew.max.day.value }}</orange>
-                    &deg;F {{ hourFormat(dew.max.day.date) }}<br />
+                    Dew Max<orange> {{ dew.max.day.value }}</orange
+                    >&deg;F {{ dew.max.day.date | hourFormat }}<br />
                   </div>
                   <div class="hitempd" style="margin-top: -5px" v-if="dew">
-                    Dew Min<blue>&nbsp;{{ dew.min.day.value }}</blue>
-                    &deg;F {{ hourFormat(dew.min.day.date) }}<br />
+                    Dew Min<blue>&nbsp;{{ dew.min.day.value }}</blue
+                    >&deg;F {{ dew.min.day.date | hourFormat }}<br />
                   </div>
                 </div>
                 <div class="hitempypos">
                   <div class="hitempd1" style="margin-top: 15px">
-                    Hum Max<orange>&nbsp;{{ humid.max.day.value }}</orange>
-                    % {{ hourFormat(humid.max.day.date) }}<br />
+                    Hum Max<orange>&nbsp;{{ humid.max.day.value }}</orange
+                    >% {{ humid.max.day.date | hourFormat }}<br />
                   </div>
                   <br />
                   <div class="hitempd1" style="margin-top: 16px">
                     Hum Min<blue>&nbsp;{{ humid.min.day.value }}</blue
-                    >% {{ hourFormat(humid.min.day.date) }}<br />
+                    >% {{ humid.min.day.date | hourFormat }}<br />
                   </div>
                   <br />
                 </div>
@@ -45,109 +45,109 @@
             <article>
               <div class="actualt">Temperature Yesterday</div>
               <div class="temperaturecontainer">
-                <div v-bind:class="weather.temperaturetoday(temp.max.yesterday.value)">
+                <div v-bind:class="temp.max.yesterday.value | temperaturetoday">
                   {{ temp.max.yesterday.value }}<smalluvunit>&deg;F</smalluvunit>
                 </div>
-                <div class="temperaturetrend">{{ hourFormat(temp.max.yesterday.date) }}</div>
+                <div class="temperaturetrend">{{ temp.max.yesterday.date | hourFormat }}</div>
                 <div class="temperaturecontainer">
-                  <div v-bind:class="weather.temperaturetoday(temp.min.yesterday.value)">
+                  <div v-bind:class="temp.min.yesterday.value | temperaturetoday">
                     {{ temp.min.yesterday.value }}<smalluvunit>&deg;F</smalluvunit>
                   </div>
                 </div>
-                <div class="temperaturetrend">{{ hourFormat(temp.min.yesterday.date) }}</div>
+                <div class="temperaturetrend">{{ temp.min.yesterday.date | hourFormat }}</div>
                 <div class="hitempypos">
                   <div class="hitempd" v-if="dew">
-                    Dew Max<orange> {{ dew.max.yesterday.value }}</orange>
-                    &deg;F {{ hourFormat(dew.max.yesterday.date) }}<br />
+                    Dew Max<orange> {{ dew.max.yesterday.value }}</orange
+                    >&deg;F {{ dew.max.yesterday.date | hourFormat }}<br />
                   </div>
                   <div class="hitempd" style="margin-top: -5px" v-if="dew">
-                    Dew Min<blue>&nbsp;{{ dew.min.yesterday.value }}</blue>
-                    &deg;F {{ hourFormat(dew.min.yesterday.date) }}<br />
+                    Dew Min<blue>&nbsp;{{ dew.min.yesterday.value }}</blue
+                    >&deg;F {{ dew.min.yesterday.date | hourFormat }}<br />
                   </div>
                 </div>
                 <div class="hitempypos">
                   <div class="hitempd1" style="margin-top: 15px">
-                    Hum Max<orange>&nbsp;{{ humid.max.yesterday.value }}</orange>
-                    % {{ hourFormat(humid.max.yesterday.date) }}<br />
+                    Hum Max<orange>&nbsp;{{ humid.max.yesterday.value }}</orange
+                    >% {{ humid.max.yesterday.date | hourFormat }}<br />
                   </div>
                   <br />
                   <div class="hitempd1" style="margin-top: 16px">
                     Hum Min<blue>&nbsp;{{ humid.min.yesterday.value }}</blue
-                    >% {{ hourFormat(humid.min.yesterday.date) }}<br />
+                    >% {{ humid.min.yesterday.date | hourFormat }}<br />
                   </div>
                   <br />
                 </div>
               </div>
             </article>
             <article>
-              <div class="actualt">Temperature {{ monthYear(temp.max.month.date) }}</div>
+              <div class="actualt">Temperature {{ temp.max.month.date | monthYear }}</div>
               <div class="temperaturecontainer">
-                <div v-bind:class="weather.temperaturetoday(temp.max.month.value)">
+                <div v-bind:class="temp.max.month.value | temperaturetoday">
                   {{ temp.max.month.value }}<smalluvunit>&deg;F</smalluvunit>
                 </div>
-                <div class="temperaturetrend">{{ dayMonth(temp.max.month.date) }}</div>
+                <div class="temperaturetrend">{{ temp.max.month.date | dayMonth }}</div>
                 <div class="temperaturecontainer">
-                  <div v-bind:class="weather.temperaturetoday(temp.min.month.value)">
+                  <div v-bind:class="temp.min.month.value | temperaturetoday">
                     {{ temp.min.month.value }}<smalluvunit>&deg;F</smalluvunit>
                   </div>
                 </div>
-                <div class="temperaturetrend">{{ dayMonth(temp.min.month.date) }}</div>
+                <div class="temperaturetrend">{{ temp.min.month.date | dayMonth }}</div>
                 <div class="hitempypos">
                   <div class="hitempd" v-if="dew">
                     Dew Max<orange> {{ dew.max.month.value }}</orange
-                    >&deg;F {{ dayMonth(dew.max.month.date) }}<br />
+                    >&deg;F {{ dew.max.month.date | dayMonth }}<br />
                   </div>
                   <div class="hitempd" style="margin-top: -5px" v-if="dew">
-                    Dew Min<blue>&nbsp;{{ dew.min.yesterday.value }}</blue>
-                    &deg;F {{ dayMonth(dew.min.month.date) }}<br />
+                    Dew Min<blue>&nbsp;{{ dew.min.yesterday.value }}</blue
+                    >&deg;F {{ dew.min.month.date | dayMonth }}<br />
                   </div>
                 </div>
                 <div class="hitempypos">
                   <div class="hitempd1" style="margin-top: 15px">
-                    Hum Max<orange>&nbsp;{{ humid.max.month.value }}</orange>
-                    % {{ dayMonth(humid.max.month.date) }}<br />
+                    Hum Max<orange>&nbsp;{{ humid.max.month.value }}</orange
+                    >% {{ humid.max.month.date | dayMonth }}<br />
                   </div>
                   <br />
                   <div class="hitempd1" style="margin-top: 16px">
-                    Hum Min<blue>&nbsp;{{ humid.min.month.value }}</blue>%
-                    {{ dayMonth(humid.min.month.date) }}<br />
+                    Hum Min<blue>&nbsp;{{ humid.min.month.value }}</blue
+                    >% {{ humid.min.month.date | dayMonth }}<br />
                   </div>
                   <br />
                 </div>
               </div>
             </article>
             <article>
-              <div class="actualt">Temperature {{ yearFormat(temp.max.year.date) }}</div>
+              <div class="actualt">Temperature {{ temp.max.year.date | yearFormat }}</div>
               <div class="temperaturecontainer">
-                <div v-bind:class="weather.temperaturetoday(temp.max.year.value)">
+                <div v-bind:class="temp.max.year.value | temperaturetoday">
                   {{ temp.max.year.value }}<smalluvunit>&deg;F</smalluvunit>
                 </div>
-                <div class="temperaturetrend">{{ dayMonth(temp.max.year.date) }}</div>
+                <div class="temperaturetrend">{{ temp.max.year.date | dayMonth }}</div>
                 <div class="temperaturecontainer">
-                  <div v-bind:class="weather.temperaturetoday(temp.min.year.value)">
+                  <div v-bind:class="temp.min.year.value | temperaturetoday">
                     {{ temp.min.year.value }}<smalluvunit>&deg;F</smalluvunit>
                   </div>
                 </div>
-                <div class="temperaturetrend">{{ dayMonth(temp.min.year.date) }}</div>
+                <div class="temperaturetrend">{{ temp.min.year.date | dayMonth }}</div>
                 <div class="hitempypos">
                   <div class="hitempd" v-if="dew">
-                    Dew Max<orange> {{ dew.max.year.value }}</orange>
-                    &deg;F {{ dayMonth(dew.max.year.date) }}<br />
+                    Dew Max<orange> {{ dew.max.year.value }}</orange
+                    >&deg;F {{ dew.max.year.date | dayMonth }}<br />
                   </div>
                   <div class="hitempd" style="margin-top: -5px" v-if="dew">
-                    Dew Min<blue>&nbsp;{{ dew.min.year.value }}</blue>
-                    &deg;F {{ dayMonth(dew.min.year.date) }}<br />
+                    Dew Min<blue>&nbsp;{{ dew.min.year.value }}</blue
+                    >&deg;F {{ dew.min.year.date | dayMonth }}<br />
                   </div>
                 </div>
                 <div class="hitempypos">
                   <div class="hitempd1" style="margin-top: 15px">
-                    Hum Max<orange>&nbsp;{{ humid.max.year.value }}</orange>
-                    % {{ dayMonth(humid.max.year.date) }}<br />
+                    Hum Max<orange>&nbsp;{{ humid.max.year.value }}</orange
+                    >% {{ humid.max.year.date | dayMonth }}<br />
                   </div>
                   <br />
                   <div class="hitempd1" style="margin-top: 16px">
                     Hum Min<blue>&nbsp;{{ humid.min.year.value }}</blue
-                    >% {{ dayMonth(humid.min.year.date) }}<br />
+                    >% {{ humid.min.year.date | dayMonth }}<br />
                   </div>
                   <br />
                 </div>
@@ -156,18 +156,18 @@
             <article style="height: 110px">
               <div class="actualt">Temperature All-Time</div>
               <div class="temperaturecontainer">
-                <div v-bind:class="weather.temperaturetoday(maxtemp.value)">
+                <div v-bind:class="maxtemp.value | temperaturetoday">
                   {{ maxtemp.value }}<smalluvunit>&deg;F</smalluvunit>
                 </div>
                 <div class="temperaturecontainer">
-                  <div v-bind:class="weather.temperaturetoday(mintemp.value)">
+                  <div v-bind:class="mintemp.value | temperaturetoday">
                     {{ mintemp.value }}<smalluvunit>&deg;F</smalluvunit>
                   </div>
                 </div>
                 <div class="hitempypos">
-                  <div class="hitempd2">{{ fullFormat(maxtemp.date) }}<br /></div>
+                  <div class="hitempd2">{{ maxtemp.date | fullFormat }}<br /></div>
                   <div class="hitempd2" style="margin-top: 25px">
-                    {{ fullFormat(mintemp.date) }}
+                    {{ mintemp.date | fullFormat }}
                   </div>
                 </div>
               </div>
@@ -175,18 +175,18 @@
             <article style="height: 110px" v-if="maxdew && mindew">
               <div class="actualt">Dewpoint All-Time</div>
               <div class="temperaturecontainer">
-                <div v-bind:class="weather.temperaturetoday(maxdew.value)">
-                  {{ maxdew.value.toFixed(2) }}<smalluvunit>&deg;F</smalluvunit>
+                <div v-bind:class="maxdew.value | temperaturetoday">
+                  {{ maxdew.value }}<smalluvunit>&deg;F</smalluvunit>
                 </div>
                 <div class="temperaturecontainer">
-                  <div v-bind:class="weather.temperaturetoday(mindew.value)">
+                  <div v-bind:class="mindew.value | temperaturetoday">
                     {{ mindew.value }}<smalluvunit>&deg;F</smalluvunit>
                   </div>
                 </div>
                 <div class="hitempypos">
-                  <div class="hitempd2">{{ fullFormat(maxdew.date) }}<br /></div>
+                  <div class="hitempd2">{{ maxdew.date | fullFormat }}<br /></div>
                   <div class="hitempd2" style="margin-top: 25px">
-                    {{ fullFormat(mindew.date) }}
+                    {{ mindew.date | fullFormat }}
                   </div>
                 </div>
               </div>
@@ -238,214 +238,222 @@
     </div>
   </div>
 </template>
-<script setup>
+<script>
 /* global CanvasJS */
-import {onMounted, ref} from 'vue';
 import moment from 'moment';
 import axios from 'axios';
-import * as weather from '@/weather'
-const emit = defineEmits(['closeModal'])
 
-const props = defineProps({
-  minmax: Object,
-  appName: {
-    type: String,
-    default: String,
+export default {
+  name: 'almanacmodel',
+  props: {
+    minmax: Object,
+    appName: {
+      type: String,
+      default: String,
     },
-  options: Object,
-});
+    options: Object,
+  },
+  data() {
+    return {
+      data: null,
+      maxtemp: null,
+      mintemp: null,
+      maxdew: null,
+      mindew: null,
+      temp: null,
+      dew: null,
+      humid: null,
+    };
+  },
+  mounted: function () {
+    axios
+      .get('/api/chart/' + this.options.tempfield + '/year')
+      .then((response) => (this.data = response.data));
+    axios
+      .get('/api/alltime/max/' + this.options.tempfield)
+      .then((response) => (this.maxtemp = response.data));
+    axios
+      .get('/api/alltime/min/' + this.options.tempfield)
+      .then((response) => (this.mintemp = response.data));
+    axios
+      .get('/api/minmax/' + this.options.tempfield)
+      .then((response) => (this.temp = response.data));
+    axios
+      .get('/api/minmax/' + this.options.humidfield)
+      .then((response) => (this.humid = response.data));
 
-let data = ref(null);
-let maxtemp = ref(null);
-let mintemp = ref(null);
-let maxdew = ref(null);
-let mindew = ref(null);
-let temp = ref(null);
-let dew = ref(null);
-let humid = ref(null);
-
-onMounted(() => {
-  axios
-      .get('/api/chart/' + props.options.tempfield + '/year')
-      .then((response) => (data.value = response.data));
-  axios
-      .get('/api/alltime/max/' + props.options.tempfield)
-      .then((response) => (maxtemp.value = response.data));
-  axios
-      .get('/api/alltime/min/' + props.options.tempfield)
-      .then((response) => (mintemp.value = response.data));
-  axios
-      .get('/api/minmax/' + props.options.tempfield)
-      .then((response) => (temp.value = response.data));
-  axios
-      .get('/api/minmax/' + props.options.humidfield)
-      .then((response) => (humid.value = response.data));
-
-  if (props.options.tempfield === 'tempf') {
-    axios.get('/api/alltime/max/dewPoint').then((response) => (maxdew.value = response.data));
-    axios.get('/api/alltime/min/dewPoint').then((response) => (mindew.value = response.data));
-    axios.get('/api/minmax/dewpoint').then((response) => (dew.value = response.data));
-  }
-
-  function checkDom() {
-    if (document.querySelector('#chartContainer2')) {
-      drawChart(data.value.data1, data.value.data2);
-    } else {
-      setTimeout(function () {
-        checkDom();
-      }, 500);
+    if (this.options.tempfield === 'tempf') {
+      axios.get('/api/alltime/max/dewPoint').then((response) => (this.maxdew = response.data));
+      axios.get('/api/alltime/min/dewPoint').then((response) => (this.mindew = response.data));
+      axios.get('/api/minmax/dewpoint').then((response) => (this.dew = response.data));
     }
-  }
-  checkDom();
-});
-
-function hourFormat(date) {
-  return moment(date).format('HH:mm');
-}
-function monthYear(date) {
-  return moment(date).format('MMMM Y');
-}
-function dayMonth(date) {
-  return moment(date).format('Do MMM');
-}
-function yearFormat(date) {
-  return moment(date).format('Y');
-}
-function fullFormat(date) {
-  return moment(date).format('Do MMM Y');
-}
-function close() {
-  emit('closeModal','almanac')
-}
-function drawChart(dataPoints1, dataPoints2) {
-    let chart = new CanvasJS.Chart('chartContainer2', {
-      backgroundColor: 'rgba(40, 45, 52,.4)',
-      animationEnabled: true,
-      animationDuration: 500,
-      margin: 0,
-      height: 230,
-      width: 870,
-      title: {
-        text: ' ',
-        fontSize: 11,
-        fontColor: '#ccc',
-        fontFamily: 'arial',
-      },
-      toolTip: {
-        fontStyle: 'normal',
-        cornerRadius: 4,
-        backgroundColor: 'rgba(37, 41, 45, 0.95)',
-        fontSize: 11,
-        contentFormatter(e) {
-          var str = '<span style="color: #ccc;">' + e.entries[0].dataPoint.label + '</span><br/>';
-          for (var i = 0; i < e.entries.length; i++) {
-            var temp =
-              '<span style="color: ' +
-              e.entries[i].dataSeries.color +
-              ';">' +
-              e.entries[i].dataSeries.name +
-              '</span> <span style="color: #ccc;">' +
-              e.entries[i].dataPoint.y.toFixed(1) +
-              ' &deg;F' +
-              '</span> <br/>';
-            str = str.concat(temp);
-          }
-          return str;
-        },
-        shared: true,
-      },
-      axisX: {
-        gridColor: 'RGBA(64, 65, 66, 0.8)',
-        labelFontSize: 10,
-        labelFontColor: '#ccc',
-        lineThickness: 1,
-        gridDashType: 'dot',
-        gridThickness: 1,
-        titleFontFamily: 'arial',
-        labelFontFamily: 'arial',
-        minimum: -0.5,
-        interval: 'auto',
-        intervalType: 'month',
-        xValueType: 'dateTime',
-        crosshair: {
-          enabled: true,
-          snapToDataPoint: true,
-          color: '#009bab',
-          labelFontColor: '#F8F8F8',
-          labelFontSize: 11,
-          labelBackgroundColor: '#009bab',
-        },
-      },
-      axisY: {
-        title: '',
-        titleFontColor: '#ccc',
-        titleFontSize: 10,
-        titleWrap: false,
+  },
+  filters: {
+    hourFormat: function (date) {
+      return moment(date).format('HH:mm');
+    },
+    monthYear: function (date) {
+      return moment(date).format('MMMM Y');
+    },
+    dayMonth: function (date) {
+      return moment(date).format('Do MMM');
+    },
+    yearFormat: function (date) {
+      return moment(date).format('Y');
+    },
+    fullFormat: function (date) {
+      return moment(date).format('Do MMM Y');
+    },
+  },
+  methods: {
+    close: function () {
+      this.$parent.closeModal('almanac');
+    },
+    drawChart: function (dataPoints1, dataPoints2) {
+      let chart = new CanvasJS.Chart('chartContainer2', {
+        backgroundColor: 'rgba(40, 45, 52,.4)',
+        animationEnabled: true,
+        animationDuration: 500,
         margin: 0,
-        interval: 'auto',
-        lineThickness: 1,
-        gridThickness: 1,
-        includeZero: false,
-        minimum: -10,
-        gridColor: 'RGBA(64, 65, 66, 0.8)',
-        gridDashType: 'dot',
-        labelFontSize: 10,
-        labelFontColor: '#ccc',
-        titleFontFamily: 'arial',
-        labelFontFamily: 'arial',
-        labelFormatter(e) {
-          return e.value.toFixed(0) + '&deg;F';
+        height: 230,
+        width: 870,
+        title: {
+          text: ' ',
+          fontSize: 11,
+          fontColor: '#ccc',
+          fontFamily: 'arial',
         },
-        crosshair: {
-          enabled: true,
-          snapToDataPoint: true,
-          color: '#ff832f',
-          labelFontColor: '#F8F8F8',
+        toolTip: {
+          fontStyle: 'normal',
+          cornerRadius: 4,
+          backgroundColor: 'rgba(37, 41, 45, 0.95)',
+          fontSize: 11,
+          contentFormatter: function (e) {
+            var str = '<span style="color: #ccc;">' + e.entries[0].dataPoint.label + '</span><br/>';
+            for (var i = 0; i < e.entries.length; i++) {
+              var temp =
+                '<span style="color: ' +
+                e.entries[i].dataSeries.color +
+                ';">' +
+                e.entries[i].dataSeries.name +
+                '</span> <span style="color: #ccc;">' +
+                e.entries[i].dataPoint.y.toFixed(1) +
+                ' &deg;F' +
+                '</span> <br/>';
+              str = str.concat(temp);
+            }
+            return str;
+          },
+          shared: true,
+        },
+        axisX: {
+          gridColor: 'RGBA(64, 65, 66, 0.8)',
           labelFontSize: 10,
-          labelMaxWidth: 70,
-          labelBackgroundColor: '#ff832f',
-          valueFormatString: '#0.0&deg;F',
+          labelFontColor: '#ccc',
+          lineThickness: 1,
+          gridDashType: 'dot',
+          gridThickness: 1,
+          titleFontFamily: 'arial',
+          labelFontFamily: 'arial',
+          minimum: -0.5,
+          interval: 'auto',
+          intervalType: 'month',
+          xValueType: 'dateTime',
+          crosshair: {
+            enabled: true,
+            snapToDataPoint: true,
+            color: '#009bab',
+            labelFontColor: '#F8F8F8',
+            labelFontSize: 11,
+            labelBackgroundColor: '#009bab',
+          },
         },
-      },
-      legend: {
-        fontFamily: 'arial',
-        fontColor: '#ccc',
-      },
-
-      data: [
-        {
-          type: 'splineArea',
-          color: 'rgba(255, 148, 82, 0.95)',
-          lineColor: 'rgba(255, 131, 47, 1)',
-          markerSize: 0,
-          showInLegend: false,
-          legendMarkerType: 'circle',
-          lineThickness: 2,
-          markerType: 'circle',
-          name: ' Hi Temp',
-          dataPoints: dataPoints1,
-          yValueFormatString: '#0.# &deg;F',
+        axisY: {
+          title: '',
+          titleFontColor: '#ccc',
+          titleFontSize: 10,
+          titleWrap: false,
+          margin: 0,
+          interval: 'auto',
+          lineThickness: 1,
+          gridThickness: 1,
+          includeZero: false,
+          minimum: -10,
+          gridColor: 'RGBA(64, 65, 66, 0.8)',
+          gridDashType: 'dot',
+          labelFontSize: 10,
+          labelFontColor: '#ccc',
+          titleFontFamily: 'arial',
+          labelFontFamily: 'arial',
+          labelFormatter: function (e) {
+            return e.value.toFixed(0) + '&deg;F';
+          },
+          crosshair: {
+            enabled: true,
+            snapToDataPoint: true,
+            color: '#ff832f',
+            labelFontColor: '#F8F8F8',
+            labelFontSize: 10,
+            labelMaxWidth: 70,
+            labelBackgroundColor: '#ff832f',
+            valueFormatString: '#0.0&deg;F',
+          },
         },
-        {
-          type: 'splineArea',
-          color: 'rgba(0, 164, 180, 1)',
-          markerSize: 0,
-          markerColor: '#007181',
-          showInLegend: false,
-          legendMarkerType: 'circle',
-          lineThickness: 2,
-          lineColor: '#007181',
-          markerType: 'circle',
-          name: ' Lo Temp',
-          dataPoints: dataPoints2,
-          yValueFormatString: '#0.# &deg;F',
+        legend: {
+          fontFamily: 'arial',
+          fontColor: '#ccc',
         },
-      ],
-    });
-    chart.render();
-}
 
+        data: [
+          {
+            type: 'splineArea',
+            color: 'rgba(255, 148, 82, 0.95)',
+            lineColor: 'rgba(255, 131, 47, 1)',
+            markerSize: 0,
+            showInLegend: false,
+            legendMarkerType: 'circle',
+            lineThickness: 2,
+            markerType: 'circle',
+            name: ' Hi Temp',
+            dataPoints: dataPoints1,
+            yValueFormatString: '#0.# &deg;F',
+          },
+          {
+            type: 'splineArea',
+            color: 'rgba(0, 164, 180, 1)',
+            markerSize: 0,
+            markerColor: '#007181',
+            showInLegend: false,
+            legendMarkerType: 'circle',
+            lineThickness: 2,
+            lineColor: '#007181',
+            markerType: 'circle',
+            name: ' Lo Temp',
+            dataPoints: dataPoints2,
+            yValueFormatString: '#0.# &deg;F',
+          },
+        ],
+      });
 
+      chart.render();
+    },
+  },
+  computed: {},
+  watch: {
+    data: function () {
+      function checkDom(that) {
+        if (document.querySelector('#chartContainer2')) {
+          that.drawChart(that.data.data1, that.data.data2);
+        } else {
+          setTimeout(function () {
+            checkDom(that);
+          }, 500);
+        }
+      }
+      checkDom(this);
+    },
+  },
+};
 </script>
 
 <style scoped>

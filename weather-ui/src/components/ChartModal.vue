@@ -43,196 +43,184 @@
   </div>
 </template>
 
-<script>
+<script setup>
 /* global CanvasJS */
 import axios from 'axios';
-import moment from 'moment';
+import {onMounted, ref} from "vue";
 
-export default {
-  name: 'chartmodal',
-  props: {
-    options: Object,
-  },
-  data() {
-    return {
-      data: null,
-      minmax: null,
-      interval: null,
-    };
-  },
-  mounted: function () {
-    if (this.options.type === 'temp') {
-      axios
-        .get('/api/chart/' + this.options.field + '/' + this.options.time)
-        .then((response) => (this.data = response.data));
-      axios.get('/api/minmax/tempf').then((response) => (this.minmax = response.data));
-    }
+const emit = defineEmits(['closeModal'])
+const props = defineProps({
+  options: Object,
+});
+let data = ref(null);
+let minmax = ref(null);
+let interval = ref(null);
 
-    if (this.options.time === 'year') {
-      this.interval = 'month';
-    } else if (this.options.time === 'month') {
-      this.interval = 'day';
+onMounted(() => {
+  if (props.options.type === 'temp') {
+    axios
+        .get('/api/chart/' + props.options.field + '/' + props.options.time)
+        .then((response) => (data.value = response.data));
+    axios.get('/api/minmax/tempf').then((response) => (minmax.value = response.data));
+  }
+
+  if (props.options.time === 'year') {
+    interval.value = 'month';
+  } else if (props.options.time === 'month') {
+    interval.value = 'day';
+  } else {
+    interval.value = 'hour';
+  }
+
+  function checkDom() {
+    if (document.querySelector('#chartContainer')) {
+      drawChart(data.value.data1, data.value.data2, interval);
     } else {
-      this.interval = 'hour';
+      setTimeout(function () {
+        checkDom();
+      }, 500);
     }
-  },
-  filters: {
-    y: function (date) {
-      moment(date).format('Y');
+  }
+  checkDom();
+});
+
+// function y(date) {
+//   moment(date).format('Y');
+// }
+function url() {
+  return `Temperature | High: ${this.minmax.max[this.options.time].value} &deg;F Low: ${
+    this.minmax.min[this.options.time].value
+  } &deg;F`;
+}
+function close() {
+  emit('closeModal','chart')
+}
+function drawChart(dataPoints1, dataPoints2, interval) {
+  let chart = new CanvasJS.Chart('chartContainer', {
+    backgroundColor: 'rgba(40, 45, 52,.4)',
+    animationEnabled: true,
+    animationDuration: 500,
+
+    title: {
+      text: ' ',
+      fontSize: 11,
+      fontColor: '#ccc',
+      fontFamily: 'arial',
     },
-  },
-  computed: {
-    url: function () {
-      return `Temperature | High: ${this.minmax.max[this.options.time].value} &deg;F Low: ${
-        this.minmax.min[this.options.time].value
-      } &deg;F`;
-    },
-  },
-  methods: {
-    close: function () {
-      this.$parent.closeModal('chart');
-    },
-    drawChart: function (dataPoints1, dataPoints2, interval) {
-      let chart = new CanvasJS.Chart('chartContainer', {
-        backgroundColor: 'rgba(40, 45, 52,.4)',
-        animationEnabled: true,
-        animationDuration: 500,
-
-        title: {
-          text: ' ',
-          fontSize: 11,
-          fontColor: '#ccc',
-          fontFamily: 'arial',
-        },
-        toolTip: {
-          fontStyle: 'normal',
-          cornerRadius: 4,
-          backgroundColor: 'rgba(37, 41, 45, 0.95)',
-          contentFormatter: function (e) {
-            let str = '<span style="color: #ccc;">' + e.entries[0].dataPoint.label + '</span><br/>';
-            for (let i = 0; i < e.entries.length; i++) {
-              let temp =
-                '<span style="color: ' +
-                e.entries[i].dataSeries.color +
-                ';">' +
-                e.entries[i].dataSeries.name +
-                '</span> <span style="color: #ccc;">' +
-                e.entries[i].dataPoint.y.toFixed(1) +
-                ' &deg;F' +
-                '</span> <br/>';
-              str = str.concat(temp);
-            }
-            return str;
-          },
-          shared: true,
-        },
-        axisX: {
-          gridColor: 'RGBA(64, 65, 66, 0.8)',
-          labelFontSize: 10,
-          labelFontColor: '#ccc',
-          lineThickness: 1,
-          gridDashType: 'dot',
-          gridThickness: 1,
-          titleFontFamily: 'arial',
-          labelFontFamily: 'arial',
-          minimum: -0.5,
-          interval: 'auto',
-          intervalType: interval,
-          xValueType: 'dateTime',
-          crosshair: {
-            enabled: true,
-            snapToDataPoint: true,
-            color: '#009bab',
-            labelFontColor: '#F8F8F8',
-            labelFontSize: 11,
-            labelBackgroundColor: '#009bab',
-          },
-        },
-
-        axisY: {
-          title: 'Temperature (&deg;F) Recorded',
-          titleFontColor: '#ccc',
-          titleFontSize: 10,
-          titleWrap: false,
-          margin: 10,
-          interval: 'auto',
-          lineThickness: 1,
-          gridThickness: 1,
-          includeZero: false,
-          gridColor: 'RGBA(64, 65, 66, 0.8)',
-          gridDashType: 'dot',
-          labelFontSize: 11,
-          labelFontColor: '#ccc',
-          titleFontFamily: 'arial',
-          labelFontFamily: 'arial',
-          labelFormatter: function (e) {
-            return e.value.toFixed(0) + ' &deg;F ';
-          },
-          crosshair: {
-            enabled: true,
-            snapToDataPoint: true,
-            color: '#ff832f',
-            labelFontColor: '#F8F8F8',
-            labelFontSize: 11,
-            labelBackgroundColor: '#ff832f',
-            valueFormatString: '#0.# &deg;F',
-          },
-        },
-
-        legend: {
-          fontFamily: 'arial',
-          fontColor: '#ccc',
-        },
-
-        data: [
-          {
-            type: 'splineArea',
-            color: 'rgba(255, 148, 82, 0.95)',
-            lineColor: 'rgba(255, 131, 47, 1)',
-            markerSize: 0,
-            showInLegend: true,
-            legendMarkerType: 'circle',
-            lineThickness: 2,
-            markerType: 'circle',
-            name: ' Hi Temp',
-            dataPoints: dataPoints1,
-            yValueFormatString: '#0.# &deg;F',
-          },
-          {
-            type: 'splineArea',
-            color: 'rgba(0, 164, 180, 1)',
-            markerSize: 0,
-            markerColor: '#007181',
-            showInLegend: true,
-            legendMarkerType: 'circle',
-            lineThickness: 2,
-            lineColor: '#007181',
-            markerType: 'circle',
-            name: ' Lo Temp',
-            dataPoints: dataPoints2,
-            yValueFormatString: '#0.0 &deg;F',
-          },
-        ],
-      });
-
-      chart.render();
-    },
-  },
-  watch: {
-    data: function () {
-      function checkDom(that) {
-        if (document.querySelector('#chartContainer')) {
-          that.drawChart(that.data.data1, that.data.data2, that.interval);
-        } else {
-          setTimeout(function () {
-            checkDom(that);
-          }, 500);
+    toolTip: {
+      fontStyle: 'normal',
+      cornerRadius: 4,
+      backgroundColor: 'rgba(37, 41, 45, 0.95)',
+      contentFormatter(e) {
+        let str = '<span style="color: #ccc;">' + e.entries[0].dataPoint.label + '</span><br/>';
+        for (let i = 0; i < e.entries.length; i++) {
+          let temp =
+            '<span style="color: ' +
+            e.entries[i].dataSeries.color +
+            ';">' +
+            e.entries[i].dataSeries.name +
+            '</span> <span style="color: #ccc;">' +
+            e.entries[i].dataPoint.y.toFixed(1) +
+            ' &deg;F' +
+            '</span> <br/>';
+          str = str.concat(temp);
         }
-      }
-      checkDom(this);
+        return str;
+      },
+      shared: true,
     },
-  },
-};
+    axisX: {
+      gridColor: 'RGBA(64, 65, 66, 0.8)',
+      labelFontSize: 10,
+      labelFontColor: '#ccc',
+      lineThickness: 1,
+      gridDashType: 'dot',
+      gridThickness: 1,
+      titleFontFamily: 'arial',
+      labelFontFamily: 'arial',
+      minimum: -0.5,
+      interval: 'auto',
+      intervalType: interval,
+      xValueType: 'dateTime',
+      crosshair: {
+        enabled: true,
+        snapToDataPoint: true,
+        color: '#009bab',
+        labelFontColor: '#F8F8F8',
+        labelFontSize: 11,
+        labelBackgroundColor: '#009bab',
+      },
+    },
+
+    axisY: {
+      title: 'Temperature (&deg;F) Recorded',
+      titleFontColor: '#ccc',
+      titleFontSize: 10,
+      titleWrap: false,
+      margin: 10,
+      interval: 'auto',
+      lineThickness: 1,
+      gridThickness: 1,
+      includeZero: false,
+      gridColor: 'RGBA(64, 65, 66, 0.8)',
+      gridDashType: 'dot',
+      labelFontSize: 11,
+      labelFontColor: '#ccc',
+      titleFontFamily: 'arial',
+      labelFontFamily: 'arial',
+      labelFormatter(e) {
+        return e.value.toFixed(0) + ' &deg;F ';
+      },
+      crosshair: {
+        enabled: true,
+        snapToDataPoint: true,
+        color: '#ff832f',
+        labelFontColor: '#F8F8F8',
+        labelFontSize: 11,
+        labelBackgroundColor: '#ff832f',
+        valueFormatString: '#0.# &deg;F',
+      },
+    },
+
+    legend: {
+      fontFamily: 'arial',
+      fontColor: '#ccc',
+    },
+
+    data: [
+      {
+        type: 'splineArea',
+        color: 'rgba(255, 148, 82, 0.95)',
+        lineColor: 'rgba(255, 131, 47, 1)',
+        markerSize: 0,
+        showInLegend: true,
+        legendMarkerType: 'circle',
+        lineThickness: 2,
+        markerType: 'circle',
+        name: ' Hi Temp',
+        dataPoints: dataPoints1,
+        yValueFormatString: '#0.# &deg;F',
+      },
+      {
+        type: 'splineArea',
+        color: 'rgba(0, 164, 180, 1)',
+        markerSize: 0,
+        markerColor: '#007181',
+        showInLegend: true,
+        legendMarkerType: 'circle',
+        lineThickness: 2,
+        lineColor: '#007181',
+        markerType: 'circle',
+        name: ' Lo Temp',
+        dataPoints: dataPoints2,
+        yValueFormatString: '#0.0 &deg;F',
+      },
+    ],
+  });
+
+  chart.render();
+}
+
 </script>
 
 <style scoped>

@@ -1,140 +1,66 @@
-import Vue from 'vue';
-import computed from './mixins/temperature';
-import VueNativeSock from 'vue-native-websocket';
+import { createApp } from 'vue'
+import App from './App.vue'
+import router from './router'
 import store from './store/index';
-import VueRouter from 'vue-router';
+import moment from "moment/moment";
 
-import App from './App.vue';
-import Home from './components/Home.vue';
-import Forecast from './components/Forecast';
+const app = createApp(App)
+app.use(router);
+app.use(store);
 
-Vue.config.productionTip = false;
-Vue.config.ignoredElements = [
-  /^darksky/,
-  /^temp/,
-  /^weather34/,
-  /^span/,
-  'oorange',
-  'orange',
-  'ogreen',
-  'spanelightning',
-  'ored',
-  'heatindex',
-  'spanmaxwind',
-  'rainf',
-  'spanwindtitle',
-  'spanmaxwind',
-  'oblue',
-  'yesterdaytimemax',
-  'spaneindoortemp',
-  'suptemp',
-  'trendmovementrising',
-  'trendmovementfalling',
-  'rainblue',
-  'grey',
-  'spancalm',
-  'supmb',
-  'max',
-  'supmb',
-  'windrun',
-  'darkgrey',
-  'convtext',
-  'steady',
-  'strongnumbers',
-  'period',
-  'min',
-  'minutes',
-  'hrs',
-  'spanindoortempfalling',
-  'indoororange1',
-  'spanindoortempfalling',
-  'indoororange1',
-  'spanindoortempfalling',
-  'luminance1',
-  'uppercase',
-  'span1',
-  'uviforecasthourgreen',
-  'value',
-  'valuetext',
-  'smalluvunit',
-  'alertvalue',
-  'noalert',
-  'spanyellow',
-  'valuetitleunit',
-  'topblue1',
-  'smallwindunit',
-  'smallrainunita',
-  'valuetextheading1',
-  'raiblue',
-  'smallrainunit2',
-  'rainratetextheading',
-  'maxred',
-  'hours',
-  'blueu',
-  'moonrisecolor',
-  'moonm',
-  'moonsetcolor',
-  'tgreen',
-  'topgreen1',
-  'smallwindunit',
-  'toporange1',
-  'minblue',
-  'smalltempunit',
-  'smalltempunit2',
-  'smallrainunit',
-  'valuetext1',
-  'uviforecasthouryellow',
-  'trendmovementfallingx',
-  'redu',
-  'blue',
-  'articlegraph',
-  'uviforecasthourred',
-  'uviforecasthourorange',
-  'stationid',
-  'yellow',
-  'green',
-  'darkskytempwindhome',
-  'darkskyiconcurrent',
-  'darkskyrainhome1',
-  'unit',
-  'blue1',
-  'windunit',
-  'gust',
-  'purpleu',
-  'orange1',
-  'uv',
-  'topbarmetricc',
-  'topbarimperialf',
-  'topbarimperial',
-  'topbarmetric',
-  'strikeicon',
-  'laststrike',
-];
+app.config.productionTip = false;
 
-Vue.use(VueRouter);
-Vue.mixin(computed);
-let wsurl = 'wss://' + window.location.host;
-if (window.location.protocol === 'http:') {
-  wsurl = 'ws://' + window.location.host;
-}
+app.directive("sundial",{
+    mounted(canvas,data) {
+        let d_crcl = (24 * 60) / 2;
+        let now = moment().unix();
+        let sunRise = moment().startOf('day').add(timeToDecimal(data.value.sunrise), 'hours').unix();
+        let sunSet = moment().startOf('day').add(timeToDecimal(data.value.sunset), 'hours').unix();
 
-wsurl += '/api/ws';
+        function timeToDecimal(t) {
+            let arr = t.split(':');
+            let dec = parseInt((arr[1] / 6) * 10, 10);
+            return parseFloat(parseInt(arr[0], 10) + '.' + (dec < 10 ? '0' : '') + dec);
+        }
+        function clc_crcl(ts) {
+            let h = parseInt(moment.unix(ts).format('H'));
+            let m = parseInt(moment.unix(ts).format('m'));
+            let calc = m + h * 60;
+            calc = 0.5 + calc / d_crcl;
+            if (calc > 2.0) {
+                calc = calc - 2;
+            }
+            return calc.toFixed(5);
+        }
+        let start = parseFloat(clc_crcl(sunRise));
+        let end = parseFloat(clc_crcl(sunSet));
+        let pos = parseFloat(clc_crcl(moment().unix()));
+        let sn_clr = '';
+        if (now > sunSet || now < sunRise) {
+            sn_clr = 'rgba(86,95,103,0)';
+        } else {
+            sn_clr = 'rgba(255, 112,50,1)';
+        }
 
-Vue.use(VueNativeSock, wsurl, {
-  reconnection: true,
-});
+        let ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = false;
+        ctx.beginPath();
+        ctx.arc(63, 65, 55, 0, 2 * Math.PI);
+        ctx.lineWidth = 0;
+        ctx.strokeStyle = '#565f67';
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(63, 65, 55, start * Math.PI, end * Math.PI);
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#3b9cac';
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(63, 65, 55, pos * Math.PI, pos * Math.PI);
+        ctx.lineWidth = 0;
+        ctx.strokeStyle = `"${sn_clr}"`;
+        ctx.stroke();
+    }
+})
 
-const routes = [
-  { path: '/', component: Home },
-  { path: '/forecast', component: Forecast },
-];
 
-export default routes;
-
-const router = new VueRouter({ mode: 'history', routes });
-
-new Vue({
-  router,
-  store,
-  render: (h) => h(App),
-}).$mount('#app');
+app.mount('#app')
