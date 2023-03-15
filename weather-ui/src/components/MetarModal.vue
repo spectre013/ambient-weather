@@ -71,8 +71,8 @@
               <div class="actualw">&nbsp;&nbsp; Wind Direction</div>
               <div class="metar34compass1">
                 <div class="directiontext">
-                  &nbsp;{{ metar.wind.degrees }}&deg;<br />
-                  {{ metar.wind.degrees | degToCompass }}
+                  &nbsp; metar.wind.degrees&deg;<br />
+                   metar.wind.degrees | degToCompass
                 </div>
                 <div class="metar34compass-line1">
                   <div
@@ -90,7 +90,7 @@
                 >&nbsp;<br />
                 Distance: <green>5.80</green> mi (<green>9.344</green> km)
                 <div class="lotemp">Metar :{{ metar.raw_text }}</div>
-                <div class="hitemp">{{ metar.observed | metarDate }}</div>
+                <div class="hitemp"> metar.observed | metarDate </div>
               </div>
             </article>
             <article>
@@ -211,532 +211,533 @@
 </template>
 
 <script>
-import axios from 'axios';
-import moment from 'moment';
 
-export default {
-  name: 'metarmodel',
-  props: {
-    astro: Object,
-  },
-  data() {
-    return {
-      metar: null,
-      conditions: null,
-    };
-  },
-  watch: {
-    metar: function () {
-      this.conditions = this.getConditions();
-    },
-  },
-  mounted() {
-    axios.get('/api/metar').then((response) => (this.metar = response.data.data[0]));
-  },
-  computed: {
-    getIcon: function () {
-      return 'css/icons/' + this.conditions.icon;
-    },
-    hClass: function () {
-      if (this.metar.humidity.percent > 85) {
-        return 'metarhumtoday85-100';
-      } else if (this.metar.humidity.percent > 70) {
-        return 'metarhumtoday70-85';
-      } else if (this.metar.humidity.percent > 35) {
-        return 'metarhumtoday35-70';
-      } else if (this.metar.humidity.percent >= 0) {
-        return 'metarhumtoday0-35';
-      }
-      return 'metarhumtoday0-35';
-    },
-    kphWindSpeedClass: function () {
-      let speed = (this.metar.wind.speed_mph * 1.66).toFixed(0);
-      if (speed >= 50) {
-        return 'metarwindtoday30';
-      } else if (speed >= 40) {
-        return 'metarwindtoday25';
-      } else if (speed >= 30) {
-        return 'metarwindtoday20';
-      } else if (speed > 0) {
-        return 'metarwindtoday10';
-      } else {
-        return 'metarwindtoday10';
-      }
-    },
-    mphWindSpeedClass: function () {
-      if (this.metar.wind.speed_mph >= 31.06) {
-        return 'metarwindtoday30';
-      } else if (this.metar.wind.speed_mph >= 24.85) {
-        return 'metarwindtoday25';
-      } else if (this.metar.wind.speed_mph >= 18.6) {
-        return 'metarwindtoday20';
-      } else if (this.metar.wind.speed_mph > 0) {
-        return 'metarwindtoday10';
-      } else {
-        return 'metarwindtoday10';
-      }
-    },
-    ktsWindSpeedClass: function () {
-      if (this.metar.wind.speed_kts >= 26.9) {
-        return 'metarwindtoday30';
-      } else if (this.metar.wind.speed_kts >= 21.5) {
-        return 'metarwindtoday25';
-      } else if (this.metar.wind.speed_kts >= 16.19) {
-        return 'metarwindtoday20';
-      } else if (this.metar.wind.speed_kts > 0) {
-        return 'metarwindtoday10';
-      } else {
-        return 'metarwindtoday10';
-      }
-    },
-    mpsWindSpeedClass: function () {
-      if (this.metar.wind.speed_mps >= 13.8) {
-        return 'metarwindtoday30';
-      } else if (this.metar.wind.speed_mps >= 11.1) {
-        return 'metarwindtoday25';
-      } else if (this.metar.wind.speed_mps >= 8.3) {
-        return 'metarwindtoday20';
-      } else if (this.metar.wind.speed_mps > 0) {
-        return 'metarwindtoday10';
-      } else {
-        return 'metarwindtoday10';
-      }
-    },
-  },
-  filters: {
-    degToCompass: function (num) {
-      let val = Math.floor(num / 22.5 + 0.5);
-      let arr = [
-        'North',
-        'NNE',
-        'NE',
-        'ENE',
-        'East',
-        'ESE',
-        'SE',
-        'SSE',
-        'South',
-        'SSW',
-        'SW',
-        'WSW',
-        'West',
-        'WNW',
-        'NW',
-        'NNW',
-      ];
-      return arr[val % 16];
-    },
-    metarDate: function (date) {
-      return moment(date).format('ddd MMM Do Y HH:mm ');
-    },
-  },
-  methods: {
-    close: function () {
-      this.$parent.closeModal('metar');
-    },
-    getData: function (type) {
-      for (let i = 0; i < this.metar[type].length; i++) {
-        if (Object.prototype.hasOwnProperty.call(this.metar[type][i], 'prefix')) {
-          if (this.metar[type][i].prefix !== '@') {
-            return this.metar[type][i];
-          }
-        } else {
-          this.metar[type][i].prefix = '';
-          return this.metar[type][i];
-        }
-      }
-      return {
-        prefix: '',
-        code: '',
-        text: '',
-      };
-    },
-    dynamicClass: function (type, scale) {
-      let c = '';
-      switch (type) {
-        case 'temperature':
-          c = 'temp';
-          break;
-        case 'dewpoint':
-          c = 'dew';
-          break;
-      }
+//import axios from 'axios';
+//import moment from 'moment';
 
-      if (
-        (scale === 'celcius' && this.metar[type][scale] > 30) ||
-        (scale === 'fahrenheit' && this.metar.temperature.fahrenheit > 86)
-      ) {
-        return `metar${c}today30`;
-      } else if (
-        (scale === 'celcius' && this.metar[type][scale] > 25) ||
-        (scale === 'fahrenheit' && this.metar.temperature.fahrenheit > 77)
-      ) {
-        return `metar${c}today25`;
-      } else if (
-        (scale === 'celcius' && this.metar[type][scale] > 20) ||
-        (scale === 'fahrenheit' && this.metar.temperature.fahrenheit > 68)
-      ) {
-        return `metar${c}today20`;
-      } else if (
-        (scale === 'celcius' && this.metar[type][scale] > 10) ||
-        (scale === 'fahrenheit' && this.metar.temperature.fahrenheit > 50)
-      ) {
-        return `metar${c}today10`;
-      } else if (
-        (scale === 'celcius' && this.metar[type][scale] > 5) ||
-        (scale === 'fahrenheit' && this.metar.temperature.fahrenheit > 41)
-      ) {
-        return `metar${c}today5`;
-      } else if (
-        (scale === 'celcius' && this.metar[type][scale] > -50) ||
-        (scale === 'fahrenheit' && this.metar.temperature.fahrenheit > -50)
-      ) {
-        return `metar${c}today0`;
-      }
-
-      return `metar${c}today0`;
-    },
-    sunHasSet: function () {
-      let hasSunset = false;
-      let sh = this.astro.sunset.split(':');
-      let sunset = moment().startOf('day').hour(sh[0]).minute(sh[1]);
-      let srh = this.astro.sunset.split(':');
-      let sunrise = moment().startOf('day').hour(srh[0]).minute(srh[1]);
-
-      if (moment() < sunrise && moment().format('H') > 0) {
-        hasSunset = true;
-      } else if (moment() > sunset && moment().format('H') < 24) {
-        hasSunset = true;
-      } else {
-        hasSunset = false;
-      }
-      return hasSunset;
-    },
-    getConditions: function () {
-      let sunDown = this.sunHasSet();
-      let condObj = this.getData('conditions');
-      let cloudObj = this.getData('clouds');
-      let icon,
-        desc = '';
-      let conditions = `${condObj.prefix}${condObj.code}`;
-      let clouds = `${cloudObj.prefix}${cloudObj.code}`;
-
-      if (conditions === '-SHRA') {
-        if (sunDown) {
-          icon = 'nt_rain.svg';
-        } else {
-          icon = 'rain.svg';
-        }
-        desc = 'Light Rain <br>Showers';
-      } else if (conditions === 'SHRA') {
-        if (sunDown) {
-          icon = 'nt_rain.svg';
-        } else {
-          icon = 'rain.svg';
-        }
-        desc = 'Light Rain <br>Showers';
-      } else if (conditions === '+SHRA') {
-        if (sunDown) {
-          icon = 'nt_rain.svg';
-        } else {
-          icon = 'rain.svg';
-        }
-        desc = 'Heavy Rain <br>Showers';
-      } else if (conditions === '-RA') {
-        if (sunDown) {
-          icon = 'nt_rain.svg';
-        } else {
-          icon = 'rain.svg';
-        }
-        desc = 'Light Rain <br>Showers';
-      } else if (conditions === '+RA') {
-        if (sunDown) {
-          icon = 'nt_rain.svg';
-        } else {
-          icon = 'rain.svg';
-        }
-        desc = 'Moderate Rain <br>Showers';
-      } else if (conditions === 'RA') {
-        if (sunDown) {
-          icon = 'nt_rain.svg';
-        } else {
-          icon = 'rain.svg';
-        }
-        desc = 'Light Rain <br>Showers';
-      } else if (conditions === 'SQ') {
-        if (sunDown) {
-          icon = 'nt_rain.svg';
-        } else {
-          icon = 'rain.svg';
-        }
-        desc = 'Rain Squall<br>Showers';
-      } else if (conditions === '-SN') {
-        if (sunDown) {
-          icon = 'nt_snow.svg';
-        } else {
-          icon = 'snow.svg';
-        }
-        desc = 'Light Snow <br>Showers';
-      } else if (conditions === '+SN') {
-        if (sunDown) {
-          icon = 'nt_snow.svg';
-        } else {
-          icon = 'snow.svg';
-        }
-        desc = 'Moderate Snow <br>Showers';
-      } else if (conditions === 'SN') {
-        if (sunDown) {
-          icon = 'snow.svg';
-        } else {
-          icon = 'snow.svg';
-        }
-        desc = 'Snow Showers <br>';
-      } else if (conditions === 'SG') {
-        if (sunDown) {
-          icon = 'nt_snow.svg';
-        } else {
-          icon = 'snow.svg';
-        }
-        desc = 'Snow Grains <br>';
-      } else if (conditions === 'SNINCR') {
-        if (sunDown) {
-          icon = 'snow.svg';
-        } else {
-          icon = 'snow.svg';
-        }
-        desc = 'Snow Showers <br>';
-      } else if (conditions === 'IP') {
-        if (sunDown) {
-          icon = 'nt_sleet.svg';
-        } else {
-          icon = 'sleet.svg';
-        }
-        desc = 'Sleet Showers';
-      } else if (conditions === 'HZ') {
-        if (sunDown) {
-          icon = 'nt_haze.svg';
-        } else {
-          icon = 'haze.svg';
-        }
-        desc = 'Hazy <br>Conditions';
-      } else if (conditions === 'BCFG') {
-        if (sunDown) {
-          icon = 'nt_fog.svg';
-        } else {
-          icon = 'fog.svg';
-        }
-        desc = 'Foggy <br>Conditions';
-      } else if (conditions === 'FG') {
-        if (sunDown) {
-          icon = 'nt_fog.svg';
-        } else {
-          icon = 'fog.svg';
-        }
-        desc = 'Foggy <br>Conditions';
-      } else if (conditions === 'NFG') {
-        if (sunDown) {
-          icon = 'nt_fog.svg';
-        } else {
-          icon = 'fog.svg';
-        }
-        desc = 'Foggy <br>Conditions';
-      } else if (conditions === 'BR') {
-        if (sunDown) {
-          icon = 'nt_fog.svg';
-        } else {
-          icon = 'fog.svg';
-        }
-        desc = 'Misty <br>Conditions';
-      } else if (conditions === 'NBR') {
-        if (sunDown) {
-          icon = 'nt_fog.svg';
-        } else {
-          icon = 'fog.svg';
-        }
-        desc = 'Misty <br>Conditions';
-      } else if (conditions === 'GR') {
-        if (sunDown) {
-          icon = 'nt_hail.svg';
-        } else {
-          icon = 'hail.svg';
-        }
-        desc = 'Hail and Rain <br>Conditions';
-      } else if (conditions === 'GS') {
-        if (sunDown) {
-          icon = 'hail.svg';
-        } else {
-          icon = 'hail.svg';
-        }
-        desc = 'Hail <br>Conditions';
-      } else if (conditions === 'IC') {
-        if (sunDown) {
-          icon = 'nt_hail.svg';
-        } else {
-          icon = 'hail.svg';
-        }
-        desc = 'Ice Crystals';
-      } else if (conditions === 'PL') {
-        if (sunDown) {
-          icon = 'nt_hail.svg';
-        } else {
-          icon = 'hail.svg';
-        }
-        desc = 'Ice Pellets <br>';
-      } else if (conditions === 'TS') {
-        if (sunDown) {
-          icon = 'tstorm.svg';
-        } else {
-          icon = 'tstorm.svg';
-        }
-        desc = 'Thunderstorm <br>Conditions';
-      } else if (conditions === '-TS') {
-        if (sunDown) {
-          icon = 'nt_tstorm.svg';
-        } else {
-          icon = 'tstorm.svg';
-        }
-        desc = 'Thunderstorm <br>Conditions';
-      } else if (conditions === '+TS') {
-        if (sunDown) {
-          icon = 'nt_tstorm.svg';
-        } else {
-          icon = 'tstorm.svg';
-        }
-        desc = 'Heavy <br>Thunderstorms';
-      } else if (conditions === 'TSRA') {
-        if (sunDown) {
-          icon = 'nt_tstorm.svg';
-        } else {
-          icon = 'tstorm.svg';
-        }
-        desc = 'Thunderstorm <br>Conditions';
-      } else if (conditions === 'SCTTSRA') {
-        if (sunDown) {
-          icon = 'nt_tstorm.svg';
-        } else {
-          icon = 'tstorm.svg';
-        }
-        desc = 'Scattered <br>Thunderstorms';
-      } else if (conditions === 'NTSRA') {
-        if (sunDown) {
-          icon = 'nt_tstorm.svg';
-        } else {
-          icon = 'tstorm.svg';
-        }
-        desc = 'Scattered <br>Thunderstorms';
-      } else if (conditions === 'DS') {
-        if (sunDown) {
-          icon = 'dust.svg';
-        } else {
-          icon = 'dust.svg';
-        }
-        desc = 'Dust Storm <br>Conditions';
-      } else if (conditions === 'DU') {
-        if (sunDown) {
-          icon = 'dust.svg';
-        } else {
-          icon = 'dust.svg';
-        }
-        desc = 'Widespread Dust <br>Conditions';
-      } else if (conditions === 'PO') {
-        if (sunDown) {
-          icon = 'nt_dust.svg';
-        } else {
-          icon = 'dust.svg';
-        }
-        desc = 'Dust-Sand Whirls <br>Conditions';
-      } else if (conditions === 'SA') {
-        if (sunDown) {
-          icon = 'nt_dust.svg';
-        } else {
-          icon = 'dust.svg';
-        }
-        desc = 'Dust-Sand <br>Conditions';
-      } else if (conditions === 'SS') {
-        if (sunDown) {
-          icon = 'nt_dust.svg';
-        } else {
-          icon = 'dust.svg';
-        }
-        desc = 'Sandstorm <br>Conditions';
-      } else if (conditions === 'VA') {
-        if (sunDown) {
-          icon = 'volcanoe.svg';
-        } else {
-          icon = 'volcanoe.svg';
-        }
-        desc = 'Volcanic Ash <br>Conditions';
-      } else if (conditions === '+FC') {
-        if (sunDown) {
-          icon = 'nsvrtsa.svg';
-        } else {
-          icon = 'nsvrtsat.svg';
-        }
-        desc = 'Tornado <br> Water Sprout';
-      } else if (clouds === 'SKC') {
-        if (sunDown) {
-          icon = 'nt_clear.svg';
-        } else {
-          icon = 'clear.svg';
-        }
-        desc = 'Clear <br>Conditions';
-      } else if (clouds === 'CLR') {
-        if (sunDown) {
-          icon = 'nt_clear.svg';
-        } else {
-          icon = 'clear.svg';
-        }
-        desc = 'Clear <br>Conditions';
-      } else if (clouds === 'CAVOK') {
-        if (sunDown) {
-          icon = 'nt_clear.svg';
-        } else {
-          icon = 'clear.svg';
-        }
-        desc = 'Clear <br>Conditions';
-      } else if (clouds === 'FEW') {
-        if (sunDown) {
-          icon = 'partlycloudy.svg';
-        } else {
-          icon = 'partlysunny.svg';
-        }
-        desc = 'Partly Cloudy <br>Conditions';
-      } else if (clouds === 'SCT') {
-        if (sunDown) {
-          icon = 'nt_scatteredclouds.svg';
-        } else {
-          icon = 'scatteredclouds.svg';
-        }
-        desc = 'Mostly Scattered <br>Clouds';
-      } else if (clouds === 'BKN') {
-        if (sunDown) {
-          icon = 'nt_mostlycloudy.svg';
-        } else {
-          icon = 'mostlycloudy.svg';
-        }
-        desc = 'Mostly Cloudy <br>Conditions';
-      } else if (clouds === 'OVC') {
-        if (sunDown) {
-          icon = 'nt_overcast.svg';
-        } else {
-          icon = 'overcast.svg';
-        }
-        desc = 'Overcast <br>Conditions';
-      } else if (clouds === 'OVX') {
-        if (sunDown) {
-          icon = 'nt_overcast.svg';
-        } else {
-          icon = 'overcast.svg';
-        }
-        desc = 'Overcast Conditions';
-      } else {
-        icon = 'offline.svg';
-        desc = 'Data Offline';
-      }
-      return { icon, desc };
-    },
-  },
-};
+// export default {
+//   name: 'metarmodel',
+//   props: {
+//     astro: Object,
+//   },
+//   data() {
+//     return {
+//       metar: null,
+//       conditions: null,
+//     };
+//   },
+//   watch: {
+//     metar: function () {
+//       this.conditions = this.getConditions();
+//     },
+//   },
+//   mounted() {
+//     axios.get('/api/metar').then((response) => (this.metar = response.data.data[0]));
+//   },
+//   computed: {
+//     getIcon: function () {
+//       return 'css/icons/' + this.conditions.icon;
+//     },
+//     hClass: function () {
+//       if (this.metar.humidity.percent > 85) {
+//         return 'metarhumtoday85-100';
+//       } else if (this.metar.humidity.percent > 70) {
+//         return 'metarhumtoday70-85';
+//       } else if (this.metar.humidity.percent > 35) {
+//         return 'metarhumtoday35-70';
+//       } else if (this.metar.humidity.percent >= 0) {
+//         return 'metarhumtoday0-35';
+//       }
+//       return 'metarhumtoday0-35';
+//     },
+//     kphWindSpeedClass: function () {
+//       let speed = (this.metar.wind.speed_mph * 1.66).toFixed(0);
+//       if (speed >= 50) {
+//         return 'metarwindtoday30';
+//       } else if (speed >= 40) {
+//         return 'metarwindtoday25';
+//       } else if (speed >= 30) {
+//         return 'metarwindtoday20';
+//       } else if (speed > 0) {
+//         return 'metarwindtoday10';
+//       } else {
+//         return 'metarwindtoday10';
+//       }
+//     },
+//     mphWindSpeedClass: function () {
+//       if (this.metar.wind.speed_mph >= 31.06) {
+//         return 'metarwindtoday30';
+//       } else if (this.metar.wind.speed_mph >= 24.85) {
+//         return 'metarwindtoday25';
+//       } else if (this.metar.wind.speed_mph >= 18.6) {
+//         return 'metarwindtoday20';
+//       } else if (this.metar.wind.speed_mph > 0) {
+//         return 'metarwindtoday10';
+//       } else {
+//         return 'metarwindtoday10';
+//       }
+//     },
+//     ktsWindSpeedClass: function () {
+//       if (this.metar.wind.speed_kts >= 26.9) {
+//         return 'metarwindtoday30';
+//       } else if (this.metar.wind.speed_kts >= 21.5) {
+//         return 'metarwindtoday25';
+//       } else if (this.metar.wind.speed_kts >= 16.19) {
+//         return 'metarwindtoday20';
+//       } else if (this.metar.wind.speed_kts > 0) {
+//         return 'metarwindtoday10';
+//       } else {
+//         return 'metarwindtoday10';
+//       }
+//     },
+//     mpsWindSpeedClass: function () {
+//       if (this.metar.wind.speed_mps >= 13.8) {
+//         return 'metarwindtoday30';
+//       } else if (this.metar.wind.speed_mps >= 11.1) {
+//         return 'metarwindtoday25';
+//       } else if (this.metar.wind.speed_mps >= 8.3) {
+//         return 'metarwindtoday20';
+//       } else if (this.metar.wind.speed_mps > 0) {
+//         return 'metarwindtoday10';
+//       } else {
+//         return 'metarwindtoday10';
+//       }
+//     },
+//   },
+//   filters: {
+//     degToCompass: function (num) {
+//       let val = Math.floor(num / 22.5 + 0.5);
+//       let arr = [
+//         'North',
+//         'NNE',
+//         'NE',
+//         'ENE',
+//         'East',
+//         'ESE',
+//         'SE',
+//         'SSE',
+//         'South',
+//         'SSW',
+//         'SW',
+//         'WSW',
+//         'West',
+//         'WNW',
+//         'NW',
+//         'NNW',
+//       ];
+//       return arr[val % 16];
+//     },
+//     metarDate: function (date) {
+//       return moment(date).format('ddd MMM Do Y HH:mm ');
+//     },
+//   },
+//   methods: {
+//     close: function () {
+//       this.$parent.closeModal('metar');
+//     },
+//     getData: function (type) {
+//       for (let i = 0; i < this.metar[type].length; i++) {
+//         if (Object.prototype.hasOwnProperty.call(this.metar[type][i], 'prefix')) {
+//           if (this.metar[type][i].prefix !== '@') {
+//             return this.metar[type][i];
+//           }
+//         } else {
+//           this.metar[type][i].prefix = '';
+//           return this.metar[type][i];
+//         }
+//       }
+//       return {
+//         prefix: '',
+//         code: '',
+//         text: '',
+//       };
+//     },
+//     dynamicClass: function (type, scale) {
+//       let c = '';
+//       switch (type) {
+//         case 'temperature':
+//           c = 'temp';
+//           break;
+//         case 'dewpoint':
+//           c = 'dew';
+//           break;
+//       }
+//
+//       if (
+//         (scale === 'celcius' && this.metar[type][scale] > 30) ||
+//         (scale === 'fahrenheit' && this.metar.temperature.fahrenheit > 86)
+//       ) {
+//         return `metar${c}today30`;
+//       } else if (
+//         (scale === 'celcius' && this.metar[type][scale] > 25) ||
+//         (scale === 'fahrenheit' && this.metar.temperature.fahrenheit > 77)
+//       ) {
+//         return `metar${c}today25`;
+//       } else if (
+//         (scale === 'celcius' && this.metar[type][scale] > 20) ||
+//         (scale === 'fahrenheit' && this.metar.temperature.fahrenheit > 68)
+//       ) {
+//         return `metar${c}today20`;
+//       } else if (
+//         (scale === 'celcius' && this.metar[type][scale] > 10) ||
+//         (scale === 'fahrenheit' && this.metar.temperature.fahrenheit > 50)
+//       ) {
+//         return `metar${c}today10`;
+//       } else if (
+//         (scale === 'celcius' && this.metar[type][scale] > 5) ||
+//         (scale === 'fahrenheit' && this.metar.temperature.fahrenheit > 41)
+//       ) {
+//         return `metar${c}today5`;
+//       } else if (
+//         (scale === 'celcius' && this.metar[type][scale] > -50) ||
+//         (scale === 'fahrenheit' && this.metar.temperature.fahrenheit > -50)
+//       ) {
+//         return `metar${c}today0`;
+//       }
+//
+//       return `metar${c}today0`;
+//     },
+//     sunHasSet: function () {
+//       let hasSunset = false;
+//       let sh = this.astro.sunset.split(':');
+//       let sunset = moment().startOf('day').hour(sh[0]).minute(sh[1]);
+//       let srh = this.astro.sunset.split(':');
+//       let sunrise = moment().startOf('day').hour(srh[0]).minute(srh[1]);
+//
+//       if (moment() < sunrise && moment().format('H') > 0) {
+//         hasSunset = true;
+//       } else if (moment() > sunset && moment().format('H') < 24) {
+//         hasSunset = true;
+//       } else {
+//         hasSunset = false;
+//       }
+//       return hasSunset;
+//     },
+//     getConditions: function () {
+//       let sunDown = this.sunHasSet();
+//       let condObj = this.getData('conditions');
+//       let cloudObj = this.getData('clouds');
+//       let icon,
+//         desc = '';
+//       let conditions = `${condObj.prefix}${condObj.code}`;
+//       let clouds = `${cloudObj.prefix}${cloudObj.code}`;
+//
+//       if (conditions === '-SHRA') {
+//         if (sunDown) {
+//           icon = 'nt_rain.svg';
+//         } else {
+//           icon = 'rain.svg';
+//         }
+//         desc = 'Light Rain <br>Showers';
+//       } else if (conditions === 'SHRA') {
+//         if (sunDown) {
+//           icon = 'nt_rain.svg';
+//         } else {
+//           icon = 'rain.svg';
+//         }
+//         desc = 'Light Rain <br>Showers';
+//       } else if (conditions === '+SHRA') {
+//         if (sunDown) {
+//           icon = 'nt_rain.svg';
+//         } else {
+//           icon = 'rain.svg';
+//         }
+//         desc = 'Heavy Rain <br>Showers';
+//       } else if (conditions === '-RA') {
+//         if (sunDown) {
+//           icon = 'nt_rain.svg';
+//         } else {
+//           icon = 'rain.svg';
+//         }
+//         desc = 'Light Rain <br>Showers';
+//       } else if (conditions === '+RA') {
+//         if (sunDown) {
+//           icon = 'nt_rain.svg';
+//         } else {
+//           icon = 'rain.svg';
+//         }
+//         desc = 'Moderate Rain <br>Showers';
+//       } else if (conditions === 'RA') {
+//         if (sunDown) {
+//           icon = 'nt_rain.svg';
+//         } else {
+//           icon = 'rain.svg';
+//         }
+//         desc = 'Light Rain <br>Showers';
+//       } else if (conditions === 'SQ') {
+//         if (sunDown) {
+//           icon = 'nt_rain.svg';
+//         } else {
+//           icon = 'rain.svg';
+//         }
+//         desc = 'Rain Squall<br>Showers';
+//       } else if (conditions === '-SN') {
+//         if (sunDown) {
+//           icon = 'nt_snow.svg';
+//         } else {
+//           icon = 'snow.svg';
+//         }
+//         desc = 'Light Snow <br>Showers';
+//       } else if (conditions === '+SN') {
+//         if (sunDown) {
+//           icon = 'nt_snow.svg';
+//         } else {
+//           icon = 'snow.svg';
+//         }
+//         desc = 'Moderate Snow <br>Showers';
+//       } else if (conditions === 'SN') {
+//         if (sunDown) {
+//           icon = 'snow.svg';
+//         } else {
+//           icon = 'snow.svg';
+//         }
+//         desc = 'Snow Showers <br>';
+//       } else if (conditions === 'SG') {
+//         if (sunDown) {
+//           icon = 'nt_snow.svg';
+//         } else {
+//           icon = 'snow.svg';
+//         }
+//         desc = 'Snow Grains <br>';
+//       } else if (conditions === 'SNINCR') {
+//         if (sunDown) {
+//           icon = 'snow.svg';
+//         } else {
+//           icon = 'snow.svg';
+//         }
+//         desc = 'Snow Showers <br>';
+//       } else if (conditions === 'IP') {
+//         if (sunDown) {
+//           icon = 'nt_sleet.svg';
+//         } else {
+//           icon = 'sleet.svg';
+//         }
+//         desc = 'Sleet Showers';
+//       } else if (conditions === 'HZ') {
+//         if (sunDown) {
+//           icon = 'nt_haze.svg';
+//         } else {
+//           icon = 'haze.svg';
+//         }
+//         desc = 'Hazy <br>Conditions';
+//       } else if (conditions === 'BCFG') {
+//         if (sunDown) {
+//           icon = 'nt_fog.svg';
+//         } else {
+//           icon = 'fog.svg';
+//         }
+//         desc = 'Foggy <br>Conditions';
+//       } else if (conditions === 'FG') {
+//         if (sunDown) {
+//           icon = 'nt_fog.svg';
+//         } else {
+//           icon = 'fog.svg';
+//         }
+//         desc = 'Foggy <br>Conditions';
+//       } else if (conditions === 'NFG') {
+//         if (sunDown) {
+//           icon = 'nt_fog.svg';
+//         } else {
+//           icon = 'fog.svg';
+//         }
+//         desc = 'Foggy <br>Conditions';
+//       } else if (conditions === 'BR') {
+//         if (sunDown) {
+//           icon = 'nt_fog.svg';
+//         } else {
+//           icon = 'fog.svg';
+//         }
+//         desc = 'Misty <br>Conditions';
+//       } else if (conditions === 'NBR') {
+//         if (sunDown) {
+//           icon = 'nt_fog.svg';
+//         } else {
+//           icon = 'fog.svg';
+//         }
+//         desc = 'Misty <br>Conditions';
+//       } else if (conditions === 'GR') {
+//         if (sunDown) {
+//           icon = 'nt_hail.svg';
+//         } else {
+//           icon = 'hail.svg';
+//         }
+//         desc = 'Hail and Rain <br>Conditions';
+//       } else if (conditions === 'GS') {
+//         if (sunDown) {
+//           icon = 'hail.svg';
+//         } else {
+//           icon = 'hail.svg';
+//         }
+//         desc = 'Hail <br>Conditions';
+//       } else if (conditions === 'IC') {
+//         if (sunDown) {
+//           icon = 'nt_hail.svg';
+//         } else {
+//           icon = 'hail.svg';
+//         }
+//         desc = 'Ice Crystals';
+//       } else if (conditions === 'PL') {
+//         if (sunDown) {
+//           icon = 'nt_hail.svg';
+//         } else {
+//           icon = 'hail.svg';
+//         }
+//         desc = 'Ice Pellets <br>';
+//       } else if (conditions === 'TS') {
+//         if (sunDown) {
+//           icon = 'tstorm.svg';
+//         } else {
+//           icon = 'tstorm.svg';
+//         }
+//         desc = 'Thunderstorm <br>Conditions';
+//       } else if (conditions === '-TS') {
+//         if (sunDown) {
+//           icon = 'nt_tstorm.svg';
+//         } else {
+//           icon = 'tstorm.svg';
+//         }
+//         desc = 'Thunderstorm <br>Conditions';
+//       } else if (conditions === '+TS') {
+//         if (sunDown) {
+//           icon = 'nt_tstorm.svg';
+//         } else {
+//           icon = 'tstorm.svg';
+//         }
+//         desc = 'Heavy <br>Thunderstorms';
+//       } else if (conditions === 'TSRA') {
+//         if (sunDown) {
+//           icon = 'nt_tstorm.svg';
+//         } else {
+//           icon = 'tstorm.svg';
+//         }
+//         desc = 'Thunderstorm <br>Conditions';
+//       } else if (conditions === 'SCTTSRA') {
+//         if (sunDown) {
+//           icon = 'nt_tstorm.svg';
+//         } else {
+//           icon = 'tstorm.svg';
+//         }
+//         desc = 'Scattered <br>Thunderstorms';
+//       } else if (conditions === 'NTSRA') {
+//         if (sunDown) {
+//           icon = 'nt_tstorm.svg';
+//         } else {
+//           icon = 'tstorm.svg';
+//         }
+//         desc = 'Scattered <br>Thunderstorms';
+//       } else if (conditions === 'DS') {
+//         if (sunDown) {
+//           icon = 'dust.svg';
+//         } else {
+//           icon = 'dust.svg';
+//         }
+//         desc = 'Dust Storm <br>Conditions';
+//       } else if (conditions === 'DU') {
+//         if (sunDown) {
+//           icon = 'dust.svg';
+//         } else {
+//           icon = 'dust.svg';
+//         }
+//         desc = 'Widespread Dust <br>Conditions';
+//       } else if (conditions === 'PO') {
+//         if (sunDown) {
+//           icon = 'nt_dust.svg';
+//         } else {
+//           icon = 'dust.svg';
+//         }
+//         desc = 'Dust-Sand Whirls <br>Conditions';
+//       } else if (conditions === 'SA') {
+//         if (sunDown) {
+//           icon = 'nt_dust.svg';
+//         } else {
+//           icon = 'dust.svg';
+//         }
+//         desc = 'Dust-Sand <br>Conditions';
+//       } else if (conditions === 'SS') {
+//         if (sunDown) {
+//           icon = 'nt_dust.svg';
+//         } else {
+//           icon = 'dust.svg';
+//         }
+//         desc = 'Sandstorm <br>Conditions';
+//       } else if (conditions === 'VA') {
+//         if (sunDown) {
+//           icon = 'volcanoe.svg';
+//         } else {
+//           icon = 'volcanoe.svg';
+//         }
+//         desc = 'Volcanic Ash <br>Conditions';
+//       } else if (conditions === '+FC') {
+//         if (sunDown) {
+//           icon = 'nsvrtsa.svg';
+//         } else {
+//           icon = 'nsvrtsat.svg';
+//         }
+//         desc = 'Tornado <br> Water Sprout';
+//       } else if (clouds === 'SKC') {
+//         if (sunDown) {
+//           icon = 'nt_clear.svg';
+//         } else {
+//           icon = 'clear.svg';
+//         }
+//         desc = 'Clear <br>Conditions';
+//       } else if (clouds === 'CLR') {
+//         if (sunDown) {
+//           icon = 'nt_clear.svg';
+//         } else {
+//           icon = 'clear.svg';
+//         }
+//         desc = 'Clear <br>Conditions';
+//       } else if (clouds === 'CAVOK') {
+//         if (sunDown) {
+//           icon = 'nt_clear.svg';
+//         } else {
+//           icon = 'clear.svg';
+//         }
+//         desc = 'Clear <br>Conditions';
+//       } else if (clouds === 'FEW') {
+//         if (sunDown) {
+//           icon = 'partlycloudy.svg';
+//         } else {
+//           icon = 'partlysunny.svg';
+//         }
+//         desc = 'Partly Cloudy <br>Conditions';
+//       } else if (clouds === 'SCT') {
+//         if (sunDown) {
+//           icon = 'nt_scatteredclouds.svg';
+//         } else {
+//           icon = 'scatteredclouds.svg';
+//         }
+//         desc = 'Mostly Scattered <br>Clouds';
+//       } else if (clouds === 'BKN') {
+//         if (sunDown) {
+//           icon = 'nt_mostlycloudy.svg';
+//         } else {
+//           icon = 'mostlycloudy.svg';
+//         }
+//         desc = 'Mostly Cloudy <br>Conditions';
+//       } else if (clouds === 'OVC') {
+//         if (sunDown) {
+//           icon = 'nt_overcast.svg';
+//         } else {
+//           icon = 'overcast.svg';
+//         }
+//         desc = 'Overcast <br>Conditions';
+//       } else if (clouds === 'OVX') {
+//         if (sunDown) {
+//           icon = 'nt_overcast.svg';
+//         } else {
+//           icon = 'overcast.svg';
+//         }
+//         desc = 'Overcast Conditions';
+//       } else {
+//         icon = 'offline.svg';
+//         desc = 'Data Offline';
+//       }
+//       return { icon, desc };
+//     },
+//   },
+// };
 </script>
 
 <style scoped>
