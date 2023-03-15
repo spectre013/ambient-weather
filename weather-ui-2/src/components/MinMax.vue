@@ -8,9 +8,9 @@ const props = defineProps({
   temp: {}
 });
 
-function at(date) {
-  return moment(date).format('HH:mm');
-}
+// function at(date) {
+//   return moment(date).format('HH:mm');
+// }
 function mFormat(date) {
   return moment(date).format('MMM');
 }

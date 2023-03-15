@@ -1,51 +1,45 @@
 <template>
   <div class="weather-item">
     <div class="chartforecast">
-      <span class="yearpopup">
-        <a
-          alt="nearby metar station"
-          title="nearby metar station"
-          href="#"
-          v-on:click="openModal('metar')"
-        >
-          <svg
-            viewBox="0 0 32 32"
-            width="8"
-            height="8"
-            fill="none"
-            stroke="#777"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="6.25%"
-          >
-            <path d="M14 9 L3 9 3 29 23 29 23 18 M18 4 L28 4 28 14 M28 4 L14 18"></path>
-          </svg>
-          Nearby Metar
-        </a>
-      </span>
-      <span class="monthpopup">
-        <a
-          href="#"
-          v-on:click="openModal('radar')"
-          title="Windy.com Radar"
-          alt="Windy.com Radar"
-          data-lity=""
-        >
-          <svg
-            viewBox="0 0 32 32"
-            width="8"
-            height="8"
-            fill="none"
-            stroke="#777"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="6.25%"
-          >
-            <path d="M14 9 L3 9 3 29 23 29 23 18 M18 4 L28 4 28 14 M28 4 L14 18"></path>
-          </svg>
-          Radar</a
-        >
-      </span>
+<!--      <span class="yearpopup">-->
+<!--        <a-->
+<!--          alt="nearby metar station"-->
+<!--          title="nearby metar station"-->
+<!--          href="#"-->
+<!--          v-on:click="openModal('metar',{})">-->
+<!--          <svg-->
+<!--            viewBox="0 0 32 32"-->
+<!--            width="8"-->
+<!--            height="8"-->
+<!--            fill="none"-->
+<!--            stroke="#777"-->
+<!--            stroke-linecap="round"-->
+<!--            stroke-linejoin="round"-->
+<!--            stroke-width="6.25%">-->
+<!--            <path d="M14 9 L3 9 3 29 23 29 23 18 M18 4 L28 4 28 14 M28 4 L14 18"></path>-->
+<!--          </svg>-->
+<!--          Nearby Metar-->
+<!--        </a>-->
+<!--      </span>-->
+<!--      <span class="monthpopup">-->
+<!--        <a-->
+<!--          href="#"-->
+<!--          v-on:click="openModal('radar', {})"-->
+<!--          title="Windy.com Radar"-->
+<!--          alt="Windy.com Radar"-->
+<!--          data-lity="">-->
+<!--          <svg-->
+<!--            viewBox="0 0 32 32"-->
+<!--            width="8"-->
+<!--            height="8"-->
+<!--            fill="none"-->
+<!--            stroke="#777"-->
+<!--            stroke-linecap="round"-->
+<!--            stroke-linejoin="round"-->
+<!--            stroke-width="6.25%">-->
+<!--            <path d="M14 9 L3 9 3 29 23 29 23 18 M18 4 L28 4 28 14 M28 4 L14 18"></path>-->
+<!--          </svg>Radar</a>-->
+<!--      </span>-->
     </div>
     <span class="moduletitle">Lightining</span>
     <div id="lightning-container" v-if="current && lightning">
@@ -120,11 +114,11 @@
 </template>
 
 <script setup>
-import {getCurrentInstance, onMounted, ref} from 'vue';
+import { onMounted, ref} from 'vue';
 import moment from 'moment';
 import axios from 'axios';
-const instance = getCurrentInstance();
 
+//const emit = defineEmits(['openModal'])
 const props = defineProps({
   current: Object
 });
@@ -140,13 +134,12 @@ onMounted(() => {
   updateData();
 })
 
-function openModal(type, options) {
-  instance.parent.showModal(type, options);
-}
-
-function dayOrHour(cnt) {
-  return cnt > 0 ? 'Hour' : 'Today';
-}
+// function openModal(type, options) {
+//   emit('openModal',{type:type,options:options})
+// }
+// function dayOrHour(cnt) {
+//   return cnt > 0 ? 'Hour' : 'Today';
+// }
 function year(date) {
   return moment(date).format('Y');
 }
@@ -159,12 +152,12 @@ function now(date) {
 function lightningFormat(date) {
   return moment(date).fromNow(); //format('HH:mm');
 }
-function timeFormat(date) {
-  return moment(date).format('HH:mm');
-}
-function getCount(current) {
-  return props.current.lightninghour > 0 ? props.current.lightninghour : props.current.lightningday;
-}
+// function timeFormat(date) {
+//   return moment(date).format('HH:mm');
+// }
+// function getCount(current) {
+//   return props.current.lightninghour > 0 ? props.current.lightninghour : props.current.lightningday;
+// }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

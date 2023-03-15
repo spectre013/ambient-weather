@@ -3,24 +3,24 @@ import {ref, onMounted, onBeforeMount} from 'vue';
 import axios from 'axios';
 import StationTime from './StationTime.vue'
 import MinMax from './MinMax.vue';
-import Rainfall from './Rainfall.vue';
-import Alert from './Alert.vue';
-import Temperature from './Temperature.vue';
+import Rainfall from './RainfallBox.vue';
+import Alert from './AlertBox.vue';
+import Temperature from './TemperatureBox.vue';
 import RainfallDetails from './RainfallDetails.vue';
-import Wind from './Wind.vue';
-import Barometer from './Barometer.vue';
-import Daylight from './Daylight.vue';
-import Moon from './Moon.vue';
-import Indoor from './Indoor.vue';
-import Lightining from './Lightining.vue';
-import Uv from './Uv.vue';
+import Wind from './WindBox.vue';
+import Barometer from './BarometerBox.vue';
+import Daylight from './DaylightBox.vue';
+import Moon from './MoonBox.vue';
+import Indoor from './IndoorBox.vue';
+import Lightining from './LightiningBox.vue';
+import Uv from './UvBox.vue';
 import ChartModal from './ChartModal.vue';
-// import AlertModal from './AlertModal';
 import AlmanacModel from './AlmancModel.vue';
-import Footer from './Footer.vue';
-// import Radar from './Radar';
+import Footer from './FooterBox.vue';
+// import AlertModal from './AlertModal';
+// import Radar from './RadarModal.vue';
 // import MetarModal from './MetarModal';
-import RainfallAlmanac from './RainfallAlmanac.vue';
+//import RainfallAlmanac from './RainfallAlmanac.vue';
 // import Menu from './Menu';
 import {useStore} from "vuex";
 
@@ -33,9 +33,10 @@ let temp = ref(null);
 let lightning = ref(null);
 let astro = ref(null);
 let wind = ref(null);
-let theme = ref('dark');
+//let theme = ref('dark');
 let models = ref({
   chart: false,
+  indoor: false,
   alert: false,
   almanac: false,
   rainfall: false,
@@ -47,9 +48,9 @@ let modalOptions = ref(null);
 let connection = null;
 
 function show(values) {
-  console.log(values);
   modalOptions.value = values.options;
   models.value[values.type] = true;
+  console.log(models.value)
 }
 function close(event) {
   models.value[event] = false;
@@ -86,7 +87,12 @@ onMounted(() => {
     connection.addEventListener('open', () => {
       console.log('Connection Open!');
     });
-
+    connection.addEventListener('close', () => {
+      console.log('Connection Close!');
+      setTimeout(function() {
+        connection = new WebSocket(wsurl);
+      }, 1000);
+    });
     // Listen for messages
     connection.addEventListener('message', (event) => {
       live.value = JSON.parse(event.data);
@@ -94,6 +100,7 @@ onMounted(() => {
 
     connection.onerror = function(error) {
       console.log(`[error]`,error);
+      connection.close();
     };
 
     window.addEventListener(
@@ -136,8 +143,8 @@ onMounted(() => {
         </div>
         <div class="weather-container">
           <Uv :current="live" :astro="astro" />
-          <Lightining :current="live" :stats="lightning" />
-          <Indoor :live="live" :loc="'in'" :title="'Indoor'" />
+          <Lightining :current="live" :stats="lightning" @openModal="show"  @closeModal="close"/>
+          <Indoor :live="live" :loc="'in'" :title="'Indo0or'" @openModal="show"  @closeModal="close" />
         </div>
         <div class="weather-container">
           <Indoor :live="live" :loc="'2'" :title="'Master'" @openModal="show"  @closeModal="close"/>

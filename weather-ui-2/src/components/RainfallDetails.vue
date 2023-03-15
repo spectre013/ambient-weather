@@ -133,17 +133,16 @@
 import * as weather from '@/weather'
 import moment from 'moment';
 import {useStore} from "vuex";
-import {getCurrentInstance} from "vue";
 
-const instance = getCurrentInstance();
+
 const store = useStore()
 const props = defineProps({
   current: Object
 });
 
-function openModal(type, options) {
-  this.instance.parent.showModal(type, options);
-}
+// function openModal(type, options) {
+//   this.instance.parent.showModal(type, options);
+// }
 
 function year(date) {
   return moment(date).format('YYYY');

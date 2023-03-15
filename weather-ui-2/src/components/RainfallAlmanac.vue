@@ -167,155 +167,155 @@
   </div>
 </template>
 <script setup>
-/* global CanvasJS */
-import {onMounted, ref} from 'vue';
-import moment from 'moment';
-import axios from 'axios';
 
-const props = defineProps({
-  current: Object,
-  appName: {
-    type: String,
-    default: String,
-  },
-  options: Object,
-});
-let data = ref(null);
-
-onMounted(() => {
-  axios.get('/api/chart/dailyrainin/year').then((response) => (data.value = response.data));
-  axios.get('/api/alltime/max/dailyrainin').then((response) => (this.maxrain = response.data));
-});
-
-function hourFormat(date) {
-  return moment(date).format('HH:mm');
-}
-function monthYear(date) {
-  return moment(date).format('MMMM Y');
-}
-function dayMonth(date) {
-  return moment(date).format('Do MMM');
-}
-function yearFormat(date) {
-  return moment(date).format('Y');
-}
-function fullFormat(date) {
-  return moment(date).format('Do MMM Y');
-}
-function close() {
-  this.$parent.closeModal('rainfallalmanac');
-}
-function drawChart(dataPoints1) {
-  let chart = new CanvasJS.Chart('chartContainer2', {
-    backgroundColor: 'rgba(40, 45, 52,.4)',
-    animationEnabled: true,
-    animationDuration: 500,
-    margin: 0,
-    height: 360,
-    width: 870,
-    title: {
-      text: ' ',
-      fontSize: 11,
-      fontColor: '#ccc',
-      fontFamily: 'arial',
-    },
-    toolTip: {
-      fontStyle: 'normal',
-      cornerRadius: 4,
-      backgroundColor: 'rgba(37, 41, 45, 0.95)',
-      fontSize: 11,
-      contentFormatter(e) {
-        let str = '<span style="color: #ccc;">' + e.entries[0].dataPoint.label + '</span><br/>';
-        for (let i = 0; i < e.entries.length; i++) {
-          let temp =
-            '<span style="color: ' +
-            e.entries[i].dataSeries.color +
-            ';">' +
-            e.entries[i].dataSeries.name +
-            '</span> <span style="color: #ccc;">' +
-            e.entries[i].dataPoint.y.toFixed(1) +
-            ' in' +
-            '</span> <br/>';
-          str = str.concat(temp);
-        }
-        return str;
-      },
-      shared: true,
-    },
-    axisX: {
-      gridColor: 'RGBA(64, 65, 66, 0.8)',
-      labelFontSize: 10,
-      labelFontColor: '#ccc',
-      lineThickness: 1,
-      gridDashType: 'dot',
-      gridThickness: 1,
-      titleFontFamily: 'arial',
-      labelFontFamily: 'arial',
-      minimum: 0,
-      interval: 'auto',
-      intervalType: 'month',
-      xValueType: 'dateTime',
-      crosshair: {
-        enabled: true,
-        snapToDataPoint: true,
-        color: '#009bab',
-        labelFontColor: '#F8F8F8',
-        labelFontSize: 11,
-        labelBackgroundColor: '#009bab',
-      },
-    },
-    axisY: {
-      title: '',
-      titleFontColor: '#ccc',
-      titleFontSize: 10,
-      titleWrap: false,
-      margin: 0,
-      interval: 'auto',
-      lineThickness: 1,
-      gridThickness: 1,
-      includeZero: false,
-      minimum: 0,
-      gridColor: 'RGBA(64, 65, 66, 0.8)',
-      gridDashType: 'dot',
-      labelFontSize: 10,
-      labelFontColor: '#ccc',
-      titleFontFamily: 'arial',
-      labelFontFamily: 'arial',
-      crosshair: {
-        enabled: true,
-        snapToDataPoint: true,
-        color: '#44a6b5',
-        labelFontColor: '#F8F8F8',
-        labelFontSize: 10,
-        labelMaxWidth: 70,
-        labelBackgroundColor: '#44a6b5',
-        valueFormatString: '#0.0 in',
-      },
-    },
-    legend: {
-      fontFamily: 'arial',
-      fontColor: '#ccc',
-    },
-
-    data: [
-      {
-        type: 'column',
-        color: 'rgba(66, 166, 181, 0.95)',
-        lineColor: 'rgba(66, 166, 181, 1)',
-        markerSize: 0,
-        showInLegend: false,
-        legendMarkerType: 'circle',
-        lineThickness: 2,
-        markerType: 'circle',
-        name: ' in Precip',
-        dataPoints: dataPoints1,
-        yValueFormatString: '#0.# in',
-      },
-    ],
-  });
-
-  chart.render();
-}
+// import {onMounted, ref} from 'vue';
+// import moment from 'moment';
+// import axios from 'axios';
+//
+// const props = defineProps({
+//   current: Object,
+//   appName: {
+//     type: String,
+//     default: String,
+//   },
+//   options: Object,
+// });
+// let data = ref(null);
+//
+// onMounted(() => {
+//   axios.get('/api/chart/dailyrainin/year').then((response) => (data.value = response.data));
+//   axios.get('/api/alltime/max/dailyrainin').then((response) => (this.maxrain = response.data));
+// });
+//
+// function hourFormat(date) {
+//   return moment(date).format('HH:mm');
+// }
+// function monthYear(date) {
+//   return moment(date).format('MMMM Y');
+// }
+// function dayMonth(date) {
+//   return moment(date).format('Do MMM');
+// }
+// function yearFormat(date) {
+//   return moment(date).format('Y');
+// }
+// function fullFormat(date) {
+//   return moment(date).format('Do MMM Y');
+// }
+// function close() {
+//   this.$parent.closeModal('rainfallalmanac');
+// }
+// function drawChart(dataPoints1) {
+//   let chart = new CanvasJS.Chart('chartContainer2', {
+//     backgroundColor: 'rgba(40, 45, 52,.4)',
+//     animationEnabled: true,
+//     animationDuration: 500,
+//     margin: 0,
+//     height: 360,
+//     width: 870,
+//     title: {
+//       text: ' ',
+//       fontSize: 11,
+//       fontColor: '#ccc',
+//       fontFamily: 'arial',
+//     },
+//     toolTip: {
+//       fontStyle: 'normal',
+//       cornerRadius: 4,
+//       backgroundColor: 'rgba(37, 41, 45, 0.95)',
+//       fontSize: 11,
+//       contentFormatter(e) {
+//         let str = '<span style="color: #ccc;">' + e.entries[0].dataPoint.label + '</span><br/>';
+//         for (let i = 0; i < e.entries.length; i++) {
+//           let temp =
+//             '<span style="color: ' +
+//             e.entries[i].dataSeries.color +
+//             ';">' +
+//             e.entries[i].dataSeries.name +
+//             '</span> <span style="color: #ccc;">' +
+//             e.entries[i].dataPoint.y.toFixed(1) +
+//             ' in' +
+//             '</span> <br/>';
+//           str = str.concat(temp);
+//         }
+//         return str;
+//       },
+//       shared: true,
+//     },
+//     axisX: {
+//       gridColor: 'RGBA(64, 65, 66, 0.8)',
+//       labelFontSize: 10,
+//       labelFontColor: '#ccc',
+//       lineThickness: 1,
+//       gridDashType: 'dot',
+//       gridThickness: 1,
+//       titleFontFamily: 'arial',
+//       labelFontFamily: 'arial',
+//       minimum: 0,
+//       interval: 'auto',
+//       intervalType: 'month',
+//       xValueType: 'dateTime',
+//       crosshair: {
+//         enabled: true,
+//         snapToDataPoint: true,
+//         color: '#009bab',
+//         labelFontColor: '#F8F8F8',
+//         labelFontSize: 11,
+//         labelBackgroundColor: '#009bab',
+//       },
+//     },
+//     axisY: {
+//       title: '',
+//       titleFontColor: '#ccc',
+//       titleFontSize: 10,
+//       titleWrap: false,
+//       margin: 0,
+//       interval: 'auto',
+//       lineThickness: 1,
+//       gridThickness: 1,
+//       includeZero: false,
+//       minimum: 0,
+//       gridColor: 'RGBA(64, 65, 66, 0.8)',
+//       gridDashType: 'dot',
+//       labelFontSize: 10,
+//       labelFontColor: '#ccc',
+//       titleFontFamily: 'arial',
+//       labelFontFamily: 'arial',
+//       crosshair: {
+//         enabled: true,
+//         snapToDataPoint: true,
+//         color: '#44a6b5',
+//         labelFontColor: '#F8F8F8',
+//         labelFontSize: 10,
+//         labelMaxWidth: 70,
+//         labelBackgroundColor: '#44a6b5',
+//         valueFormatString: '#0.0 in',
+//       },
+//     },
+//     legend: {
+//       fontFamily: 'arial',
+//       fontColor: '#ccc',
+//     },
+//
+//     data: [
+//       {
+//         type: 'column',
+//         color: 'rgba(66, 166, 181, 0.95)',
+//         lineColor: 'rgba(66, 166, 181, 1)',
+//         markerSize: 0,
+//         showInLegend: false,
+//         legendMarkerType: 'circle',
+//         lineThickness: 2,
+//         markerType: 'circle',
+//         name: ' in Precip',
+//         dataPoints: dataPoints1,
+//         yValueFormatString: '#0.# in',
+//       },
+//     ],
+//   });
+//
+//   chart.render();
+//}
 </script>
 <style scoped>
 .grid {

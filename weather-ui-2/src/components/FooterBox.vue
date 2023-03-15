@@ -111,20 +111,11 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import moment from 'moment';
-
-export default {
-  name: 'minmax',
-  mounted() {},
-  methods: {},
-  filters: {},
-  computed: {
-    year: function () {
-      return moment().format('Y');
-    },
-  },
-};
+function year() {
+  return moment().format('Y');
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

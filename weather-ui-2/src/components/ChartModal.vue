@@ -46,7 +46,6 @@
 <script setup>
 /* global CanvasJS */
 import axios from 'axios';
-import moment from 'moment';
 import {onMounted, ref} from "vue";
 
 const emit = defineEmits(['closeModal'])
@@ -85,9 +84,9 @@ onMounted(() => {
   checkDom();
 });
 
-function y(date) {
-  moment(date).format('Y');
-}
+// function y(date) {
+//   moment(date).format('Y');
+// }
 function url() {
   return `Temperature | High: ${this.minmax.max[this.options.time].value} &deg;F Low: ${
     this.minmax.min[this.options.time].value

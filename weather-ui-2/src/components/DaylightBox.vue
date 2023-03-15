@@ -77,7 +77,7 @@
             >Sun Elevation<span>
               <value>
                 <maxred>
-                  {{ props.astro.sun_altitude.toFixed(2) }}&nbsp;
+                  &nbsp;{{ props.astro.sun_altitude.toFixed(2) }}&nbsp;
                   <div :class="sunBelow">&nbsp;</div>
                 </maxred>
               </value>

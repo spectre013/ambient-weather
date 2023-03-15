@@ -68,9 +68,7 @@
 import {onMounted, ref} from 'vue';
 import moment from 'moment';
 import axios from 'axios';
-import { getCurrentInstance } from "vue";
 
-const instance = getCurrentInstance();
 
 const props = defineProps({
   current: Object,
@@ -141,18 +139,18 @@ function uvToday() {
   }
   return '';
 }
-function solarToday() {
-  if (props.current.solarradiation >= 1000) {
-    return 'solartoday1000';
-  } else if (props.current.solarradiation >= 500) {
-    return 'solartoday500';
-  } else if (props.current.solarradiation >= 10) {
-    return 'solartoday200';
-  } else if (props.current.solarradiation >= 0) {
-    return 'solartoday1';
-  }
-  return '';
-}
+// function solarToday() {
+//   if (props.current.solarradiation >= 1000) {
+//     return 'solartoday1000';
+//   } else if (props.current.solarradiation >= 500) {
+//     return 'solartoday500';
+//   } else if (props.current.solarradiation >= 10) {
+//     return 'solartoday200';
+//   } else if (props.current.solarradiation >= 0) {
+//     return 'solartoday1';
+//   }
+//   return '';
+// }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

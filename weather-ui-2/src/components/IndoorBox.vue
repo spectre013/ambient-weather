@@ -238,7 +238,7 @@ const props = defineProps({
   live: Object,
 });
 
-const emit = defineEmits(['openModal'])
+const emit = defineEmits(['openModal']);
 let trend=ref(null);
 let minmax=ref(null);
 
@@ -260,6 +260,11 @@ onMounted(() => {
 function openModal(type, options) {
   emit('openModal',{type:type,options:options})
 }
+
+
+// function closeModal() {
+//   emit('closeModal','chart');
+// }
 
 function chartDates(format) {
   return moment().format(format);

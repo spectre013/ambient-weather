@@ -394,13 +394,13 @@ function toKTS(speed) {
 }
 
 function beaufortSvg() {
-  return this.beaufortScale().svg;
+  return beaufortScale().svg;
 }
 function beaufortText() {
-  return this.beaufortScale().text;
+  return beaufortScale().text;
 }
 function beaufortClass() {
-  return this.beaufortScale().class;
+  return beaufortScale().class;
 }
 function windConvertCircle() {
   let windkts = this.current.windspeedmph / 1.151;

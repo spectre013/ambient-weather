@@ -47,7 +47,7 @@
                     <!-- : {{ alert.severity }} -->
                   </span> </a
                 ><br /><span v-bind:class="alertColor"
-                  >Expires {{ alert.end | expire }}</span
+                  >Expires {{ expire(alert.end) }}</span
                 ></alertvalue
               >
             </spanelightning>
