@@ -7,7 +7,7 @@
         title="http://ambientweather.com"
       >
         <img
-          src="img/ambient.png"
+          src="/img/ambient.png"
           alt="Ambient Weather"
           title="Ambient"
           width="25px"
@@ -23,7 +23,7 @@
         target="_blank"
         ><br />
         <img
-          src="img/weather34logo.svg"
+          src="/img/weather34logo.svg"
           width="30px"
           alt="https://weather34.com/homeweatherstation/"
           class="homeweatherstationlogo"
@@ -77,9 +77,9 @@
       >
         <path d="M16 14 L16 23 M16 8 L16 10"></path>
         <circle cx="16" cy="16" r="14"></circle></svg
-      >&nbsp;Charts&nbsp;<img src="img/Copyright.svg" height="10px" width="10px" />
+      >&nbsp;Charts&nbsp;<img src="/img/Copyright.svg" height="10px" width="10px" />
       <a target="_blank" rel="noopener" href="https://www.canvasjs.com">CanvasJS</a> - Forecasts
-      &nbsp;<img src="img/Copyright.svg" height="10px" width="10px" />
+      &nbsp;<img src="/img/Copyright.svg" height="10px" width="10px" />
       <a target="_blank" rel="noopener" href="https://darksky.net/poweredby/"
         >Powered by Dark Sky</a
       >
@@ -106,7 +106,7 @@
           22 29 22 59l-1 88c0 9 6 19 22 15A320 320 0 0 0 320 8z"
         ></path></svg
       >&nbsp;Ambient Version 1.1 Repository at
-      https://github.com/spectre013/ambient-weather&nbsp;<img src="img/flags/us.svg" width="20px" />
+      https://github.com/spectre013/ambient-weather&nbsp;<img src="/img/flags/us.svg" width="20px" />
     </div>
   </div>
 </template>
