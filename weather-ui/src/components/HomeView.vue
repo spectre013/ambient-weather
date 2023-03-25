@@ -17,7 +17,7 @@ import Uv from './UvBox.vue';
 import ChartModal from './ChartModal.vue';
 import AlmanacModel from './AlmancModel.vue';
 import Footer from './FooterBox.vue';
-// import AlertModal from './AlertModal';
+import AlertModal from './AlertModal.vue';
 // import Radar from './RadarModal.vue';
 // import MetarModal from './MetarModal';
 //import RainfallAlmanac from './RainfallAlmanac.vue';
@@ -50,7 +50,6 @@ let connection = null;
 function show(values) {
   modalOptions.value = values.options;
   models.value[values.type] = true;
-  console.log(models.value)
 }
 function close(event) {
   models.value[event] = false;
@@ -129,7 +128,7 @@ onMounted(() => {
       <StationTime />
       <MinMax :temp="temp" />
       <Rainfall :current="current" />
-      <Alert :alerts="alerts" />
+      <Alert :alerts="alerts" @openModal="show"  @closeModal="close" />
     </div>
     <div class="weather-container">
       <Temperature :current="live" :temp="temp" @openModal="show"  @closeModal="close"/>
@@ -155,7 +154,7 @@ onMounted(() => {
           <Footer />
         </div>
         <ChartModal v-if="models.chart" @closeModal="close" :options="modalOptions" />
-    <!--    <AlertModal v-if="models.alert" :alerts="alerts" @close="closeModal" :options="modalOptions" />-->
+        <AlertModal v-if="models.alert" :alerts="alerts" @closeModal="close" :options="modalOptions" />
         <AlmanacModel v-if="models.almanac" @closeModal="close" :options="modalOptions" />
     <!--    <Radar v-if="models.radar" @close="closeModal" />-->
     <!--    <MetarModal v-if="models.metar" :astro="astro" @close="closeModal" />-->

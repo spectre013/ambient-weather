@@ -2,11 +2,11 @@
   <div class="modal-backdrop">
     <div class="modal">
       <section class="modal-body">
-        <div id="body" v-if="alert">
-          <div class="weather34darkbrowser" :url="url"></div>
+        <div id="body" v-if="show">
+          <div class="weather34darkbrowser" :url="url()"></div>
           <main class="grid">
             <article>
-              <h1 v-bind:class="alertColor">
+              <h1 v-bind:class="alertColor()">
                 <svg
                   id="firealert"
                   viewBox="0 0 32 32"
@@ -22,19 +22,19 @@
                 </svg>
                 {{ alert.event }}
               </h1>
-              <h3 v-bind:class="alertColor">{{ alert.headline }}</h3>
+              <h3 v-bind:class="alertColor()">{{ alert.headline }}</h3>
               <div class="alertinfo">
-                <div v-bind:class="alertColor">Effective: {{ dates(alert.effective) }}</div>
-                <div v-bind:class="alertColor">Ends: {{ dates(alert.end) }}</div>
-                <div v-bind:class="alertColor">Certainty: {{ alert.certainty }}</div>
-                <div v-bind:class="alertColor">Response: {{ alert.response }}</div>
+                <div v-bind:class="alertColor()">Effective: {{ dates(alert.effective) }}</div>
+                <div v-bind:class="alertColor()">Ends: {{ dates(alert.end) }}</div>
+                <div v-bind:class="alertColor()">Certainty: {{ alert.certainty }}</div>
+                <div v-bind:class="alertColor()">Response: {{ alert.response }}</div>
               </div>
               <div class="alertText">
-                <span v-bind:class="alertColor">Alert Description: </span>
+                <span v-bind:class="alertColor()">Alert Description: </span>
                 <span v-html="alert.description"></span>
               </div>
               <div class="targetarea">
-                <span v-bind:class="alertColor">Regions Affected: </span>
+                <span v-bind:class="alertColor()">Regions Affected: </span>
                 <span>{{ alert.areadesc }}</span>
               </div>
             </article>
@@ -53,54 +53,48 @@
   </div>
 </template>
 
-<script>
-// import moment from 'moment';
-//
-// export default {
-//   name: 'alertmodal',
-//   props: {
-//     alerts: Array,
-//     options: Object,
-//   },
-//   data() {
-//     return {
-//       alert: null,
-//     };
-//   },
-//   methods: {
-//     close: function () {
-//       this.$parent.closeModal('alert');
-//     },
-//   },
-//   filters: {
-//     renderDesc: function (desc) {
-//       console.log(desc);
-//       desc.replace('\n', '<br />');
-//       return desc;
-//     },
-//     dates: function (date) {
-//       console.log(date);
-//       date = moment(date).utcOffset(7);
-//       return date.format('HH:mm DD MMM');
-//     },
-//   },
-//   computed: {
-//     url: function () {
-//       return `Weather Alerts -  ${this.alert.event}`;
-//     },
-//     alertColor: function () {
-//       if (this.alert.event.startsWith('911')) {
-//         return 'Telephone Outage 911'.toLowerCase().replace(/\s+/g, '-');
-//       }
-//       return this.alert.event.toLowerCase().replace(/\s+/g, '-');
-//     },
-//   },
-//   mounted: function () {
-//     this.alert = this.alerts[this.options.alert];
-//     this.alert.description = this.alert.description.replaceAll('\n', '<br />');
-//     console.log(this.alert);
-//   },
-// };
+<script setup>
+import moment from "moment";
+import {onMounted, reactive, ref} from 'vue';
+
+const emit = defineEmits(['closeModal'])
+
+const props = defineProps({
+  alerts: Array,
+  options: Object
+});
+let show = ref(false);
+let alert = reactive({})
+
+function close() {
+  emit('closeModal','alert')
+}
+
+onMounted(() => {
+  alert = props.alerts[props.options.alert];
+  alert.description = alert.description.replaceAll('\n', '<br />');
+  show.value = true;
+});
+
+// function renderDesc(desc) {
+//   console.log(desc);
+//   desc.replace('\n', '<br />');
+//   return desc;
+// }
+
+function dates(date) {
+  date = moment(date).utcOffset(7);
+  return date.format('HH:mm DD MMM');
+}
+function url() {
+  return `Weather Alerts -  ${alert.event}`;
+}
+function alertColor() {
+  if (alert.event.startsWith('911')) {
+    return 'Telephone Outage 911'.toLowerCase().replace(/\s+/g, '-');
+  }
+  return alert.event.toLowerCase().replace(/\s+/g, '-');
+}
 </script>
 
 <style scoped>
