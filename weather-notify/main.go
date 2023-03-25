@@ -198,9 +198,10 @@ func updateAlerts() {
 				logger.Error("Scan: %v", err)
 			}
 		}
+		fmt.Println(v.Onset, v.Expires)
 		if id == -1 {
-			_, err := db.Exec(insertSql, v.IDURI, v.Type, v.AreaDesc, v.Sent.UTC(), v.Effective.UTC(), v.Onset.UTC(),
-				v.Expires.UTC(), v.Ends.UTC(), v.Status,
+			_, err := db.Exec(insertSql, v.IDURI, v.Type, v.AreaDesc, v.Sent, v.Effective, v.Onset,
+				v.Expires, v.Ends, v.Status,
 				v.MessageType, v.Category, v.Severity, v.Certainty, v.Urgency, v.Event, v.Sender, v.SenderName,
 				v.Headline, v.Description, v.Instruction, v.Response)
 			logger.Info(fmt.Sprintf("Inserted Alert %s", v.Headline))
@@ -489,7 +490,7 @@ func createImage() {
 	img.DrawLine(0, 120, 2300, 120)
 	img.Stroke()
 
-	if err := img.LoadFontFace("/go/bin/fonts/Arial.ttf", 96); err != nil {
+	if err := img.LoadFontFace("fonts/Arial.ttf", 96); err != nil {
 		panic(err)
 	}
 
@@ -509,7 +510,7 @@ func createImage() {
 }
 
 func ForecastValues(img *gg.Context) *gg.Context {
-	if err := img.LoadFontFace("/go/bin/fonts/Arial Black.ttf", 108); err != nil {
+	if err := img.LoadFontFace("fonts/Arial Black.ttf", 108); err != nil {
 		panic(err)
 	}
 	forecast, err := getForecastImage()
@@ -521,13 +522,13 @@ func ForecastValues(img *gg.Context) *gg.Context {
 
 		img.SetHexColor("#FFFFFF")
 		img.DrawStringAnchored(fmt.Sprintf("%d", int(v.Tempmax)), 326*float64(i)+offSet, 700, 0.5, 0.5)
-		im, err := gg.LoadImage(fmt.Sprintf("/go/bin/icons/%s.png", v.Icon))
+		im, err := gg.LoadImage(fmt.Sprintf("icons/%s.png", v.Icon))
 		if err != nil {
 			log.Fatal(err)
 		}
 		img.DrawImage(im, 326*i+50, 300)
 	}
-	if err := img.LoadFontFace("/go/bin/fonts/Arial.ttf", 88); err != nil {
+	if err := img.LoadFontFace("fonts/Arial.ttf", 88); err != nil {
 		panic(err)
 	}
 
@@ -542,7 +543,7 @@ func ForecastValues(img *gg.Context) *gg.Context {
 }
 
 func DaysOfWeek(img *gg.Context) *gg.Context {
-	if err := img.LoadFontFace("/go/bin/fonts/Arial Black.ttf", 76); err != nil {
+	if err := img.LoadFontFace("fonts/Arial Black.ttf", 76); err != nil {
 		panic(err)
 	}
 	today := int(time.Now().Weekday())

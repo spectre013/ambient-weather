@@ -297,13 +297,14 @@ func dewpoint(temp float64, humidity int) float64 {
 }
 
 func alerts(w http.ResponseWriter, r *http.Request) {
-	now := time.Now().UTC()
+	now := time.Now()
 	alertsSql := fmt.Sprintf("select * from alerts where onset <= '%s' and ends >= '%s'", formatDate(now), formatDate(now))
+	logger.Info(alertsSql)
 	rows, err := db.Query(alertsSql)
 	if err != nil {
 		logger.Error(err)
 	}
-	alerts := make([]Alert,0)
+	alerts := make([]Alert, 0)
 	for rows.Next() {
 		a := Alert{}
 		err := rows.Scan(&a.ID, &a.Alertid, &a.Wxtype, &a.Areadesc, &a.Sent, &a.Effective, &a.Onset, &a.Expires, &a.Ends, &a.Status, &a.Messagetype, &a.Category, &a.Severity, &a.Certainty, &a.Urgency, &a.Event, &a.Sender, &a.SenderName, &a.Headline, &a.Description, &a.Instruction, &a.Response)

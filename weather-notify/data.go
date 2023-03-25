@@ -171,7 +171,7 @@ type Property struct {
 	SenderName    string        `json:"senderName"`
 	Headline      string        `json:"headline"`
 	Description   string        `json:"description"`
-	Instruction   interface{}   `json:"instruction"`
+	Instruction   string        `json:"instruction"`
 	Response      string        `json:"response"`
 	Parameters    struct {
 		NWSheadline  []string `json:"NWSheadline"`
