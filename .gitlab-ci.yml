@@ -42,7 +42,7 @@ scan notify:
   script:
     - |
       export PATH=$PATH:/usr/local/go/bin
-      output="$(trufflehog --no-update -j filesystem weather-notify | jq -C .)"
+      output="$(trufflehog -j filesystem weather-notify | jq -C .)"
       
       if [ "${output}" != "" ]; then
         echo "${output}"
@@ -56,7 +56,7 @@ scan server:
   script:
     - |
       export PATH=$PATH:/usr/local/go/bin
-      output="$(trufflehog --no-update -j filesystem weather-server | jq -C .)"
+      output="$(trufflehog -j filesystem weather-server | jq -C .)"
   
       if [ "${output}" != "" ]; then
         echo "${output}"
