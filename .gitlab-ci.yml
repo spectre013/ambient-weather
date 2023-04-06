@@ -1,6 +1,7 @@
 stages:
   - build
   - lint
+  - scan
   - build docker
 
 cache:
@@ -36,6 +37,15 @@ lint ui:
     - cd weather-ui
     - npm run lint
 
+scan notify:
+  stage: scan
+  script:
+    - trufflehog filesystem weather-notify
+
+scan server:
+  stage: scan
+  script:
+    - trufflehog filesystem weather-server
 
 ui:
   stage: build docker
