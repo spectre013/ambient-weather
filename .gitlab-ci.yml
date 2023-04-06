@@ -42,12 +42,14 @@ scan notify:
   script:
     - |
       export PATH=$PATH:/usr/local/go/bin
+      echo "Running Truffle Hog"
       output="$(trufflehog -j filesystem weather-notify | jq -C .)"
       
       if [ "${output}" != "" ]; then
         echo "${output}"
         exit 1
       else
+        echo "No issues found"
         exit 0
       fi
 
@@ -56,12 +58,14 @@ scan server:
   script:
     - |
       export PATH=$PATH:/usr/local/go/bin
+      echo "Running Truffle Hog"
       output="$(trufflehog -j filesystem weather-server | jq -C .)"
   
       if [ "${output}" != "" ]; then
         echo "${output}"
         exit 1
       else
+        echo "No issues found"
         exit 0
       fi
 
