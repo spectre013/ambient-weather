@@ -35,6 +35,8 @@ var fj *gocron.Job
 var LastModified time.Time
 var days = []string{"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"}
 
+const FONT = "/go/bin/fonts/Arial Black.ttf"
+
 func init() {
 	logger.Out = os.Stdout
 	logger.SetLevel(logrus.InfoLevel)
@@ -490,7 +492,7 @@ func createImage() {
 	img.DrawLine(0, 120, 2300, 120)
 	img.Stroke()
 
-	if err := img.LoadFontFace("fonts/Arial.ttf", 96); err != nil {
+	if err := img.LoadFontFace(FONT, 96); err != nil {
 		panic(err)
 	}
 
@@ -510,7 +512,7 @@ func createImage() {
 }
 
 func ForecastValues(img *gg.Context) *gg.Context {
-	if err := img.LoadFontFace("fonts/Arial Black.ttf", 108); err != nil {
+	if err := img.LoadFontFace(FONT, 108); err != nil {
 		panic(err)
 	}
 	forecast, err := getForecastImage()
@@ -522,13 +524,13 @@ func ForecastValues(img *gg.Context) *gg.Context {
 
 		img.SetHexColor("#FFFFFF")
 		img.DrawStringAnchored(fmt.Sprintf("%d", int(v.Tempmax)), 326*float64(i)+offSet, 700, 0.5, 0.5)
-		im, err := gg.LoadImage(fmt.Sprintf("icons/%s.png", v.Icon))
+		im, err := gg.LoadImage(fmt.Sprintf("/go/bin/icons/%s.png", v.Icon))
 		if err != nil {
 			log.Fatal(err)
 		}
 		img.DrawImage(im, 326*i+50, 300)
 	}
-	if err := img.LoadFontFace("fonts/Arial.ttf", 88); err != nil {
+	if err := img.LoadFontFace(FONT, 88); err != nil {
 		panic(err)
 	}
 
@@ -543,7 +545,7 @@ func ForecastValues(img *gg.Context) *gg.Context {
 }
 
 func DaysOfWeek(img *gg.Context) *gg.Context {
-	if err := img.LoadFontFace("fonts/Arial Black.ttf", 76); err != nil {
+	if err := img.LoadFontFace(FONT, 76); err != nil {
 		panic(err)
 	}
 	today := int(time.Now().Weekday())
