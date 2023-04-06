@@ -40,12 +40,30 @@ lint ui:
 scan notify:
   stage: scan
   script:
-    - trufflehog filesystem weather-notify
+    - |
+      export PATH=$PATH:/usr/local/go/bin
+      output="$(trufflehog --no-update -j filesystem weather-notify | jq -C .)"
+      
+      if [ "${output}" != "" ]; then
+        echo "${output}"
+        exit 1
+      else
+        exit 0
+      fi
 
 scan server:
   stage: scan
   script:
-    - trufflehog filesystem weather-server
+    - |
+      export PATH=$PATH:/usr/local/go/bin
+      output="$(trufflehog --no-update -j filesystem weather-server | jq -C .)"
+  
+      if [ "${output}" != "" ]; then
+        echo "${output}"
+        exit 1
+      else
+        exit 0
+      fi
 
 ui:
   stage: build docker
