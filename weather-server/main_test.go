@@ -6,8 +6,54 @@ import (
 
 // TestHelloName calls greetings.Hello with a name, checking
 // for a valid return value.
-func TestHeadIndex(t *testing.T) {
-	//0.5 * ($t + 61.0 + (($t - 68.0) * 1.2) + ($rh * 0.094))
-	//-42.379 + 2.04901523 * $t + 10.1433127*$rh - .22475441*$t*$rh - .00683783 *$t * $t - .05481717 * $rh * $rh + .00122874*$t*$t*$rh + .00085282 *$t * $rh *$rh - .00000199 *$t *$t *$rh * $rh;$a = 0;if ($rh < 13 && ($t >= 80 && $t <= 112)) {$a=((13 - $rh ) / 4) * sqrt((17-abs($t - 95))/17);$a = -$a;};if ($rh > 85 && ($t >= 80 && $t <= 87)) {$a=(($rh - 85)/10) * ((87 - $t) / 5)
+func TestHeatIndex(t *testing.T) {
+	hi := heatIndex(85, 45)
+	want := 85.31
+	t.Log(hi, want)
+	if hi != want {
+		t.Errorf("got %.2f, wanted %.2f", hi, want)
+	}
+}
+
+func TestHeatIndex_lowh(t *testing.T) {
+	hi := heatIndex(85, 27)
+	want := 82.54
+	t.Log(hi, want)
+	if hi != want {
+		t.Errorf("got %.2f, wanted %.2f", hi, want)
+	}
 
 }
+
+func TestHeatIndex_highh(t *testing.T) {
+	hi := heatIndex(87, 87)
+	want := 107.22
+	t.Log(hi, want)
+	if hi != want {
+		t.Errorf("got %.2f, wanted %.2f", hi, want)
+	}
+
+}
+
+func Test_WindChill(t *testing.T) {
+	wc := windChill(20, 10)
+	want := 8.85
+	t.Log(wc, want)
+	if wc != want {
+		t.Errorf("got %.2f, wanted %.2f", wc, want)
+	}
+}
+
+//func Test_TimeFrame_yesterday(t *testing.T) {
+//	now := time.Now()
+//	tf := getTimeframe("yesterday")
+//	timeStart := time.Date(now.Year(), now.Month(), now.Day()-1, 0, 0, 0, 0, loc)
+//	timeEnd := time.Date(now.Year(), now.Month(), now.Day()-1, 23, 59, 59, 0, loc)
+//
+//	if tf[0] != timeStart {
+//		t.Errorf("got %v, wanted %v", tf[0], timeStart)
+//	}
+//	if tf[1] != timeEnd {
+//		t.Errorf("got %v, wanted %v", tf[1], timeEnd)
+//	}
+//}

@@ -24,18 +24,18 @@
               </h1>
               <h3 v-bind:class="alertColor()">{{ alert.headline }}</h3>
               <div class="alertinfo">
-                <div v-bind:class="alertColor()">Effective: {{ dates(alert.effective) }}</div>
-                <div v-bind:class="alertColor()">Ends: {{ dates(alert.end) }}</div>
-                <div v-bind:class="alertColor()">Certainty: {{ alert.certainty }}</div>
-                <div v-bind:class="alertColor()">Response: {{ alert.response }}</div>
+                <div v-bind:class="alertColor()">Effective: {{ dates(alert.data.effective) }}</div>
+                <div v-bind:class="alertColor()">Ends: {{ dates(alert.data.end) }}</div>
+                <div v-bind:class="alertColor()">Certainty: {{ alert.data.certainty }}</div>
+                <div v-bind:class="alertColor()">Response: {{ alert.data.response }}</div>
               </div>
               <div class="alertText">
                 <span v-bind:class="alertColor()">Alert Description: </span>
-                <span v-html="alert.description"></span>
+                <span v-html="alert.data.description"></span>
               </div>
               <div class="targetarea">
                 <span v-bind:class="alertColor()">Regions Affected: </span>
-                <span>{{ alert.areadesc }}</span>
+                <span>{{ alert.data.areadesc }}</span>
               </div>
             </article>
           </main>
@@ -64,15 +64,15 @@ const props = defineProps({
   options: Object
 });
 let show = ref(false);
-let alert = reactive({})
+let alert = reactive({data:{}})
 
 function close() {
   emit('closeModal','alert')
 }
 
 onMounted(() => {
-  alert = props.alerts[props.options.alert];
-  alert.description = alert.description.replaceAll('\n', '<br />');
+  alert.data = props.alerts[props.options.alert];
+  alert.data.description = alert.data.description.replaceAll('\n', '<br />');
   show.value = true;
 });
 
@@ -90,10 +90,10 @@ function url() {
   return `Weather Alerts -  ${alert.event}`;
 }
 function alertColor() {
-  if (alert.event.startsWith('911')) {
+  if (alert.data.event.startsWith('911')) {
     return 'Telephone Outage 911'.toLowerCase().replace(/\s+/g, '-');
   }
-  return alert.event.toLowerCase().replace(/\s+/g, '-');
+  return alert.data.event.toLowerCase().replace(/\s+/g, '-');
 }
 </script>
 

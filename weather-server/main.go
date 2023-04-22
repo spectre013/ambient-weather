@@ -93,6 +93,7 @@ func main() {
 	r.HandleFunc("/api/metar", loggingMiddleware(metar))
 	r.HandleFunc("/api/apiin", loggingMiddleware(apiin))
 	r.HandleFunc("/api/receiver", loggingMiddleware(ambientin))
+	r.HandleFunc("/api/app", loggingMiddleware(getCurrentApp))
 	//Index
 	r.HandleFunc("/", loggingMiddleware(home))
 
@@ -237,7 +238,7 @@ func ambientin(w http.ResponseWriter, r *http.Request) {
 		if err == sql.ErrNoRows {
 			logger.Error("Zero Rows Found", lastrainquery)
 		} else {
-			logger.Error("Scan: %v", err)
+			logger.Error("Scan:", err)
 		}
 	}
 	output["lastrain"] = lrain
@@ -273,17 +274,22 @@ func ambientin(w http.ResponseWriter, r *http.Request) {
 func heatIndex(T float64, humidity int) float64 {
 	RH := float64(humidity)
 	feelsLike := -42.379 + 2.04901523*T + 10.14333127*RH - .22475541*T*RH - .00683783*T*T - .05481717*RH*RH + .00122874*T*T*RH + .00085282*T*RH*RH - .00000199*T*T*RH*RH
-	if RH < 13 && T >= 80 && T <= 112 {
+	if RH < 13 && (T >= 80 && T <= 112) {
 		feelsLike = feelsLike - ((13-RH)/4)*math.Sqrt((17-math.Abs(T-95.))/17)
-		if RH > 85 && T >= 80 && T <= 87 {
+		if RH > 85 && (T >= 80 && T <= 87) {
 			feelsLike = feelsLike + ((RH-85)/10)*((87-RH)/5)
 		}
 	}
 	return toFixed(feelsLike, 2)
 }
 
-func windChill(T float64, W float64) float64 {
-	return toFixed(35.74+(0.6215*T)-35.75*(math.Pow(W, 0.16))+((0.4275*T)*(math.Pow(W, 0.16))), 2)
+func windChill(temperature float64, windSpeed float64) float64 {
+	if windSpeed < 3 || temperature > 50 {
+		return temperature
+	}
+
+	windChill := 35.74 + 0.6215*temperature - 35.75*math.Pow(windSpeed, 0.16) + 0.4275*temperature*math.Pow(windSpeed, 0.16)
+	return toFixed(windChill, 2)
 }
 
 func dewpoint(temp float64, humidity int) float64 {
@@ -312,7 +318,7 @@ func alerts(w http.ResponseWriter, r *http.Request) {
 			if err == sql.ErrNoRows {
 				logger.Error("Zero Rows Found ", alertsSql)
 			} else {
-				logger.Error("Scan: %v", err)
+				logger.Error("Scan: ", err)
 			}
 		}
 
@@ -431,7 +437,7 @@ func chart(w http.ResponseWriter, r *http.Request) {
 			err = rows.Scan(&r.Mmdd, &r.Max, &r.Min)
 		}
 		if err != nil {
-			logger.Error("Scan: %v", err)
+			logger.Error("Scan: ", err)
 		}
 		rt = append(rt, r)
 	}
@@ -488,7 +494,7 @@ func alltime(w http.ResponseWriter, r *http.Request) {
 		if err == sql.ErrNoRows {
 			logger.Error("Zero Rows Found", query)
 		} else {
-			logger.Error("Scan: %v", err)
+			logger.Error("Scan: ", err)
 		}
 	}
 
@@ -540,7 +546,7 @@ func trend(w http.ResponseWriter, r *http.Request) {
 		if err == sql.ErrNoRows {
 			logger.Error("Zero Rows Found", avgQuery)
 		} else {
-			logger.Error("Scan: %v", err)
+			logger.Error("Scan: ", err)
 		}
 	}
 	currentQuery := "select id,mac,recorded,baromabsin,baromrelin,battout,batt1,Batt2,Batt3,Batt4,Batt5,Batt6,Batt7,Batt8,Batt9,Batt10,co2,dailyrainin,dewpoint,eventrainin,feelslike,hourlyrainin,humidity,humidity1,humidity2,humidity3,humidity4,humidity5,humidity6,humidity7,humidity8,humidity9,humidity10,humidityin,lastrain,maxdailygust,relay1,relay2,relay3,relay4,relay5,relay6,relay7,relay8,relay9,relay10,monthlyrainin,solarradiation,tempf,temp1f,temp2f,temp3f,temp4f,temp5f,temp6f,temp7f,temp8f,temp9f,temp10f,tempinf,totalrainin,uv,weeklyrainin,winddir,windgustmph,windgustdir,windspeedmph,yearlyrainin,hourlyrain,lightningday,lightninghour,lightningtime,lightningdistance,battlightning from records order by recorded desc limit 1"
@@ -551,7 +557,7 @@ func trend(w http.ResponseWriter, r *http.Request) {
 		if err == sql.ErrNoRows {
 			logger.Error("Zero Rows Found", currentQuery)
 		} else {
-			logger.Error("Scan: %v", err)
+			logger.Error("Scan: ", err)
 		}
 	}
 
@@ -617,7 +623,7 @@ func wind(w http.ResponseWriter, r *http.Request) {
 		if err == sql.ErrNoRows {
 			logger.Error("Zero Rows ", maxSpeed)
 		} else {
-			logger.Error("Scan: %v", err)
+			logger.Error("Scan: ", err)
 		}
 	}
 
@@ -628,7 +634,7 @@ func wind(w http.ResponseWriter, r *http.Request) {
 		if err == sql.ErrNoRows {
 			logger.Error("Zero Rows Found", maxGust)
 		} else {
-			logger.Error("Scan: %v", err)
+			logger.Error("Scan: ", err)
 		}
 	}
 
@@ -639,7 +645,7 @@ func wind(w http.ResponseWriter, r *http.Request) {
 		if err == sql.ErrNoRows {
 			logger.Error("Zero Rows Found", avgSpeed)
 		} else {
-			logger.Error("Scan: %v", err)
+			logger.Error("Scan: ", err)
 		}
 	}
 
@@ -650,7 +656,7 @@ func wind(w http.ResponseWriter, r *http.Request) {
 		if err == sql.ErrNoRows {
 			logger.Error("Zero Rows Found", avgdir)
 		} else {
-			logger.Error("Scan: %v", err)
+			logger.Error("Scan: ", err)
 		}
 	}
 
@@ -734,6 +740,65 @@ func makeRequest(url string, header map[string]string) ([]byte, error) {
 	return body, nil
 }
 
+func getForecast() ForecastImage {
+	url := fmt.Sprintf("https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/Colorado%%20Springs?unitGroup=us&iconSets=icon2&include=days&key=%s&contentType=json", os.Getenv("WEATHER_API"))
+	header := map[string]string{}
+	res, err := makeRequest(url, header)
+	if err != nil {
+		logger.Error(err)
+	}
+	f := ForecastImage{}
+	err = json.Unmarshal(res, &f)
+	if err != nil {
+		logger.Error(err)
+	}
+	return f
+}
+
+func getCurrentApp(w http.ResponseWriter, resp *http.Request) {
+	query := `select id,mac,recorded,baromabsin,baromrelin,battout,Batt1,Batt2,Batt3,Batt4,Batt5,Batt6,Batt7,Batt8,Batt9,Batt10,co2,dailyrainin,dewpoint,eventrainin,feelslike,
+				hourlyrainin,hourlyrain,humidity,humidity1,humidity2,humidity3,humidity4,humidity5,humidity6,humidity7,humidity8,humidity9,humidity10,humidityin,lastrain,
+				maxdailygust,relay1,relay2,relay3,relay4,relay5,relay6,relay7,relay8,relay9,relay10,monthlyrainin,solarradiation,tempf,temp1f,temp2f,temp3f,temp4f,temp5f,temp6f,temp7f,temp8f,temp9f,temp10f,
+				tempinf,totalrainin,uv,weeklyrainin,winddir,windgustmph,windgustdir,windspeedmph,yearlyrainin,battlightning,lightningday,lightninghour,lightningtime,lightningdistance 
+				from records order by recorded desc limit 1`
+	rows := db.QueryRow(query)
+	r := RecordApp{}
+	err := rows.Scan(&r.ID, &r.Mac, &r.Recorded, &r.Baromabsin, &r.Baromrelin, &r.Battout, &r.Batt1, &r.Batt2, &r.Batt3, &r.Batt4, &r.Batt5, &r.Batt6, &r.Batt7, &r.Batt8, &r.Batt9, &r.Batt10, &r.Co2, &r.Dailyrainin, &r.Dewpoint, &r.Eventrainin, &r.Feelslike, &r.Hourlyrainin, &r.Hourlyrain, &r.Humidity, &r.Humidity1, &r.Humidity2, &r.Humidity3, &r.Humidity4, &r.Humidity5, &r.Humidity6, &r.Humidity7, &r.Humidity8, &r.Humidity9, &r.Humidity10, &r.Humidityin, &r.Lastrain, &r.Maxdailygust, &r.Relay1, &r.Relay2, &r.Relay3, &r.Relay4, &r.Relay5, &r.Relay6, &r.Relay7, &r.Relay8, &r.Relay9, &r.Relay10, &r.Monthlyrainin, &r.Solarradiation, &r.Tempf, &r.Temp1f, &r.Temp2f, &r.Temp3f, &r.Temp4f, &r.Temp5f, &r.Temp6f, &r.Temp7f, &r.Temp8f, &r.Temp9f, &r.Temp10f, &r.Tempinf, &r.Totalrainin, &r.Uv, &r.Weeklyrainin, &r.Winddir, &r.Windgustmph, &r.Windgustdir, &r.Windspeedmph, &r.Yearlyrainin, &r.Battlightning, &r.Lightningday, &r.Lightninghour, &r.Lightningtime, &r.Lightningdistance)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			logger.Error("Zero Rows Found ", query)
+		} else {
+			logger.Error("Scan:", err)
+		}
+	}
+
+	hourlyRain := getHourlyRain()
+	r.Hourlyrain = hourlyRain
+	f := getForecast()
+	stats := getStats()
+
+	r.Sunrise = f.Days[0].Sunrise
+	r.Sunset = f.Days[0].Sunset
+	r.Conditions = f.Days[0].Conditions
+	r.Visibility = f.Days[0].Visibility
+	for _, v := range stats {
+		if v.ID == "day_max_tempf" {
+			fmt.Printf("%v", v)
+			r.MaxTemp = v.Value
+		}
+		if v.ID == "day_min_tempf" {
+			fmt.Printf("%v", v)
+			r.MinTemp = v.Value
+		}
+	}
+
+	b, err := json.Marshal(r)
+	if err != nil {
+		log.Println(err)
+	}
+	w.Write(b)
+}
+
 func getCurrent() ([]byte, error) {
 	query := `select id,mac,recorded,baromabsin,baromrelin,battout,Batt1,Batt2,Batt3,Batt4,Batt5,Batt6,Batt7,Batt8,Batt9,Batt10,co2,dailyrainin,dewpoint,eventrainin,feelslike,
 				hourlyrainin,hourlyrain,humidity,humidity1,humidity2,humidity3,humidity4,humidity5,humidity6,humidity7,humidity8,humidity9,humidity10,humidityin,lastrain,
@@ -764,7 +829,7 @@ func getHourlyRain() float64 {
 		if err == sql.ErrNoRows {
 			//logger.Error("Zero Rows Found", query)
 		} else {
-			logger.Error("Scan: %v", err)
+			logger.Error("Scan:", err)
 		}
 	}
 	return max
@@ -912,7 +977,7 @@ func checkStat(id string) bool {
 		if err == sql.ErrNoRows {
 			return false
 		} else {
-			logger.Error("Scan: %v", err)
+			logger.Error("Scan:", err)
 		}
 	}
 	return true
@@ -944,7 +1009,7 @@ func getRecord(sqlStatement string) Record {
 		if err == sql.ErrNoRows {
 			logger.Error("Zero Rows Found ", sqlStatement)
 		} else {
-			logger.Error("Scan: %v", err)
+			logger.Error("Scan:", err)
 		}
 	}
 
@@ -960,7 +1025,7 @@ func getStats() []Stat {
 		r := Stat{}
 		err = rows.Scan(&r.ID, &r.Recorded, &r.Value)
 		if err != nil {
-			logger.Error("Scan: %v", err)
+			logger.Error("Scan:", err)
 		}
 		stats = append(stats, r)
 	}

@@ -17,7 +17,7 @@
       </svg>
       Weather <ored>Advisory </ored>
     </div>
-    <div class="value" v-if="props.alerts && alert">
+    <div class="value" v-if="hasAlerts()">
       <div id="position4">
         <div class="eqcirclehomeregional">
           <div class="eqtexthomeregional">
@@ -85,17 +85,21 @@ const emit = defineEmits(['openModal'])
 const props = defineProps({
   alerts: Array
 });
-let alert = reactive({})
+let alert = reactive({data:{}})
 let currentAlert = ref(0)
 
+function hasAlerts() {
+  return props.alerts === null;
+
+}
 watch(() => props.alerts, () => {
   if (props.alerts.length > 0) {
-       alert = props.alerts[currentAlert.value];
+       alert.data = props.alerts[currentAlert.value];
      }
 });
 
 watch(() => currentAlert, () => {
-  alert = props.alerts[currentAlert.value];
+  alert.data = props.alerts[currentAlert.value];
 });
 
 function openModal(type, options) {
@@ -115,6 +119,9 @@ function expire(date) {
 }
 
 function multipleAlerts() {
+  if(props.alerts === null) {
+    return 0;
+  }
   return props.alerts.length > 1;
 }
 function maxAlerts() {
@@ -132,10 +139,13 @@ function minAlerts() {
   return ret;
 }
 function alertColor() {
-  if (alert.event.startsWith('911')) {
+  if(!Object.hasOwn(alert.data,"event")) {
+    return
+  }
+  if (alert.data.event.startsWith('911')) {
     return 'Telephone Outage 911'.replace(/\s+/g, '-');
   }
-  return alert.event.toLowerCase().replace(/\s+/g, '-');
+  return alert.data.event.toLowerCase().replace(/\s+/g, '-');
 }
 
 </script>

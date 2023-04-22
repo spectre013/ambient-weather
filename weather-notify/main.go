@@ -308,31 +308,6 @@ func force(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//func getClient(creds *Credentials) (*twitter.Client, error) {
-//	// Pass in your consumer key (API Key) and your Consumer Secret (API Secret)
-//	config := oauth1.NewConfig(creds.ConsumerKey, creds.ConsumerSecret)
-//	// Pass in your Access Token and your Access Token Secret
-//	token := oauth1.NewToken(creds.AccessToken, creds.AccessTokenSecret)
-//
-//	httpClient := config.Client(oauth1.NoContext, token)
-//	client := twitter.NewClient(httpClient)
-//
-//	// Verify Credentials
-//	verifyParams := &twitter.AccountVerifyParams{
-//		SkipStatus:   twitter.Bool(true),
-//		IncludeEmail: twitter.Bool(true),
-//	}
-//
-//	// we can retrieve the user and verify if the credentials
-//	// we have used successfully allow us to log in!
-//	user, _, err := client.Accounts.VerifyCredentials(verifyParams)
-//	if err != nil {
-//		return nil, err
-//	}
-//	logger.Info("Logged ", user.Name, " into Twitter")
-//	return client, nil
-//}
-
 func twitterConditions() {
 	query := `select id,mac,recorded,baromabsin,baromrelin,co2,dailyrainin,dewpoint,eventrainin,feelslike,
 				hourlyrainin,hourlyrain,humidity,humidity1,humidity2,humidity3,humidityin,lastrain,
@@ -414,14 +389,6 @@ func tweet(message string, includeImage bool) {
 			logger.Error("Error: %s\n", err)
 		}
 	}
-}
-
-func Open(f string) *os.File {
-	r, err := os.Open(f)
-	if err != nil {
-		panic(err)
-	}
-	return r
 }
 
 func uploadImage() *MediaResponse {
