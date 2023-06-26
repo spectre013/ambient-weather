@@ -2,7 +2,7 @@
   <div class="weather-item">
     <div class="chartforecast"></div>
     <span class="moduletitle">UV | Solar Radiation</span>
-    <div id="uvi" v-if="current && minmax && astro">
+    <div id="uvi" v-if="current && minmax">
       <div class="updatedtime">
         <span
           ><svg
@@ -72,17 +72,10 @@ import axios from 'axios';
 
 const props = defineProps({
   current: Object,
-  astro: Object,
 });
 
 let hasSunset=ref(false);
 let minmax=ref(null);
-
-// watch: {
-//   astro: function () {
-//     this.sunHasSet();
-//   },
-// },
 
 onMounted(() => {
   function updateData() {
