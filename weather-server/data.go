@@ -33,8 +33,8 @@ type Trend struct {
 
 // Location for Astro struct
 type Location struct {
-	Latitude  float64 `json:"latitude"`
-	Longitude float64 `json:"longitude"`
+	Latitude  string `json:"latitude"`
+	Longitude string `json:"longitude"`
 }
 
 // Astro Moon sun data
