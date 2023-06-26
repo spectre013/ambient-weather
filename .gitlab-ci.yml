@@ -3,6 +3,7 @@ stages:
   - lint
   - scan
   - build docker
+  - deploy
 
 cache:
   untracked: true
@@ -90,3 +91,26 @@ notify:
     - docker build -t $DOCKER_REGISTRY/production/weather-notify:1.1 . --no-cache
     - docker push $DOCKER_REGISTRY/production/weather-notify:1.1
 
+ui deploy:
+  stage: deploy
+  when: manual
+  script:
+    - cd weather-ui
+    - docker build -t $DOCKER_REGISTRY/production/weather-ui:1.8 . --no-cache
+    - docker push $DOCKER_REGISTRY/production/weather-ui:1.8
+
+server deploy:
+  stage: deploy
+  when: manual
+  script:
+    - cd weather-server
+    - docker build -t $DOCKER_REGISTRY/production/weather-server:1.8 . --no-cache
+    - docker push $DOCKER_REGISTRY/production/weather-server:1.8
+
+notify deploy:
+  stage: deploy
+  when: manual
+  script:
+    - cd weather-notify
+    - docker build -t $DOCKER_REGISTRY/production/weather-notify:1.1 . --no-cache
+    - docker push $DOCKER_REGISTRY/production/weather-notify:1.1
