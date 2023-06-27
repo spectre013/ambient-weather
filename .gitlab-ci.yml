@@ -95,51 +95,16 @@ ui deploy:
   stage: deploy
   when: manual
   script:
-    - |
-      docker stop weather-ui
-      docker rm weather-ui
-      docker run --name weather-ui --pull always --restart unless-stopped -d -p 6001:80 \
-      $DOCKER_REGISTRY/production/weather-ui:1.8
+    - ssh brian@10.10.1.122 /var/www/vhosts/apps/weather/start-ui.sh
 
 server deploy:
   stage: deploy
   when: manual
   script:
-    - |
-      docker stop weather-server
-      docker rm weather-server
-      docker run --name weather-server --restart unless-stopped --pull always -d -p 6000:3000 \
-      -e PORT=3000 \
-      -e DB_HOST=10.10.1.122 \
-      -e DB_USER=ambient \
-      -e DB_PASSWORD=$DB_PASSWORD \
-      -e DB_DATABASE=ambient \
-      -e IPGEO=$IPGEO_KEY \
-      -e METAR=$METAR_KEY \
-      -e LAT=38.725798 \
-      -e LON=-104.66783 \
-      $DOCKER_REGISTRY/production/weather-server:1.8
+    - ssh brian@10.10.1.122 /var/www/vhosts/apps/weather/start-server.sh
 
 notify deploy:
   stage: deploy
   when: manual
   script:
-    - |
-      docker stop weather-notify
-      docker rm weather-notify
-      docker run --name weather-notify --restart unless-stopped --pull always -d -p 6002:3000 \
-      -e PORT=3000 \
-      -e DB_HOST=10.10.1.122 \
-      -e DB_USER=ambient \
-      -e DB_PASSWORD=$DB_PASSWORD \
-      -e DB_DATABASE=ambient \
-      -e LOGLEVEL=Info \
-      -e TC_CRON="0 * * * *" \
-      -e ALERT_CRON="*/15 * * * *" \
-      -e TF_CRON="0 6,12,18 * * *" \
-      -e FI_CRON="0 7 * * *" \
-      -e CONSUMER_KEY=$CONSUMER_KEY \
-      -e CONSUMER_SECRET=$CONSUMER_SECRET \
-      -e ACCESS_TOKEN=$ACCESS_TOKEN \
-      -e ACCESS_TOKEN_SECRET=$ACCESS_TOKEN_SECRET \
-      $DOCKER_REGISTRY/production/weather-notify:1.1
+    - ssh brian@10.10.1.122 /var/www/vhosts/apps/weather/start-notify.sh
