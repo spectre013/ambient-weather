@@ -164,8 +164,8 @@ type Record struct {
 	Lightninghour     int       `json:"lightninghour" db:"lightininghour"`
 	Lightningdistance float64   `json:"lightningdistance" db:"lightningdistance"`
 	Lightningtime     time.Time `json:"lightningtime" db:"lightningtime"`
-	Aqipm25           int       `json:"aqi" db:"aqi"`
-	Aqipm2524h        int       `json:"aqi24" db:"aqi24"`
+	Aqipm25           int       `json:"aqipm25" db:"aqi"`
+	Aqipm2524h        int       `json:"aqipm2524h" db:"aqi24"`
 }
 
 //aqi_pm25=8&aqi_pm25_24h
