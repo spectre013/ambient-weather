@@ -164,7 +164,11 @@ type Record struct {
 	Lightninghour     int       `json:"lightninghour" db:"lightininghour"`
 	Lightningdistance float64   `json:"lightningdistance" db:"lightningdistance"`
 	Lightningtime     time.Time `json:"lightningtime" db:"lightningtime"`
+	Aqipm25           int       `json:"aqi" db:"aqi"`
+	Aqipm2524h        int       `json:"aqi24" db:"aqi24"`
 }
+
+//aqi_pm25=8&aqi_pm25_24h
 
 type Alert struct {
 	ID          int       `json:"id"`
@@ -373,4 +377,5 @@ type RecordApp struct {
 	Visibility        float64   `json:"visibility"`
 	MaxTemp           float64   `json:"maxTemp"`
 	MinTemp           float64   `json:"minTemp"`
+	AvgWind           float64   `json:"windavg"`
 }

@@ -94,6 +94,7 @@ func main() {
 	r.HandleFunc("/api/apiin", loggingMiddleware(apiin))
 	r.HandleFunc("/api/receiver", loggingMiddleware(ambientin))
 	r.HandleFunc("/api/app", loggingMiddleware(getCurrentApp))
+	r.HandleFunc("/api/forecast", loggingMiddleware(getForecastHandler))
 	//Index
 	r.HandleFunc("/", loggingMiddleware(home))
 
@@ -189,6 +190,8 @@ func ambientin(w http.ResponseWriter, r *http.Request) {
 	in["windgustmph"] = "float"
 	in["windspeedmph"] = "float"
 	in["yearlyrainin"] = "float"
+	in["aqipm25"] = "int"
+	in["aqipm2524h"] = "int"
 
 	values := r.URL.Query()
 	if len(values) == 0 {
@@ -740,26 +743,42 @@ func makeRequest(url string, header map[string]string) ([]byte, error) {
 	return body, nil
 }
 
-func getForecast() ForecastImage {
+func getForecastHandler(w http.ResponseWriter, r *http.Request) {
+	res, err := getForecast()
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+	b, err := json.Marshal(res)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+	w.Write(b)
+}
+
+func getForecast() (ForecastImage, error) {
 	url := fmt.Sprintf("https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/Colorado%%20Springs?unitGroup=us&iconSets=icon2&include=days&key=%s&contentType=json", os.Getenv("WEATHER_API"))
 	header := map[string]string{}
 	res, err := makeRequest(url, header)
 	if err != nil {
 		logger.Error(err)
+		return ForecastImage{}, err
 	}
 	f := ForecastImage{}
 	err = json.Unmarshal(res, &f)
 	if err != nil {
 		logger.Error(err)
+		return f, err
 	}
-	return f
+	return f, err
 }
 
 func getCurrentApp(w http.ResponseWriter, resp *http.Request) {
 	query := `select id,mac,recorded,baromabsin,baromrelin,battout,Batt1,Batt2,Batt3,Batt4,Batt5,Batt6,Batt7,Batt8,Batt9,Batt10,co2,dailyrainin,dewpoint,eventrainin,feelslike,
 				hourlyrainin,hourlyrain,humidity,humidity1,humidity2,humidity3,humidity4,humidity5,humidity6,humidity7,humidity8,humidity9,humidity10,humidityin,lastrain,
 				maxdailygust,relay1,relay2,relay3,relay4,relay5,relay6,relay7,relay8,relay9,relay10,monthlyrainin,solarradiation,tempf,temp1f,temp2f,temp3f,temp4f,temp5f,temp6f,temp7f,temp8f,temp9f,temp10f,
-				tempinf,totalrainin,uv,weeklyrainin,winddir,windgustmph,windgustdir,windspeedmph,yearlyrainin,battlightning,lightningday,lightninghour,lightningtime,lightningdistance 
+				tempinf,totalrainin,uv,weeklyrainin,winddir,windgustmph,windgustdir,windspeedmph,yearlyrainin,battlightning,lightningday,lightninghour,lightningtime,lightningdistance, aqipm25, aqipm2524h 
 				from records order by recorded desc limit 1`
 	rows := db.QueryRow(query)
 	r := RecordApp{}
@@ -774,13 +793,13 @@ func getCurrentApp(w http.ResponseWriter, resp *http.Request) {
 
 	hourlyRain := getHourlyRain()
 	r.Hourlyrain = hourlyRain
-	f := getForecast()
+	//f := getForecast()
 	stats := getStats()
 
-	r.Sunrise = f.Days[0].Sunrise
-	r.Sunset = f.Days[0].Sunset
-	r.Conditions = f.Days[0].Conditions
-	r.Visibility = f.Days[0].Visibility
+	r.Sunrise = "6:11"     //f.Days[0].Sunrise
+	r.Sunset = "6:32"      //f.Days[0].Sunset
+	r.Conditions = "Sunny" //f.Days[0].Conditions
+	r.Visibility = 10      //f.Days[0].Visibility
 	for _, v := range stats {
 		if v.ID == "day_max_tempf" {
 			fmt.Printf("%v", v)
@@ -789,6 +808,10 @@ func getCurrentApp(w http.ResponseWriter, resp *http.Request) {
 		if v.ID == "day_min_tempf" {
 			fmt.Printf("%v", v)
 			r.MinTemp = v.Value
+		}
+		if v.ID == "day_avg_windspeedmph" {
+			fmt.Printf("%v", v)
+			r.AvgWind = v.Value
 		}
 	}
 
@@ -803,7 +826,7 @@ func getCurrent() ([]byte, error) {
 	query := `select id,mac,recorded,baromabsin,baromrelin,battout,Batt1,Batt2,Batt3,Batt4,Batt5,Batt6,Batt7,Batt8,Batt9,Batt10,co2,dailyrainin,dewpoint,eventrainin,feelslike,
 				hourlyrainin,hourlyrain,humidity,humidity1,humidity2,humidity3,humidity4,humidity5,humidity6,humidity7,humidity8,humidity9,humidity10,humidityin,lastrain,
 				maxdailygust,relay1,relay2,relay3,relay4,relay5,relay6,relay7,relay8,relay9,relay10,monthlyrainin,solarradiation,tempf,temp1f,temp2f,temp3f,temp4f,temp5f,temp6f,temp7f,temp8f,temp9f,temp10f,
-				tempinf,totalrainin,uv,weeklyrainin,winddir,windgustmph,windgustdir,windspeedmph,yearlyrainin,battlightning,lightningday,lightninghour,lightningtime,lightningdistance 
+				tempinf,totalrainin,uv,weeklyrainin,winddir,windgustmph,windgustdir,windspeedmph,yearlyrainin,battlightning,lightningday,lightninghour,lightningtime,lightningdistance,  aqipm25, aqipm2524h
 				from records order by recorded desc limit 1`
 	rec := getRecord(query)
 
