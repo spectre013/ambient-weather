@@ -918,7 +918,6 @@ func calculateStats(r Record) {
 						q = fmt.Sprintf(`
 						SELECT '%s' as id, SUM(A.value) as value
 						FROM (SELECT TO_CHAR(recorded,'YYY-MM-DD') as ldate, CAST(COALESCE(MAX(lightningday),0.0) AS decimal(10,2)) as value FROM records where recorded between ? and ? GROUP BY ldate) A
-						GROUP BY A.ldate order by A.ldate desc limit 1
 						`, key)
 					} else {
 						q = fmt.Sprintf(`SELECT '%s' as id, CAST(COALESCE(lightningday,0.0) AS decimal(10,2)) as value, recorded FROM records where recorded between ? and ? order by value desc limit 1`, key)
