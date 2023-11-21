@@ -1,7 +1,0 @@
-apps:
-  - script: './data.js'
-    name: 'data'
-    cwd: '/usr/local/app/'
-  - script: './monitor.js'
-    name: 'monitor'
-    cwd: '/usr/local/app/'

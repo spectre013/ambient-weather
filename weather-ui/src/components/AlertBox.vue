@@ -115,7 +115,7 @@ function switchAlert(dir) {
 }
 
 function expire(date) {
-  return moment(date).format('HH:mm DD MMM');
+    return moment(date).format('HH:mm DD MMM');
 }
 
 function multipleAlerts() {

@@ -4,9 +4,9 @@ import moment from 'moment';
 let timer = null;
 let currentDate = ref(moment());
 
-function showTime() {
-  currentDate.value = moment();
-}
+  function showTime() {
+    currentDate.value = moment();
+  }
 
 function timeFormat(date) {
   return date.format('HH:mm:ss');
