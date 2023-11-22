@@ -129,7 +129,7 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	// new goroutines.
 	go client.writePump()
 	go client.readPump()
-	// send intial output to clients then enter the loop to send every 30 seconds
+	// send initial output to clients then enter the loop to send every 30 seconds
 	m, err := getCurrent()
 	if err != nil {
 		log.Println(err)

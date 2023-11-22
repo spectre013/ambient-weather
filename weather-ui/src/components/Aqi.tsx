@@ -94,7 +94,7 @@ const Aqi = (props:Props) => {
 
 
     return (
-        <BoxData icon={'&#xF082;'} title="Air Quality Index" unit="&deg;F" navigate="aqi" style={{}}>
+        <BoxData icon={'&#xF082;'} title="Air Quality Index" unit="&deg;F" style={{}}>
             <>
                 <div className="aqi-container">
                     <div className="aqi-wrap">

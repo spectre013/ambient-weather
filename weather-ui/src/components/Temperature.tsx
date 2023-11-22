@@ -14,7 +14,7 @@ export interface Props {
 const Temperature = (props:Props) => {
 
     return (
-        <BoxData icon={'&#xF053;'} title="TEMP" unit="&deg;F" style={{}} navigate="temperature">
+        <BoxData icon={'&#xF053;'} title="TEMP" unit="&deg;F" style={{}}>
             <>
                 <div className="temp-container">
                     <div className="icon"><img alt={props.icon} src={'/images/icons/' + props.icon + '.png'}/> </div>
