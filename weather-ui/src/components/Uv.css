@@ -1,0 +1,60 @@
+.uv-container {  display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 0.3fr 2.3fr 0.4fr;
+    gap: 0px 0px;
+    grid-auto-flow: row;
+    grid-template-areas:
+    "uvitext uvitext"
+    "uvi solar"
+    "uvimax uvimax";
+}
+
+.uvimax { grid-area: uvimax; padding-top: 30px}
+
+.uvitext { grid-area: uvitext; }
+
+.uvi { grid-area: uvi; }
+
+.solar { grid-area: solar; }
+
+.uvi-icon {
+    font-family: weathericon;
+}
+.uvi-top {
+    color: #ff7c39;
+}
+.uvitext {
+    font-size: 12px;
+    text-align: right;
+    margin-right: 5px;
+}
+.uvimax {
+    text-align: center;
+}
+
+.solar-value {
+    font-size: 48px
+}
+.value-text {
+    font-size: 64px;
+}
+
+.uvtoday1-3 {
+    color: #90b12a
+}
+
+.uvtoday4-5 {
+    color: #e6a141
+}
+
+.uvtoday6-8 {
+    color: rgba(255, 124, 57, .8)
+}
+
+.uvtoday9-10 {
+    color: rgba(211, 93, 78, .8)
+}
+
+.uvtoday11 {
+    color: rgba(204, 135, 248, .7)
+}

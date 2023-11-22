@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     id="firealert"
+     viewBox="0 0 32 32"
+     fill="none"
+     stroke="currentcolor"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     stroke-width="2"
+>
+    <path d="M16 3 L30 29 2 29 Z M16 11 L16 19 M16 23 L16 25"></path>
+</svg>

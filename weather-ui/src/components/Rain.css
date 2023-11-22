@@ -1,0 +1,51 @@
+.rain-container {  display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 0.2fr 1.7fr 0.2fr 0.5fr .5fr;
+    gap: 0px 0px;
+    grid-auto-flow: row;
+    grid-template-areas:
+    "lastrain lastrain"
+    "raintotal raintotal"
+    "rate rate"
+    "year month"
+    "hour tfhour";
+}
+
+.lastrain { grid-area: lastrain; }
+
+.raintotal { grid-area: raintotal; }
+
+.rate { grid-area: rate; }
+
+.year { grid-area: year; }
+
+.month { grid-area: month; }
+
+.hour { grid-area: hour; }
+
+.tfhour { grid-area: tfhour; }
+
+.lastrain, .rate, .year, .month, .hour, .tfhour {
+    font-size: 12px;
+}
+
+.rain-blue {
+    color: #3b9cac
+}
+
+.rate {
+    margin-top: -10px;
+    margin-bottom: 20px;
+}
+
+.raintotal {
+    margin-bottom: 10px;
+}
+
+.year, .month, .hour, .tfhour {
+    padding: 5px 0;
+}
+.amount {
+    font-size: 72px;
+    line-height: 72px;
+}

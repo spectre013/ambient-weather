@@ -1,0 +1,33 @@
+.humidity-container {  display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr .5fr;
+    gap: 0px 0px;
+    grid-auto-flow: row;
+    grid-template-areas:
+    "humidity-wrap humidity-wrap"
+    "humiditymax humiditymin";
+}
+
+.humidity-wrap { grid-area: humidity-wrap; }
+
+.humiditymax { grid-area: humiditymax; }
+
+.humiditymin { grid-area: humiditymin; }
+
+.humiditymax, .humiditymin {
+    margin-top: 40px;
+}
+
+.humidity-wrap {
+    margin-top: 30px;
+}
+
+.humidity {
+    text-align: center;
+}
+.humidity-text {
+    font-size: 72px;
+    padding: 0 0 0 35px;
+    margin: 0;
+    line-height: 62px;
+}
