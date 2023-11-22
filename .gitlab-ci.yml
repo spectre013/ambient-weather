@@ -17,7 +17,6 @@ build ui:
     - cd weather-ui
     - npm install
 
-
 lint server:
   stage: lint
   script:
@@ -25,34 +24,11 @@ lint server:
     - cd weather-server
     - staticcheck ./...
 
-lint notify:
-  stage: lint
-  script:
-    - export PATH=$PATH:/usr/local/go/bin
-    - cd weather-notify
-    - staticcheck ./...
-
 lint ui:
   stage: lint
   script:
     - cd weather-ui
     - npm run lint
-
-scan notify:
-  stage: scan
-  script:
-    - |
-      export PATH=$PATH:/usr/local/go/bin
-      echo "Running Truffle Hog"
-      output="$(trufflehog -j filesystem weather-notify | jq -C .)"
-      
-      if [ "${output}" != "" ]; then
-        echo "${output}"
-        exit 1
-      else
-        echo "No issues found"
-        exit 0
-      fi
 
 scan server:
   stage: scan
@@ -74,22 +50,15 @@ ui:
   stage: build docker
   script:
     - cd weather-ui
-    - docker build -t $DOCKER_REGISTRY/production/weather-ui:1.8 . --no-cache
-    - docker push $DOCKER_REGISTRY/production/weather-ui:1.8
+    - docker build -t $DOCKER_REGISTRY/production/weather-ui:2.0 . --no-cache
+    - docker push $DOCKER_REGISTRY/production/weather-ui:2.0
 
 server:
   stage: build docker
   script:
     - cd weather-server
-    - docker build -t $DOCKER_REGISTRY/production/weather-server:1.8 . --no-cache
-    - docker push $DOCKER_REGISTRY/production/weather-server:1.8
-
-notify:
-  stage: build docker
-  script:
-    - cd weather-notify
-    - docker build -t $DOCKER_REGISTRY/production/weather-notify:1.1 . --no-cache
-    - docker push $DOCKER_REGISTRY/production/weather-notify:1.1
+    - docker build -t $DOCKER_REGISTRY/production/weather-server:2.0 . --no-cache
+    - docker push $DOCKER_REGISTRY/production/weather-server:2.0
 
 ui deploy:
   stage: deploy
@@ -103,8 +72,3 @@ server deploy:
   script:
     - ssh brian@10.10.1.122 /var/www/vhosts/apps/weather/start-server.sh
 
-notify deploy:
-  stage: deploy
-  when: manual
-  script:
-    - ssh brian@10.10.1.122 /var/www/vhosts/apps/weather/start-notify.sh

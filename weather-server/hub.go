@@ -4,6 +4,11 @@
 
 package main
 
+import (
+	"log"
+	"time"
+)
+
 // Hub maintains the set of active clients and broadcasts messages to the
 // clients.
 type Hub struct {
@@ -26,6 +31,17 @@ func newHub() *Hub {
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 		clients:    make(map[*Client]bool),
+	}
+}
+
+func broadcast(hub *Hub) {
+	for range time.NewTicker(30 * time.Second).C {
+		m, err := getCurrent()
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+		hub.broadcast <- m
 	}
 }
 
