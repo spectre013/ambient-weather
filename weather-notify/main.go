@@ -103,7 +103,7 @@ func main() {
 	conditions := 60
 	forecast := 300
 	alert := 900
-	s := gocron.NewScheduler(loc)
+	s := gocron.NewScheduler(Loc)
 
 	if os.Getenv("LOGLEVEL") == "Debug" {
 		conditions = 1

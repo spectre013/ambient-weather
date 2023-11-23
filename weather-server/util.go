@@ -34,10 +34,14 @@ func dewpoint(temp float64, humidity int) float64 {
 	N := 237.3 + tc
 	B := (L + (M / N)) / 17.27
 	dp := (237.3 * B) / (1 - B)
-	return (dp * 9 / 5) + 32
+	return toFixed((dp*9/5)+32, 2)
 }
 
 func getTimeframe(timeframe string) []time.Time {
+	loc, err := time.LoadLocation("America/Denver")
+	if err != nil {
+		logger.Error(err)
+	}
 	var dates []time.Time
 	now := time.Now()
 

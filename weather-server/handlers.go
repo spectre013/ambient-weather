@@ -175,7 +175,12 @@ func ambientin(w http.ResponseWriter, r *http.Request) {
 
 func alerts(w http.ResponseWriter, _ *http.Request) {
 	now := time.Now()
-	alertsSql := fmt.Sprintf("select * from alerts where onset <= '%s' and ends >= '%s'", formatDate(now), formatDate(now))
+	loc, err := time.LoadLocation("America/Denver")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	alertsSql := fmt.Sprintf("select * from alerts where ends >= '%s'", formatDate(now))
 	logger.Info(alertsSql)
 	rows, err := db.Query(alertsSql)
 	if err != nil {

@@ -27,7 +27,6 @@ var upgrader = websocket.Upgrader{
 } // use default options
 var db *sql.DB
 var logger = logrus.New()
-var loc *time.Location
 
 func init() {
 	logger.Out = os.Stdout
@@ -62,12 +61,11 @@ func main() {
 		panic(err)
 	}
 
-	loc, err = time.LoadLocation("America/Denver")
+	loc, err := time.LoadLocation("America/Denver")
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-
 	s := gocron.NewScheduler(loc)
 	var aj *gocron.Job
 

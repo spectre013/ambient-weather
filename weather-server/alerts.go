@@ -35,7 +35,7 @@ func updateAlerts() {
 				logger.Error("No Alerts Found")
 				id = -1
 			} else {
-				logger.Error("Scan: %v", err)
+				logger.Error(fmt.Sprintf("Scan: %v", err))
 			}
 		}
 		fmt.Println(v.Onset, v.Expires)

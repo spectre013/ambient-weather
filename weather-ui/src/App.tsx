@@ -18,10 +18,11 @@ import Sun from "./components/Sun.tsx";
 import {Luna} from "./models/Luna.ts";
 import Aqi from "./components/Aqi.tsx";
 import Uv from "./components/Uv.tsx";
+import {Alert} from "./models/Alert.ts";
 
 function App() {
     const [minmax, setMinMax] = useState<MinMax>();
-    const [alerts, setAlerts] = useState();
+    const [alerts, setAlerts] = useState<Alert[]>([]);
     const [forecast, setForecast] = useState<ForecastModel>({} as ForecastModel);
     const [live, setLive] = useState<Current>({} as Current);
     const [units, setUnits] = useState<string>("imperial");
