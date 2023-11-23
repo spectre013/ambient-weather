@@ -3,19 +3,18 @@ package main
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
-	"log"
 	"testing"
 	"time"
 )
 
-func setupSuite(tb testing.TB) func(tb testing.TB) {
-	log.Println("setup suite")
-
-	// Return a function to teardown the test
-	return func(tb testing.TB) {
-		log.Println("teardown suite")
-	}
-}
+//func setupSuite(tb testing.TB) func(tb testing.TB) {
+//	log.Println("setup suite")
+//
+//	// Return a function to teardown the test
+//	return func(tb testing.TB) {
+//		log.Println("teardown suite")
+//	}
+//}
 
 // TestHelloName calls greetings.Hello with a name, checking
 // for a valid return value.
