@@ -1,7 +1,6 @@
 # Ambient Weather
 
-This is a custom display for data from the Ambient Weather PWS api, and requires an Ambient Weather Station. Currently also requires knowledge of Nodejs, Mysql to use. Docker can also be use but it optional.
-view live @ https://weather.zoms.net
+This is a custom display for data from the Ambient Weather PWS api, and requires an Ambient Weather Station. view live @ https://weather.zoms.net
 
 # Status
 Currently the status of this repo is in a beta state and is not complete. Bug reports are welcome but many features are not complete or still changing at this time 
@@ -12,19 +11,16 @@ Currently the status of this repo is in a beta state and is not complete. Bug re
 Recommended set up is  using docker in a linux environment that is operational 24 hours a day. Though this set up could be applied to any system. 
 These are basic instructions that require some knowledge of setting up websites. More detailed instructions for all systems coming soon.
 
-### Mysql Setup
+### PostgreSQL Setup
 	
- - use the MySQL command line client: mysql -h hostname -u username -p ambient < path/to/records.sql
- - Install the MySQL GUI tools and open your SQL file (records.sql) , then execute it
- - Use phpmysql if the database is available via your webserver 
+    psql set up comming soon. 
 
 ###API KEYS
 Api keys will need to be acquired for the following interfaces
 
-- Darksky - https://darksky.net/dev
+- Virtual Crossing - https://www.visualcrossing.com/
 - IPGeolocation - https://ipgeolocation.io/astronomy-api.html
-- Checkwx - https://apidocs.checkwx.com/
-- Ambient Weather - through your Ambient Dashboard
+- Ambient Weather - through your ambient console
 
 ### Docker
 
@@ -50,18 +46,10 @@ execute run.sh file in each folder and update the environment variables with you
 Brian will be maintaining on behalf of Brian Underdown.
 Please use the support available via the Github issues function. This project is completely separate from any of the Meteobridge-Weather34-Template repositories and any support for this version should be requested in this repository.  
 
-# This work is not permitted to be used in any other versions without prior permission.
-contact Brian @ https://github.com/weather34/Meteobridge-MB-SMART for permission.
-
-This work is licensed under a Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
-http://creativecommons.org/licenses/by-nc-nd/4.0/
-
-*This work means CSS/SVG/HTML.
 
 #LICENSE
 <!--
-Copyright (c) 2016 by Brian Underdown (https://weather34.com) CSS/SVG
-Copyright (c) 2019 by Brian Paulson (https://weather.zoms.net) JS/SQL/HTML
+Copyright (c) 2019-2023 by Brian Paulson (https://weather.zoms.net) JS/SQL/HTML/CSS/SVG
 -->
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Template”), to deal in the Template without restriction, including without limitation the rights to, can use, can not copy without prior permission, can modify for personal use, can use and publish for personal use ,can not distribute without prior permission, can not sublicense without prior permission, and can not sell copies of the Template, and subject to the following conditions:
 
