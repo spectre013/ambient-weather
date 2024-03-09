@@ -6,9 +6,14 @@ package main
 
 import (
 	"bytes"
+	"context"
+	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
+
+	"github.com/a-h/templ"
 
 	"github.com/gorilla/websocket"
 )
@@ -40,7 +45,7 @@ type Client struct {
 	conn *websocket.Conn
 
 	// Buffered channel of outbound messages.
-	send chan []byte
+	send chan string
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -65,7 +70,7 @@ func (c *Client) readPump() {
 			break
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-		c.hub.broadcast <- message
+		c.hub.broadcast <- string(message)
 	}
 }
 
@@ -94,13 +99,13 @@ func (c *Client) writePump() {
 			if err != nil {
 				return
 			}
-			_, _ = w.Write(message)
+			_, _ = w.Write([]byte(message))
 
 			// Add queued chat messages to the current websocket message.
 			n := len(c.send)
 			for i := 0; i < n; i++ {
 				_, _ = w.Write(newline)
-				_, _ = w.Write(<-c.send)
+				_, _ = w.Write([]byte(<-c.send))
 			}
 
 			if err := w.Close(); err != nil {
@@ -122,7 +127,7 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
+	client := &Client{hub: hub, conn: conn, send: make(chan string, 256)}
 	client.hub.register <- client
 
 	// Allow collection of memory referenced by the caller by doing all work in
@@ -130,9 +135,19 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	go client.writePump()
 	go client.readPump()
 	// send initial output to clients then enter the loop to send every 30 seconds
-	m, err := getCurrent()
+	box, m, err := hub.weather.getCurrent()
 	if err != nil {
 		log.Println(err)
 	}
-	hub.broadcast <- m
+	content := Main(box, m)
+	hub.broadcast <- RenderTempl(content)
+}
+
+func RenderTempl(tmp templ.Component) string {
+	w := new(strings.Builder)
+	err := tmp.Render(context.Background(), w)
+	if err != nil {
+		logger.Error(fmt.Errorf("failed to render: %v", err))
+	}
+	return w.String()
 }

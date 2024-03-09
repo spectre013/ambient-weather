@@ -1,0 +1,23 @@
+package main
+
+templ Aqi(data TemplateData) {
+    <div class="aqi-container">
+        <div class="aqi-wrap">
+            <div class={cssToString("aqi-text", getDetails(AqiCalc(data.Record.Aqipm2524h)).Color) }>
+                { toString(AqiCalc(data.Record.Aqipm2524h)) }
+            </div>
+            <div class="status">
+                <div>{ getDetails(AqiCalc(data.Record.Aqipm2524h)).Name }</div>
+                <div>{ toString(data.Record.Aqipm25) } µg/m3</div>
+            </div>
+        </div>
+        <div class="aqimax">
+            Max: <span class={cssToString("",getDetails(AqiCalc(int(data.Minmax["aqipm25"]["max"]["day"].Value))).Color)}>
+                    { toString(AqiCalc(int(data.Minmax["aqipm25"]["max"]["day"].Value))) }</span>
+        </div>
+        <div class="aqimin">
+            Min: <span class={cssToString("",getDetails(AqiCalc(int(data.Minmax["aqipm25"]["min"]["day"].Value))).Color)}>
+                    { toString(AqiCalc(int(data.Minmax["aqipm25"]["min"]["day"].Value))) }</span>
+        </div>
+    </div>
+}

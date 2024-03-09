@@ -1,0 +1,57 @@
+package main
+
+import (
+    "fmt"
+    "time"
+ )
+
+templ Index() {
+    <!DOCTYPE html>
+    <html lang="en">
+        @header()
+        <body hx-ext="ws" ws-connect="/ws">
+            <div id="root"></div>
+        </body>
+    </html>
+
+}
+
+templ Almanac(sensor string) {
+    <!DOCTYPE html>
+        <html lang="en">
+            @header()
+            <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+            <body hx-trigger="load" hx-get={ fmt.Sprintf("/%s/1h", sensor)} hx-target="#root">
+                <div id="root"></div>
+            </body>
+        </html>
+}
+
+
+templ header() {
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Default-Style" content="blue" />
+        <meta content="Ambient WS-2000 Weather station" name="description" />
+        <meta content="website" property="og:type" />
+        <meta content="7 days" name="revisit-after" />
+        <meta content="web" name="distribution" />
+        <meta content="Lorson Ranch, Colorado Springs, CO" property="og:title" />
+        <meta content="Lorson Ranch, Colorado Springs, CO" property="og:site_name" />
+        <meta content="Ambient WS-2000 Weather station Lorson Ranch, Colorado Springs, CO" property="og:description" />
+        <meta content="place" property="og:type" />
+        <meta content="INDEX,FOLLOW" name="robots" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-title" content="Lorson Ranch, Colorado Springs, CO" />
+        <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, viewport-fit=cover" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/favicon.ico" />
+
+        <title>Weather Lorson Ranch, Colorado Springs</title>
+        <link rel="stylesheet" href={ string(templ.SafeURL("/css/index.css?v=" + fmt.Sprintf("%v",time.Now().Unix()))) } />
+        <link href="/css/fontawesome.css" rel="stylesheet" />
+        <link href="/css/solid.min.css" rel="stylesheet" />
+        <script src="/js/htmx.js"></script>
+        <script src="/js/ws.js"></script>
+    </head>
+}

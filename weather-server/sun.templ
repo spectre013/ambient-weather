@@ -1,0 +1,42 @@
+package main
+
+func getTime(part string, luna Astro) string {
+    p := sunTimes(luna)
+    return p[part]
+}
+
+templ Sun(data TemplateData) {
+    <div class="sun-container">
+        <div class="daylight">
+            <div><span class="riseclr">{ data.Astro.DayLength }</span> hrs</div>
+            <div>Total Daylight</div>
+        </div>
+        <div class="darkness">
+            <div>
+                <span class="setclr">{ darkness(data.Astro) }</span>
+            </div>
+            <div>Total Darkness</div>
+        </div>
+        <div class="remaining">
+            <div class="daylightvalue1">
+                <div>{ isSunSet(data.Astro) }</div>
+                <div><span class={riseSetClass(data.Astro)}>{ getTime("hour", data.Astro) }</span>&nbsp;hrs&nbsp;
+                    <span class={riseSetClass(data.Astro)}>{  getTime("min", data.Astro) }</span> min</div>
+            </div>
+        </div>
+        <div class="rise">
+            <div>Sun Rise</div>
+            <div>{ todayTomorrow("sunrise", data.Astro)}</div>
+            <div class="riseclr">{ data.Astro.Sunrise}</div>
+        </div>
+        <div class="set">
+            <div>Sun Set</div>
+            <div>{ todayTomorrow("sunset", data.Astro) }</div>
+            <div class="setclr">{ data.Astro.Sunset }</div>
+        </div>
+        <div class="elevation">
+            <div>Elevation:</div>
+            <div class={sunBelow(data.Astro)}>{ toString(toFixed(data.Astro.SunAltitude,2)) }</div>
+        </div>
+    </div>
+}

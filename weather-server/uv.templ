@@ -1,0 +1,19 @@
+package main
+
+
+templ UV(data TemplateData) {
+    <div class="uv-container">
+        <div class="uvimax">Max: <span class={uvToday(data.Record)}>{ toString(data.Minmax["uv"]["max"]["day"].Value) }</span> UVI</div>
+        <div class="uvitext">
+            <span class="uvi-icon uvi-top">&#xF00D;</span> <span class="uvi-top">UVI</span> { uvCaution(data) }
+        </div>
+        <div class="uvi">
+            <div><span class={cssToString("value-text", uvToday(data.Record)) }>{ floatDisplay(data.Record.Uv) }</span> UVI</div>
+            <div>UV Index</div>
+        </div>
+        <div class="solar">
+            <div><span class={cssToString("solar-value", uvToday(data.Record))}>{ floatDisplay(data.Record.Solarradiation) }</span> W/m<sup>2</sup></div>
+            <div>Solar Radiation</div>
+        </div>
+    </div>
+}

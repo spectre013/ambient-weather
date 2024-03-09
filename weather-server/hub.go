@@ -16,32 +16,37 @@ type Hub struct {
 	clients map[*Client]bool
 
 	// Inbound messages from the clients.
-	broadcast chan []byte
+	broadcast chan string
 
 	// Register requests from the clients.
 	register chan *Client
 
 	// Unregister requests from clients.
 	unregister chan *Client
+
+	weather Weather
 }
 
 func newHub() *Hub {
 	return &Hub{
-		broadcast:  make(chan []byte),
+		broadcast:  make(chan string),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 		clients:    make(map[*Client]bool),
+		weather:    Weather{},
 	}
 }
 
 func broadcast(hub *Hub) {
 	for range time.NewTicker(30 * time.Second).C {
-		m, err := getCurrent()
+		b, m, err := hub.weather.getCurrent()
 		if err != nil {
 			log.Println(err)
 			continue
 		}
-		hub.broadcast <- m
+
+		content := Main(b, m)
+		hub.broadcast <- RenderTempl(content)
 	}
 }
 

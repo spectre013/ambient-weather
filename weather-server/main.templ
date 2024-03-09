@@ -1,0 +1,66 @@
+package main
+
+func test(val string) string {
+    return templ.EscapeString(val)
+}
+
+
+templ Main(props map[string]BoxProps, data TemplateData) {
+    <div id="root">
+        <div class="header">
+            <div class="title"><i class="fa-solid fa-house"></i> Lorson Ranch, Colorado Springs, CO</div>
+            <div class="last-update">Last update:&nbsp;<span class="update-time">{ timeFormat(data.Record.Recorded) }</span></div>
+        </div>
+        <div class="container">
+            <a href="/temperature">
+                <div class="temperature">
+                    @Box("temperature", props["temperature"], temperature(data))
+                </div>
+            </a>
+            <a href="/forecast">
+            <div class="forecast">
+                 @Box("forecast", props["forecast"], forecast(data))
+            </div>
+            </a>
+            <div class="alerts">
+                @Box("alerts", props["alerts"], AlertBase(len(data.Alerts),0))
+            </div>
+            <div class="wind">
+                 @Box("wind", props["wind"], Wind(data))
+            </div>
+            <div class="rain">
+                 @Box("rain", props["rain"], Rain(data))
+            </div>
+            <div class="lightning">
+                 @Box("lightning", props["lightning"], Lightning(data))
+            </div>
+            <div class="humidity">
+                 @Box("humidity", props["humidity"], Humidity(data))
+            </div>
+            <div class="barometer">
+                     @Box("barometer", props["barometer"], Barometer(data))
+            </div>
+            <div class="sun">
+                @Box("sun", props["sun"], Sun(data))
+            </div>
+            <div class="uv">
+                @Box("uv", props["uv"], UV(data))
+            </div>
+            <div class="aqi">
+                @Box("aqi", props["aqi"], Aqi(data))
+            </div>
+            <div class="living">
+                @Box("living", props["tempin"], Tempin("in", data))
+            </div>
+            <div class="master">
+                @Box("master", props["temp2"], Tempin("2", data))
+            </div>
+            <div class="office">
+                @Box("office", props["temp1"], Tempin("1", data))
+            </div>
+            <div class="basement">
+                @Box("basement", props["temp3"], Tempin("3", data))
+            </div>
+        </div>
+    </div>
+}

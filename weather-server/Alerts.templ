@@ -1,0 +1,90 @@
+package main
+
+import "fmt"
+
+templ AlertBase(count int, id int) {
+    if count == 0 {
+        @AlertNone()
+    } else {
+        @AlertInfo(id)
+    }
+}
+
+templ AlertNone() {
+    <div class="no-alerts">No Alerts!</div>
+}
+
+
+templ AlertInfo(id int) {
+    <div class="alert-box">
+        <div id="alerts" class="alert-container" hx-get={ fmt.Sprintf("/alertview/%d", id) } hx-trigger="load" hx-target="#alerts"></div>
+    </div>
+}
+
+templ ShowAlert(alert Alert, previous int, next int) {
+    <div class="up">
+    if previous != 0 {
+        <div class="uparrow" hx-get={ fmt.Sprintf("/alertview/%d", previous) } hx-trigger="click" hx-target="#alerts">
+            <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="16" height="16">
+                <path d="m 13,6 -5,5 -5,-5 z" fill="#797979" />
+            </svg>
+        </div>
+    }
+    </div>
+    <a href={ templ.SafeURL(fmt.Sprintf("/alert/%d", alert.ID)) } class="alert-link">
+        <div id={ fmt.Sprintf("alert-%d", alert.ID)} class={ cssToString("event", alertColor(alert)) }>
+          <svg class="alertsvg" viewBox="0 0 32 32"  fill="none" stroke="currentcolor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2">
+              <path d="M16 3 L30 29 2 29 Z M16 11 L16 19 M16 23 L16 25"></path>
+          </svg>
+          &nbsp;
+          { alert.Event }
+          &nbsp;
+          <svg class="alertsvg" viewBox="0 0 32 32"  fill="none" stroke="currentcolor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2">
+              <path d="M16 3 L30 29 2 29 Z M16 11 L16 19 M16 23 L16 25"></path>
+          </svg>
+        </div>
+        <div class="headline">
+          <div>{alert.Headline}</div>
+        </div>
+    </a>
+    <div class="down">
+    if next != 0 {
+        <div class="downarrow" hx-get={ fmt.Sprintf("/alertview/%d", next) } hx-trigger="click" hx-target="#alerts">
+            <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="16" height="16">
+                <path d="m 13,6 -5,5 -5,-5 z" fill="#797979" />
+            </svg>
+        </div>
+    }
+    </div>
+}
+
+templ AlertDetail(alert Alert, alerts []Alert) {
+    <!DOCTYPE html>
+    <html lang="en">
+        @header()
+        <body>
+            <div class="header">
+                <div class="title"><a href="/"><i class="fa-solid fa-house"></i> Lorson Ranch, Colorado Springs, CO</a></div>
+                <div class="last-update"> Weather Alerts for Region</div>
+            </div>
+            <div class="AlertDetail">
+                <div class="left">
+
+                </div>
+                <div class="right">
+                    <div class="alert-header">
+                        <span class={ cssToString("", alertColor(alert))} >
+                            <svg class="alertsvg" viewBox="0 0 32 32"  fill="none" stroke="currentcolor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"><path d="M16 3 L30 29 2 29 Z M16 11 L16 19 M16 23 L16 25"></path></svg>
+                            &nbsp; {alert.Severity } - { alert.Event } &nbsp;
+                            <svg class="alertsvg" viewBox="0 0 32 32"  fill="none" stroke="currentcolor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"><path d="M16 3 L30 29 2 29 Z M16 11 L16 19 M16 23 L16 25"></path></svg>
+                        </span>
+                    </div>
+                    <div class="alert-headline" >{ alert.Headline }</div>
+                    <div class="alert-desc">{ alert.Description }</div>
+                    <div class="alert-desc">{ alert.Areadesc }</div>
+                    <div class="alert-issued">Issues by: { alert.SenderName }</div>
+                </div>
+            </div>
+        </body>
+    </html>
+}

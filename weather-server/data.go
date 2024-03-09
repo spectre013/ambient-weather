@@ -1,8 +1,36 @@
 package main
 
 import (
+	"database/sql"
+	"html/template"
 	"time"
 )
+
+type Weather struct {
+	DB       *sql.DB
+	Forecast *ForecastImage
+	Astro    *Astro
+	Updated  time.Time
+}
+
+type BoxProps struct {
+	Icon  string
+	Title string
+	Unit  string
+	Style map[string]string
+}
+
+type TemplateData struct {
+	Units    string
+	Record   Record
+	Minmax   map[string]map[string]map[string]StatValue
+	Alerts   []Alert
+	Forecast ForecastImage
+	Wind     map[string]StatValue
+	Astro    Astro
+	tTrend   Trend
+	bTrend   Trend
+}
 
 // Stat Stat Table structure
 type Stat struct {
@@ -189,45 +217,8 @@ type ForecastImage struct {
 	Address         string  `json:"address"`
 	Timezone        string  `json:"timezone"`
 	Tzoffset        float64 `json:"tzoffset"`
-	Days            []struct {
-		Datetime       string   `json:"datetime"`
-		Datetimeepoch  int      `json:"datetimeEpoch"`
-		Tempmax        float64  `json:"tempmax"`
-		Tempmin        float64  `json:"tempmin"`
-		Temp           float64  `json:"temp"`
-		Feelslikemax   float64  `json:"feelslikemax"`
-		Feelslikemin   float64  `json:"feelslikemin"`
-		Feelslike      float64  `json:"feelslike"`
-		Dew            float64  `json:"dew"`
-		Humidity       float64  `json:"humidity"`
-		Precip         float64  `json:"precip"`
-		Precipprob     float64  `json:"precipprob"`
-		Precipcover    float64  `json:"precipcover"`
-		Preciptype     []string `json:"preciptype"`
-		Snow           float64  `json:"snow"`
-		Snowdepth      float64  `json:"snowdepth"`
-		Windgust       float64  `json:"windgust"`
-		Windspeed      float64  `json:"windspeed"`
-		Winddir        float64  `json:"winddir"`
-		Pressure       float64  `json:"pressure"`
-		Cloudcover     float64  `json:"cloudcover"`
-		Visibility     float64  `json:"visibility"`
-		Solarradiation float64  `json:"solarradiation"`
-		Solarenergy    float64  `json:"solarenergy"`
-		Uvindex        float64  `json:"uvindex"`
-		Severerisk     float64  `json:"severerisk"`
-		Sunrise        string   `json:"sunrise"`
-		Sunriseepoch   int      `json:"sunriseEpoch"`
-		Sunset         string   `json:"sunset"`
-		Sunsetepoch    int      `json:"sunsetEpoch"`
-		Moonphase      float64  `json:"moonphase"`
-		Conditions     string   `json:"conditions"`
-		Description    string   `json:"description"`
-		Icon           string   `json:"icon"`
-		Stations       []string `json:"stations"`
-		Source         string   `json:"source"`
-	} `json:"days"`
-	Stations struct {
+	Days            []Days  `json:"days"`
+	Stations        struct {
 		Kfcs struct {
 			Distance     float64 `json:"distance"`
 			Latitude     float64 `json:"latitude"`
@@ -279,6 +270,45 @@ type ForecastImage struct {
 			Contribution float64 `json:"contribution"`
 		} `json:"KCOS"`
 	} `json:"stations"`
+}
+
+type Days struct {
+	Datetime       string   `json:"datetime"`
+	Datetimeepoch  int      `json:"datetimeEpoch"`
+	Tempmax        float64  `json:"tempmax"`
+	Tempmin        float64  `json:"tempmin"`
+	Temp           float64  `json:"temp"`
+	Feelslikemax   float64  `json:"feelslikemax"`
+	Feelslikemin   float64  `json:"feelslikemin"`
+	Feelslike      float64  `json:"feelslike"`
+	Dew            float64  `json:"dew"`
+	Humidity       float64  `json:"humidity"`
+	Precip         float64  `json:"precip"`
+	Precipprob     float64  `json:"precipprob"`
+	Precipcover    float64  `json:"precipcover"`
+	Preciptype     []string `json:"preciptype"`
+	Snow           float64  `json:"snow"`
+	Snowdepth      float64  `json:"snowdepth"`
+	Windgust       float64  `json:"windgust"`
+	Windspeed      float64  `json:"windspeed"`
+	Winddir        float64  `json:"winddir"`
+	Pressure       float64  `json:"pressure"`
+	Cloudcover     float64  `json:"cloudcover"`
+	Visibility     float64  `json:"visibility"`
+	Solarradiation float64  `json:"solarradiation"`
+	Solarenergy    float64  `json:"solarenergy"`
+	Uvindex        float64  `json:"uvindex"`
+	Severerisk     float64  `json:"severerisk"`
+	Sunrise        string   `json:"sunrise"`
+	Sunriseepoch   int      `json:"sunriseEpoch"`
+	Sunset         string   `json:"sunset"`
+	Sunsetepoch    int      `json:"sunsetEpoch"`
+	Moonphase      float64  `json:"moonphase"`
+	Conditions     string   `json:"conditions"`
+	Description    string   `json:"description"`
+	Icon           string   `json:"icon"`
+	Stations       []string `json:"stations"`
+	Source         string   `json:"source"`
 }
 
 type RecordApp struct {
@@ -416,4 +446,183 @@ type Property struct {
 		PIL          []string `json:"PIL"`
 		BLOCKCHANNEL []string `json:"BLOCKCHANNEL"`
 	} `json:"parameters"`
+}
+
+type Beaufort struct {
+	SVG   template.HTML
+	Text  string
+	Class string
+}
+
+type AqiCategory struct {
+	Max   int64
+	Color string
+	Name  string
+}
+
+type AlmanacInfo struct {
+	TempMax     AlmanacData
+	TempMin     AlmanacData
+	FeelMax     AlmanacData
+	FeelMin     AlmanacData
+	HumidityMax AlmanacData
+	HumidityMin AlmanacData
+	BaroMax     AlmanacData
+	BaroMin     AlmanacData
+	DewpointMax AlmanacData
+	DewpointMin AlmanacData
+	WindMax     AlmanacData
+	WindMin     AlmanacData
+	WindGustMax AlmanacData
+	WindGustMin AlmanacData
+}
+type AlmanacData struct {
+	Label    string
+	Value    float64
+	Recorded time.Time
+}
+
+type ChartData struct {
+	Series     []Series     `json:"series"`
+	Legend     Legend       `json:"legend"`
+	Colors     []string     `json:"colors"`
+	Chart      ChartDef     `json:"chart"`
+	Responsive []Responsive `json:"responsive"`
+	Stroke     Stroke       `json:"stroke"`
+	Markers    Markers      `json:"markers"`
+	Labels     Labels       `json:"labels"`
+	Grid       Grid         `json:"grid"`
+	DataLabels DataLabels   `json:"dataLabels"`
+	Xaxis      Xaxis        `json:"xaxis"`
+	Yaxis      Yaxis        `json:"yaxis"`
+}
+type Series struct {
+	Name string    `json:"name"`
+	Data []float64 `json:"data"`
+}
+type Legend struct {
+	Show            bool         `json:"show"`
+	Position        string       `json:"position"`
+	HorizontalAlign string       `json:"horizontalAlign"`
+	Labels          legendLabels `json:"labels"`
+}
+type legendLabels struct {
+	Colors          []string `json:"colors"`
+	UseSeriesColors bool     `json:"useSeriesColors"`
+}
+type DropShadow struct {
+	Enabled bool    `json:"enabled"`
+	Color   string  `json:"color"`
+	Top     int     `json:"top"`
+	Blur    int     `json:"blur"`
+	Left    int     `json:"left"`
+	Opacity float64 `json:"opacity"`
+}
+type Toolbar struct {
+	Show bool `json:"show"`
+}
+type ChartDef struct {
+	FontFamily string     `json:"fontFamily"`
+	Height     int        `json:"height"`
+	Width      int        `json:"width"`
+	Type       string     `json:"type"`
+	DropShadow DropShadow `json:"dropShadow"`
+	Toolbar    Toolbar    `json:"toolbar"`
+}
+
+type Options struct {
+	Chart ChartOptions `json:"chart"`
+}
+
+type ChartOptions struct {
+	Height int `json:"height"`
+}
+type Responsive struct {
+	Breakpoint int     `json:"breakpoint"`
+	Options    Options `json:"options"`
+}
+type Stroke struct {
+	Width []int  `json:"width"`
+	Curve string `json:"curve"`
+}
+type Hover struct {
+	Size       int `json:"size"`
+	SizeOffset int `json:"sizeOffset"`
+}
+type Markers struct {
+	Size            int      `json:"size"`
+	Colors          string   `json:"colors"`
+	StrokeColors    []string `json:"strokeColors"`
+	StrokeWidth     int      `json:"strokeWidth"`
+	StrokeOpacity   float64  `json:"strokeOpacity"`
+	StrokeDashArray int      `json:"strokeDashArray"`
+	FillOpacity     int      `json:"fillOpacity"`
+	Discrete        []any    `json:"discrete"`
+	Hover           Hover    `json:"hover"`
+}
+type Labels struct {
+	Show     bool   `json:"show"`
+	Position string `json:"position"`
+}
+type Lines struct {
+	Show bool `json:"show"`
+}
+type Gridaxis struct {
+	Lines Lines `json:"lines"`
+}
+
+type Grid struct {
+	Xaxis  Gridaxis      `json:"xaxis"`
+	Yaxis  Gridaxis      `json:"yaxis"`
+	Row    GridRowColumn `json:"row"`
+	Column GridRowColumn `json:"column"`
+}
+type GridRowColumn struct {
+	Colors  string
+	Opacity float64
+}
+
+type DataLabels struct {
+	Enabled bool `json:"enabled"`
+}
+type AxisBorder struct {
+	Show bool `json:"show"`
+}
+type AxisTicks struct {
+	Show bool `json:"show"`
+}
+type Xaxis struct {
+	Type       string     `json:"type"`
+	Categories []string   `json:"categories"`
+	AxisBorder AxisBorder `json:"axisBorder"`
+	AxisTicks  AxisTicks  `json:"axisTicks"`
+	Labels     AxisLabel  `json:"labels"`
+}
+type Style struct {
+	FontSize string `json:"fontSize"`
+}
+type Title struct {
+	Style Style `json:"style"`
+}
+type Yaxis struct {
+	Title  Title     `json:"title"`
+	Min    int       `json:"min"`
+	Max    int       `json:"max"`
+	Labels AxisLabel `json:"labels"`
+}
+
+type AxisLabel struct {
+	Show  bool       `json:"show"`
+	Align string     `json:"align"`
+	Style LabelStyle `json:"style"`
+}
+
+type LabelStyle struct {
+	Colors   string `json:"colors"`
+	FontSize string `json:"fontSize"`
+}
+
+type Pill struct {
+	Interval string
+	Name     string
 }

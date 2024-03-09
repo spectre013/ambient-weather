@@ -5,30 +5,12 @@ stages:
   - build docker
   - deploy
 
-cache:
-  untracked: true
-  key: ${CI_COMMIT_REF_SLUG}
-  paths:
-    - node_modules/
-
-build ui:
-  stage: build
-  script:
-    - cd weather-ui
-    - npm install
-
 lint server:
   stage: lint
   script:
     - export PATH=$PATH:/usr/local/go/bin
     - cd weather-server
     - staticcheck ./...
-
-lint ui:
-  stage: lint
-  script:
-    - cd weather-ui
-    - npm run lint
 
 scan server:
   stage: scan
@@ -46,13 +28,6 @@ scan server:
         exit 0
       fi
 
-ui:
-  stage: build docker
-  script:
-    - cd weather-ui
-    - docker build -t $DOCKER_REGISTRY/production/weather-ui:2.0 . --no-cache
-    - docker push $DOCKER_REGISTRY/production/weather-ui:2.0
-
 server:
   stage: build docker
   script:
@@ -60,15 +35,11 @@ server:
     - docker build -t $DOCKER_REGISTRY/production/weather-server:2.0 . --no-cache
     - docker push $DOCKER_REGISTRY/production/weather-server:2.0
 
-ui deploy:
-  stage: deploy
-  when: manual
-  script:
-    - ssh brian@10.10.1.122 /var/www/vhosts/apps/weather/start-ui.sh
 
-server deploy:
-  stage: deploy
-  when: manual
-  script:
-    - ssh brian@10.10.1.122 /var/www/vhosts/apps/weather/start-server.sh
+
+#server deploy:
+#  stage: deploy
+#  when: manual
+#  script:
+#    - ssh brian@10.10.1.122 /var/www/vhosts/apps/weather/start-server.sh
 

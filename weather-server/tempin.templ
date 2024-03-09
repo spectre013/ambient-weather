@@ -1,0 +1,19 @@
+package main
+
+import "fmt"
+
+templ Tempin(sensor string, data TemplateData) {
+    <div class="tempin-container">
+        <div class="tempin">
+            <div class={ cssToString("tempin-text", tempColor(getSensor("temp"+sensor+"f", data.Record))) }>
+                { tempDisplay(getSensor("temp"+sensor+"f", data.Record), data.Units)}&deg;</div>
+            <div class="feels">Humidity:&nbsp;
+                <span class={humidityClass(getSensor("humidity"+sensor, data.Record))}>
+                    { toString(getSensor("humidity"+sensor, data.Record)) }%
+                </span>
+            </div>
+        </div>
+        <div class="maxin">Max: <span class={ fmt.Sprintf("%s", tempColor(data.Minmax["temp"+sensor+"f"]["max"]["day"].Value))}>{tempDisplay(data.Minmax["temp"+sensor+"f"]["max"]["day"].Value, data.Units)}&deg;</span></div>
+        <div class="minin">Min: <span class={ fmt.Sprintf("%s", tempColor(data.Minmax["temp"+sensor+"f"]["min"]["day"].Value))}>{tempDisplay(data.Minmax["temp"+sensor+"f"]["min"]["day"].Value, data.Units)}&deg;</span></div>
+    </div>
+}

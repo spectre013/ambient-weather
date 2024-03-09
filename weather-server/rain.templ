@@ -1,0 +1,34 @@
+package main
+
+
+templ Rain(data TemplateData) {
+    <div class="rain-container">
+        <div class="lastrain"><span class="rain-blue">Last Rain:</span>&nbsp;{ full(data.Record.Lastrain) }</div>
+        <div class="raintotal">
+            <span class="amount rain-blue">{ rainDisplay(data.Record.Dailyrainin, data.Units) }</span>&nbsp;
+            { rainLabel(data.Units) }
+        </div>
+        <div class="rate">
+            <span class="rain-blue"> Rate:</span>&nbsp;{ rainDisplay(data.Record.Hourlyrainin, data.Units) }&nbsp;
+            { rainLabel(data.Units) }
+        </div>
+        <div class="year">
+            { year(data.Record.Recorded) }&nbsp;
+            <span class="rain-blue">{rainDisplay(data.Record.Yearlyrainin, data.Units)}</span>&nbsp;
+            { rainLabel(data.Units) }
+        </div>
+        <div class="month">
+            { month(data.Record.Recorded) }:&nbsp;
+            <span class="rain-blue">{rainDisplay(data.Record.Monthlyrainin, data.Units)}</span>
+            &nbsp;{rainLabel(data.Units)}
+        </div>
+        <div class="hour">
+            Last Hour: <span class="rain-blue">{ rainDisplay(data.Record.Hourlyrain, data.Units)}</span>
+            &nbsp;{ rainLabel(data.Units) }
+        </div>
+        <div class="tfhour">
+            Last 24hr: <span class="rain-blue">{ rainDisplay(data.Record.Dailyrainin, data.Units)}</span>
+            &nbsp;{ rainLabel(data.Units)}
+        </div>
+    </div>
+}

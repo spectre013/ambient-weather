@@ -1,0 +1,65 @@
+package main
+
+import (
+    "fmt"
+)
+
+
+func transform(deg int) templ.Attributes {
+    return templ.Attributes{"style": fmt.Sprintf("transform:rotate(%ddeg);", deg)}
+}
+
+templ Wind(data TemplateData) {
+
+<div class="wind-container">
+    <div class="bft">
+        <div>
+            <span class={ beaufortScale(data.Record.Windspeedmph).Class }>
+                @templ.Raw(beaufortScale(data.Record.Windspeedmph).SVG)
+            </span> &nbsp;{ fmt.Sprintf("%d", getBeaufort(data.Record.Windspeedmph)) }
+            <span class="bfttxt">&nbsp;BFT</span>
+        </div>
+        <div>
+            { beaufortScale(data.Record.Windspeedmph).Text}
+        </div>
+    </div>
+    <div class="maxgust">
+        <span class={ beaufortScale(data.Wind["gust"].Value).Class }>Max Gust:</span>
+        <div>{ toString(data.Wind["gust"].Value)}  {  windLabel(data.Units) } [{ timeFormat(data.Wind["gust"].Recorded) }] </div>
+    </div>
+    <div class="windrun">
+        <div class="windrun1">Wind Run</div>
+        <div>
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="weather34 windrun symbol" viewBox="0 0 24 24" width="9pt" height="9pt" fill="#3b9cac">
+                <path d="M13,16H3a1,1,0,0,0,0,2H13a1,1,0,0,0,0-2ZM3,8H21a1,1,0,0,0,0-2H3A1, 1,0,0,0,3,8Zm18,3H3a1,1,0,0,0,0,2H21a1,1,0,0,0,0-2Z"></path>
+            </svg>
+            &nbsp;{ windDisplay(windRun(data.Minmax["windspeedmph"]["avg"]["day"].Value), data.Units) } mi
+        </div>
+    </div>
+    <div class="current">
+        <div class={ cssToString("arrow", beaufortScale(data.Record.Windspeedmph).Class)} >
+            <div { transform(data.Record.Winddir)... } >
+                <i class="fa-solid fa-arrow-up"></i>
+            </div>
+        </div>
+        <div>
+            { toString(data.Record.Winddir) }&deg; &nbsp;&nbsp;
+            { degToCompass(float64(data.Record.Winddir)) }
+        </div>
+        <div class="conditions">
+            <div class="current">
+                <div class="windunitidspeed">Wind</div>
+                { windDisplay(data.Record.Windspeedmph, data.Units) }&nbsp;{ windLabel(data.Units) }
+            </div>
+            <div class="gusts">
+                <div class="windunitidspeed">Gust</div>
+                { windDisplay(data.Record.Windgustmph, data.Units) }&nbsp;{ windLabel(data.Units) }
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+templ windDetail() {
+    <div>Wind Detail</div>
+}
