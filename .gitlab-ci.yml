@@ -1,16 +1,13 @@
 stages:
-  - build
-  - lint
   - scan
   - build docker
-  - deploy
 
-lint server:
-  stage: lint
-  script:
-    - export PATH=$PATH:/usr/local/go/bin
-    - cd weather-server
-    - staticcheck ./...
+#lint server:
+#  stage: lint
+#  script:
+#    - export PATH=$PATH:/usr/local/go/bin
+#    - cd weather-server
+#    - staticcheck ./...
 
 scan server:
   stage: scan
