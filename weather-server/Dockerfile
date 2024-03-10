@@ -20,12 +20,13 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags="-w -s" -o /go/bin/weather-server
 # STEP 2 build a small image
 # start from scratch
-FROM scratch
+FROM ubuntu:jammy
 ENV TZ America/Denver
 # Copy our static executable
 COPY --from=builder /go/bin/weather-server /app/weather-server
 COPY --from=builder /weather-server/public /app/public
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
+
 ENV GO_ENV production
 ENTRYPOINT ["/app/weather-server"]
