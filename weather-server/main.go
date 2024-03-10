@@ -94,7 +94,7 @@ func main() {
 	r.HandleFunc("/wind", loggingMiddleware(weather.Wind))
 	//Index
 	r.HandleFunc("/", loggingMiddleware(weather.index))
-	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./public/")))
+	r.PathPrefix("/").Handler(http.FileServer(http.Dir(os.Getenv("PUBLIC"))))
 
 	srv := &http.Server{
 		Handler: r,
