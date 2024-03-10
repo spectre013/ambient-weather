@@ -29,8 +29,8 @@ server:
   stage: build docker
   script:
     - cd weather-server
-    - docker build -t $DOCKER_REGISTRY/production/weather-server:2.1 . --no-cache
-    - docker push $DOCKER_REGISTRY/production/weather-server:2.1
+    - docker build -t $DOCKER_REGISTRY/production/weather-server:2.1.1 . --no-cache
+    - docker push $DOCKER_REGISTRY/production/weather-server:2.1.1
 
 
 
