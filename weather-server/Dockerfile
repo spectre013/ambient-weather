@@ -10,6 +10,7 @@ WORKDIR /weather-server
 # We want to populate the module cache based on the go.{mod,sum} files.
 COPY go.mod .
 COPY go.sum .
+COPY public .
 
 RUN go mod download
 
@@ -22,8 +23,9 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflag
 FROM scratch
 ENV TZ America/Denver
 # Copy our static executable
-COPY --from=builder /go/bin/weather-server /go/bin/weather-server
+COPY --from=builder /go/bin/weather-server /app/weather-server
+COPY --from=builder /weather-server/public /app/public
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
 ENV GO_ENV production
-ENTRYPOINT ["/go/bin/weather-server"]
+ENTRYPOINT ["/app/weather-server"]
