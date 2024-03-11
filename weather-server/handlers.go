@@ -14,7 +14,6 @@ import (
 )
 
 func (w *Weather) index(wr http.ResponseWriter, r *http.Request) {
-	w.Astro = astro()
 	forecast, err := getForecast()
 	if err != nil {
 		logger.Error(err)

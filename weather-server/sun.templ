@@ -8,12 +8,12 @@ func getTime(part string, luna Astro) string {
 templ Sun(data TemplateData) {
     <div class="sun-container">
         <div class="daylight">
-            <div><span class="riseclr">{ data.Astro.DayLength }</span> hrs</div>
+            <div><span class="riseclr">{ lightDark(data.Astro.Daylight) }</span></div>
             <div>Total Daylight</div>
         </div>
         <div class="darkness">
             <div>
-                <span class="setclr">{ darkness(data.Astro) }</span>
+                <span class="setclr">{lightDark(data.Astro.Darkness) }</span>
             </div>
             <div>Total Darkness</div>
         </div>
@@ -27,16 +27,16 @@ templ Sun(data TemplateData) {
         <div class="rise">
             <div>Sun Rise</div>
             <div>{ todayTomorrow("sunrise", data.Astro)}</div>
-            <div class="riseclr">{ data.Astro.Sunrise}</div>
+            <div class="riseclr">{ timeFormat(data.Astro.Sunrise) }</div>
         </div>
         <div class="set">
             <div>Sun Set</div>
             <div>{ todayTomorrow("sunset", data.Astro) }</div>
-            <div class="setclr">{ data.Astro.Sunset }</div>
+            <div class="setclr">{ timeFormat(data.Astro.Sunset) }</div>
         </div>
         <div class="elevation">
             <div>Elevation:</div>
-            <div class={sunBelow(data.Astro)}>{ toString(toFixed(data.Astro.SunAltitude,2)) }</div>
+            <div class={sunBelow(data.Astro)}>{ toString(toFixed(data.Astro.Elevation,2)) }</div>
         </div>
     </div>
 }

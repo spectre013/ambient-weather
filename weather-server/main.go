@@ -4,20 +4,19 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/nathan-osman/go-sunrise"
 	"io"
 	"log"
-	"math"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
-	"github.com/IvanMenshykov/MoonPhase"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
-	_ "github.com/lib/pq"
-
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 )
 
@@ -112,12 +111,10 @@ func buildWeather(db *sql.DB) Weather {
 	if err != nil {
 		logger.Error(err)
 	}
-	astro := astro()
 
 	return Weather{
 		DB:       db,
 		Forecast: forecast,
-		Astro:    astro,
 		Updated:  time.Now(),
 	}
 }
@@ -206,42 +203,38 @@ func getForecast() (*ForecastImage, error) {
 	return &f, err
 }
 
-func astro() *Astro {
-	t := time.Now().UTC()
-	m := MoonPhase.New(t)
-	header := map[string]string{}
-	url := fmt.Sprintf("https://api.ipgeolocation.io/astronomy?apiKey=%s&lat=%s&long=%s", os.Getenv("IPGEO"), os.Getenv("LAT"), os.Getenv("LON"))
-	res, err := makeRequest(url, header)
-	if err != nil {
-		logger.Println(err)
-	}
-	solar := Astro{}
-	err = json.Unmarshal(res, &solar)
-	if err != nil {
-		logger.Println(err)
-	}
-	d := time.Now().Local().Add(24 * time.Hour).Format("2006-01-02")
-	tomorrowURL := url + "&date=" + d
-	tomor, err := makeRequest(tomorrowURL, header)
-	if err != nil {
-		logger.Println(err)
-	}
-	tom := Tomorrow{}
-	err = json.Unmarshal(tomor, &tom)
-	if err != nil {
-		logger.Println(err)
-	}
-	tom.Date = d
+func astro() Astro {
+	lat, err := strconv.ParseFloat(os.Getenv("LAT"), 64)
+	errorHandler(err, "Error parsing LAT")
+	lng, err := strconv.ParseFloat(os.Getenv("LON"), 64)
+	errorHandler(err, "Error parsing LON")
 
-	solar.Tomorrow = tom
-	solar.Newmoon = time.Unix(int64(m.NewMoon()), 0).UTC()
-	solar.Nextnewmoon = time.Unix(int64(m.NextNewMoon()), 0).UTC()
-	solar.Fullmoon = time.Unix(int64(m.FullMoon()), 0)
-	solar.Phase = m.PhaseName()
-	solar.Illuminated = math.Round(m.Illumination() * float64(100))
-	solar.Age = math.Round(m.Age())
+	rise, set := sunrise.SunriseSunset(
+		lat, lng, time.Now().Year(), time.Now().Month(), time.Now().Day(),
+	)
+	t := time.Now().Add(24 * time.Hour)
+	riset, sett := sunrise.SunriseSunset(
+		lat, lng, t.Year(), t.Month(), t.Day(),
+	)
+	elevation := sunrise.Elevation(lat, lng, time.Now())
+	fmt.Printf("%v %v %v %v", rise.Local(), set.Local(), set.Sub(rise), riset.Sub(set))
+	hasSunSet := false
+	if elevation <= 0 {
+		hasSunSet = true
+	}
 
-	return &solar
+	astro := Astro{
+		Sunrise:         rise,
+		Sunset:          set,
+		SunriseTomorrow: riset,
+		SunsetTomorrow:  sett,
+		Darkness:        riset.Sub(set),
+		Daylight:        set.Sub(rise),
+		Elevation:       elevation,
+		HasSunset:       hasSunSet,
+	}
+
+	return astro
 }
 
 func (w Weather) getCurrent() (map[string]BoxProps, TemplateData, error) {
@@ -264,7 +257,7 @@ func (w Weather) getCurrent() (map[string]BoxProps, TemplateData, error) {
 		Alerts:   w.Alerts(),
 		Forecast: *w.Forecast,
 		Wind:     w.getWind(),
-		Astro:    *w.Astro,
+		Astro:    astro(),
 		tTrend:   w.trend("tempf"),
 		bTrend:   w.trend("baromabsin"),
 	}
@@ -377,7 +370,6 @@ func (w *Weather) checkForecast() {
 		}
 		w.Forecast = f
 		w.Updated = time.Now()
-		w.Astro = astro()
 	}
 }
 

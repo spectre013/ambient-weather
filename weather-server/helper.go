@@ -384,10 +384,9 @@ func rainDisplay(rn float64, units string) string {
 
 func sunTime(luna Astro) map[string]time.Time {
 	times := map[string]time.Time{}
-	times["sunrise"], _ = time.ParseInLocation("2006-01-02 15:04", fmt.Sprintf("%s %s", luna.Date, luna.Sunrise), loc)
-	times["sunset"], _ = time.ParseInLocation("2006-01-02 15:04", fmt.Sprintf("%s %s", luna.Date, luna.Sunset), loc)
-	times["tomorrow"], _ = time.ParseInLocation("2006-01-02 15:04", fmt.Sprintf("%s %s", luna.Tomorrow.Date, luna.Tomorrow.Sunrise), loc)
-
+	times["sunrise"] = luna.Sunrise
+	times["sunset"] = luna.Sunset
+	times["tomorrow"] = luna.SunriseTomorrow
 	return times
 }
 
@@ -411,11 +410,9 @@ func ParseDuration(d string) map[string]string {
 	}
 }
 
-func darkness(luna Astro) string {
-	times := sunTime(luna)
-	dark := times["tomorrow"].Sub(times["sunset"])
-	d := ParseDuration(dark.String())
-	return fmt.Sprintf("%s hrs %s min", d["hour"], d["min"])
+func lightDark(t time.Duration) string {
+	r := ParseDuration(t.String())
+	return fmt.Sprintf("%s hrs %s min", r["hour"], r["min"])
 }
 
 func sunHasSet(luna Astro) bool {
@@ -428,7 +425,7 @@ func sunHasSet(luna Astro) bool {
 }
 
 func isSunSet(luna Astro) string {
-	if sunHasSet(luna) {
+	if luna.HasSunset {
 		return "Time til Sunrise"
 	} else {
 		return "Time til Sunset"
@@ -436,14 +433,14 @@ func isSunSet(luna Astro) string {
 }
 
 func riseSetClass(luna Astro) string {
-	if sunHasSet(luna) {
+	if luna.HasSunset {
 		return "riseclr"
 	} else {
 		return "setclr"
 	}
 }
 func sunBelow(luna Astro) string {
-	if sunHasSet(luna) {
+	if luna.HasSunset {
 		return "sunbelow"
 	} else {
 		return "sunabove"
@@ -453,20 +450,18 @@ func sunBelow(luna Astro) string {
 func sunTimes(luna Astro) map[string]string {
 	var t string
 	times := sunTime(luna)
-	if sunHasSet(luna) {
-		//t = times["tomorrow"].Sub(time.Now()).String()
+	if luna.HasSunset {
 		t = time.Until(times["tomorrow"]).String()
 	} else {
 		t = time.Until(times["sunset"]).String()
-		//t = times["sunset"].Sub(time.Now()).String()
 	}
 	return ParseDuration(t)
 }
 
 func todayTomorrow(t string, luna Astro) string {
 	event := map[string]time.Time{}
-	event["sunrise"], _ = time.Parse("2006-01-02 15:04:05", fmt.Sprintf("%s %s", luna.Date, luna.Sunrise))
-	event["sunset"], _ = time.Parse("2006-01-02 15:04:05", fmt.Sprintf("%s %s", luna.Date, luna.Sunset))
+	event["sunrise"] = luna.Sunrise
+	event["sunset"] = luna.Sunset
 
 	if time.Now().After(event[t]) {
 		return "Tomorrow"

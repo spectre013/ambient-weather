@@ -13,6 +13,8 @@ require (
 )
 
 require (
-	golang.org/x/net v0.19.0 // indirect
-	golang.org/x/sys v0.15.0 // indirect
+	github.com/nathan-osman/go-sunrise v1.1.0 // indirect
+	github.com/sixdouglas/suncalc v0.0.0-20230303054245-f8bc8c69d09e // indirect
+	golang.org/x/net v0.22.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
 )

@@ -9,7 +9,6 @@ import (
 type Weather struct {
 	DB       *sql.DB
 	Forecast *ForecastImage
-	Astro    *Astro
 	Updated  time.Time
 }
 
@@ -59,28 +58,14 @@ type Location struct {
 
 // Astro Moon sun data
 type Astro struct {
-	Location             Location  `json:"location"`
-	Date                 string    `json:"date"`
-	Sunrise              string    `json:"sunrise"`
-	Sunset               string    `json:"sunset"`
-	SolarNoon            string    `json:"solar_noon"`
-	DayLength            string    `json:"day_length"`
-	SunAltitude          float64   `json:"sun_altitude"`
-	SunDistance          float64   `json:"sun_distance"`
-	SunAzimuth           float64   `json:"sun_azimuth"`
-	Moonrise             string    `json:"moonrise"`
-	Moonset              string    `json:"moonset"`
-	MoonAltitude         float64   `json:"moon_altitude"`
-	MoonDistance         float64   `json:"moon_distance"`
-	MoonAzimuth          float64   `json:"moon_azimuth"`
-	MoonParallacticAngle float64   `json:"moon_parallactic_angle"`
-	Tomorrow             Tomorrow  `json:"tomorrow"`
-	Newmoon              time.Time `json:"newmoon"`
-	Nextnewmoon          time.Time `json:"nextnewmoon"`
-	Fullmoon             time.Time `json:"fullmoon"`
-	Phase                string    `json:"phase"`
-	Illuminated          float64   `json:"illuminated"`
-	Age                  float64   `json:"age"`
+	Sunrise         time.Time
+	Sunset          time.Time
+	SunriseTomorrow time.Time
+	SunsetTomorrow  time.Time
+	Darkness        time.Duration
+	Daylight        time.Duration
+	Elevation       float64
+	HasSunset       bool
 }
 
 // Tomorrow copy of moon sun data for getting sun rise for tomorrow
