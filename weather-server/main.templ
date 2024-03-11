@@ -17,11 +17,6 @@ templ Main(props map[string]BoxProps, data TemplateData) {
                     @Box("temperature", props["temperature"], temperature(data))
                 </div>
             </a>
-            <a href="/forecast">
-            <div class="forecast">
-                 @Box("forecast", props["forecast"], forecast(data))
-            </div>
-            </a>
             <div class="alerts">
                 @Box("alerts", props["alerts"], AlertBase(len(data.Alerts),0))
             </div>

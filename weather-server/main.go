@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/sessions"
 	"github.com/nathan-osman/go-sunrise"
 	"io"
 	"log"
@@ -30,6 +31,8 @@ var upgrader = websocket.Upgrader{
 var logger = logrus.New()
 var loc *time.Location
 var units = "imperial"
+var key = []byte("super-secret-key")
+var store = sessions.NewCookieStore(key)
 
 func init() {
 	logger.Out = os.Stdout
@@ -91,6 +94,7 @@ func main() {
 	r.HandleFunc("/alert/{id}", loggingMiddleware(weather.Alert))
 	r.HandleFunc("/alertview/{id}", loggingMiddleware(weather.Alertview))
 	r.HandleFunc("/wind", loggingMiddleware(weather.Wind))
+	r.HandleFunc("/setunits/{unit}", loggingMiddleware(weather.setSession))
 	//Index
 	r.HandleFunc("/", loggingMiddleware(weather.index))
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir(os.Getenv("PUBLIC"))))
@@ -107,14 +111,14 @@ func main() {
 }
 
 func buildWeather(db *sql.DB) Weather {
-	forecast, err := getForecast()
-	if err != nil {
-		logger.Error(err)
-	}
+	//forecast, err := getForecast()
+	//if err != nil {
+	//	logger.Error(err)
+	//}
 
 	return Weather{
 		DB:       db,
-		Forecast: forecast,
+		Forecast: &ForecastImage{},
 		Updated:  time.Now(),
 	}
 }
@@ -248,13 +252,13 @@ func (w Weather) getCurrent() (map[string]BoxProps, TemplateData, error) {
 	rec.Hourlyrain = hourlyRain
 
 	minmax := w.Minmax()
-	w.checkForecast()
+	units := "imperial"
 	data := TemplateData{
 		Units:    units,
 		Record:   rec,
 		Minmax:   minmax,
 		Alerts:   w.Alerts(),
-		Forecast: *w.Forecast,
+		Forecast: ForecastImage{},
 		Wind:     w.getWind(),
 		Astro:    astro(),
 		tTrend:   w.trend("tempf"),

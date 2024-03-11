@@ -9,7 +9,7 @@ import (
 templ temperature(data TemplateData) {
     <div class="temp-container">
         <div class="icon">
-            <img alt={ getConditions(data.Forecast) } src={ getIcon(data.Forecast.Days[0].Icon)} />
+            <img alt={ getConditions(data.Forecast) } src={ getIcon("clear-day")} />
         </div>
         <div class="temp">
             <div class={ cssToString("temp-text", tempColor(data.Record.Tempf)) }>{ tempDisplay(data.Record.Tempf, data.Units) }°</div>

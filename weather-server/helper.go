@@ -22,7 +22,8 @@ func toString(val interface{}) string {
 	return fmt.Sprintf("%v", val)
 }
 func getConditions(forecast ForecastImage) string {
-	return templ.EscapeString(forecast.Days[0].Conditions)
+	//return templ.EscapeString(forecast.Days[0].Conditions)
+	return templ.EscapeString("clear")
 }
 
 func getIcon(icon string) string {

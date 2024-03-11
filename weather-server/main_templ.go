@@ -48,14 +48,6 @@ func Main(props map[string]BoxProps, data TemplateData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></a> <a href=\"/forecast\"><div class=\"forecast\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = Box("forecast", props["forecast"], forecast(data)).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></a><div class=\"alerts\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

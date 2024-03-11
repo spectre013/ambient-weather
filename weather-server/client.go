@@ -122,6 +122,11 @@ func (c *Client) writePump() {
 
 // serveWs handles websocket requests from the peer.
 func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
+	session, err := store.Get(r, "units")
+	if err != nil {
+		errorHandler(err, "Index: ")
+	}
+	units = fmt.Sprintf("%v", session.Values["unit"])
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)

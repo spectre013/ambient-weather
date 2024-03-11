@@ -40,7 +40,7 @@ func temperature(data TemplateData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(getIcon(data.Forecast.Days[0].Icon)))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(getIcon("clear-day")))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

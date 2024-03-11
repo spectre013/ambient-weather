@@ -14,20 +14,59 @@ import (
 )
 
 func (w *Weather) index(wr http.ResponseWriter, r *http.Request) {
-	forecast, err := getForecast()
+	session, err := store.Get(r, "units")
 	if err != nil {
-		logger.Error(err)
+		errorHandler(err, "Index: ")
 	}
-	w.Forecast = forecast
+
+	if session.Values["unit"] == nil {
+		session.Values["unit"] = "imperial"
+		err = session.Save(r, wr)
+		if err != nil {
+			errorHandler(err, "Index: ")
+		}
+	}
+
+	//forecast, err := getForecast()
+	//if err != nil {
+	//	logger.Error(err)
+	//}
+	//
+	//w.Forecast = forecast
 
 	_ = Index(getCSS()).Render(r.Context(), wr)
 }
+
+func (w Weather) setSession(wr http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	unit := vars["unit"]
+
+	session, err := store.Get(r, "units")
+	if err != nil {
+		errorHandler(err, "Error setting session: ")
+	}
+	fmt.Printf("%v", session.Values["unit"])
+	session.Values["unit"] = unit
+	err = session.Save(r, wr)
+	if err != nil {
+		errorHandler(err, "Error saving session: ")
+	}
+	http.Redirect(wr, r, "/", http.StatusSeeOther)
+}
+
 func (w Weather) current(wr http.ResponseWriter, r *http.Request) {
+
+	session, err := store.Get(r, "units")
+	if err != nil {
+		return
+	}
+	units = fmt.Sprintf("%v", session.Values["unit"])
+
 	props, res, err := w.getCurrent()
 	if err != nil {
 		log.Println(err)
 	}
-
+	//res.Units = units
 	_ = Main(props, res).Render(r.Context(), wr)
 }
 
@@ -136,6 +175,7 @@ func (w Weather) Alertview(wr http.ResponseWriter, r *http.Request) {
 	e := ShowAlert(alert, prev, next).Render(r.Context(), wr)
 	errorHandler(e, "Error rendering alert")
 }
+
 func buildSQL(t string, interval string) string {
 	where := fmt.Sprintf(" where recorded >= NOW() - interval '%s' AND recorded <= NOW() ", interval)
 	if t == "at" {

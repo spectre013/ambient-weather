@@ -13,6 +13,8 @@ require (
 )
 
 require (
+	github.com/gorilla/securecookie v1.1.2 // indirect
+	github.com/gorilla/sessions v1.2.2 // indirect
 	github.com/nathan-osman/go-sunrise v1.1.0 // indirect
 	github.com/sixdouglas/suncalc v0.0.0-20230303054245-f8bc8c69d09e // indirect
 	golang.org/x/net v0.22.0 // indirect
