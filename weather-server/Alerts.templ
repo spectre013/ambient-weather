@@ -58,10 +58,10 @@ templ ShowAlert(alert Alert, previous int, next int) {
     </div>
 }
 
-templ AlertDetail(alert Alert, alerts []Alert) {
+templ AlertDetail(alert Alert, alerts []Alert, css string) {
     <!DOCTYPE html>
     <html lang="en">
-        @header()
+        @header(css)
         <body>
             <div class="header">
                 <div class="title"><a href="/"><i class="fa-solid fa-house"></i> Lorson Ranch, Colorado Springs, CO</a></div>

@@ -23,10 +23,10 @@ templ forecast(data TemplateData) {
     }
 }
 
-templ forecastDetail(forecast *ForecastImage, units string) {
+templ forecastDetail(forecast *ForecastImage, css string, units string) {
     <!DOCTYPE html>
         <html lang="en">
-            @header()
+            @header(css)
             <body>
             <div class="header">
                 <div class="title"><a href="/"><i class="fa-solid fa-house"></i> Lorson Ranch, Colorado Springs, CO</a></div>

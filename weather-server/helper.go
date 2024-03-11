@@ -3,11 +3,20 @@ package main
 import (
 	"fmt"
 	"math"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/a-h/templ"
 )
+
+func getCSS() string {
+	css := "/css/index.css"
+	if os.Getenv("LOGLEVEL") == "Debug" {
+		css = fmt.Sprintf("/css/index.css?v=%d", time.Now().Unix())
+	}
+	return css
+}
 
 func toString(val interface{}) string {
 	return fmt.Sprintf("%v", val)

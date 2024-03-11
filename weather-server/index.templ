@@ -2,13 +2,12 @@ package main
 
 import (
     "fmt"
-    "time"
  )
 
-templ Index() {
+templ Index(css string) {
     <!DOCTYPE html>
     <html lang="en">
-        @header()
+        @header(css)
         <body hx-ext="ws" ws-connect="/ws">
             <div id="root"></div>
         </body>
@@ -16,10 +15,10 @@ templ Index() {
 
 }
 
-templ Almanac(sensor string) {
+templ Almanac(sensor string, css string) {
     <!DOCTYPE html>
         <html lang="en">
-            @header()
+            @header(css)
             <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
             <body hx-trigger="load" hx-get={ fmt.Sprintf("/%s/1h", sensor)} hx-target="#root">
                 <div id="root"></div>
@@ -28,7 +27,7 @@ templ Almanac(sensor string) {
 }
 
 
-templ header() {
+templ header(css string) {
     <head>
         <meta charset="utf-8" />
         <meta http-equiv="Default-Style" content="blue" />
@@ -48,7 +47,7 @@ templ header() {
         <link rel="apple-touch-icon" sizes="180x180" href="/favicon.ico" />
 
         <title>Weather Lorson Ranch, Colorado Springs</title>
-        <link rel="stylesheet" href={ string(templ.SafeURL("/css/index.css?v=" + fmt.Sprintf("%v",time.Now().Unix()))) } />
+        <link rel="stylesheet" href={ css } />
         <link href="/css/fontawesome.css" rel="stylesheet" />
         <link href="/css/solid.min.css" rel="stylesheet" />
         <script src="/js/htmx.js"></script>

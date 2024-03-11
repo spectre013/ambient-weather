@@ -19,7 +19,8 @@ func (w *Weather) index(wr http.ResponseWriter, r *http.Request) {
 		logger.Error(err)
 	}
 	w.Forecast = forecast
-	_ = Index().Render(r.Context(), wr)
+
+	_ = Index(getCSS()).Render(r.Context(), wr)
 }
 func (w Weather) current(wr http.ResponseWriter, r *http.Request) {
 	props, res, err := w.getCurrent()
@@ -31,11 +32,11 @@ func (w Weather) current(wr http.ResponseWriter, r *http.Request) {
 }
 
 func (w Weather) temperature(wr http.ResponseWriter, r *http.Request) {
-	_ = Almanac("temp").Render(r.Context(), wr)
+	_ = Almanac("temp", getCSS()).Render(r.Context(), wr)
 }
 func (w Weather) forecast(wr http.ResponseWriter, r *http.Request) {
 
-	_ = forecastDetail(w.Forecast, units).Render(r.Context(), wr)
+	_ = forecastDetail(w.Forecast, getCSS(), units).Render(r.Context(), wr)
 }
 
 func (w Weather) temp(wr http.ResponseWriter, r *http.Request) {
@@ -67,7 +68,7 @@ func (w Weather) Alert(wr http.ResponseWriter, r *http.Request) {
 	a.Onset = a.Onset.In(loc)
 	a.Ends = a.Ends.In(loc)
 
-	e := AlertDetail(a, w.Alerts()).Render(r.Context(), wr)
+	e := AlertDetail(a, w.Alerts(), getCSS()).Render(r.Context(), wr)
 	if e != nil {
 		logger.Error(e)
 	}

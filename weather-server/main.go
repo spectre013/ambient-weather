@@ -68,7 +68,7 @@ func main() {
 
 	loc, err = time.LoadLocation("America/Denver")
 	if err != nil {
-		fmt.Println(err)
+		logger.Error(err)
 		return
 	}
 
@@ -102,8 +102,8 @@ func main() {
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
-	log.Println("Starting server on " + os.Getenv("PORT"))
-	log.Fatal(srv.ListenAndServe())
+	logger.Info("Starting server on " + os.Getenv("PORT"))
+	logger.Fatal(srv.ListenAndServe())
 }
 
 func buildWeather(db *sql.DB) Weather {
@@ -217,7 +217,6 @@ func astro() Astro {
 		lat, lng, t.Year(), t.Month(), t.Day(),
 	)
 	elevation := sunrise.Elevation(lat, lng, time.Now())
-	fmt.Printf("%v %v %v %v", rise.Local(), set.Local(), set.Sub(rise), riset.Sub(set))
 	hasSunSet := false
 	if elevation <= 0 {
 		hasSunSet = true
