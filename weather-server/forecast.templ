@@ -23,7 +23,7 @@ templ forecast(data TemplateData) {
     }
 }
 
-templ forecastDetail(forecast *ForecastImage, css string, units string) {
+templ forecastDetail(forecast ForecastImage, css string, units string) {
     <!DOCTYPE html>
         <html lang="en">
             @header(css)

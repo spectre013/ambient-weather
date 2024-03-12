@@ -34,6 +34,8 @@ var units = "imperial"
 var key = []byte("super-secret-key")
 var store = sessions.NewCookieStore(key)
 
+var forecastData ForecastImage
+
 func init() {
 	logger.Out = os.Stdout
 	logger.SetLevel(logrus.InfoLevel)
@@ -111,15 +113,8 @@ func main() {
 }
 
 func buildWeather(db *sql.DB) Weather {
-	//forecast, err := getForecast()
-	//if err != nil {
-	//	logger.Error(err)
-	//}
-
 	return Weather{
-		DB:       db,
-		Forecast: &ForecastImage{},
-		Updated:  time.Now(),
+		DB: db,
 	}
 }
 
@@ -188,23 +183,23 @@ func (w Weather) Minmax() map[string]map[string]map[string]StatValue {
 	return minmax
 }
 
-func getForecast() (*ForecastImage, error) {
+func getForecast() (ForecastImage, error) {
 	url := fmt.Sprintf("https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/Colorado%%20Springs?unitGroup=us&iconSets=icon2&include=days&key=%s&contentType=json", os.Getenv("WEATHER_API"))
 	header := map[string]string{}
 	res, err := makeRequest(url, header)
 	if err != nil {
 		logger.Error(err)
-		return &ForecastImage{}, err
+		return ForecastImage{}, err
 	}
 	f := ForecastImage{}
 	err = json.Unmarshal(res, &f)
 	if err != nil {
 		logger.Error(err)
-		return &f, err
+		return f, err
 	}
 	days := f.Days[1:8]
 	f.Days = days
-	return &f, err
+	return f, err
 }
 
 func astro() Astro {
@@ -258,7 +253,7 @@ func (w Weather) getCurrent() (map[string]BoxProps, TemplateData, error) {
 		Record:   rec,
 		Minmax:   minmax,
 		Alerts:   w.Alerts(),
-		Forecast: ForecastImage{},
+		Forecast: forecastData,
 		Wind:     w.getWind(),
 		Astro:    astro(),
 		tTrend:   w.trend("tempf"),
@@ -364,16 +359,12 @@ func buildBoxProps(units string) map[string]BoxProps {
 	}
 	return box
 }
-func (w *Weather) checkForecast() {
-	dur := time.Since(w.Updated)
-	if dur.Minutes() > 5 {
-		f, err := getForecast()
-		if err != nil {
-			logger.Error(err)
-		}
-		w.Forecast = f
-		w.Updated = time.Now()
+func (w Weather) checkForecast() {
+	f, err := getForecast()
+	if err != nil {
+		logger.Error(err)
 	}
+	forecastData = f
 }
 
 func getHourlyRain(db *sql.DB) float64 {

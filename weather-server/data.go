@@ -7,9 +7,7 @@ import (
 )
 
 type Weather struct {
-	DB       *sql.DB
-	Forecast *ForecastImage
-	Updated  time.Time
+	DB *sql.DB
 }
 
 type BoxProps struct {

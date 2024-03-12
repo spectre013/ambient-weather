@@ -13,27 +13,8 @@ import (
 	"time"
 )
 
-func (w *Weather) index(wr http.ResponseWriter, r *http.Request) {
-	session, err := store.Get(r, "units")
-	if err != nil {
-		errorHandler(err, "Index: ")
-	}
-
-	if session.Values["unit"] == nil {
-		session.Values["unit"] = "imperial"
-		err = session.Save(r, wr)
-		if err != nil {
-			errorHandler(err, "Index: ")
-		}
-	}
-
-	//forecast, err := getForecast()
-	//if err != nil {
-	//	logger.Error(err)
-	//}
-	//
-	//w.Forecast = forecast
-
+func (w Weather) index(wr http.ResponseWriter, r *http.Request) {
+	w.checkForecast()
 	_ = Index(getCSS()).Render(r.Context(), wr)
 }
 
@@ -55,13 +36,6 @@ func (w Weather) setSession(wr http.ResponseWriter, r *http.Request) {
 }
 
 func (w Weather) current(wr http.ResponseWriter, r *http.Request) {
-
-	session, err := store.Get(r, "units")
-	if err != nil {
-		return
-	}
-	units = fmt.Sprintf("%v", session.Values["unit"])
-
 	props, res, err := w.getCurrent()
 	if err != nil {
 		log.Println(err)
@@ -74,8 +48,7 @@ func (w Weather) temperature(wr http.ResponseWriter, r *http.Request) {
 	_ = Almanac("temp", getCSS()).Render(r.Context(), wr)
 }
 func (w Weather) forecast(wr http.ResponseWriter, r *http.Request) {
-
-	_ = forecastDetail(w.Forecast, getCSS(), units).Render(r.Context(), wr)
+	_ = forecastDetail(forecastData, getCSS(), units).Render(r.Context(), wr)
 }
 
 func (w Weather) temp(wr http.ResponseWriter, r *http.Request) {
