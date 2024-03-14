@@ -25,12 +25,35 @@ scan server:
         exit 0
       fi
 
+scan transfer:
+  stage: scan
+  script:
+    - |
+      export PATH=$PATH:/usr/local/go/bin
+      echo "Running Truffle Hog"
+      output="$(trufflehog -j filesystem weather-transfer | jq -C .)"
+      
+      if [ "${output}" != "" ]; then
+        echo "${output}"
+        exit 1
+      else
+        echo "No issues found"
+        exit 0
+      fi
+
 server:
   stage: build docker
   script:
     - cd weather-server
     - docker build -t $DOCKER_REGISTRY/production/weather-server:2.1.1 . --no-cache
     - docker push $DOCKER_REGISTRY/production/weather-server:2.1.1
+
+transfer:
+  stage: build docker
+  script:
+    - cd weather-transfer
+    - docker build -t $DOCKER_REGISTRY/production/weather-transfer:2.0.1 . --no-cache
+    - docker push $DOCKER_REGISTRY/production/weather-transfer:2.0.1
 
 
 
