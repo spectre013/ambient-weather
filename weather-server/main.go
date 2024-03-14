@@ -52,6 +52,9 @@ func main() {
 	logLevel := logrus.InfoLevel
 	if os.Getenv("LOGLEVEL") == "Debug" {
 		logLevel = logrus.DebugLevel
+		for k, v := range os.Environ() {
+			logger.Info(fmt.Sprintf("%d - %s", k, v))
+		}
 	}
 	logger.Info("Setting Debug Level to ", logLevel)
 	logger.SetLevel(logLevel)
@@ -100,7 +103,7 @@ func main() {
 	r.HandleFunc("/setunits/{unit}", loggingMiddleware(weather.setSession))
 	//Index
 	r.HandleFunc("/", loggingMiddleware(weather.index))
-	r.PathPrefix("/").Handler(http.FileServer(http.Dir(os.Getenv("PUBLIC"))))
+	r.PathPrefix("/").Handler(http.FileServer(http.Dir(os.Getenv("ASSETS"))))
 
 	srv := &http.Server{
 		Handler: r,
@@ -127,7 +130,6 @@ func loggingMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			r.Method,
 			r.RequestURI,
 		)
-		// Call the next handler, which can be another middleware in the chain, or the final handler.
 		next.ServeHTTP(w, r)
 	})
 }
