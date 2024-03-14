@@ -1,0 +1,17 @@
+stages:
+  - lint
+  - build docker
+
+lint notify:
+  stage: lint
+  script:
+    - export PATH=$PATH:/usr/local/go/bin
+    - staticcheck ./...
+
+server:
+  stage: build docker
+  script:
+    - docker build -t $DOCKER_REGISTRY/production/weather-transfer:2.1 .
+    - docker push $DOCKER_REGISTRY/production/weather-transfer:2.1
+
+
