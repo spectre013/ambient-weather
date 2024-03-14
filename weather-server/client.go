@@ -39,12 +39,8 @@ var (
 
 // Client is a middleman between the websocket connection and the hub.
 type Client struct {
-	hub *Hub
-
-	// The websocket connection.
+	hub  *Hub
 	conn *websocket.Conn
-
-	// Buffered channel of outbound messages.
 	send chan string
 }
 
@@ -102,6 +98,7 @@ func (c *Client) writePump() {
 			_, _ = w.Write([]byte(message))
 
 			// Add queued chat messages to the current websocket message.
+
 			n := len(c.send)
 			for i := 0; i < n; i++ {
 				_, _ = w.Write(newline)
@@ -122,16 +119,12 @@ func (c *Client) writePump() {
 
 // serveWs handles websocket requests from the peer.
 func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
-	session, err := store.Get(r, "units")
-	if err != nil {
-		errorHandler(err, "Index: ")
-	}
-	units = fmt.Sprintf("%v", session.Values["unit"])
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
+
 	client := &Client{hub: hub, conn: conn, send: make(chan string, 256)}
 	client.hub.register <- client
 

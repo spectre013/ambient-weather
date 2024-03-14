@@ -88,6 +88,7 @@ func main() {
 		logger.Info("Websocket connection")
 		serveWs(hub, w, r)
 	})
+
 	//API
 	r.HandleFunc("/current", loggingMiddleware(weather.current))
 	r.HandleFunc("/temperature", loggingMiddleware(weather.temperature))
@@ -247,7 +248,6 @@ func (w Weather) getCurrent() (map[string]BoxProps, TemplateData, error) {
 	rec.Hourlyrain = hourlyRain
 
 	minmax := w.Minmax()
-	units := "imperial"
 	data := TemplateData{
 		Units:    units,
 		Record:   rec,
