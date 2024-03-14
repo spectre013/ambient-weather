@@ -52,9 +52,6 @@ func main() {
 	logLevel := logrus.InfoLevel
 	if os.Getenv("LOGLEVEL") == "Debug" {
 		logLevel = logrus.DebugLevel
-		for k, v := range os.Environ() {
-			logger.Info(fmt.Sprintf("%d - %s", k, v))
-		}
 	}
 	logger.Info("Setting Debug Level to ", logLevel)
 	logger.SetLevel(logLevel)

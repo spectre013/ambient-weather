@@ -36,12 +36,14 @@ func (w Weather) setSession(wr http.ResponseWriter, r *http.Request) {
 }
 
 func (w Weather) current(wr http.ResponseWriter, r *http.Request) {
-	props, res, err := w.getCurrent()
-	if err != nil {
-		log.Println(err)
-	}
-	//res.Units = units
-	_ = Main(props, res).Render(r.Context(), wr)
+	_, res, err := w.getCurrent()
+	errorHandler(err, "Error getting current weather: ")
+
+	b, err := json.Marshal(res.Record)
+	errorHandler(err, "Error marshalling current weather: ")
+
+	_, err = wr.Write(b)
+	errorHandler(err, "Error writing current weather: ")
 }
 
 func (w Weather) temperature(wr http.ResponseWriter, r *http.Request) {
@@ -55,7 +57,7 @@ func (w Weather) temp(wr http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	t := vars["time"]
 	a := w.Almanac(t)
-	chart := w.Chart(t)
+	chart := w.Chart(t, "temp")
 	_ = tempAlmanac(a, chart, t).Render(r.Context(), wr)
 }
 
@@ -87,8 +89,8 @@ func (w Weather) Alert(wr http.ResponseWriter, r *http.Request) {
 }
 
 func (w Weather) Wind(wr http.ResponseWriter, r *http.Request) {
-
-	_ = windDetail().Render(r.Context(), wr)
+	chart := w.windChart()
+	_ = windDetail(getCSS(), chart).Render(r.Context(), wr)
 }
 
 func (w Weather) Alerts() []Alert {
@@ -217,9 +219,9 @@ type ChartValue struct {
 	Min float64
 }
 
-func (w Weather) Chart(t string) string {
+func (w Weather) Chart(t string, sensor string) string {
 	chart := BuildChart()
-	chartSQL := chartQueries(t)
+	chartSQL := chartQueries(t, sensor)
 
 	rows, err := w.DB.Query(chartSQL)
 	if err != nil {
@@ -259,6 +261,47 @@ func (w Weather) Chart(t string) string {
 		log.Println(err)
 	}
 	return base64.StdEncoding.EncodeToString(b)
+}
+
+func (w Weather) windChart() string {
+
+	chartSQL := `
+		SELECT date_trunc('hour', (recorded at time zone 'mst')) + (floor(date_part('minute', (recorded at time zone 'mst')) / 2) * interval '10 minutes') AS ts,
+			%s as dir
+		FROM records
+			WHERE recorded >= NOW() - interval '1 hour'
+			AND recorded <= NOW()
+		GROUP BY ts, dir
+		order by ts asc
+	`
+
+	rows, err := w.DB.Query(fmt.Sprintf(chartSQL, "winddir"))
+	if err != nil {
+		logger.Error(err)
+	}
+
+	type WindSeries struct {
+		Name string  `json:"name"`
+		Data []int64 `json:"data"`
+	}
+
+	dir := make([]int64, 0)
+	for rows.Next() {
+		var ts time.Time
+		var dirValue int64
+		err := rows.Scan(&ts, &dirValue)
+		sqlError(err, chartSQL)
+		dir = append(dir, dirValue)
+	}
+	s := WindSeries{
+		Name: "Wind Direction",
+		Data: dir,
+	}
+	b, err := json.Marshal(s)
+	if err != nil {
+		log.Println(err)
+	}
+	return string(b)
 }
 
 func BuildChart() ChartData {

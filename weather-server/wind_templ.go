@@ -265,7 +265,33 @@ func Wind(data TemplateData) templ.Component {
 	})
 }
 
-func windDetail() templ.Component {
+func radar(data string) templ.ComponentScript {
+	return templ.ComponentScript{
+		Name: `__templ_radar_9369`,
+		Function: `function __templ_radar_9369(data){var data = JSON.parse(data);
+    var options = {
+              series: [data],
+              chart: {
+              height: 350,
+              type: 'radar',
+            },
+            title: {
+              text: 'Basic Radar Chart'
+            },
+            xaxis: {
+              categories: ['North', 'North East', 'East', 'South East', 'South', 'South West', 'West', 'North West']
+            }
+        };
+        console.log(options);
+        var chart = new ApexCharts(document.querySelector("#chart"), options);
+        chart.render();
+}`,
+		Call:       templ.SafeScript(`__templ_radar_9369`, data),
+		CallInline: templ.SafeScriptInline(`__templ_radar_9369`, data),
+	}
+}
+
+func windDetail(css string, data string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -278,7 +304,23 @@ func windDetail() templ.Component {
 			templ_7745c5c3_Var17 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div>Wind Detail</div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html lang=\"en\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = header(css).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<body><script src=\"https://cdn.jsdelivr.net/npm/apexcharts\"></script><div class=\"header\"><div class=\"title\"><a href=\"/\"><i class=\"fa-solid fa-house\"></i> Lorson Ranch, Colorado Springs, CO</a></div><div class=\"last-update\">Weekly Forecast</div></div><div class=\"wind-detail-container\"><div id=\"chart\"></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = radar(data).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

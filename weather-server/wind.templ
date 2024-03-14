@@ -60,6 +60,40 @@ templ Wind(data TemplateData) {
 </div>
 }
 
-templ windDetail() {
-    <div>Wind Detail</div>
+script radar(data string) {
+    var data = JSON.parse(data);
+    var options = {
+              series: [data],
+              chart: {
+              height: 350,
+              type: 'radar',
+            },
+            title: {
+              text: 'Basic Radar Chart'
+            },
+            xaxis: {
+              categories: ['North', 'North East', 'East', 'South East', 'South', 'South West', 'West', 'North West']
+            }
+        };
+        console.log(options);
+        var chart = new ApexCharts(document.querySelector("#chart"), options);
+        chart.render();
+}
+
+templ windDetail(css string, data string) {
+    <!DOCTYPE html>
+    <html lang="en">
+        @header(css)
+        <body>
+            <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+            <div class="header">
+                <div class="title"><a href="/"><i class="fa-solid fa-house"></i> Lorson Ranch, Colorado Springs, CO</a></div>
+                <div class="last-update"> Weekly Forecast</div>
+            </div>
+            <div class="wind-detail-container">
+            <div id="chart"></div>
+            @radar(data)
+            </div>
+        </body>
+    </html>
 }

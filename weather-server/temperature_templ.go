@@ -184,9 +184,8 @@ func pillSlected(pill string, t string) string {
 
 func getData(data string) templ.ComponentScript {
 	return templ.ComponentScript{
-		Name: `__templ_getData_6514`,
-		Function: `function __templ_getData_6514(data){console.log(atob(data))
-    const chart01 = (data) => {
+		Name: `__templ_getData_c4d1`,
+		Function: `function __templ_getData_c4d1(data){const chart01 = (data) => {
           const chartSelector = document.querySelectorAll("#chartOne");
 
           if (chartSelector.length) {
@@ -198,8 +197,8 @@ func getData(data string) templ.ComponentScript {
 
     chart01(JSON.parse(atob(data)));
 }`,
-		Call:       templ.SafeScript(`__templ_getData_6514`, data),
-		CallInline: templ.SafeScriptInline(`__templ_getData_6514`, data),
+		Call:       templ.SafeScript(`__templ_getData_c4d1`, data),
+		CallInline: templ.SafeScriptInline(`__templ_getData_c4d1`, data),
 	}
 }
 
