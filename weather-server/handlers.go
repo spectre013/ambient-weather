@@ -46,25 +46,31 @@ func (w Weather) current(wr http.ResponseWriter, r *http.Request) {
 	errorHandler(err, "Error writing current weather: ")
 }
 
-func (w Weather) temperature(wr http.ResponseWriter, r *http.Request) {
-	_ = Almanac("temp", getCSS()).Render(r.Context(), wr)
+func (w Weather) almanac(wr http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	category := cleanPathVars(vars["category"])
+	sensor := cleanPathVars(vars["sensor"])
+
+	_ = Almanac(category, sensor, getCSS()).Render(r.Context(), wr)
 }
 func (w Weather) forecast(wr http.ResponseWriter, r *http.Request) {
 	_ = forecastDetail(forecastData, getCSS(), units).Render(r.Context(), wr)
 }
 
-func (w Weather) temp(wr http.ResponseWriter, r *http.Request) {
+func (w Weather) almanacDetail(wr http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	t := vars["time"]
+	category := cleanPathVars(vars["category"])
+	sensor := cleanPathVars(vars["sensor"])
+	t := cleanPathVars(vars["time"])
+
 	a := w.Almanac(t)
-	chart := w.Chart(t, "temp")
-	_ = tempAlmanac(a, chart, t).Render(r.Context(), wr)
+	chart := w.Chart(t, category, sensor)
+	_ = sensorAlmanac(a, sensor, TitleCase(category), chart, t).Render(r.Context(), wr)
 }
 
 func (w Weather) Alert(wr http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
-
 	alertsSql := fmt.Sprintf("select * from alerts where id = '%s'", id)
 
 	a := Alert{}
@@ -86,11 +92,6 @@ func (w Weather) Alert(wr http.ResponseWriter, r *http.Request) {
 	if e != nil {
 		logger.Error(e)
 	}
-}
-
-func (w Weather) Wind(wr http.ResponseWriter, r *http.Request) {
-	chart := w.windChart()
-	_ = windDetail(getCSS(), chart).Render(r.Context(), wr)
 }
 
 func (w Weather) Alerts() []Alert {
@@ -159,7 +160,7 @@ func buildSQL(t string, interval string) string {
 
 	parts := map[string]string{"tempmax": "tempf", "tempmin": "tempf", "feelmax": "feelslike", "feelmin": "feelslike",
 		"humiditymax": "humidity", "humiditymin": "humidity", "baromax": "Baromrelin", "baromin": "Baromrelin",
-		"dewmax": "dewpoint", "dewmin": "dewpoint", "windmax": "windspeedmph", "gustmax": "windgustmph"}
+		"dewmax": "dewpoint", "dewmin": "dewpoint", "windmax": "windspeedmph", "gustmax": "windgustmph", "windmin": "windspeedmph", "gustmin": "windgustmph"}
 	base := "(select '%s' as label, CAST(COALESCE(%s,0.0) AS decimal(10,2)) as value, recorded from records%sorder by %s %s limit 1)"
 	sqlparts := make([]string, 0)
 	for k, v := range parts {
@@ -208,8 +209,17 @@ func (w Weather) Almanac(t string) AlmanacInfo {
 			a.DewpointMax = r
 		case "dewmin":
 			a.DewpointMin = r
+		case "windmax":
+			a.WindMax = r
+		case "windmin":
+			a.WindMin = r
+		case "gustmax":
+			a.WindGustMax = r
+		case "gustmin":
+			a.WindGustMin = r
 		}
 	}
+	logger.Infof("%v", a)
 	return a
 }
 
@@ -219,9 +229,15 @@ type ChartValue struct {
 	Min float64
 }
 
-func (w Weather) Chart(t string, sensor string) string {
+func (w Weather) Chart(t string, category string, sensor string) string {
 	chart := BuildChart()
-	chartSQL := chartQueries(t, sensor)
+	minSensor := sensor
+	maxSensor := sensor
+	if category == "wind" {
+		maxSensor = "windgustmph"
+	}
+
+	chartSQL := chartQueries(t, minSensor, maxSensor)
 
 	rows, err := w.DB.Query(chartSQL)
 	if err != nil {
@@ -236,11 +252,11 @@ func (w Weather) Chart(t string, sensor string) string {
 		ChartValues = append(ChartValues, a)
 	}
 	seriesMax := Series{
-		Name: "Max Temperature",
+		Name: fmt.Sprintf("Max %s", TitleCase(category)),
 		Data: make([]float64, 0),
 	}
 	seriesMin := Series{
-		Name: "Min Temperature",
+		Name: fmt.Sprintf("Min %s", TitleCase(category)),
 		Data: make([]float64, 0),
 	}
 	xcat := make([]string, 0)

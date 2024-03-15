@@ -91,12 +91,11 @@ func main() {
 
 	//API
 	r.HandleFunc("/current", loggingMiddleware(weather.current))
-	r.HandleFunc("/temperature", loggingMiddleware(weather.temperature))
+	r.HandleFunc("/almanac/{category}/{sensor}", loggingMiddleware(weather.almanac))
 	r.HandleFunc("/forecast", loggingMiddleware(weather.forecast))
-	r.HandleFunc("/temp/{time}", loggingMiddleware(weather.temp))
+	r.HandleFunc("/almanac/{category}/{sensor}/{time}", loggingMiddleware(weather.almanacDetail))
 	r.HandleFunc("/alert/{id}", loggingMiddleware(weather.Alert))
 	r.HandleFunc("/alertview/{id}", loggingMiddleware(weather.Alertview))
-	r.HandleFunc("/wind", loggingMiddleware(weather.Wind))
 	r.HandleFunc("/setunits/{unit}", loggingMiddleware(weather.setSession))
 	//Index
 	r.HandleFunc("/", loggingMiddleware(weather.index))

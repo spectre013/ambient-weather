@@ -1,9 +1,5 @@
 package main
 
-import (
-    "fmt"
- )
-
 templ Index(css string) {
     <!DOCTYPE html>
     <html lang="en">
@@ -14,18 +10,6 @@ templ Index(css string) {
     </html>
 
 }
-
-templ Almanac(sensor string, css string) {
-    <!DOCTYPE html>
-        <html lang="en">
-            @header(css)
-            <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-            <body hx-trigger="load" hx-get={ fmt.Sprintf("/%s/1h", sensor)} hx-target="#root">
-                <div id="root"></div>
-            </body>
-        </html>
-}
-
 
 templ header(css string) {
     <head>

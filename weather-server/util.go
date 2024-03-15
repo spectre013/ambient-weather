@@ -1,7 +1,10 @@
 package main
 
 import (
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"math"
+	"regexp"
 	"time"
 )
 
@@ -41,4 +44,14 @@ func toFixed(num float64, precision int) float64 {
 func formatDate(date time.Time) string {
 	format := "2006-01-02 15:04:05 -0700"
 	return date.Format(format)
+}
+
+func cleanPathVars(s string) string {
+	str := regexp.MustCompile(`[^a-zA-Z0-9 ]+`).ReplaceAllString(s, "")
+	return str
+}
+
+func TitleCase(s string) string {
+	c := cases.Title(language.AmericanEnglish)
+	return c.String(s)
 }

@@ -908,7 +908,7 @@ body {
 }
 
 .lastrain,.rate,.year,.month,.hour,.tfhour {
-    font-size: 12px
+    font-size: 10px
 }
 
 .rain-blue {
@@ -1346,7 +1346,7 @@ body {
 }
 
 .box-container-sm .value {
-    font-size: 36px;
+    font-size: 28px;
 }
 
 .box-container-sm .dt {

@@ -80,20 +80,7 @@ script radar(data string) {
         chart.render();
 }
 
-templ windDetail(css string, data string) {
-    <!DOCTYPE html>
-    <html lang="en">
-        @header(css)
-        <body>
-            <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-            <div class="header">
-                <div class="title"><a href="/"><i class="fa-solid fa-house"></i> Lorson Ranch, Colorado Springs, CO</a></div>
-                <div class="last-update"> Weekly Forecast</div>
-            </div>
-            <div class="wind-detail-container">
-            <div id="chart"></div>
-            @radar(data)
-            </div>
-        </body>
-    </html>
-}
+
+
+
+

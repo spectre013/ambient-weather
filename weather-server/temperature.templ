@@ -2,7 +2,6 @@ package main
 
 import (
     "fmt"
-    "time"
 )
 
 
@@ -27,58 +26,3 @@ func pillSlected(pill string, t string) string {
     return ""
 }
 
-script getData(data string) {
-
-    const chart01 = (data) => {
-          const chartSelector = document.querySelectorAll("#chartOne");
-
-          if (chartSelector.length) {
-            const chartOne = new ApexCharts(
-              document.querySelector("#chartOne"),data);
-            chartOne.render();
-          }
-    }
-
-    chart01(JSON.parse(atob(data)));
-}
-
-templ tempAlmanac(info AlmanacInfo, chart string, t string) {
-        <div class="header">
-            <div class="title"><a href="/"><i class="fa-solid fa-house"></i> Lorson Ranch, Colorado Springs, CO</a></div>
-            <div class="last-update"> Temperature Almanac Data</div>
-        </div>
-        <div>
-            <div class="pills">
-                <button hx-trigger="click" hx-get="/temp/1h" hx-target="#root" class={ cssToString("pill", pillSlected("1h", t))}>1 Hour</button>
-                <button hx-trigger="click" hx-get="/temp/6h" hx-target="#root" class={ cssToString("pill", pillSlected("6h", t))}>6 Hours</button>
-                <button hx-trigger="click" hx-get="/temp/1d" hx-target="#root" class={ cssToString("pill", pillSlected("1d", t))}>1 Day</button>
-                <button hx-trigger="click" hx-get="/temp/1m" hx-target="#root" class={ cssToString("pill", pillSlected("1m", t))}>1 Month</button>
-                <button hx-trigger="click" hx-get="/temp/1y" hx-target="#root" class={ cssToString("pill", pillSlected("1y", t))}>1 Year</button>
-                <button hx-trigger="click" hx-get="/temp/at" hx-target="#root" class={ cssToString("pill", pillSlected("at", t))}>All Time</button>
-            </div>
-            <div class="minmax">
-                    @AlmanacValues(info.TempMax, "Temp Max", tempColor(info.TempMax.Value), tempDisplay(info.TempMax.Value, "imperial"), "°")
-                    @AlmanacValues(info.TempMin, "Temp Min", tempColor(info.TempMin.Value), tempDisplay(info.TempMin.Value, "imperial"), "°")
-                    @AlmanacValues(info.FeelMax, "Feel Max", tempColor(info.FeelMax.Value), tempDisplay(info.FeelMax.Value, "imperial"), "°")
-                    @AlmanacValues(info.FeelMin, "Feel Min", tempColor(info.FeelMin.Value), tempDisplay(info.FeelMin.Value, "imperial"), "°")
-                    @AlmanacValues(info.HumidityMax, "Humidity Max", humidityClass(info.HumidityMax.Value), floatDisplay(info.HumidityMax.Value), "%")
-                    @AlmanacValues(info.HumidityMin, "Humidity Min", humidityClass(info.HumidityMax.Value), floatDisplay(info.HumidityMin.Value), "%")
-                    @AlmanacValues(info.BaroMax, "Baro Max", "baroAlmanac", baroDisplay(info.BaroMax.Value,"imperial"), "inHg")
-                    @AlmanacValues(info.BaroMax, "Baro Min", "baroAlmanac", baroDisplay(info.BaroMin.Value,"imperial"), "inHg")
-                    @AlmanacValues(info.DewpointMax, "DewPoint Max", dewPointClass(info.DewpointMax.Value), floatDisplay(info.DewpointMax.Value),"°")
-                    @AlmanacValues(info.DewpointMin, "DewPoint Min", dewPointClass(info.DewpointMin.Value), floatDisplay(info.DewpointMin.Value),"°")
-            </div>
-            <div id="chart">
-                <div id="chartOne"></div>
-                  @getData(chart);
-            </div>
-        </div>
-}
-
-templ AlmanacValues(info AlmanacData, label string, css string, value string, valueLabel string) {
-     <div class="box-container-sm">
-        <div class="toplabel">{ label }</div>
-        <div class={fmt.Sprintf("%s %s","value", css)}>{ value }<span class="rate">{ valueLabel }</span></div>
-        <div class="dt">{ info.Recorded.Local().Format(time.DateTime) }&nbsp;&nbsp;</div>
-     </div>
-}

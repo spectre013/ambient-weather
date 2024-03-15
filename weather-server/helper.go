@@ -348,9 +348,9 @@ func windLabel(units string) string {
 
 func windDisplay(wind float64, units string) string {
 	if units == "ms" {
-		return fmt.Sprintf("%.2f", toFixed(wind/2.237, 0))
+		return fmt.Sprintf("%.f", toFixed(wind/2.237, 0))
 	}
-	return fmt.Sprintf("%.2f", toFixed(wind, 2))
+	return fmt.Sprintf("%.f", toFixed(wind, 0))
 }
 
 func degToCompass(num float64) string {

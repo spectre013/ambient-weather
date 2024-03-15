@@ -12,7 +12,7 @@ templ Main(props map[string]BoxProps, data TemplateData) {
             <div class="last-update">Last update:&nbsp;<span class="update-time">{ timeFormat(data.Record.Recorded) }</span></div>
         </div>
         <div class="container">
-            <a href="/temperature">
+            <a href="/almanac/temperature/tempf">
                 <div class="temperature">
                     @Box("temperature", props["temperature"], temperature(data))
                 </div>
@@ -25,7 +25,7 @@ templ Main(props map[string]BoxProps, data TemplateData) {
             <div class="alerts">
                 @Box("alerts", props["alerts"], AlertBase(len(data.Alerts),0))
             </div>
-            <a href="/wind">
+            <a href="/almanac/wind/windspeedmph">
                 <div class="wind">
                      @Box("wind", props["wind"], Wind(data))
                 </div>
