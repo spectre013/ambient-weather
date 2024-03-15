@@ -476,6 +476,7 @@ type ChartData struct {
 	Labels     Labels       `json:"labels"`
 	Grid       Grid         `json:"grid"`
 	DataLabels DataLabels   `json:"dataLabels"`
+	Tooltip    Tooltip      `json:"tooltip"`
 	Xaxis      Xaxis        `json:"xaxis"`
 	Yaxis      Yaxis        `json:"yaxis"`
 }
@@ -600,6 +601,9 @@ type AxisLabel struct {
 	Style LabelStyle `json:"style"`
 }
 
+type Tooltip struct {
+	Theme string
+}
 type LabelStyle struct {
 	Colors   string `json:"colors"`
 	FontSize string `json:"fontSize"`

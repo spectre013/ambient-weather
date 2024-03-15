@@ -1453,3 +1453,15 @@ body {
     line-height: 150px;
     height: 150px;
 }
+
+#chart {
+    margin-top:10px
+}
+
+.apexcharts-tooltip, .apexcharts-tooltip-title, .apexcharts-yaxistooltip-text {
+    color: silver;
+}
+
+.apexcharts-theme-light, .apexcharts-tooltip-title {
+    background: #000000 !important;
+}

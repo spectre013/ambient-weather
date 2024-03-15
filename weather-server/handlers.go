@@ -331,7 +331,7 @@ func BuildChart() ChartData {
 			UseSeriesColors: true,
 		},
 	}
-
+	chart.Tooltip.Theme = "Dark"
 	chart.Colors = []string{"#ff7c39cc", "#3b9cac"}
 	chart.Chart = ChartDef{
 		FontFamily: "Satoshi, sans-serif",
@@ -392,7 +392,6 @@ func BuildChart() ChartData {
 		Discrete:        []interface{}{},
 		Hover:           Hover{SizeOffset: 5, Size: 0},
 	}
-
 	chart.Xaxis = Xaxis{
 		Type:       "category",
 		Categories: createAxis(1, 60),
