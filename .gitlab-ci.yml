@@ -52,8 +52,8 @@ transfer:
   stage: build docker
   script:
     - cd weather-transfer
-    - docker build -t $DOCKER_REGISTRY/production/weather-transfer:2.0.1 . --no-cache
-    - docker push $DOCKER_REGISTRY/production/weather-transfer:2.0.1
+    - docker build -t $DOCKER_REGISTRY/production/weather-transfer:2.1 . --no-cache
+    - docker push $DOCKER_REGISTRY/production/weather-transfer:2.1
 
 
 

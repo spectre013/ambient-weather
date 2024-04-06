@@ -76,7 +76,6 @@ func main() {
 
 	} else {
 		fmt.Println("Starting cron alert update", os.Getenv("ALERT_CRON"))
-		updateAlerts()
 		aj, err = s.Cron(os.Getenv("ALERT_CRON")).Do(updateAlerts)
 		if err != nil {
 			logger.Error(err)
