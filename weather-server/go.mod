@@ -3,7 +3,7 @@ module git.zoms.net/apps/weather
 go 1.22.0
 
 require (
-	github.com/a-h/templ v0.2.598
+	github.com/a-h/templ v0.2.663
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/sessions v1.2.2
 	github.com/gorilla/websocket v1.5.1
@@ -16,6 +16,6 @@ require (
 
 require (
 	github.com/gorilla/securecookie v1.1.2 // indirect
-	golang.org/x/net v0.22.0 // indirect
-	golang.org/x/sys v0.18.0 // indirect
+	golang.org/x/net v0.24.0 // indirect
+	golang.org/x/sys v0.19.0 // indirect
 )
