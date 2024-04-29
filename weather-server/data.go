@@ -18,15 +18,16 @@ type BoxProps struct {
 }
 
 type TemplateData struct {
-	Units    string
-	Record   Record
-	Minmax   map[string]map[string]map[string]StatValue
-	Alerts   []Alert
-	Forecast ForecastImage
-	Wind     map[string]StatValue
-	Astro    Astro
-	tTrend   Trend
-	bTrend   Trend
+	Units     string
+	Record    Record
+	Minmax    map[string]map[string]map[string]StatValue
+	Alerts    []Alert
+	Forecast  ForecastImage
+	Wind      map[string]StatValue
+	Lightning LightningData
+	Astro     Astro
+	tTrend    Trend
+	bTrend    Trend
 }
 
 // Stat Stat Table structure
@@ -165,7 +166,13 @@ type Record struct {
 	Aqipm2524h        int       `json:"aqipm2524h" db:"aqi24"`
 }
 
-//aqi_pm25=8&aqi_pm25_24h
+type LightningData struct {
+	LightningDay      int       `json:"lightningday"`
+	LightningHour     int       `json:"lightninghour"`
+	LightningDistance float64   `json:"lightningdistance"`
+	LightningTime     time.Time `json:"lightningtime"`
+	LightningMonth    int       `json:"lightningmonth"`
+}
 
 type Alert struct {
 	ID          int       `json:"id"`

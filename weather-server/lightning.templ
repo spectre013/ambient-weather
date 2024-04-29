@@ -10,14 +10,14 @@ templ Lightning(data TemplateData) {
         <div class="laststrike"><span class="lightning-yellow">Last Strike:</span> { data.Record.Lightningtime.Format(time.DateTime) }</div>
         <div class="lhour">
             <div class="lightning-yellow">Hour:</div>
-            <div class={ fmt.Sprintf("%s %s","lightning-value", lightningClass(data.Record.Lightninghour))}>
-                { fmt.Sprintf("%d",data.Record.Lightninghour) }
+            <div class={ fmt.Sprintf("%s %s","lightning-value", lightningClass(data.Lightning.LightningHour))}>
+                { fmt.Sprintf("%d",data.Lightning.LightningHour) }
             </div>
         </div>
         <div class="lday">
             <div class="lightning-yellow">Day:</div>
-            <div class={ fmt.Sprintf("%s %s","lightning-value", lightningClass(data.Record.Lightningday))}>
-                { fmt.Sprintf("%d",data.Record.Lightningday) }
+            <div class={ fmt.Sprintf("%s %s","lightning-value", lightningClass(data.Lightning.LightningDay))}>
+                { fmt.Sprintf("%d",data.Lightning.LightningDay) }
             </div>
         </div>
         <div class="lyesterday">
@@ -28,13 +28,13 @@ templ Lightning(data TemplateData) {
         </div>
         <div class="lmonth">
             <div class="lightning-yellow">{ month(data.Record.Recorded) }:</div>
-            <div class={ fmt.Sprintf("%s %s","lightning-value", lightningClass(int(data.Minmax["lightning"]["max"]["yesterday"].Value)))}>
-                { fmt.Sprintf("%.f", data.Minmax["lightning"]["max"]["yesterday"].Value) }
+            <div class={ fmt.Sprintf("%s %s","lightning-value", lightningClass(data.Lightning.LightningMonth))}>
+                { fmt.Sprintf("%d", data.Lightning.LightningMonth) }
             </div>
         </div>
          <div class="lastd">
             <div class="lightning-yellow">Distance</div>
-            <div class={ fmt.Sprintf("%s %s","lightning-value", distanceClass(int(data.Record.Lightningdistance)))}>
+            <div class={ fmt.Sprintf("%s %s","lightning-value", distanceClass(int(data.Lightning.LightningDistance)))}>
                 { fmt.Sprintf("%.f", data.Record.Lightningdistance) }
             </div>
         </div>

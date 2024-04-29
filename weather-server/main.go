@@ -247,19 +247,42 @@ func (w Weather) getCurrent() (map[string]BoxProps, TemplateData, error) {
 
 	minmax := w.Minmax()
 	data := TemplateData{
-		Units:    units,
-		Record:   rec,
-		Minmax:   minmax,
-		Alerts:   w.Alerts(),
-		Forecast: forecastData,
-		Wind:     w.getWind(),
-		Astro:    astro(),
-		tTrend:   w.trend("tempf"),
-		bTrend:   w.trend("baromabsin"),
+		Units:     units,
+		Record:    rec,
+		Minmax:    minmax,
+		Alerts:    w.Alerts(),
+		Forecast:  forecastData,
+		Wind:      w.getWind(),
+		Lightning: w.getLightning(rec),
+		Astro:     astro(),
+		tTrend:    w.trend("tempf"),
+		bTrend:    w.trend("baromabsin"),
 	}
 	box := buildBoxProps(units)
 
 	return box, data, nil
+}
+
+func (w Weather) getLightning(data Record) LightningData {
+	l := LightningData{}
+	s := `SELECT SUM(A.value) as value
+			FROM (SELECT TO_CHAR(recorded,'YYY-MM-DD') as ldate, 
+				  MAX(lightningday) as value 
+				  FROM records 
+				  where recorded between '04-01-2024' and '04-30-2024' 
+			GROUP BY ldate) A`
+	rows := w.DB.QueryRow(s)
+	lightningMonth := 0
+	err := rows.Scan(&lightningMonth)
+	sqlError(err, "Error Getting Record: ")
+
+	l.LightningMonth = lightningMonth
+	l.LightningDay = data.Lightningday
+	l.LightningHour = data.Lightninghour
+	l.LightningTime = data.Lightningtime
+	l.LightningDistance = data.Lightningdistance
+
+	return l
 }
 
 func buildBoxProps(units string) map[string]BoxProps {
