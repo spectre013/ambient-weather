@@ -6,14 +6,9 @@ package main
 
 import (
 	"bytes"
-	"context"
-	"fmt"
 	"log"
 	"net/http"
-	"strings"
 	"time"
-
-	"github.com/a-h/templ"
 
 	"github.com/gorilla/websocket"
 )
@@ -39,9 +34,13 @@ var (
 
 // Client is a middleman between the websocket connection and the hub.
 type Client struct {
-	hub  *Hub
+	hub *Hub
+
+	// The websocket connection.
 	conn *websocket.Conn
-	send chan string
+
+	// Buffered channel of outbound messages.
+	send chan []byte
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -66,7 +65,7 @@ func (c *Client) readPump() {
 			break
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-		c.hub.broadcast <- string(message)
+		c.hub.broadcast <- message
 	}
 }
 
@@ -95,14 +94,13 @@ func (c *Client) writePump() {
 			if err != nil {
 				return
 			}
-			_, _ = w.Write([]byte(message))
+			_, _ = w.Write(message)
 
 			// Add queued chat messages to the current websocket message.
-
 			n := len(c.send)
 			for i := 0; i < n; i++ {
 				_, _ = w.Write(newline)
-				_, _ = w.Write([]byte(<-c.send))
+				_, _ = w.Write(<-c.send)
 			}
 
 			if err := w.Close(); err != nil {
@@ -124,8 +122,7 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-
-	client := &Client{hub: hub, conn: conn, send: make(chan string, 256)}
+	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
 	client.hub.register <- client
 
 	// Allow collection of memory referenced by the caller by doing all work in
@@ -133,19 +130,9 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	go client.writePump()
 	go client.readPump()
 	// send initial output to clients then enter the loop to send every 30 seconds
-	box, m, err := hub.weather.getCurrent()
+	m, err := getCurrent()
 	if err != nil {
 		log.Println(err)
 	}
-	content := Main(box, m)
-	hub.broadcast <- RenderTempl(content)
-}
-
-func RenderTempl(tmp templ.Component) string {
-	w := new(strings.Builder)
-	err := tmp.Render(context.Background(), w)
-	if err != nil {
-		logger.Error(fmt.Errorf("failed to render: %v", err))
-	}
-	return w.String()
+	hub.broadcast <- m
 }

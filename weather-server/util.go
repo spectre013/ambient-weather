@@ -1,12 +1,41 @@
 package main
 
 import (
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 	"math"
 	"regexp"
 	"time"
 )
+
+func heatIndex(T float64, humidity int) float64 {
+	RH := float64(humidity)
+	feelsLike := -42.379 + 2.04901523*T + 10.14333127*RH - .22475541*T*RH - .00683783*T*T - .05481717*RH*RH + .00122874*T*T*RH + .00085282*T*RH*RH - .00000199*T*T*RH*RH
+	if RH < 13 && (T >= 80 && T <= 112) {
+		feelsLike = feelsLike - ((13-RH)/4)*math.Sqrt((17-math.Abs(T-95.))/17)
+		if RH > 85 && (T >= 80 && T <= 87) {
+			feelsLike = feelsLike + ((RH-85)/10)*((87-RH)/5)
+		}
+	}
+	return toFixed(feelsLike, 2)
+}
+
+func windChill(temperature float64, windSpeed float64) float64 {
+	if windSpeed < 3 || temperature > 50 {
+		return temperature
+	}
+
+	windChill := 35.74 + 0.6215*temperature - 35.75*math.Pow(windSpeed, 0.16) + 0.4275*temperature*math.Pow(windSpeed, 0.16)
+	return toFixed(windChill, 2)
+}
+
+func dewpoint(temp float64, humidity int) float64 {
+	tc := (temp - 32) * 5 / 9
+	L := math.Log(float64(humidity) / 100)
+	M := 17.27 * tc
+	N := 237.3 + tc
+	B := (L + (M / N)) / 17.27
+	dp := (237.3 * B) / (1 - B)
+	return toFixed((dp*9/5)+32, 2)
+}
 
 func getTimeframe(timeframe string) []time.Time {
 	loc, err := time.LoadLocation("America/Denver")
@@ -41,17 +70,13 @@ func toFixed(num float64, precision int) float64 {
 	return float64(round(num*output)) / output
 }
 
+func cleanString(s string) string {
+	reg := regexp.MustCompile("[^a-zA-Z0-9 -]")
+	replaceStr := reg.ReplaceAllString(s, "")
+	return replaceStr
+}
+
 func formatDate(date time.Time) string {
 	format := "2006-01-02 15:04:05 -0700"
 	return date.Format(format)
-}
-
-func cleanPathVars(s string) string {
-	str := regexp.MustCompile(`[^a-zA-Z0-9 ]+`).ReplaceAllString(s, "")
-	return str
-}
-
-func TitleCase(s string) string {
-	c := cases.Title(language.AmericanEnglish)
-	return c.String(s)
 }

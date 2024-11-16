@@ -1,0 +1,47 @@
+.sun-container {  display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 0.5fr 2fr 0.5fr;
+    gap: 0px 0px;
+    grid-auto-flow: row;
+    grid-template-areas:
+    "daylight . darkness"
+    "remaining remaining remaining"
+    "rise elevation set";
+}
+
+.daylight { grid-area: daylight; }
+
+.darkness { grid-area: darkness; }
+
+.remaining { grid-area: remaining; }
+
+.rise { grid-area: rise; }
+
+.set { grid-area: set; }
+
+.elevation { grid-area: elevation; }
+
+.daylight, .darkness, .set, .rise, .elevation {
+    font-size: 12px;
+}
+
+.remaining {
+    margin-top: 20px;
+    font-size: 24px;
+
+}
+
+.riseclr {
+    color: #01a4b5;
+}
+.setclr {
+        color: #ff7c39;
+}
+
+.sunabove {
+    color: rgba(208, 95, 45, .7);
+}
+
+.sunbelow {
+    color: rgba(74, 99, 111, .8);
+}

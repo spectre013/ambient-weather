@@ -1,0 +1,76 @@
+#root {
+  margin: 0 auto;
+  text-align: center;
+}
+
+@font-face {
+  font-family: clock;
+  src:
+          url(/fonts/clock3-webfont.woff) format("woff"),
+          url(/fonts/clock3.ttf) format("truetype")
+}
+
+@font-face {
+  font-family: weathertext;
+  src:
+          url(/fonts/verbatim-regular.woff) format("woff"),
+          url(/fonts/verbatim-regular.woff2) format("woff2"),
+          url(/fonts/verbatim-regular.ttf) format("truetype")
+}
+
+@font-face {
+  font-family: weathericon;
+  src:
+          url(/fonts/weathericons-regular-webfont.woff) format("woff"),
+          url(/fonts/weathericons-regular-webfont.ttf) format("truetype")
+}
+
+
+html {
+  display: table;
+  margin: auto;
+  padding: 10px;
+  background-color: #151819;
+  color: silver;
+  font-family: weathertext, sans-serif;
+}
+
+body {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+
+@media screen and (max-width:740px) and (orientation:portrait) {
+  .forecast {
+    display: none;
+  }
+}
+
+.container {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  column-gap: 10px;
+  row-gap: 10px;
+
+}
+
+.title {
+  text-align: left;
+  font-size: 24px;
+  line-height: 24px;
+}
+
+.last-update {
+  line-height: 24px;
+}
+.update-time {
+  color: orangered;
+}
+
+.header {
+  display: flex;
+  margin: 10px;
+  justify-content: space-between;
+}
