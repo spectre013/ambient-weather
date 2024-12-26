@@ -485,6 +485,7 @@ func (w Weather) trend(t string) Trend {
 	}
 	return trend
 }
+
 func (w Weather) getWind() map[string]StatValue {
 
 	dates := getTimeframe("day")

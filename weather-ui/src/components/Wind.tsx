@@ -1,26 +1,19 @@
-import { Current } from "../models/current";
-import { Wind } from "../models/Wind";
+import { WindData } from "../models/current";
 import BoxData from "./BoxData";
 import moment from "moment";
 import WindRun from "../assets/WindRun.svg"
 import * as weather from '../util/weather'
 import './Wind.css'
 export interface Props {
-    live: Current
-    wind: Wind
+    wind: WindData
     units: string
 }
 
 
 const WindBox = (props:Props) => {
-
     function timeFormat(date: string) {
         return moment(date).format('HH:mm');
     }
-
-    // function toKTS(speed: number) {
-    //     return (speed / 1.15).toFixed(2);
-    // }
 
     function degToCompass(num: number) {
         const val = Math.floor(num / 22.5 + 0.5);
@@ -46,15 +39,14 @@ const WindBox = (props:Props) => {
     }
 
     function windRun(): number {
-        const run = props.wind.avg.value * moment().hours();
-        return run;
+        return props.wind.minmax.avg.day.value * moment().hours();
     }
 
 
     function getBeaufort() {
-        let windkts = props.live.windspeedmph;
-        if (props.live.windspeedmph > 0) {
-            windkts = props.live.windspeedmph / 1.151;
+        let windkts = props.wind.windspeedmph;
+        if (props.wind.windspeedmph > 0) {
+            windkts = props.wind.windspeedmph / 1.151;
         }
         let beaufort = 1;
         if (windkts >= 64) {
@@ -201,7 +193,7 @@ const WindBox = (props:Props) => {
                 </div>
                 <div className="maxgust">
                     <span className={beaufortClass()}>Max Gust:</span>
-                    <div>{ props.wind.gust.value} { weather.windLabel(props.units) } [{ timeFormat(props.wind.gust.date) }]</div>
+                    <div>{ props.wind.minmax.max.day.value} { weather.windLabel(props.units) } [{ timeFormat(props.wind.minmax.max.day.date) }]</div>
                 </div>
                 <div className="windrun">
                     <div className="windrun1">Wind Run</div>
@@ -212,21 +204,21 @@ const WindBox = (props:Props) => {
                 </div>
                 <div className="current">
                     <div className={`arrow ${beaufortClass()}`}
-                         style={{transform: `rotate(${props.live.winddir}deg)`}}>
+                         style={{transform: `rotate(${props.wind.winddir}deg)`}}>
                         <i className="fa-solid fa-arrow-up"></i>
                     </div>
                     <div>
-                    { props.live.winddir }&deg; &nbsp;&nbsp;
-                        { degToCompass(props.live.winddir) }
+                    { props.wind.winddir }&deg; &nbsp;&nbsp;
+                        { degToCompass(props.wind.winddir) }
                     </div>
                     <div className="conditions">
                         <div className="current">
                             <div className="windunitidspeed">Wind</div>
-                            { weather.windDisplay(props.live.windspeedmph, props.units) }&nbsp;{ weather.windLabel(props.units) }
+                            { weather.windDisplay(props.wind.windspeedmph, props.units) }&nbsp;{ weather.windLabel(props.units) }
                         </div>
                         <div className="gusts">
                             <div className="windunitidspeed">Gust</div>
-                            { weather.windDisplay(props.live.windgustmph, props.units) }&nbsp;{ weather.windLabel(props.units) }
+                            { weather.windDisplay(props.wind.windgustmph, props.units) }&nbsp;{ weather.windLabel(props.units) }
                         </div>
                     </div>
                 </div>

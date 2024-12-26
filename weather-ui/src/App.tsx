@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 import {Current} from "./models/current";
-import { MinMax } from "./models/minmax";
-import { Wind as WindModel } from "./models/Wind";
 import { ForecastModel } from "./models/Forecast.ts"
 import Temperature  from "./components/Temperature.tsx";
 import AlertInfo from "./components/AlertInfo.tsx";
@@ -13,30 +11,19 @@ import moment from "moment";
 import Rain from "./components/Rain.tsx";
 import Humidity from "./components/Humidity.tsx";
 import Barometer from "./components/Barometer.tsx";
-import {Trend} from "./models/Trend.ts";
 import Sun from "./components/Sun.tsx";
-import {Luna} from "./models/Luna.ts";
 import Aqi from "./components/Aqi.tsx";
 import Uv from "./components/Uv.tsx";
-import {Alert} from "./models/Alert.ts";
 import Lightning from "./components/Lightning.tsx";
 
 function App() {
-    const [minmax, setMinMax] = useState<MinMax>();
-    const [alerts, setAlerts] = useState<Alert[]>([]);
+    const [cLoaded, setCLoaded] = useState(false);
+    const [fLoaded, setFLoaded] = useState(false);
     const [forecast, setForecast] = useState<ForecastModel>({} as ForecastModel);
-    const [live, setLive] = useState<Current>({} as Current);
+    const [conditions, setConditions] = useState<Current>({} as Current);
     const [units, setUnits] = useState<string>("imperial");
-    const [wind, setWind] = useState<WindModel>({} as WindModel);
-    const [barTrend, setBarTrend] = useState<Trend>({} as Trend);
-    const [luna, setLuna] = useState<Luna>({} as Luna);
 
-    const alertURL = "/api/alerts";
-    const TempMinmaxURL = "/api/minmax/tempf";
     const forecastURL = "/api/forecast";
-    const BarTrendURL = "/api/trend/baromrelin";
-    const windURL = "/api/wind";
-    const lunaURL = "/api/luna";
 
 
         useEffect(() => {
@@ -60,7 +47,8 @@ function App() {
             });
             // Listen for messages
             connection.addEventListener('message', (event) => {
-                setLive(JSON.parse(event.data));
+                setConditions(JSON.parse(event.data));
+                setCLoaded(true);
             });
 
             connection.onerror = function (error) {
@@ -72,88 +60,80 @@ function App() {
             const dataFetch = async () => {
                 const result = (
                     await Promise.all([
-                        fetch(alertURL),
-                        fetch(TempMinmaxURL),
                         fetch(forecastURL),
-                        fetch(windURL),
-                        fetch(BarTrendURL),
-                        fetch(lunaURL)
                     ])
                 ).map((r) => r.json());
 
-                const [alertResult, minmaxResult, forecastResult,windResult,
-                        barTrendResult, lunaResults
-                        ] = await Promise.all(
+                const [forecastResult] = await Promise.all(
                     result
                 );
-
                 // when the data is ready, save it to state
-                setAlerts(alertResult);
-                setMinMax(minmaxResult);
                 setForecast(forecastResult);
-                setWind(windResult);
-                setBarTrend(barTrendResult);
-                setLuna(lunaResults)
-
+                setFLoaded(true);
             }
-            dataFetch();
+
+
+            dataFetch().then(() => {
+            });
         }, []);
-        console.log(live)
-        if (!alerts || !minmax || !forecast || !wind || !Object.hasOwn(live, 'date')) return 'loading';
+
+        if (!cLoaded || !fLoaded) {
+            return 'loading';
+        }
 
         return (
             <>
                 <div className="header">
                     <div className="title"><i className="fa-solid fa-house"></i> Lorson Ranch, Colorado Springs, CO</div>
                     <div className="last-update">Last update:&nbsp;
-                        <span className="update-time">{moment(live.date).format('HH:mm:ss')}</span>
+                        <span className="update-time">{moment(conditions.date).format('HH:mm:ss')}</span>
                     </div>
                 </div>
                 <div className="container">
                     <div className="tempurature">
-                        <Temperature live={live} icon={forecast.days[0].icon} units={units} avg={minmax as MinMax}/>
+                        <Temperature temp={conditions.temp} icon={forecast.days[0].icon} units={units} />
                     </div>
                     <div className="forecast">
                         <Forecast forecast={forecast} units={units}/>
                     </div>
                     <div className="alert">
-                        <AlertInfo alerts={alerts}/>
+                        <AlertInfo alerts={conditions.alert}/>
                     </div>
                     <div className="wind">
-                        <Wind live={live} wind={wind} units={units}/>
+                        <Wind wind={conditions.wind} units={units}/>
                     </div>
                     <div className="rain">
-                        <Rain live={live} units={units}/>
+                        <Rain rain={conditions.rain} units={units}/>
                     </div>
                     <div className="lightning">
-                        <Lightning live={live} units={units}/>
+                        <Lightning lightning={conditions.lightning} date={conditions.date} units={units}/>
                     </div>
                     <div className="humidity">
-                        <Humidity live={live} units={units}/>
+                        <Humidity humidity={conditions.humidity} units={units}/>
                     </div>
                     <div className="baro">
-                        <Barometer live={live} trend={barTrend} units={units}/>
+                        <Barometer baro={conditions.barometer} units={units}/>
                     </div>
                     <div className="sun">
-                        <Sun luna={luna}/>
+                        <Sun astro={conditions.astro} units={units}/>
                     </div>
                     <div className="uv">
-                        <Uv live={live} luna={luna} units={units}/>
+                        <Uv uv={conditions.uv} astro={conditions.astro} units={units}/>
                     </div>
                     <div className="aq">
-                        <Aqi live={live} units={units}/>
+                        <Aqi aqi={conditions.aqi} units={units}/>
                     </div>
                     <div className="living">
-                        <Tempin live={live} sensor="in" area="Living" units={units}/>
+                        <Tempin temp={conditions.tempin} area="Living" units={units}/>
                     </div>
                     <div className="master">
-                        <Tempin live={live} sensor="2" area="Master" units={units}/>
+                        <Tempin temp={conditions.temp1} area="Master" units={units}/>
                     </div>
                     <div className="office">
-                        <Tempin live={live} sensor="3" area="Office" units={units}/>
+                        <Tempin temp={conditions.temp2} area="Office" units={units}/>
                     </div>
                     <div className="basement">
-                        <Tempin live={live} sensor="1" area="Basement" units={units}/>
+                        <Tempin temp={conditions.temp3} area="Basement" units={units}/>
                     </div>
                 </div>
 

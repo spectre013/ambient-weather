@@ -1,18 +1,13 @@
-import { Current } from "../models/current";
+import { AirQualityIndex } from "../models/current";
 import BoxData from "./BoxData";
-import { MinMax } from "../models/minmax";
 import "./Aqi.css";
-import {useEffect, useState} from "react";
 
 export interface Props {
-    live: Current
+    aqi: AirQualityIndex
     units: string
 }
 
 const Aqi = (props:Props) => {
-    const [minmax, setMinMax] = useState<MinMax>({"avg":{"day":{"value":68.53,"date":"2021-02-26T16:34:36Z"},"month":{"value":68.14,"date":"2021-02-26T16:34:36Z"},"year":{"value":68.68,"date":"2021-02-26T16:34:36Z"},"yesterday":{"value":67.9,"date":"2021-02-26T16:34:36Z"}},"max":{"day":{"value":70.9,"date":"2023-11-11T23:23:24Z"},"month":{"value":72.7,"date":"2023-11-06T01:31:55Z"},"year":{"value":73.6,"date":"2023-07-26T00:45:54Z"},"yesterday":{"value":69.6,"date":"2023-11-11T04:41:15Z"}},"min":{"day":{"value":66.9,"date":"2023-11-11T16:00:15Z"},"month":{"value":62.6,"date":"2023-11-05T12:36:59Z"},"year":{"value":0,"date":"2023-09-04T02:26:40Z"},"yesterday":{"value":66.2,"date":"2023-11-10T16:23:38Z"}}});
-    const minmaxURL = "/api/minmax/aqipm25";
-
 
     const categories = [
         {max: 50, color: "green", name: "Good"},
@@ -22,24 +17,6 @@ const Aqi = (props:Props) => {
         {max: 300, color: "purple", name: "Very unhealthy"},
         {max: 500, color: "maroon", name: "Hazardous"}
     ]
-
-    useEffect(() => {
-        const dataFetch = async () => {
-            const result = (
-                await Promise.all([
-                    fetch(minmaxURL),
-                ])
-            ).map((r) => r.json());
-
-            const [ minmaxResult ] = await Promise.all(
-                result
-            );
-
-            // when the data is ready, save it to state
-            setMinMax(minmaxResult);
-        }
-        dataFetch();
-    }, []);
 
     function getDetails(aqi: number) {
         if(aqi < 0 || (aqi >= 0 && aqi <= 50)) {
@@ -98,19 +75,19 @@ const Aqi = (props:Props) => {
             <>
                 <div className="aqi-container">
                     <div className="aqi-wrap">
-                        <div className={`aqi-text ${getDetails(Aqi(props.live.aqipm2524h)).color}`}>
-                            { Aqi(props.live.aqipm2524h) }
+                        <div className={`aqi-text ${getDetails(Aqi(props.aqi.pm2524h)).color}`}>
+                            { Aqi(props.aqi.pm2524h) }
                         </div>
                         <div className="status">
-                            <div>{getDetails(Aqi(props.live.aqipm2524h)).name}</div>
-                            <div>{(props.live.aqipm25)} µg/m3</div>
+                            <div>{getDetails(Aqi(props.aqi.pm2524h)).name}</div>
+                            <div>{(props.aqi.pm25)} µg/m3</div>
                         </div>
                     </div>
                     <div className="aqimax">
-                        Max: <span className={getDetails(Aqi(minmax.max.day.value)).color}>{ Aqi(minmax.max.day.value) }</span>
+                        Max: <span className={getDetails(Aqi(props.aqi.minmax.max.day.value)).color}>{ Aqi(props.aqi.minmax.max.day.value) }</span>
                     </div>
                     <div className="aqimin">
-                        Min: <span className={getDetails(Aqi(minmax.min.day.value)).color}>{ Aqi(minmax.min.day.value) }</span>
+                        Min: <span className={getDetails(Aqi(props.aqi.minmax.min.day.value)).color}>{ Aqi(props.aqi.minmax.min.day.value) }</span>
                     </div>
                 </div>
             </>

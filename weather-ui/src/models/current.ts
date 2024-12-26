@@ -1,79 +1,149 @@
 export interface Current {
-    id: number
-    mac: string
-    date: string
-    baromabsin: number
-    baromrelin: number
-    battout: number
-    batt1: number
-    batt2: number
-    batt3: number
-    batt4: number
-    batt5: number
-    batt6: number
-    batt7: number
-    batt8: number
-    batt9: number
-    batt10: number
-    battlightning: number
-    co2: number
-    dailyrainin: number
-    dewpoint: number
-    eventrain: number
-    feelslike: number
-    hourlyrainin: number
-    hourlyrain: number
-    humidity: number
-    humidity1: number
-    humidity2: number
-    humidity3: number
-    humidity4: number
-    humidity5: number
-    humidity6: number
-    humidity7: number
-    humidity8: number
-    humidity9: number
-    humidity10: number
-    humidityin: number
-    lastrain: string
-    maxdailygust: number
-    relay1: number
-    relay2: number
-    relay3: number
-    relay4: number
-    relay5: number
-    relay6: number
-    relay7: number
-    relay8: number
-    relay9: number
-    relay10: number
-    monthlyrainin: number
-    solarradiation: number
-    tempf: number
-    temp1f: number
-    temp2f: number
-    temp3f: number
-    temp4f: number
-    temp5f: number
-    temp6f: number
-    temp7f: number
-    temp8f: number
-    temp9f: number
-    temp10f: number
-    tempinf: number
-    totalrainin: number
-    uv: number
-    weeklyrainin: number
-    winddir: number
-    windgustmph: number
-    windgustdir: number
-    windspeedmph: number
-    yearlyrainin: number
-    lightningday: number
-    lightninghour: number
-    lightningdistance: number
-    lightningtime: string
-    lightningmonth: number
-    aqipm25: number
-    aqipm2524h: number
+    id: number;
+    mac: string;
+    date: string;
+    barometer: BaroData;
+    humidity: HumidityData;
+    temp: TempData;
+    tempin: TemperatureData;
+    temp1: TemperatureData;
+    temp2: TemperatureData;
+    temp3: TemperatureData;
+    rain: RainData;
+    lightning: LightningData;
+    aqi: AirQualityIndex;
+    wind: WindData;
+    uv: UVData;
+    astro: AstroData;
+    alert: Alert[];
+}
+
+export interface minmax {
+    avg: minmaxStats;
+    max: minmaxStats;
+    min: minmaxStats;
+}
+
+export interface minmaxStats {
+    day: StatDetails;
+    month: StatDetails;
+    year: StatDetails;
+    yesterday: StatDetails;
+}
+
+export interface StatDetails {
+    value: number;
+    date: string;
+}
+
+export interface BaroData {
+    baromabsin: number;
+    baromrelin: number;
+    minmax: minmax;
+    trend: TrendData;
+}
+
+export interface HumidityData {
+    humdity: number;
+    dewpoint: number;
+    minmax: minmax;
+}
+
+export interface TrendData {
+    trend: string;
+    by: number;
+}
+
+export interface TempData {
+    temp: number;
+    humidity: number;
+    battout: number;
+    feelslike: number;
+    dewpoint: number;
+    minmax: minmax;
+}
+
+export interface TemperatureData {
+    temp: number;
+    humidity: number;
+    battout: number;
+    minmax: minmax;
+}
+
+export interface RainData {
+    daily: number;
+    event: number;
+    hourly: number;
+    yearly: number;
+    monthly: number;
+    weekly: number;
+    total: number;
+    lastrain: string;
+}
+
+export interface LightningData {
+    day: number;
+    hour: number;
+    distance: number;
+    time: string;
+    month: number;
+    minmax: minmax;
+}
+
+export interface AirQualityIndex {
+    pm25: number;
+    pm2524h: number;
+    minmax: minmax;
+}
+
+export interface WindData {
+    winddir: number;
+    windgustmph: number;
+    windgustdir: number;
+    windspeedmph: number;
+    maxdailygust: number;
+    windavg: number;
+    minmax: minmax;
+}
+
+export interface UVData {
+    uv: number;
+    solarradiation: number;
+    minmax: minmax;
+}
+
+export interface AstroData {
+    sunrise: string;
+    sunset: string;
+    sunriseTomorrow: string;
+    sunsetTomorrow: string;
+    darkness: number;
+    daylight: number;
+    elevation: number;
+    hasSunset: boolean;
+}
+
+export interface Alert {
+    id: number;
+    alertid: string;
+    wxtype: string;
+    areadesc: string;
+    sent: string;
+    effective: string;
+    onset: string;
+    expires: string;
+    end: string;
+    status: string;
+    messagetype: string;
+    category: string;
+    severity: string;
+    certainty: string;
+    urgency: string;
+    event: string;
+    sender: string;
+    senderName: string;
+    headline: string;
+    description: string;
+    instruction: string;
+    response: string;
 }

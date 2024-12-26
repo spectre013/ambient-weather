@@ -87,7 +87,7 @@ func main() {
 	logger.Info(aj.NextRun())
 
 	s.StartAsync()
-
+	calculateStats()
 	e := echo.New()
 	e.GET("/", index)
 	e.GET("/api/receiver", ambientin)
@@ -338,7 +338,7 @@ func calculateStats() {
 				WHERE
 					stats.id = '%s';
 			`, d, v.Query, k)
-			//logger.Debug(updateQuery)
+			logger.Debug(updateQuery)
 			_, err := tx.Exec(updateQuery)
 			if err != nil {
 				logger.Debug(updateQuery)
@@ -354,7 +354,7 @@ func calculateStats() {
 				%s
 				%s
 			`, insert, v.Query)
-			//logger.Debug(updateQuery)
+			logger.Debug(updateQuery)
 			_, err := tx.Exec(updateQuery)
 			if err != nil {
 				logger.Debug(updateQuery)

@@ -3,9 +3,11 @@ import {Luna} from "../models/Luna.ts";
 import "./Sun.css"
 import moment, {Moment} from "moment";
 import {timeFormat} from "../util/weather.ts";
+import {AstroData} from "../models/current.ts";
 
 export interface Props {
-    luna: Luna
+    astro: AstroData
+    units: string
 }
 
 export interface times {
@@ -19,7 +21,7 @@ const Sun = (props:Props) => {
         return moment().startOf('day').hour(parseInt(h[0])).minute(parseInt(h[1]));
     }
     function todayTomorrow(type: string): string {
-        const eventTime = props.luna[type as keyof Luna];
+        const eventTime = props.astro[type as keyof AstroData];
         const event = setDateTime(eventTime as string);
         if (moment() > event) {
             return 'Tomorrow';
@@ -77,7 +79,6 @@ const Sun = (props:Props) => {
         const sunriseTomorrow = moment(luna.sunriseTomorrow).utc();
 
         if (hasSunSet) {
-            console.log("Sun has Set?", hasSunSet)
             if (now.day() == sunrise.day()) {
                 t = sunrise;
             } else {
@@ -86,11 +87,8 @@ const Sun = (props:Props) => {
         }
 
         if (!hasSunSet) {
-            console.log("senset?", hasSunSet)
             t = sunset;
         }
-        console.log("now", now)
-        console.log("sunrise", t)
         const times :times = durationToHoursMinutes(moment.duration(t.diff(now)).asSeconds())
         return times[part]
     }
@@ -99,36 +97,36 @@ const Sun = (props:Props) => {
         <BoxData icon="fa-sun" title="Sun" unit="" style={{}}>
             <div className="sun-container">
                 <div className="daylight">
-                    <div><span className="riseclr">{getFullTime(props.luna.daylight)}</span></div>
+                    <div><span className="riseclr">{getFullTime(props.astro.daylight)}</span></div>
                     <div>Total Daylight</div>
                 </div>
                 <div className="darkness">
                     <div>
-                        <span className="setclr">{getFullTime(props.luna.darkness)}</span>
+                        <span className="setclr">{getFullTime(props.astro.darkness)}</span>
                     </div>
                     <div>Total Darkness</div>
                 </div>
                 <div className="remaining">
                     <div className="daylightvalue1">
-                        <div>{hasSunSetText(props.luna.hasSunset)}</div>
-                        <div><span className={riseSetClass(props.luna.hasSunset)}>{getTime("hours", props.luna.hasSunset, props.luna)}</span> hrs&nbsp;
-                            <span className={riseSetClass(props.luna.hasSunset)}>{getTime("minutes", props.luna.hasSunset, props.luna)}</span> min
+                        <div>{hasSunSetText(props.astro.hasSunset)}</div>
+                        <div><span className={riseSetClass(props.astro.hasSunset)}>{getTime("hours", props.astro.hasSunset, props.astro)}</span> hrs&nbsp;
+                            <span className={riseSetClass(props.astro.hasSunset)}>{getTime("minutes", props.astro.hasSunset, props.astro)}</span> min
                         </div>
                     </div>
                 </div>
                 <div className="rise">
                     <div>Sun Rise</div>
                     <div>{todayTomorrow("sunrise")}</div>
-                    <div className="riseclr">{timeFormat(props.luna.sunrise)}</div>
+                    <div className="riseclr">{timeFormat(props.astro.sunrise)}</div>
                 </div>
                 <div className="set">
                     <div>Sun Set</div>
                     <div>{todayTomorrow("sunset")}</div>
-                    <div className="setclr">{timeFormat(props.luna.sunrise)}</div>
+                    <div className="setclr">{timeFormat(props.astro.sunrise)}</div>
                 </div>
                 <div className="elevation">
                     <div>Elevation:</div>
-                    <div className={sunBelow(props.luna.hasSunset)}>{props.luna.elevation.toFixed(2)}</div>
+                    <div className={sunBelow(props.astro.hasSunset)}>{props.astro.elevation.toFixed(2)}</div>
                 </div>
             </div>
         </BoxData>

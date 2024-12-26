@@ -3,7 +3,7 @@ import * as d3 from "d3";
 import { useEffect, useRef } from "react";
 
 const Barchart = () => {
-    const ref = useRef();
+    const svgRef = useRef();
 
     useEffect(() => {
         // set the dimensions and margins of the graph
@@ -12,7 +12,7 @@ const Barchart = () => {
             height = 400 - margin.top - margin.bottom;
 
 // append the svg object to the body of the page
-        const svg = d3.select(ref.current)
+        const svg = d3.select(svgRef.current)
             .append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
@@ -21,56 +21,49 @@ const Barchart = () => {
                 "translate(" + margin.left + "," + margin.top + ")");
 
         // Parse the Data
-        d3.csv(
-                "https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/7_OneCatOneNum_header.csv"
-        ).then(function (data: any) {
+        d3.json("http://localhost:5173/api/chart/tempf/day"
+        ).then(function(result:any ) {
+            const rows = result.data1;
 
-            function d(){
-                return { date : d3.timeParse("%Y-%m-%d")(d.date), value : d.value }
-            }
 
-            // Now I can use this dataset:
-            function data() {
+            // Add X axis --> it is a date format
+            const x = d3.scaleTime()
+                .domain(d3.extent(rows, function (d) {
+                    return d.date;
+                }))
+                .range([0, width]);
 
-                // Add X axis --> it is a date format
-                const x = d3.scaleTime()
-                    .domain(d3.extent(data, function (d) {
-                        return d.date;
-                    }))
-                    .range([0, width]);
+            svg.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(x));
 
-                svg.append("g")
-                    .attr("transform", "translate(0," + height + ")")
-                    .call(d3.axisBottom(x));
+            // Add Y axis
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(rows, function (d) {
+                    return +d.value;
+                })])
+                .range([height, 0]);
+            svg.append("g")
+                .call(d3.axisLeft(y));
 
-                // Add Y axis
-                const y = d3.scaleLinear()
-                    .domain([0, d3.max(data, function (d) {
-                        return +d.value;
-                    })])
-                    .range([height, 0]);
-                svg.append("g")
-                    .call(d3.axisLeft(y));
-
-                // Add the line
-                svg.append("path")
-                    .datum(data)
-                    .attr("fill", "none")
-                    .attr("stroke", "steelblue")
-                    .attr("stroke-width", 1.5)
-                    .attr("d", d3.line()
-                        .x(function (d) {
-                            return x(d.date)
-                        })
-                        .y(function (d) {
-                            return y(d.value)
-                        })
-                    )
-            }
+            // Add the line
+            svg.append("path")
+                .datum(result)
+                .attr("fill", "none")
+                .attr("stroke", "steelblue")
+                .attr("stroke-width", 1.5)
+                .attr("d", d3.line()
+                    .x(function (d) {
+                        return x(d.label)
+                    })
+                    .y(function (d) {
+                        return y(d.label)
+                    })
+                )
         });
     }, []);
 
-    return <svg width={460} height={400} id="barchart" ref={ref} />;
+    return <svg width={460} height={400} id="barchart" ref={svgRef} />;
 };
 
 export default Barchart;
