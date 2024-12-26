@@ -17,18 +17,6 @@ type StatValue struct {
 	Recorded time.Time `json:"date"`
 }
 
-// Trend response
-type Trend struct {
-	Trend string  `json:"trend"`
-	By    float64 `json:"by"`
-}
-
-// Location for Astro struct
-type Location struct {
-	Latitude  float64 `json:"latitude"`
-	Longitude float64 `json:"longitude"`
-}
-
 // Astro Moon sun data
 type Astro struct {
 	Sunrise         time.Time     `json:"sunrise"`
@@ -41,12 +29,100 @@ type Astro struct {
 	HasSunset       bool          `json:"hasSunset,omitempty"`
 }
 
-type LightningData struct {
-	LightningDay      int       `json:"lightningday"`
-	LightningHour     int       `json:"lightninghour"`
-	LightningDistance float64   `json:"lightningdistance"`
-	LightningTime     time.Time `json:"lightningtime"`
-	LightningMonth    int       `json:"lightningmonth"`
+type Conditions struct {
+	ID        int       `json:"id"`
+	Mac       string    `json:"mac"`
+	Recorded  time.Time `json:"date"`
+	Barometer Barometer `json:"barometer"`
+	Humidity  Humidity  `json:"humidity"`
+	Temp      Temp      `json:"temp"`
+	Tempin    Tempin    `json:"tempin"`
+	Temp1     Tempin    `json:"temp1"`
+	Temp2     Tempin    `json:"temp2"`
+	Temp3     Tempin    `json:"temp3"`
+	Rain      Rain      `json:"rain"`
+	Lightning Lightning `json:"lightning"`
+	AQI       AQI       `json:"aqi"`
+	Wind      Wind      `json:"wind"`
+	UV        UV        `json:"uv"`
+	Astro     Astro     `json:"astro"`
+	Alert     []Alert   `json:"alert"`
+}
+
+type Barometer struct {
+	Baromabsin float64                         `json:"baromabsin"`
+	Baromrelin float64                         `json:"baromrelin"`
+	Trend      Trend                           `json:"trend"`
+	MinMax     map[string]map[string]StatValue `json:"minmax"`
+}
+
+type Humidity struct {
+	Humidity int                             `json:"humidity"`
+	Dewpoint float64                         `json:"dewpoint"`
+	MinMax   map[string]map[string]StatValue `json:"minmax"`
+}
+
+type Temp struct {
+	Temp      float64                         `json:"temp"`
+	Humidity  int                             `json:"humidity"`
+	Batt      int                             `json:"battout"`
+	Feelslike float64                         `json:"feelslike"`
+	Dewpoint  float64                         `json:"dewpoint"`
+	MinMax    map[string]map[string]StatValue `json:"minmax"`
+}
+
+type Tempin struct {
+	Temp     float64                         `json:"temp"`
+	Humidity int                             `json:"humidity"`
+	Batt     int                             `json:"battout"`
+	MinMax   map[string]map[string]StatValue `json:"minmax"`
+}
+
+type Rain struct {
+	Daily    float64   `json:"daily"`
+	Event    float64   `json:"event"`
+	Hourly   float64   `json:"hourly"`
+	Yearly   float64   `json:"yearly"`
+	Monthly  float64   `json:"monthly"`
+	Weekly   float64   `json:"weekly"`
+	Total    float64   `json:"total"`
+	Lastrain time.Time `json:"lastrain"`
+}
+
+type Lightning struct {
+	Day      int                             `json:"day"`
+	Hour     int                             `json:"hour"`
+	Distance float64                         `json:"distance"`
+	Time     time.Time                       `json:"time"`
+	Month    int                             `json:"month"`
+	Minmax   map[string]map[string]StatValue `json:"minmax"`
+}
+
+type AQI struct {
+	Pm25    int                             `json:"pm25"`
+	Pm2524h int                             `json:"pm2524h"`
+	MinMax  map[string]map[string]StatValue `json:"minmax"`
+}
+
+type Wind struct {
+	Dir          int                             `json:"winddir"`
+	Gustmph      float64                         `json:"windgustmph"`
+	Gustdir      int                             `json:"windgustdir"`
+	Speedmph     float64                         `json:"windspeedmph"`
+	Maxdailygust float64                         `json:"maxdailygust"`
+	Avg          int                             `json:"windavg"`
+	MinMax       map[string]map[string]StatValue `json:"minmax"`
+}
+
+type UV struct {
+	Uv             float64                         `json:"uv"`
+	Solarradiation float64                         `json:"solarradiation"`
+	MinMax         map[string]map[string]StatValue `json:"minmax"`
+}
+
+type Trend struct {
+	Trend string  `json:"trend"`
+	By    float64 `json:"by"`
 }
 
 // Record data for main database  table
@@ -129,8 +205,6 @@ type Record struct {
 	Aqipm25           int       `json:"aqipm25" db:"aqi"`
 	Aqipm2524h        int       `json:"aqipm2524h" db:"aqi24"`
 }
-
-//aqi_pm25=8&aqi_pm25_24h
 
 type Alert struct {
 	ID          int       `json:"id"`

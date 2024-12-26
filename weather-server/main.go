@@ -72,11 +72,6 @@ func main() {
 	})
 	//API
 	r.HandleFunc("/api/current", loggingMiddleware(current))
-	r.HandleFunc("/api/minmax/{field}", loggingMiddleware(minmax))
-	r.HandleFunc("/api/trend/{type}", loggingMiddleware(trend))
-	r.HandleFunc("/api/wind", loggingMiddleware(wind))
-	r.HandleFunc("/api/alerts", loggingMiddleware(alerts))
-	r.HandleFunc("/api/luna", loggingMiddleware(astro))
 	r.HandleFunc("/api/chart/{type}/{period}", loggingMiddleware(chart))
 	r.HandleFunc("/api/alltime/{calc}/{type}", loggingMiddleware(alltime))
 	r.HandleFunc("/api/forecast", loggingMiddleware(getForecastHandler))

@@ -26,12 +26,12 @@ func home(w http.ResponseWriter, _ *http.Request) {
 	}
 }
 
-func alerts(w http.ResponseWriter, _ *http.Request) {
+func alerts() []Alert {
 	now := time.Now()
 	loc, err := time.LoadLocation("America/Denver")
 	if err != nil {
 		fmt.Println(err)
-		return
+		return []Alert{}
 	}
 	alertsSql := fmt.Sprintf("select * from alerts where ends >= '%s'", formatDate(now))
 	logger.Info(alertsSql)
@@ -58,19 +58,10 @@ func alerts(w http.ResponseWriter, _ *http.Request) {
 
 		alerts = append(alerts, a)
 	}
-	b, err := json.Marshal(&alerts)
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-	}
-	i, err := w.Write(b)
-	if err != nil {
-		logger.Error(i, err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	return alerts
 }
 
-func astro(w http.ResponseWriter, r *http.Request) {
+func astro() Astro {
 	lat, err := strconv.ParseFloat(os.Getenv("LAT"), 64)
 	errorHandler(err, "Error parsing LAT")
 	lng, err := strconv.ParseFloat(os.Getenv("LON"), 64)
@@ -99,32 +90,72 @@ func astro(w http.ResponseWriter, r *http.Request) {
 		Elevation:       elevation,
 		HasSunset:       hasSunSet,
 	}
-
-	b, err := json.Marshal(astro)
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-	}
-
-	i, err := w.Write(b)
-	if err != nil {
-		logger.Error(i, err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	return astro
 }
 
-func lightning() int {
+func trend(t string) Trend {
+	sel := fmt.Sprintf("AVG(%s)", t)
 
-	s := `SELECT SUM(A.value) as value
+	start := time.Now()
+	end := start.Add(-30 * time.Minute)
+	var avg float64
+	cr := Record{}
+
+	avgQuery := fmt.Sprintf("select %s from records where recorded BETWEEN '%s' AND '%s'", sel, formatDate(end), formatDate(start))
+	logger.Debug(avgQuery)
+	rows := db.QueryRow(avgQuery)
+	err := rows.Scan(&avg)
+	sqlError("Trend1", err, avgQuery)
+
+	currentQuery := "select id,baromrelin,tempf from records order by recorded desc limit 1"
+	logger.Debug(currentQuery)
+	crows := db.QueryRow(currentQuery)
+	err = crows.Scan(&cr.ID, &cr.Baromrelin, &cr.Tempf)
+	sqlError("Trend2", err, currentQuery)
+
+	trend := Trend{}
+	if strings.Contains(t, "temp") {
+		if cr.Tempf > avg {
+			//trend up
+			trend.Trend = "up"
+			trend.By = toFixed(cr.Tempf-avg, 2)
+		} else {
+			//trend down
+			trend.Trend = "down"
+			trend.By = toFixed(avg-cr.Tempf, 2)
+		}
+	} else {
+		if cr.Baromrelin > avg {
+			//trend up
+			trend.Trend = "Steady"
+			if (cr.Baromrelin - avg) > .5 {
+				trend.Trend = "Rising"
+			}
+		} else {
+			//trend down
+			trend.Trend = "Steady"
+			if (avg - cr.Baromrelin) > .5 {
+				trend.Trend = "Falling"
+			}
+		}
+	}
+	return trend
+}
+
+func lightningMonth() int {
+	d := getTimeframe("month")
+	start := formatDate(d[0])
+	end := formatDate(d[1])
+	s := fmt.Sprintf(`SELECT SUM(A.value) as value
 			FROM (SELECT TO_CHAR(recorded,'YYY-MM-DD') as ldate, 
 				  MAX(lightningday) as value 
 				  FROM records 
-				  where recorded between '04-01-2024' and '04-30-2024' 
-			GROUP BY ldate) A`
+				  where recorded between '%s' and '%s' 
+			GROUP BY ldate) A`, start, end)
 	rows := db.QueryRow(s)
 	lightningMonth := 0
 	err := rows.Scan(&lightningMonth)
-	sqlError(err, "Error Getting Record: ")
+	sqlError("Lightning Month", err, "Error Getting Record: ")
 
 	return lightningMonth
 }
@@ -159,9 +190,7 @@ func chart(w http.ResponseWriter, r *http.Request) {
 
 	query := fmt.Sprintf("select %s from records where recorded BETWEEN '%s' AND '%s' group by mmdd order by mmdd", where, formatDate(dates[0]), formatDate(dates[1]))
 	rows, err := db.Query(query)
-	if err != nil {
-		log.Println(err)
-	}
+	errorHandler(err, "Error getting chart records")
 	for rows.Next() {
 		r := Result{}
 		if t == "dailyrainin" {
@@ -227,13 +256,7 @@ func alltime(w http.ResponseWriter, r *http.Request) {
 	logger.Info(query)
 	rows := db.QueryRow(query)
 	err := rows.Scan(&rt.Value, &rt.Date)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			logger.Error("Zero Rows Found", query)
-		} else {
-			logger.Error("Scan: ", err)
-		}
-	}
+	sqlError("alltime", err, query)
 
 	b, err := json.Marshal(rt)
 	if err != nil {
@@ -248,81 +271,7 @@ func alltime(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func trend(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	t := vars["type"]
-	t = cleanString(t)
-	sel := fmt.Sprintf("AVG(%s)", t)
-
-	start := time.Now()
-	end := start.Add(-30 * time.Minute)
-	var avg float64
-	cr := Record{}
-
-	avgQuery := fmt.Sprintf("select %s from records where recorded BETWEEN '%s' AND '%s'", sel, formatDate(end), formatDate(start))
-	logger.Debug(avgQuery)
-	rows := db.QueryRow(avgQuery)
-	err := rows.Scan(&avg)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			logger.Error("Zero Rows Found", avgQuery)
-		} else {
-			logger.Error("Scan: ", err)
-		}
-	}
-	currentQuery := "select id,mac,recorded,baromabsin,baromrelin,battout,batt1,Batt2,Batt3,Batt4,Batt5,Batt6,Batt7,Batt8,Batt9,Batt10,co2,dailyrainin,dewpoint,eventrainin,feelslike,hourlyrainin,humidity,humidity1,humidity2,humidity3,humidity4,humidity5,humidity6,humidity7,humidity8,humidity9,humidity10,humidityin,lastrain,maxdailygust,relay1,relay2,relay3,relay4,relay5,relay6,relay7,relay8,relay9,relay10,monthlyrainin,solarradiation,tempf,temp1f,temp2f,temp3f,temp4f,temp5f,temp6f,temp7f,temp8f,temp9f,temp10f,tempinf,totalrainin,uv,weeklyrainin,winddir,windgustmph,windgustdir,windspeedmph,yearlyrainin,hourlyrain,lightningday,lightninghour,lightningtime,lightningdistance,battlightning from records order by recorded desc limit 1"
-	logger.Debug(currentQuery)
-	crows := db.QueryRow(currentQuery)
-	err = crows.Scan(&cr.ID, &cr.Mac, &cr.Recorded, &cr.Baromabsin, &cr.Baromrelin, &cr.Battout, &cr.Batt1, &cr.Batt2, &cr.Batt3, &cr.Batt4, &cr.Batt5, &cr.Batt6, &cr.Batt7, &cr.Batt8, &cr.Batt9, &cr.Batt10, &cr.Co2, &cr.Dailyrainin, &cr.Dewpoint, &cr.Eventrainin, &cr.Feelslike, &cr.Hourlyrainin, &cr.Humidity, &cr.Humidity1, &cr.Humidity2, &cr.Humidity3, &cr.Humidity4, &cr.Humidity5, &cr.Humidity6, &cr.Humidity7, &cr.Humidity8, &cr.Humidity9, &cr.Humidity10, &cr.Humidityin, &cr.Lastrain, &cr.Maxdailygust, &cr.Relay1, &cr.Relay2, &cr.Relay3, &cr.Relay4, &cr.Relay5, &cr.Relay6, &cr.Relay7, &cr.Relay8, &cr.Relay9, &cr.Relay10, &cr.Monthlyrainin, &cr.Solarradiation, &cr.Tempf, &cr.Temp1f, &cr.Temp2f, &cr.Temp3f, &cr.Temp4f, &cr.Temp5f, &cr.Temp6f, &cr.Temp7f, &cr.Temp8f, &cr.Temp9f, &cr.Temp10f, &cr.Tempinf, &cr.Totalrainin, &cr.Uv, &cr.Weeklyrainin, &cr.Winddir, &cr.Windgustmph, &cr.Windgustdir, &cr.Windspeedmph, &cr.Yearlyrainin, &cr.Hourlyrain, &cr.Lightningday, &cr.Lightninghour, &cr.Lightningtime, &cr.Lightningdistance, &cr.Battlightning)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			logger.Error("Zero Rows Found", currentQuery)
-		} else {
-			logger.Error("Scan: ", err)
-		}
-	}
-
-	trend := Trend{}
-	if strings.Contains(t, "temp") {
-		if cr.Tempf > avg {
-			//trend up
-			trend.Trend = "up"
-			trend.By = toFixed(cr.Tempf-avg, 2)
-		} else {
-			//trend down
-			trend.Trend = "down"
-			trend.By = toFixed(avg-cr.Tempf, 2)
-		}
-	} else {
-		if cr.Baromrelin > avg {
-			//trend up
-			trend.Trend = "Steady"
-			if (cr.Baromrelin - avg) > .5 {
-				trend.Trend = "Rising"
-			}
-		} else {
-			//trend down
-			trend.Trend = "Steady"
-			if (avg - cr.Baromrelin) > .5 {
-				trend.Trend = "Falling"
-			}
-		}
-	}
-
-	b, err := json.Marshal(trend)
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-	}
-
-	i, err := w.Write(b)
-	if err != nil {
-		logger.Error(i, err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-
-}
-func wind(w http.ResponseWriter, _ *http.Request) {
+func wind() Wind {
 	type Result struct {
 		Reccorded time.Time `json:"date"`
 		Value     float64   `json:"value"`
@@ -344,68 +293,30 @@ func wind(w http.ResponseWriter, _ *http.Request) {
 	logger.Debug(maxSpeed)
 	mrows := db.QueryRow(maxSpeed)
 	err := mrows.Scan(&maxwind.Value, &maxwind.Reccorded)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			logger.Error("Zero Rows ", maxSpeed)
-		} else {
-			logger.Error("Scan: ", err)
-		}
-	}
+	sqlError("wind", err, maxSpeed)
 
 	logger.Debug(maxGust)
 	mgrows := db.QueryRow(maxGust)
 	err = mgrows.Scan(&maxgust.Value, &maxgust.Reccorded)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			logger.Error("Zero Rows Found", maxGust)
-		} else {
-			logger.Error("Scan: ", err)
-		}
-	}
+	sqlError("wind", err, maxGust)
 
 	logger.Debug(avgSpeed)
 	asrows := db.QueryRow(avgSpeed)
 	err = asrows.Scan(&avg)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			logger.Error("Zero Rows Found", avgSpeed)
-		} else {
-			logger.Error("Scan: ", err)
-		}
-	}
+	sqlError("wind", err, avgSpeed)
 
 	logger.Debug(avgDir)
 	crows := db.QueryRow(avgDir)
 	err = crows.Scan(&avgdir)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			logger.Error("Zero Rows Found", avgdir)
-		} else {
-			logger.Error("Scan: ", err)
-		}
-	}
+	sqlError("wind", err, avgDir)
 
-	res := map[string]Result{}
-	res["dir"] = Result{Value: avgdir}
-	res["wind"] = maxwind
-	res["gust"] = maxgust
-	res["avg"] = Result{Value: avg}
-
-	b, err := json.Marshal(res)
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
+	wind := Wind{
+		Maxdailygust: maxgust.Value,
+		Avg:          int(avg),
 	}
-
-	i, err := w.Write(b)
-	if err != nil {
-		logger.Error(i, err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	return wind
 }
-func minmax(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	f := vars["field"]
+func minmax(f string) map[string]map[string]StatValue {
 	s := getStats()
 
 	minmax := make(map[string]map[string]StatValue)
@@ -421,27 +332,125 @@ func minmax(w http.ResponseWriter, r *http.Request) {
 			minmax[parts[1]][strings.ToLower(parts[0])] = StatValue{Recorded: v.Recorded, Value: v.Value}
 		}
 	}
-	b, err := json.Marshal(minmax)
+	return minmax
+}
+
+func buildConditions(record Record) Conditions {
+	conditions := Conditions{
+		Mac:      record.Mac,
+		Recorded: record.Recorded,
+	}
+
+	conditions.Barometer = Barometer{
+		Baromabsin: record.Baromabsin,
+		Baromrelin: record.Baromrelin,
+		Trend:      trend("baromrelin"),
+		MinMax:     minmax("baromrelin"),
+	}
+
+	conditions.Humidity = Humidity{
+		Humidity: record.Humidity,
+		Dewpoint: record.Dewpoint,
+		MinMax:   minmax("humidity"),
+	}
+
+	conditions.Temp = Temp{
+		Temp:      record.Tempf,
+		Humidity:  record.Humidity,
+		Feelslike: record.Feelslike,
+		Dewpoint:  record.Dewpoint,
+		MinMax:    minmax("tempf"),
+	}
+
+	conditions.Tempin = Tempin{
+		Temp:     record.Tempinf,
+		Humidity: record.Humidityin,
+		MinMax:   minmax("tempinf"),
+	}
+
+	conditions.Temp1 = Tempin{
+		Temp:     record.Temp1f,
+		Humidity: record.Humidity1,
+		MinMax:   minmax("temp1f"),
+	}
+
+	conditions.Temp2 = Tempin{
+		Temp:     record.Temp2f,
+		Humidity: record.Humidity2,
+		MinMax:   minmax("temp2f"),
+	}
+
+	conditions.Temp3 = Tempin{
+		Temp:     record.Temp3f,
+		Humidity: record.Humidity3,
+		MinMax:   minmax("temp3f"),
+	}
+
+	w := wind()
+	conditions.Wind = Wind{
+		Dir:          record.Winddir,
+		Gustmph:      record.Windgustmph,
+		Gustdir:      record.Windgustdir,
+		Speedmph:     record.Windspeedmph,
+		Maxdailygust: w.Maxdailygust,
+		Avg:          w.Avg,
+		MinMax:       minmax("windspeedmph"),
+	}
+
+	conditions.UV = UV{
+		Uv:             record.Uv,
+		Solarradiation: record.Solarradiation,
+		MinMax:         minmax("uv"),
+	}
+
+	conditions.Rain = Rain{
+		Daily:    record.Dailyrainin,
+		Weekly:   record.Weeklyrainin,
+		Monthly:  record.Monthlyrainin,
+		Yearly:   record.Yearlyrainin,
+		Total:    record.Totalrainin,
+		Lastrain: record.Lastrain,
+	}
+
+	conditions.Alert = alerts()
+
+	conditions.Lightning = Lightning{
+		Day:      record.Lightningday,
+		Hour:     record.Lightninghour,
+		Distance: record.Lightningdistance,
+		Time:     record.Lightningtime,
+		Month:    record.LightningMonth,
+		Minmax:   minmax("lightning"),
+	}
+
+	conditions.AQI = AQI{
+		Pm25:    record.Aqipm25,
+		Pm2524h: record.Aqipm2524h,
+		MinMax:  minmax("aqipm25"),
+	}
+
+	conditions.Astro = astro()
+
+	return conditions
+
+}
+
+func getConditions() Conditions {
+	res := getCurrent()
+	cond := buildConditions(res)
+	return cond
+}
+
+func current(w http.ResponseWriter, _ *http.Request) {
+	cond := getConditions()
+
+	b, err := json.Marshal(cond)
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
 	i, err := w.Write(b)
-	if err != nil {
-		logger.Error(i, err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-
-}
-func current(w http.ResponseWriter, _ *http.Request) {
-	res, err := getCurrent()
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-	}
-
-	i, err := w.Write(res)
 	if err != nil {
 		logger.Error(i, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

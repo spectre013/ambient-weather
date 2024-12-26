@@ -1,10 +1,30 @@
 package main
 
 import (
+	"encoding/json"
+	"log"
 	"math"
 	"regexp"
 	"time"
 )
+
+func currentToJson(record Record) ([]byte, error) {
+	b, err := json.Marshal(record)
+	if err != nil {
+		log.Println(err)
+		return []byte(""), err
+	}
+	return b, nil
+}
+
+func conditionsToJson(condition Conditions) ([]byte, error) {
+	b, err := json.Marshal(condition)
+	if err != nil {
+		log.Println(err)
+		return []byte(""), err
+	}
+	return b, nil
+}
 
 func heatIndex(T float64, humidity int) float64 {
 	RH := float64(humidity)

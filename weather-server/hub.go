@@ -36,7 +36,8 @@ func newHub() *Hub {
 
 func broadcast(hub *Hub) {
 	for range time.NewTicker(30 * time.Second).C {
-		m, err := getCurrent()
+		c := getConditions()
+		m, err := conditionsToJson(c)
 		if err != nil {
 			log.Println(err)
 			continue
