@@ -100,7 +100,12 @@ func main() {
 	//Index
 	r.HandleFunc("/", loggingMiddleware(weather.index))
 	logger.Info("serving assets from ", http.Dir(os.Getenv("ASSETS")))
-	r.PathPrefix("/").Handler(http.FileServer(http.Dir(os.Getenv("ASSETS"))))
+	fs := http.FileServer(http.Dir(os.Getenv("ASSETS")))
+	loggedFs := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		logger.Printf("%s - %s %s", r.RemoteAddr, r.Method, r.URL.Path)
+		fs.ServeHTTP(w, r)
+	})
+	r.PathPrefix("/").Handler(loggedFs)
 
 	srv := &http.Server{
 		Handler: r,
@@ -122,10 +127,10 @@ func buildWeather(db *sql.DB) Weather {
 func loggingMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		logger.Infof(
-			"%s\t%s\t%s",
+			"%s - %s %s",
 			time.Now().Format("2006-01-02 15:04:05"),
 			r.Method,
-			r.RequestURI,
+			r.URL.Path,
 		)
 		next.ServeHTTP(w, r)
 	})
