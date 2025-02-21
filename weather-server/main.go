@@ -99,7 +99,8 @@ func main() {
 	r.HandleFunc("/setunits/{unit}", loggingMiddleware(weather.setSession))
 	//Index
 	r.HandleFunc("/", loggingMiddleware(weather.index))
-	r.PathPrefix("/").Handler(http.FileServer(http.Dir(os.Getenv("public"))))
+	logger.Info("serving assets from ", http.Dir(os.Getenv("ASSETS")))
+	r.PathPrefix("/").Handler(http.FileServer(http.Dir(os.Getenv("ASSETS"))))
 
 	srv := &http.Server{
 		Handler: r,
