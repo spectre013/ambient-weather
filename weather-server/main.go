@@ -270,13 +270,14 @@ func (w Weather) getCurrent() (map[string]BoxProps, TemplateData, error) {
 }
 
 func (w Weather) getLightning(data Record) LightningData {
+	t := getTimeframe("month")
 	l := LightningData{}
-	s := `SELECT SUM(A.value) as value
+	s := fmt.Sprintf(`SELECT SUM(A.value) as value
 			FROM (SELECT TO_CHAR(recorded,'YYY-MM-DD') as ldate, 
 				  MAX(lightningday) as value 
 				  FROM records 
-				  where recorded between '04-01-2024' and '04-30-2024' 
-			GROUP BY ldate) A`
+				  where recorded between '%s' and '%s' 
+			GROUP BY ldate) A`, formatDate(t[0]), formatDate(t[1]))
 	rows := w.DB.QueryRow(s)
 	lightningMonth := 0
 	err := rows.Scan(&lightningMonth)
