@@ -97,6 +97,7 @@ func index(c echo.Context) error {
 	return c.String(http.StatusOK, "Ambient Weather Receiver ")
 }
 func ambientin(c echo.Context) error {
+	logger.Info(c.Request().URL.String())
 	output := map[string]interface{}{}
 
 	in := map[string]string{}
