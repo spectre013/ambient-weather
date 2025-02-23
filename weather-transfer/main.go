@@ -152,12 +152,14 @@ func ambientin(c echo.Context) error {
 				log.Printf("%s - %s\n", err, val)
 			}
 			output[k] = i
+			logger.Debug(k, " - ", i)
 		case "float":
 			f, err := strconv.ParseFloat(val, 64)
 			if err != nil {
 				log.Printf("%s - %s\n", err, val)
 			}
 			output[k] = toFixed(f, 2)
+			logger.Debug(k, " - ", toFixed(f, 2))
 		default:
 			if k == "PASSKEY" {
 				k = "mac"
@@ -172,6 +174,7 @@ func ambientin(c echo.Context) error {
 				}
 				output[k] = time.Unix(i, 0)
 			}
+			logger.Debug(k, " - ", v[0])
 
 		}
 	}
