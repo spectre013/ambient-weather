@@ -157,7 +157,7 @@ func ambientin(c echo.Context) error {
 			if err != nil {
 				log.Printf("%s - %s\n", err, val)
 			}
-			output[k] = f
+			output[k] = toFixed(f, 2)
 		default:
 			if k == "PASSKEY" {
 				k = "mac"
