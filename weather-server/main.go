@@ -55,7 +55,7 @@ func main() {
 	}
 	logger.Info("Setting Debug Level to ", logLevel)
 	logger.SetLevel(logLevel)
-
+	logger.Info("Connecgting to database", os.Getenv("DB_HOST"), " ", os.Getenv("DB_DATABASE"))
 	dburi := fmt.Sprintf("user=%s password=%s host=%s port=5432 dbname=%s sslmode=disable", os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), os.Getenv("DB_DATABASE"))
 	db, err := sql.Open("postgres", dburi)
 	if err != nil {
@@ -385,6 +385,12 @@ func buildBoxProps(units string) map[string]BoxProps {
 		Unit:  "",
 		Style: map[string]string{},
 	}
+	box["temp4"] = BoxProps{
+		Icon:  "fa-temperature-half",
+		Title: "Garage",
+		Unit:  "",
+		Style: map[string]string{},
+	}
 	return box
 }
 func (w Weather) checkForecast() {
@@ -399,7 +405,7 @@ func getHourlyRain(db *sql.DB) float64 {
 	start := time.Now()
 	end := start.Add(-60 * time.Minute)
 	var maxrain float64
-	query := fmt.Sprintf("select dailyrainin from records where recorded BETWEEN '%s' AND '%s' order by dailyrainin desc limit 1", formatDate(end), formatDate(start))
+	query := fmt.Sprintf("select coalesce(dailyrainin,0) as dailyrainin from records where recorded BETWEEN '%s' AND '%s' order by dailyrainin desc limit 1", formatDate(end), formatDate(start))
 	logger.Debug(query)
 	crows := db.QueryRow(query)
 	err := crows.Scan(&maxrain)

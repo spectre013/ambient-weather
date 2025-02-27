@@ -577,6 +577,8 @@ func getSensor(s string, rec Record) float64 {
 		return rec.Temp2f
 	case "temp3f":
 		return rec.Temp3f
+	case "temp4f":
+		return rec.Temp4f
 	case "humidityin":
 		return float64(rec.Humidityin)
 	case "humidity1":
@@ -585,6 +587,8 @@ func getSensor(s string, rec Record) float64 {
 		return float64(rec.Humidity2)
 	case "humidity3":
 		return float64(rec.Humidity3)
+	case "humidity4":
+		return float64(rec.Humidity4)
 	}
 
 	return 0.0

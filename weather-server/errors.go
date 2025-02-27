@@ -8,7 +8,7 @@ import (
 func sqlError(err error, value interface{}) {
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			logger.Error("Zero Rows Found ", value)
+			logger.Info("Zero Rows Found ", value)
 		} else {
 			logger.Error("Scan: ", err)
 		}

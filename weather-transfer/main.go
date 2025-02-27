@@ -277,7 +277,7 @@ func calculateStats() {
 
 	types := []string{"MAX", "MIN", "AVG"}
 	periods := []string{"day", "yesterday", "month", "year"}
-	fields := []string{"tempf", "tempinf", "temp1f", "temp2f", "temp3f", "baromrelin", "uv", "humidity", "windspeedmph", "windgustmph", "dewpoint", "humidityin", "humidity1", "humidity2", "humidity3", "dailyrainin", "lightning", "aqipm25"}
+	fields := []string{"tempf", "tempinf", "temp1f", "temp2f", "temp3f", "temp4f", "baromrelin", "uv", "humidity", "windspeedmph", "windgustmph", "dewpoint", "humidityin", "humidity1", "humidity2", "humidity3", "dailyrainin", "lightning", "aqipm25"}
 	queries := make(map[string]Query)
 	for _, p := range periods {
 		for _, t := range types {

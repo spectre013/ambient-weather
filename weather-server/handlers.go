@@ -440,7 +440,7 @@ func createAxis(start int, end int) []string {
 func (w Weather) trend(t string) Trend {
 	sel := fmt.Sprintf("AVG(%s)", t)
 
-	start := time.Now()
+	start := time.Now().UTC()
 	end := start.Add(-30 * time.Minute)
 	var avg float64
 	cr := Record{}
@@ -496,10 +496,10 @@ func (w Weather) getWind() map[string]StatValue {
 	var avg float64
 	var avgdir float64
 
-	maxSpeed := fmt.Sprintf("select windspeedmph as value, recorded from records where recorded BETWEEN '%s' AND '%s' order by windspeedmph desc limit 1", formatDate(end), formatDate(start))
-	maxGust := fmt.Sprintf("select windgustmph as value, recorded from records where recorded BETWEEN '%s' AND '%s' order by windgustmph desc limit 1", formatDate(end), formatDate(start))
-	avgSpeed := fmt.Sprintf("select AVG(windspeedmph) as value from records where recorded BETWEEN '%s' AND '%s'", formatDate(end), formatDate(start))
-	avgDir := fmt.Sprintf("select AVG(winddir) as value from records where recorded BETWEEN '%s' AND '%s'", formatDate(end), formatDate(start))
+	maxSpeed := fmt.Sprintf("select coalesce(windspeedmph ,0) as value, recorded from records where recorded BETWEEN '%s' AND '%s' order by windspeedmph desc limit 1", formatDate(end), formatDate(start))
+	maxGust := fmt.Sprintf("select coalesce(windgustmph ,0) as value, recorded from records where recorded BETWEEN '%s' AND '%s' order by windgustmph desc limit 1", formatDate(end), formatDate(start))
+	avgSpeed := fmt.Sprintf("select coalesce(AVG(windspeedmph) ,0) as value from records where recorded BETWEEN '%s' AND '%s'", formatDate(end), formatDate(start))
+	avgDir := fmt.Sprintf("select coalesce(AVG(winddir) ,0) as value from records where recorded BETWEEN '%s' AND '%s'", formatDate(end), formatDate(start))
 
 	logger.Debug(maxSpeed)
 	mrows := w.DB.QueryRow(maxSpeed)

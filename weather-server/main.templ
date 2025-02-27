@@ -63,6 +63,9 @@ templ Main(props map[string]BoxProps, data TemplateData) {
             <div class="basement">
                 @Box("basement", props["temp3"], Tempin("3", data))
             </div>
+            <div class="garage">
+                @Box("garage", props["temp4"], Tempin("4", data))
+            </div>
         </div>
     </div>
 }
