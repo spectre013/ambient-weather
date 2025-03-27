@@ -9,6 +9,7 @@ export interface Current {
     temp1: TemperatureData;
     temp2: TemperatureData;
     temp3: TemperatureData;
+    temp4: TemperatureData;
     rain: RainData;
     lightning: LightningData;
     aqi: AirQualityIndex;
@@ -44,7 +45,7 @@ export interface BaroData {
 }
 
 export interface HumidityData {
-    humdity: number;
+    humidity: number;
     dewpoint: number;
     minmax: minmax;
 }

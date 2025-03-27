@@ -40,6 +40,7 @@ type Conditions struct {
 	Temp1     Tempin    `json:"temp1"`
 	Temp2     Tempin    `json:"temp2"`
 	Temp3     Tempin    `json:"temp3"`
+	Temp4     Tempin    `json:"temp4"`
 	Rain      Rain      `json:"rain"`
 	Lightning Lightning `json:"lightning"`
 	AQI       AQI       `json:"aqi"`

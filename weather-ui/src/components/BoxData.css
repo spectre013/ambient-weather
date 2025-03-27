@@ -1,7 +1,6 @@
 .box-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: .25fr .25fr;
     gap: 0px 0px;
     grid-template-areas:
     "icon scale"

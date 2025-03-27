@@ -205,7 +205,7 @@ const WindBox = (props:Props) => {
                 <div className="current">
                     <div className={`arrow ${beaufortClass()}`}
                          style={{transform: `rotate(${props.wind.winddir}deg)`}}>
-                        <i className="fa-solid fa-arrow-up"></i>
+                        <i className="fa-solid fa-arrow-down"></i>
                     </div>
                     <div>
                     { props.wind.winddir }&deg; &nbsp;&nbsp;

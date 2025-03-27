@@ -4,14 +4,15 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
-	"github.com/gorilla/websocket"
-	_ "github.com/lib/pq"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
+	_ "github.com/lib/pq"
 
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
@@ -72,7 +73,7 @@ func main() {
 	})
 	//API
 	r.HandleFunc("/api/current", loggingMiddleware(current))
-	r.HandleFunc("/api/chart/{type}/{period}", loggingMiddleware(chart))
+	r.HandleFunc("/api/chart/{sensor}/{time}", loggingMiddleware(chart))
 	r.HandleFunc("/api/alltime/{calc}/{type}", loggingMiddleware(alltime))
 	r.HandleFunc("/api/forecast", loggingMiddleware(getForecastHandler))
 	//Index

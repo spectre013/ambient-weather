@@ -5,7 +5,7 @@ const TempAlmanac = () => {
     return (
        <BoxAlmanac>
            <>
-               <LineChart apiUrl="http://10.10.1.83:5173/api/chart/tempf/day" />
+               <LineChart />
            </>
        </BoxAlmanac>
     )

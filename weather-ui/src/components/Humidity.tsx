@@ -12,14 +12,13 @@ export interface Props {
 }
 
 const Humidity = (props:Props) => {
-
     return (
         <BoxData icon="fa-droplet" title="Humidity" unit="%" style={{}}>
             <>
                 <div className="humidity-container">
                     <div className="humidity-wrap">
-                        <div className={`humidity-text ${weather.humidityClass(props.humidity.humdity)}`}>
-                            { props.humidity.humdity }%
+                        <div className={`humidity-text ${weather.humidityClass(props.humidity.humidity)}`}>
+                            { props.humidity.humidity }%
                         </div>
                         <div className="dewpoint">Dewpoint:&nbsp;
                             <span className={weather.dewPointClass(props.humidity.dewpoint)}>

@@ -4,8 +4,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
-	"github.com/nathan-osman/go-sunrise"
 	"log"
 	"net/http"
 	"os"
@@ -13,6 +11,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gorilla/mux"
+	"github.com/nathan-osman/go-sunrise"
 )
 
 func home(w http.ResponseWriter, _ *http.Request) {
@@ -160,67 +161,25 @@ func lightningMonth() int {
 	return lightningMonth
 }
 
+type ChartValue struct {
+	Ts    time.Time `json:"date"`
+	Value float64   `json:"value"`
+}
+
+type ChartData struct {
+	Values []ChartValue `json:"values"`
+	Key    string       `json:"key"`
+	Color  string       `json:"color"`
+}
+
 func chart(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	t := vars["type"]
-	p := vars["period"]
-	t = cleanString(t)
-	dates := getTimeframe(p)
-	dateformat := "TO_CHAR(recorded,'YYYY-MM-DD')"
-	if p == "day" || p == "yesterday" {
-		dateformat = "TO_CHAR(recorded,'HH24:MI:SS')"
-	}
+	sensor := cleanString(vars["sensor"])
+	t := cleanString(vars["time"])
 
-	type Chart struct {
-		Date  string  `json:"label"`
-		Value float64 `json:"y"`
-	}
-	type Result struct {
-		Mmdd string  `json:"date"`
-		Max  float64 `json:"max"`
-		Min  float64 `json:"min"`
-	}
-	rt := make([]Result, 0)
-	where := ""
-	if t == "dailyrainin" {
-		where = fmt.Sprintf("%s AS mmdd, max(%s) AS max", dateformat, t)
-	} else {
-		where = fmt.Sprintf("%s AS mmdd, max(%s) AS max, min(%s) AS min", dateformat, t, t)
-	}
+	chartData := chartFormat(t, sensor)
 
-	query := fmt.Sprintf("select %s from records where recorded BETWEEN '%s' AND '%s' group by mmdd order by mmdd", where, formatDate(dates[0]), formatDate(dates[1]))
-	rows, err := db.Query(query)
-	errorHandler(err, "Error getting chart records")
-	for rows.Next() {
-		r := Result{}
-		if t == "dailyrainin" {
-			err = rows.Scan(&r.Mmdd, &r.Max)
-		} else {
-			err = rows.Scan(&r.Mmdd, &r.Max, &r.Min)
-		}
-		if err != nil {
-			logger.Error("Scan: ", err)
-		}
-		rt = append(rt, r)
-	}
-	err = rows.Err()
-	if err != nil {
-		logger.Error(err)
-	}
-	res := map[string][]Chart{}
-	res["data1"] = make([]Chart, 0)
-	if t != "dailyrainin" {
-		res["data2"] = make([]Chart, 0)
-	}
-
-	for _, data := range rt {
-		res["data1"] = append(res["data1"], Chart{Date: data.Mmdd, Value: data.Max})
-		if t != "dailyrainin" {
-			res["data2"] = append(res["data2"], Chart{Date: data.Mmdd, Value: data.Min})
-		}
-	}
-
-	b, err := json.Marshal(res)
+	b, err := json.Marshal(chartData)
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -232,6 +191,69 @@ func chart(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
+}
+
+func chartFormat(t string, sensor string) []ChartData {
+	charts := map[string]map[string][]map[string]string{
+		"temperature": {
+			"sensors": {
+				{"sensor": "tempf", "color": "#EE4B2B", "title": "Temperature"},
+				{"sensor": "dewpoint", "color": "blue", "title": "Dewpoint"},
+			},
+		},
+		"humidity": {
+			"sensors": {
+				{"sensor": "humidity", "color": "green", "title": "Humidity"},
+			},
+		},
+		"windspeed": {
+			"sensors": {
+				{"sensor": "windspeedmph", "color": "orange", "title": "Wind Speed"},
+				{"sensor": "windgustmph", "color": "red", "title": "Wind Gust"},
+			},
+		},
+		"baromrelin": {
+			"sensors": {
+				{"sensor": "baromrelin", "color": "purple", "title": "Barometric Pressure"},
+			},
+		},
+		"lightning": {
+			"sensors": {
+				{"sensor": "lightning", "color": "yellow", "title": "Lightning"},
+			},
+		},
+	}
+
+	data := make([]ChartData, 0)
+	for _, sensorData := range charts[sensor]["sensors"] {
+		chartData := ChartData{
+			Values: chartData(t, sensorData["sensor"]),
+			Key:    sensorData["title"],
+			Color:  sensorData["color"],
+		}
+		data = append(data, chartData)
+	}
+
+	return data
+}
+
+func chartData(timeframe string, sensor string) []ChartValue {
+
+	chartSQL := chartQueries(timeframe, sensor)
+	fmt.Println(chartSQL)
+	rows, err := db.Query(chartSQL)
+	if err != nil {
+		logger.Error(err)
+	}
+
+	chartValues := make([]ChartValue, 0)
+	for rows.Next() {
+		a := ChartValue{}
+		err := rows.Scan(&a.Ts, &a.Value)
+		sqlError("Chart", err, chartSQL)
+		chartValues = append(chartValues, a)
+	}
+	return chartValues
 }
 
 func alltime(w http.ResponseWriter, r *http.Request) {
@@ -384,6 +406,12 @@ func buildConditions(record Record) Conditions {
 		Temp:     record.Temp3f,
 		Humidity: record.Humidity3,
 		MinMax:   minmax("temp3f"),
+	}
+
+	conditions.Temp4 = Tempin{
+		Temp:     record.Temp4f,
+		Humidity: record.Humidity4,
+		MinMax:   minmax("temp4f"),
 	}
 
 	w := wind()

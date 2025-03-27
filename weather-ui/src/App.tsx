@@ -135,6 +135,9 @@ function App() {
                     <div className="basement">
                         <Tempin temp={conditions.temp3} area="Basement" units={units}/>
                     </div>
+                    <div className="garage">
+                        <Tempin temp={conditions.temp4} area="Garage" units={units}/>
+                    </div>
                 </div>
 
             </>
