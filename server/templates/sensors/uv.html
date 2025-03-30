@@ -1,0 +1,19 @@
+{% set bdata = box.uv %}
+{% extends 'application/box.html' %}
+
+{% block boxinfo %}
+<div class="uv-container">
+    <div class="uvimax">Max: <span class={{ uv_today(weather) }}>{{ minmax["uv"]["max"]["day"].value }}</span> UVI</div>
+    <div class="uvitext">
+        <span class="uvi-icon uvi-top">&#xF00D;</span> <span class="uvi-top">UVI</span> {{ uv_caution(weather, astro.has_sunset) }}
+    </div>
+    <div class="uvi">
+        <div><span class="value-text {{ uv_today(weather) }}">{{ weather.uv|int }}</span> UVI</div>
+        <div>UV Index</div>
+    </div>
+    <div class="solar">
+        <div><span class="solar-value {{ uv_today(weather) }}">{{ weather.solarradiation|int }}</span> W/m<sup>2</sup></div>
+        <div>Solar Radiation</div>
+    </div>
+</div>
+{% endblock %}

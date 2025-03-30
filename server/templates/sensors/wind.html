@@ -1,0 +1,52 @@
+{% set bdata = box.wind %}
+{% extends 'application/box.html' %}
+
+{% block boxinfo %}
+
+<div class="wind-container">
+    <div class="bft">
+        <div>
+            <span class="{{ beaufort_scale(weather.windspeedmph).css }}">
+                {{ beaufort_scale(weather.windspeedmph).svg|safe }}
+            </span> &nbsp;{{ get_beaufort(weather.windspeedmph) }}
+            <span class="bfttxt">&nbsp;BFT</span>
+        </div>
+        <div>
+            {{ beaufort_scale(weather.windspeedmph).text }}
+        </div>
+    </div>
+    <div class="maxgust">
+        <span class={{ beaufort_scale(wind['gust'].value).css }}>Max Gust:</span>
+        <div>{{ wind["gust"].value }}  {{ wind_label(units) }} [{{ time_format(wind["gust"].recorded) }}] </div>
+    </div>
+    <div class="windrun">
+        <div class="windrun1">Wind Run</div>
+        <div>
+            <i class="fa-solid fa-align-left windrun-icon"></i>
+            &nbsp;{{ wind_display(wind_run(minmax["windspeedmph"]["avg"]["day"].value), units) }} mi
+        </div>
+    </div>
+    <div class="current">
+        <div class="arrow {{ beaufort_scale(weather.windspeedmph).css }}">
+            <div style="transform:rotate({{weather.winddir}}deg);">
+                <i class="fa-solid fa-arrow-down"></i>
+            </div>
+        </div>
+        <div>
+            {{ weather.winddir }}&deg; &nbsp;&nbsp;
+            {{ deg_to_compass(weather.winddir) }}
+        </div>
+        <div class="conditions">
+            <div class="current">
+                <div class="windunitidspeed">Wind</div>
+                {{ wind_display(weather.windspeedmph, units) }}&nbsp;{{ wind_label(units) }}
+            </div>
+            <div class="gusts">
+                <div class="windunitidspeed">Gust</div>
+                {{ wind_display(weather.windgustmph, units) }}&nbsp;{{ wind_label(units) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

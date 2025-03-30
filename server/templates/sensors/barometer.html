@@ -1,0 +1,16 @@
+{% set bdata = box.barometer %}
+{% extends 'application/box.html' %}
+
+{% block boxinfo %}
+<div class="barometer-container">
+    <div class="barometer-wrap">
+        <div class="barometer-text">
+            {{ baro_display(weather.baromrelin, units) }}&nbsp;
+            <span class="units"> {{ baro_label(units) }}</span>
+        </div>
+        <div> {{ btrend.trend }} </div>
+    </div>
+    <div class="barometermax">Max: {{ baro_display(minmax["baromrelin"]["max"]["day"].value, units)}}&nbsp;{{ baro_label(units) }}</div>
+    <div class="barometermin">Min: {{ baro_display(minmax["baromrelin"]["max"]["day"].value, units)}}&nbsp;{{ baro_label(units) }}</div>
+</div>
+{% endblock %}

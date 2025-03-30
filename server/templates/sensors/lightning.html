@@ -1,0 +1,45 @@
+{% set bdata = box.lightning %}
+{% extends 'application/box.html' %}
+
+{% block boxinfo %}
+<div class="lightning-container">
+    <div class="laststrike"><span class="lightning-yellow">Last Strike:</span> 
+        {{ full_date(weather.lightningtime) }} </div>
+    <div class="lhour">
+        <div class="lightning-yellow">Hour:</div>
+        <div class="lightning-value {{ lightning_class(weather.lightninghour) }}">
+            {{ weather.lightninghour }}
+        </div>
+    </div>
+    <div class="lday">
+        <div class="lightning-yellow">Day:</div>
+        <div class="lightning-value {{ lightning_class(weather.lightningday) }}">
+            {{ weather.lightningday }}
+        </div>
+    </div>
+    <div class="lyesterday">
+        <div class="lightning-yellow">Yesterday:</div>
+        <div class="lightning-value {{ lightning_class(minmax["lightning"]["max"]["yesterday"].value) }}">
+            {{ minmax["lightning"]["max"]["yesterday"].value|int }}
+        </div>
+    </div>
+    <div class="lmonth">
+        <div class="lightning-yellow">{{ month(weather.recorded) }}:</div>
+        <div class="lightning-value {{ lightning_class(lightning_month.value) }}">
+            {{ lightning_month.value }}
+        </div>
+    </div>
+     <div class="lastd">
+        <div class="lightning-yellow">Distance</div>
+        <div class="lightning-value {{ distance_class(weather.lightningdistance) }}">
+            {{ weather.lightningdistance|int }}
+        </div>
+    </div>
+    <div class="lyear">
+        <div class="lightning-yellow">{{ year(weather.recorded) }}:</div>
+        <div class="lightning-value {{ lightning_class(minmax["lightning"]["max"]["year"].value) }}">
+                {{ minmax["lightning"]["max"]["year"].value|int }}
+        </div>
+    </div>
+</div>
+{% endblock %}

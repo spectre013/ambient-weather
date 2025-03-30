@@ -1,0 +1,72 @@
+<div id="root">
+    <div class="header">
+        <div class="title"><a href="/"><i class="fa-solid fa-house"></i></a> Lorson Ranch, Colorado Springs, CO</div>
+        <div class="last-update">Last update:&nbsp;<span class="update-time">{{ time_format(weather.recorded) }}</span>
+        </div>
+    </div>
+    <div class="container">
+        <a href="/almanac/temperature/1h">
+            <div class="temperature">
+                {% include "sensors/temperature.html" %}
+            </div>
+        </a>
+        <div class="forecast">
+            {% include "sensors/forecast.html" %}
+        </div>
+        <div class="alerts">
+            {% include "sensors/alerts.html" %}
+        </div>
+        <a href="/almanac/windspeed/1h">
+            <div class="wind">
+                {% include "sensors/wind.html" %}
+            </div>
+        </a>
+        <div class="rain">
+            {% include "sensors/rain.html" %}
+        </div>
+        <a href="/almanac/lightning/1h">
+            <div class="lightning">
+                {% include "sensors/lightning.html" %}
+            </div>
+        </a>
+        <a href="/almanac/humidity/1h">
+            <div class="humidity">
+                {% include "sensors/humidity.html" %}
+            </div>
+        </a>
+        <a href="/almanac/barometer/1h">
+            <div class="barometer">
+                {% include "sensors/barometer.html" %}
+            </div>
+        </a>
+        <div class="sun">
+            {% include "sensors/sun.html" %}
+        </div>
+        <div class="uv">
+            {% include "sensors/uv.html" %}
+        </div>
+        <div class="aqi">
+            {% include "sensors/aq.html" %}
+        </div>
+        <div class="living">
+            {% set tempin = "in" %}
+            {% include "sensors/tempin.html" %}
+        </div>
+        <div class="master">
+            {% set tempin = "2" %}
+            {% include "sensors/tempin.html" %}
+        </div>
+        <div class="office">
+            {% set tempin = "1" %}
+            {% include "sensors/tempin.html" %}
+        </div>
+        <div class="basement">
+            {% set tempin = "3" %}
+            {% include "sensors/tempin.html" %}
+        </div>
+        <div class="garage">
+            {% set tempin = "4" %}
+            {% include "sensors/tempin.html" %}
+        </div>
+    </div>
+</div>

@@ -1,0 +1,19 @@
+{% set bdata = box.humidity %}
+{% extends 'application/box.html' %}
+
+{% block boxinfo %}
+<div class="humidity-container">
+    <div class="humidity-wrap">
+        <div class="humidity-text {{ humidity_class(weather.dewpoint) }}">
+            {{ weather.humidity }}%
+        </div>
+        <div class="dewpoint">Dewpoint:&nbsp;
+            <span class={{ dew_point_class(weather.dewpoint) }}>
+                {{ weather.dewpoint|int }}&deg;
+            </span>
+        </div>
+    </div>
+    <div class="humiditymax">Max: {{ temp_display(minmax["humidity"]["max"]["day"].value, units)}}%</div>
+    <div class="humiditymin">Min: {{ temp_display(minmax["humidity"]["min"]["day"].value, units)}}%</div>
+</div>
+{% endblock %}

@@ -1,0 +1,11 @@
+<div class="box-container" style="{{ bdata.style }}">
+    <div class="box-grid">
+        <div class="icon">
+            <div class="header-icon"><i class="fa-solid {{ bdata.icon}}"></i>&nbsp;<span class="header-text">{{ bdata.title }}</span></div>
+        </div>
+        <div class="scale">{{ bdata.unit|safe }}</div>
+        <div class="content">
+            {% block boxinfo %}{% endblock %}
+        </div>
+    </div>
+</div>

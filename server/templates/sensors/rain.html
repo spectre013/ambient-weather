@@ -1,0 +1,34 @@
+{% set bdata = box.rain %}
+{% extends 'application/box.html' %}
+
+{% block boxinfo %}
+<div class="rain-container">
+    <div class="lastrain"><span class="rain-blue">Last Rain:</span>&nbsp;{{ full_date(weather.lastrain) }}</div>
+    <div class="raintotal">
+        <span class="amount rain-blue">{{ rain_display(weather.dailyrainin, units) }}</span>&nbsp;
+        {{ rain_label(units) }}
+    </div>
+    <div class="rate">
+        <span class="rain-blue"> Rate:</span>&nbsp;{{ rain_display(weather.hourlyrainin, units) }}&nbsp;
+        {{  rain_label(units) }}
+    </div>
+    <div class="year">
+        {{ year(weather.recorded) }}&nbsp;
+        <span class="rain-blue">{{ rain_display(weather.yearlyrainin, units) }}</span>&nbsp;
+        {{ rain_label(units) }}
+    </div>
+    <div class="month">
+        {{ month(weather.recorded) }}:&nbsp;
+        <span class="rain-blue">{{ rain_display(weather.monthlyrainin, units) }}</span>
+        &nbsp;{{ rain_label(units) }}
+    </div>
+    <div class="hour">
+        Last Hour: <span class="rain-blue">{{ rain_display(weather.hourlyrain, units) }}</span>
+        &nbsp;{{ rain_label(units) }}
+    </div>
+    <div class="tfhour">
+        Last 24hr: <span class="rain-blue">{{ rain_display(weather.dailyrainin, units) }}</span>
+        &nbsp;{{ rain_label(units) }}
+    </div>
+</div>
+{% endblock %}
