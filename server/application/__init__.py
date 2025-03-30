@@ -14,6 +14,7 @@ def create_app(environment):
         load_dotenv()
 
     app_config = config[environment]
+    print(os.environ.get('DATABASE_URL'))
     app_config.SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     app = Flask(__name__,
                 template_folder=app_config.TEMPLATES,
