@@ -2,13 +2,20 @@ stages:
   - scan
   - build docker
 
+#lint server:
+#  stage: lint
+#  script:
+#    - export PATH=$PATH:/usr/local/go/bin
+#    - cd weather-server
+#    - staticcheck ./...
+
 scan server:
   stage: scan
   script:
     - |
       export PATH=$PATH:/usr/local/go/bin
       echo "Running Truffle Hog"
-      output="$(trufflehog -j filesystem server | jq -C .)"
+      output="$(trufflehog -j filesystem weather-server | jq -C .)"
   
       if [ "${output}" != "" ]; then
         echo "${output}"
@@ -37,9 +44,9 @@ scan transfer:
 server:
   stage: build docker
   script:
-    - cd server
-    - docker build -t $DOCKER_REGISTRY/production/weather-server:3.0 . --no-cache
-    - docker push $DOCKER_REGISTRY/production/weather-server:3.0
+    - cd weather-server
+    - docker build -t $DOCKER_REGISTRY/production/weather-server:2.1.6 . --no-cache
+    - docker push $DOCKER_REGISTRY/production/weather-server:2.1.6
 
 transfer:
   stage: build docker
