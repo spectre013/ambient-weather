@@ -12,6 +12,7 @@ export interface Props {
 
 const Temperature = (props:Props) => {
     return (
+
         <BoxData icon="fa-temperature-three-quarters" title="Temperature" unit="&deg;F" style={{}}>
             <>
                 <div className="temp-container">

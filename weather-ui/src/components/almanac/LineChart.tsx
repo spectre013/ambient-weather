@@ -1,54 +1,78 @@
-import React, { useEffect, useRef } from 'react';
-import * as d3 from 'd3';
-import nv from 'nvd3';
-import 'nvd3/build/nv.d3.css';
+import * as React from 'react';
+import Button from 'node_modules/@mui/material/Button';
+import { LineChart } from '@mui/x-charts/LineChart';
+import {useEffect} from "react";
 
-const TemperatureChart = () => {
-    const chartRef = useRef(null);
+const dateFormatter = Intl.DateTimeFormat(undefined, {
+    month: '2-digit',
+    day: '2-digit',
+});
+const oneDay = 24 * 60 * 60 * 1000; // in milliseconds
 
-    useEffect(() => {
+const length = 50;
+const initialFirstData = Array.from<number>({ length }).map(
+    (_, __, array) => (array.at(-1) ?? 0) + randBetween(-100, 500),
+);
+const initialSecondData = Array.from<number>({ length }).map(
+    (_, __, array) => (array.at(-1) ?? 0) + randBetween(-500, 100),
+);
+
+export default function LiveLineChartNoSnap() {
+    const [running, setRunning] = React.useState(false);
+    const [data, setData] = React.useState({})
+    const [firstData, setFirstData] = React.useState(initialFirstData);
+    const [secondData, setSecondData] = React.useState(initialSecondData);
+
+    React.useEffect(() => {
+        if (!running) {
+            return undefined;
+        }
         fetch("api/chart/temperature/1h")
-            .then(response => response.json())
-            .then(data => {
-                data.forEach(series => {
-                    series.values.forEach(d => {
-                        d.x = new Date(d.date); // Convert date string to Date object
-                        d.y = d.value;
-                    });
-                });
-
-                const chart = nv.models.lineChart()
-                    .useInteractiveGuideline(true) // Enable tooltips
-                    .showLegend(true)
-                    .showYAxis(true)
-                    .showXAxis(true);
-
-                chart.xAxis
-                    .axisLabel('Time')
-                    .tickFormat(d => d3.timeFormat('%H:%M')(new Date(d)));
-
-                chart.yAxis
-                    .axisLabel('Temperature (°F)')
-                    .tickFormat(d3.format('.1f'));
-
-                d3.select(chartRef.current)
-                    .datum(data)
-                    .call(chart);
-
-                nv.utils.windowResize(chart.update);
-            });
-
-        // Apply dark mode styles
-        document.body.style.backgroundColor = '#121212';
-        document.body.style.color = '#ffffff';
-        d3.selectAll('text').style('fill', '#ffffff');
-    }, []);
+        .then(response => response.json())
+        .then(data => {
+            setData(data);
+        });
+    }, [running]);
 
     return (
-        <div id="chart">
-            <svg ref={chartRef} width="100%" height="500px"></svg>
+        <div style={{ width: '100%' }}>
+            <LineChart
+                height={300}
+                skipAnimation
+                series={[
+                    { data: secondData, showMark: false },
+                    { data: firstData, showMark: false },
+                ]}
+                xAxis={[
+                    {
+                        scaleType: 'point',
+                        data: Array.from({ length }).map(
+                            (_, i) => new Date(date.getTime() + i * oneDay),
+                        ),
+                        valueFormatter: (value: Date) => dateFormatter.format(value),
+                    },
+                ]}
+                yAxis={[{ width: 50 }]}
+                margin={{ right: 24 }}
+            />
+            <Button size="small" variant="contained" onClick={() => setRunning((p) => !p)}>
+                {running ? 'stop' : 'start'}
+            </Button>
+            <Button
+                size="small"
+                variant="outlined"
+                sx={{ marginLeft: 1.5 }}
+                onClick={() => {
+                    setFirstData(initialFirstData);
+                    setSecondData(initialSecondData);
+                }}
+            >
+                reset
+            </Button>
         </div>
     );
-};
+}
 
-export default TemperatureChart;
+function randBetween(min: number, max: number) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+}
