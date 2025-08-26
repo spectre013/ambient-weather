@@ -1,51 +1,55 @@
-.tempcolorminus10 {
-    color: #3369e7;
+.stat-container {
+    padding: 5px 5px;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
 }
 
-.tempcolorminus5 {
-    color: #3b9cac;
+.stat-box {
+    background-color: var(--card-bg);
+    border-radius: 5px;
+    padding: 5px;
+    border: 1px solid var(--border-color);
 }
 
-.tempcolorminus,
-.tempcolorzero {
-    color: #00a4b4;
+.color-range-10-below {
+    color: #1a237e; /* Matches the darkest blue */
 }
 
-.tempcolor0-5 {
-    color: #00a4b4;
+.color-range-10-to-19 {
+    color: #283593; /* Matches the dark blue */
 }
 
-.tempcolor6-10 {
-    color: #88b04b;
+.color-range-20-to-29 {
+    color: #3949ab; /* Matches the slightly lighter blue */
 }
 
-.tempcolor11-15 {
-    color: #e6a141;
+.color-range-30-to-39 {
+    color: #42a5f5; /* Matches the light blue */
 }
 
-.tempcolor16-20 {
-    color: #ff7c39;
+.color-range-40-to-49 {
+    color: #66bb6a; /* Matches the green */
 }
 
-.tempcolor21-25 {
-    color: #efa80f;
+.color-range-50-to-59 {
+    color: #ffee58; /* Matches the yellow */
 }
 
-.tempcolor26-30 {
-    color: #d05f2d;
+.color-range-60-to-69 {
+    color: #ffa726; /* Matches the orange */
 }
 
-.tempcolor31-35 {
-    color: #d86858;
+.color-range-70-to-79 {
+    color: #ef5350; /* Matches the red-orange */
 }
 
-.tempcolor36-40 {
-    color: #fd7641;
+.color-range-80-to-89 {
+    color: #e53935; /* Matches the red */
 }
 
-.tempcolor41-45,
-.tempcolor50 {
-    color: #de2c52;
+.color-range-90-and-above {
+    color: #c62828; /* Matches the darkest red */
 }
 
 

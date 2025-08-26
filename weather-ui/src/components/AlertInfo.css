@@ -1,23 +1,25 @@
-.alert-container {  display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 3fr 6fr .2fr;
-    gap: 0px 0px;
-    grid-auto-flow: row;
-    grid-template-areas:
-    "up up"
-    "event event"
-    "headline headline"
-    "down down";
+.alert-container {
+    display: grid;
+    grid-template-rows: .5fr 1fr 2fr .5fr;
 }
 
-.event { grid-area: event; }
+.event {
+    text-align: center;
+    font-weight: bold;
+    font-size: 2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-.headline { grid-area: headline; }
+.event span {
+    font-size: 32px;
+}
 
-
-.down { grid-area: down; }
-
-.up { grid-area: up; }
+.headline {
+    font-size: 18px;
+    text-align: center;
+}
 
 .no-alerts {
     font-size: 18px;
@@ -27,28 +29,18 @@
 .starts, .ends {
     font-size: 12px;
 }
-.headline {
-    font-size: 13px;
-}
 
 .alert-box {
     font-size: 14px;
 }
 
-.alertsvg {
-    height: 14px;
-    width: 14px;
-}
-
-.uparrow {
-    transform: rotate(180deg);
-}
 .uparrow, .downarrow {
     height: 16px;
-}
-.uparrow svg, .downarrow svg  {
+    font-size: 16px;
+    text-align: center;
     cursor: pointer;
 }
+
 
 .tsunami-warning {
     color: #FD6347;

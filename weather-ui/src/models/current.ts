@@ -105,6 +105,7 @@ export interface WindData {
     maxdailygust: number;
     windavg: number;
     minmax: minmax;
+    gustminmax: minmax;
 }
 
 export interface UVData {
@@ -122,6 +123,8 @@ export interface AstroData {
     daylight: number;
     elevation: number;
     hasSunset: boolean;
+    SunriseElevation: number;
+    SunsetElevation: number;
 }
 
 export interface Alert {

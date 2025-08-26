@@ -100,3 +100,14 @@ func formatDate(date time.Time) string {
 	format := "2006-01-02 15:04:05 -0700"
 	return date.Format(format)
 }
+
+func correctSunElevation(elevation float64, now time.Time, sunrise time.Time, sunset time.Time) float64 {
+
+	// Calculate the absolute duration from the target time to each date
+	diff1 := now.Sub(sunrise).Abs()
+	diff2 := now.Sub(sunset).Abs()
+	if diff2 < diff1 {
+		elevation = 50 + (50 - elevation)
+	}
+	return elevation
+}

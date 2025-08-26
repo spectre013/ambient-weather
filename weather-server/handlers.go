@@ -88,7 +88,7 @@ func astro() Astro {
 		SunsetTomorrow:  sett,
 		Darkness:        riset.Sub(set),
 		Daylight:        set.Sub(rise),
-		Elevation:       elevation,
+		Elevation:       correctSunElevation(elevation, time.Now(), rise, set),
 		HasSunset:       hasSunSet,
 	}
 	return astro
@@ -219,7 +219,12 @@ func chartFormat(t string, sensor string) []ChartData {
 		},
 		"lightning": {
 			"sensors": {
-				{"sensor": "lightning", "color": "yellow", "title": "Lightning"},
+				{"sensor": "lightningday", "color": "yellow", "title": "Lightning"},
+			},
+		},
+		"rain": {
+			"sensors": {
+				{"sensor": "dailyrainin", "color": "blue", "title": "Daily Rain"},
 			},
 		},
 	}
@@ -249,8 +254,19 @@ func chartData(timeframe string, sensor string) []ChartValue {
 	chartValues := make([]ChartValue, 0)
 	for rows.Next() {
 		a := ChartValue{}
-		err := rows.Scan(&a.Ts, &a.Value)
-		sqlError("Chart", err, chartSQL)
+		if sensor == "dailyrainin" || sensor == "lightningday" {
+			var ts int
+			var value float64
+			err := rows.Scan(&ts, &value)
+			sqlError("Chart", err, chartSQL)
+			a = ChartValue{
+				Ts:    time.Date(time.Now().Year(), time.Now().Month(), ts, 0, 0, 0, 0, time.Local),
+				Value: value,
+			}
+		} else {
+			err := rows.Scan(&a.Ts, &a.Value)
+			sqlError("Chart", err, chartSQL)
+		}
 		chartValues = append(chartValues, a)
 	}
 	return chartValues
@@ -354,6 +370,7 @@ func minmax(f string) map[string]map[string]StatValue {
 			minmax[parts[1]][strings.ToLower(parts[0])] = StatValue{Recorded: v.Recorded, Value: v.Value}
 		}
 	}
+
 	return minmax
 }
 
@@ -423,6 +440,7 @@ func buildConditions(record Record) Conditions {
 		Maxdailygust: w.Maxdailygust,
 		Avg:          w.Avg,
 		MinMax:       minmax("windspeedmph"),
+		GustMinMax:   minmax("windgustmph"),
 	}
 
 	conditions.UV = UV{

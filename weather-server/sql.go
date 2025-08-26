@@ -78,55 +78,43 @@ func getStats() []Stat {
 
 func chartQueries(t string, sensor string) string {
 
-	q := map[string]string{}
-	q["1h"] = `SELECT date_trunc('hour', (recorded at time zone 'mst')) + (floor(date_part('minute', (recorded at time zone 'mst'))) * interval '1 minutes') AS ts,
-					%s as value
+	sqlString := `SELECT recorded AS ts, %s as value
+	FROM records
+	WHERE recorded >= NOW() - interval '%s'
+	AND recorded <= NOW()
+	order by ts asc`
+	date := time.Now().Format("2006-01-02 15:04:05")
+	rainsSQL := fmt.Sprintf(`SELECT EXTRACT(DAY FROM recorded) AS ts, max(%s) as value
 				FROM records
-					WHERE recorded >= NOW() - interval '1 hour'
-					AND recorded <= NOW()
-				order by ts asc`
-	q["6h"] = `SELECT date_trunc('hour', (recorded at time zone 'mst')) + (floor(date_part('minute', (recorded at time zone 'mst')) / 15) * interval '15 minutes') AS ts,
-					%s as value
-				FROM records
-					WHERE recorded >= NOW() - interval '6 hour'
-					AND recorded <= NOW()
-				GROUP BY ts
-				order by ts asc`
+				WHERE recorded >= DATE_TRUNC('month', '%s'::DATE)
+				  AND recorded < (DATE_TRUNC('month', '%s'::DATE) + INTERVAL '1 month')
+				  group by ts
+				  order by ts;`, sensor, date, date)
 
-	q["12h"] = `SELECT date_trunc('hour', (recorded at time zone 'mst')) + (floor(date_part('minute', (recorded at time zone 'mst')) / 30) * interval '30 minute') AS ts,
-					%s as value
-				FROM records
-					WHERE recorded >= NOW() - interval '12 hours'
-					AND recorded <= NOW()
-				GROUP BY ts
-				order by ts asc`
+	if sensor == "dailyrainin" || sensor == "lightningday" {
+		return rainsSQL
+	}
 
-	q["1d"] = `SELECT date_trunc('hour', (recorded at time zone 'mst')) + (floor(date_part('minute', (recorded at time zone 'mst')) / 30) * interval '1 hour') AS ts,
-					%s as value
-				FROM records
-					WHERE recorded >= NOW() - interval '1 day'
-					AND recorded <= NOW()
-				GROUP BY ts
-				order by ts asc`
-	q["1m"] = `SELECT date_trunc('day', (recorded at time zone 'mst')) + (floor(date_part('minute', (recorded at time zone 'mst')) / 60) * interval '1 day') AS ts,
-					%s as value
-				FROM records
-					WHERE recorded >= NOW() - interval '1 month'
-					AND recorded <= NOW()
-				GROUP BY ts
-				order by ts asc`
-	q["1y"] = `SELECT date_trunc('month', (recorded at time zone 'mst')) + (floor(date_part('minute', (recorded at time zone 'mst')) / 60) * interval '1 day') AS ts,
-					%s as value
-				FROM records
-					WHERE recorded >= NOW() - interval '1 year'
-					AND recorded <= NOW()
-				GROUP BY ts
-				order by ts asc`
-	q["at"] = `SELECT date_trunc('month', (recorded at time zone 'mst')) + (floor(date_part('minute', (recorded at time zone 'mst')) / 60) * interval '1 day') AS ts,
-					%s as value
-				FROM records
-				GROUP BY ts
-				order by ts asc`
+	timeFrame := "1 hour"
+	switch t {
+	case "1h":
+		timeFrame = "1 hour"
+		break
+	case "3h":
+		timeFrame = "3 hours"
+		break
+	case "6h":
+		timeFrame = "6 hours"
+		break
+	case "12h":
+		timeFrame = "12 hours"
+		break
+	case "24h":
+		timeFrame = "24 hours"
+		break
+	case "1m":
+		timeFrame = "1 month"
+	}
 
-	return fmt.Sprintf(q[t], sensor)
+	return fmt.Sprintf(sqlString, sensor, timeFrame)
 }

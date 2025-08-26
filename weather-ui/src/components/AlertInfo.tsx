@@ -1,7 +1,6 @@
 import { Alert } from '../models/Alert'
 import {useEffect, useState} from "react";
 import './AlertInfo.css'
-import BoxData from "./BoxData";
 
 export interface Props {
     alerts: Alert[]
@@ -41,47 +40,32 @@ const AlertInfo = (props: Props) => {
 
     if(props.alerts.length == 0) {
         return (
-            <BoxData icon="fa-triangle-exclamation" title="ALERTS" unit="">
-                <div className="no-alerts">No Alerts!</div>
-            </BoxData>
+            <div className="no-alerts">No Alerts!</div>
         )
     } else {
         return (
-            <BoxData icon="fa-triangle-exclamation" title="ALERTS" unit="">
-                <div className="alert-box">
-                    <div className="alert-container">
-                        <div className="up">
-                            <div className="uparrow"  onClick={() => changeAlert("up")}>
-                                {currentAlert > 0 && <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="16" height="16">
-                                    <path d="m 13,6 -5,5 -5,-5 z" fill="#797979" />
-                                </svg>}
-                            </div>
+                <div className="alert-container">
+                    <div className="up">
+                        <div className="uparrow"  onClick={() => changeAlert("up")}>
+                            {currentAlert > 0 && <span className="material-symbols-sharp">arrow_drop_up</span>}
                         </div>
-                        <div className={`event ` + alertColor()}>
-                            <svg className="alertsvg" viewBox="0 0 32 32"  fill="none" stroke="currentcolor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2">
-                                <path d="M16 3 L30 29 2 29 Z M16 11 L16 19 M16 23 L16 25"></path>
-                            </svg>
-                            &nbsp;
-                            { alert.event }
-                            &nbsp;
-                            <svg className="alertsvg" viewBox="0 0 32 32"  fill="none" stroke="currentcolor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2">
-                                <path d="M16 3 L30 29 2 29 Z M16 11 L16 19 M16 23 L16 25"></path>
-                            </svg>
-                        </div>
-                        <div className="headline">
-                            <div>{alert.headline}</div>
-
-                        </div>
-                        <div className="down">
-                            <div className="downarrow" onClick={() => changeAlert("down")}>
-                                {currentAlert + 1 < props.alerts.length &&  <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="16" height="16">
-                                    <path d="m 13,6 -5,5 -5,-5 z" fill="#797979" />
-                                </svg> }
-                            </div>
+                    </div>
+                    <div className={`event ` + alertColor()}>
+                        <span className="material-symbols-sharp">warning</span>
+                    &nbsp;
+                    { alert.event }
+                        &nbsp;
+                        <span className="material-symbols-sharp">warning</span>
+                    </div>
+                    <div className="headline">
+                        <div>{alert.headline}</div>
+                    </div>
+                    <div className="down">
+                        <div className="downarrow" onClick={() => changeAlert("down")}>
+                            {currentAlert + 1 < props.alerts.length &&  <span className="material-symbols-sharp">arrow_drop_down</span> }
                         </div>
                     </div>
                 </div>
-            </BoxData>
         )
     }
 }

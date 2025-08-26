@@ -1,0 +1,23 @@
+.forecast-info .weather-icon img {
+    height: 120px;
+    width: 120px;
+}
+
+.forecast-info {
+    text-align: center;
+    margin: 20px auto;
+    border: 1px solid var(--border-color);
+}
+
+.left {
+    padding: 0 10px
+}
+.right {
+    margin-top: 40px;
+}
+.charts {
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+    margin: 20px auto;
+}

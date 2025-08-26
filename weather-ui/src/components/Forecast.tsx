@@ -1,39 +1,65 @@
 import "./Forecast.css";
 import * as weather from '../util/weather'
 import moment from "moment";
-import BoxData from "./BoxData.tsx";
-import * as CSS from 'csstype';
-import {ForecastModel, Day } from "../models/Forecast.ts";
+import {ForecastModel, Day, gradient} from "../models/Forecast.ts";
+import {tempToHex} from "../util/weather";
+import { useNavigate } from 'react-router-dom';
+
 export interface Props {
     forecast: ForecastModel
     units: string
 }
 
+
 const Forecast = (props:Props) => {
-    function getDayOfWeek(date: string) : string {
-        return moment(date).format("ddd");
+    const navigate = useNavigate();
+
+    function forecastDate(date: string) : string {
+        return moment(date).format("MMM Do");
     }
-    function render(day: Day)  {
+
+    const forecastClick = (day: number) => {
+        navigate('/details/forecast/'+day); // Navigate to the /dashboard route
+    };
+
+    function render(day: Day, i: number)  {
         return (
-            <div className="forecast-wrap" key={day.datetimeEpoch}>
-                <span>{getDayOfWeek(day.datetime)}</span>
-                <div className="forecast-container">
-                    <div className="forecast-icon"><img src={'/images/icons/'+day.icon+'.png'} /></div>
-                    <div className={`forecast-max ${weather.tempColor(day.tempmax)}`}>{ weather.tempDisplay(day.tempmax, props.units) }</div>
-                    <div className={`forecast-min ${weather.tempColor(day.tempmin)}`}>{ weather.tempDisplay(day.tempmin, props.units)}</div>
+            <div className="forecast-day" key={day.datetimeEpoch} onClick={()=>forecastClick(i+1)}>
+                <div className="day-date">{ forecastDate(day.datetime) }</div>
+                <div className="weather-icon"><img alt="" src={'/images/icons/'+day.icon+'.png'} /></div>
+                <div className="day-info">
+                    <div className="day-temp">
+                        {weather.tempDisplay(day.tempmin, props.units)}°
+                        <div className="temp-bar-container">
+                            <div className="temp-bar" style={getTemperatureGradient(day.tempmin, day.tempmax)}></div>
+                        </div>
+                        {weather.tempDisplay(day.tempmax, props.units)}°
+                    </div>
                 </div>
             </div>
         )
     }
-    const days = props.forecast.days.slice(1, 8);
-    const style: CSS.Properties = {
-        width: '570px'
-    };
-
+    const days = props.forecast.days.slice(1, 10);
     return (
-        <BoxData icon="fa-cloud-sun-rain" title="FORECAST" unit="&deg;F" style={style}>
-            {days.map((day: Day) => render(day))}
-        </BoxData>
+        <section className="forecast-section">
+            <div className="forecast-header">
+                <h2>10-Day Forecast</h2>
+            </div>
+            <div className="forecast-list">
+            {days.map((day: Day, i:number) => render(day,i))}
+            </div>
+        </section>
     )
+
+    function getTemperatureGradient(temp1: number, temp2: number): gradient {
+        const color1 = tempToHex(temp1);
+        const color2 = tempToHex(temp2);
+
+        return {
+            background: `linear-gradient(to right, ${color1}, ${color2})`,
+            width: '100%',
+        }
+    }
+
 }
 export default Forecast

@@ -134,18 +134,19 @@ func makeRequest(url string, header map[string]string) ([]byte, error) {
 	return body, nil
 }
 
-func getForecast() (ForecastImage, error) {
-	url := fmt.Sprintf("https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/Colorado%%20Springs?unitGroup=us&iconSets=icon2&include=days&key=%s&contentType=json", os.Getenv("WEATHER_API"))
+func getForecast() (Forecast, error) {
+	includes := "days%2Chours"
+	url := fmt.Sprintf("https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/Colorado%%20Springs?unitGroup=us&iconSets=icon2&include=%s&key=%s&contentType=json", includes, os.Getenv("WEATHER_API"))
 	header := map[string]string{}
 	res, err := makeRequest(url, header)
 	if err != nil {
-		logger.Error(err)
-		return ForecastImage{}, err
+		logger.Error("Error in Get Forecast", err)
+		return Forecast{}, err
 	}
-	f := ForecastImage{}
+	f := Forecast{}
 	err = json.Unmarshal(res, &f)
 	if err != nil {
-		logger.Error(err)
+		logger.Error("Error in Unmarshall Forecast", err)
 		return f, err
 	}
 	return f, err

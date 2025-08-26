@@ -113,6 +113,7 @@ type Wind struct {
 	Maxdailygust float64                         `json:"maxdailygust"`
 	Avg          int                             `json:"windavg"`
 	MinMax       map[string]map[string]StatValue `json:"minmax"`
+	GustMinMax   map[string]map[string]StatValue `json:"gustminmax"`
 }
 
 type UV struct {
@@ -232,106 +233,6 @@ type Alert struct {
 	Response    string    `json:"response"`
 }
 
-type ForecastImage struct {
-	Querycost       int     `json:"queryCost"`
-	Latitude        float64 `json:"latitude"`
-	Longitude       float64 `json:"longitude"`
-	Resolvedaddress string  `json:"resolvedAddress"`
-	Address         string  `json:"address"`
-	Timezone        string  `json:"timezone"`
-	Tzoffset        float64 `json:"tzoffset"`
-	Days            []struct {
-		Datetime       string   `json:"datetime"`
-		Datetimeepoch  int      `json:"datetimeEpoch"`
-		Tempmax        float64  `json:"tempmax"`
-		Tempmin        float64  `json:"tempmin"`
-		Temp           float64  `json:"temp"`
-		Feelslikemax   float64  `json:"feelslikemax"`
-		Feelslikemin   float64  `json:"feelslikemin"`
-		Feelslike      float64  `json:"feelslike"`
-		Dew            float64  `json:"dew"`
-		Humidity       float64  `json:"humidity"`
-		Precip         float64  `json:"precip"`
-		Precipprob     float64  `json:"precipprob"`
-		Precipcover    float64  `json:"precipcover"`
-		Preciptype     []string `json:"preciptype"`
-		Snow           float64  `json:"snow"`
-		Snowdepth      float64  `json:"snowdepth"`
-		Windgust       float64  `json:"windgust"`
-		Windspeed      float64  `json:"windspeed"`
-		Winddir        float64  `json:"winddir"`
-		Pressure       float64  `json:"pressure"`
-		Cloudcover     float64  `json:"cloudcover"`
-		Visibility     float64  `json:"visibility"`
-		Solarradiation float64  `json:"solarradiation"`
-		Solarenergy    float64  `json:"solarenergy"`
-		Uvindex        float64  `json:"uvindex"`
-		Severerisk     float64  `json:"severerisk"`
-		Sunrise        string   `json:"sunrise"`
-		Sunriseepoch   int      `json:"sunriseEpoch"`
-		Sunset         string   `json:"sunset"`
-		Sunsetepoch    int      `json:"sunsetEpoch"`
-		Moonphase      float64  `json:"moonphase"`
-		Conditions     string   `json:"conditions"`
-		Description    string   `json:"description"`
-		Icon           string   `json:"icon"`
-		Stations       []string `json:"stations"`
-		Source         string   `json:"source"`
-	} `json:"days"`
-	Stations struct {
-		Kfcs struct {
-			Distance     float64 `json:"distance"`
-			Latitude     float64 `json:"latitude"`
-			Longitude    float64 `json:"longitude"`
-			Usecount     int     `json:"useCount"`
-			ID           string  `json:"id"`
-			Name         string  `json:"name"`
-			Quality      int     `json:"quality"`
-			Contribution float64 `json:"contribution"`
-		} `json:"KFCS"`
-		Kcwn struct {
-			Distance     float64 `json:"distance"`
-			Latitude     float64 `json:"latitude"`
-			Longitude    float64 `json:"longitude"`
-			Usecount     int     `json:"useCount"`
-			ID           string  `json:"id"`
-			Name         string  `json:"name"`
-			Quality      int     `json:"quality"`
-			Contribution float64 `json:"contribution"`
-		} `json:"KCWN"`
-		Kaff struct {
-			Distance     float64 `json:"distance"`
-			Latitude     float64 `json:"latitude"`
-			Longitude    float64 `json:"longitude"`
-			Usecount     int     `json:"useCount"`
-			ID           string  `json:"id"`
-			Name         string  `json:"name"`
-			Quality      int     `json:"quality"`
-			Contribution float64 `json:"contribution"`
-		} `json:"KAFF"`
-		C8796 struct {
-			Distance     float64 `json:"distance"`
-			Latitude     float64 `json:"latitude"`
-			Longitude    float64 `json:"longitude"`
-			Usecount     int     `json:"useCount"`
-			ID           string  `json:"id"`
-			Name         string  `json:"name"`
-			Quality      int     `json:"quality"`
-			Contribution float64 `json:"contribution"`
-		} `json:"C8796"`
-		Kcos struct {
-			Distance     float64 `json:"distance"`
-			Latitude     float64 `json:"latitude"`
-			Longitude    float64 `json:"longitude"`
-			Usecount     int     `json:"useCount"`
-			ID           string  `json:"id"`
-			Name         string  `json:"name"`
-			Quality      int     `json:"quality"`
-			Contribution float64 `json:"contribution"`
-		} `json:"KCOS"`
-	} `json:"stations"`
-}
-
 type Alerts struct {
 	Type     string `json:"type"`
 	Features []struct {
@@ -382,4 +283,95 @@ type Property struct {
 		PIL          []string `json:"PIL"`
 		BLOCKCHANNEL []string `json:"BLOCKCHANNEL"`
 	} `json:"parameters"`
+}
+
+type Forecast struct {
+	QueryCost       int                `json:"queryCost"`
+	Latitude        float64            `json:"latitude"`
+	Longitude       float64            `json:"longitude"`
+	ResolvedAddress string             `json:"resolvedAddress"`
+	Address         string             `json:"address"`
+	Timezone        string             `json:"timezone"`
+	Tzoffset        float64            `json:"tzoffset"`
+	Days            []Day              `json:"days"`
+	Stations        map[string]Station `json:"stations"`
+}
+
+type Day struct {
+	Datetime       string   `json:"datetime"`
+	DatetimeEpoch  int64    `json:"datetimeEpoch"`
+	Tempmax        float64  `json:"tempmax"`
+	Tempmin        float64  `json:"tempmin"`
+	Temp           float64  `json:"temp"`
+	Feelslikemax   float64  `json:"feelslikemax"`
+	Feelslikemin   float64  `json:"feelslikemin"`
+	Feelslike      float64  `json:"feelslike"`
+	Dew            float64  `json:"dew"`
+	Humidity       float64  `json:"humidity"`
+	Precip         float64  `json:"precip"`
+	Precipprob     float64  `json:"precipprob"`
+	Precipcover    float64  `json:"precipcover"`
+	Preciptype     []string `json:"preciptype"`
+	Snow           float64  `json:"snow"`
+	Snowdepth      float64  `json:"snowdepth"`
+	Windgust       float64  `json:"windgust"`
+	Windspeed      float64  `json:"windspeed"`
+	Winddir        float64  `json:"winddir"`
+	Pressure       float64  `json:"pressure"`
+	Cloudcover     float64  `json:"cloudcover"`
+	Visibility     float64  `json:"visibility"`
+	Solarradiation float64  `json:"solarradiation"`
+	Solarenergy    float64  `json:"solarenergy"`
+	Uvindex        float64  `json:"uvindex"`
+	Severerisk     float64  `json:"severerisk"`
+	Sunrise        string   `json:"sunrise"`
+	SunriseEpoch   int64    `json:"sunriseEpoch"`
+	Sunset         string   `json:"sunset"`
+	SunsetEpoch    int64    `json:"sunsetEpoch"`
+	Moonphase      float64  `json:"moonphase"`
+	Conditions     string   `json:"conditions"`
+	Description    string   `json:"description"`
+	Icon           string   `json:"icon"`
+	Stations       []string `json:"stations"`
+	Source         string   `json:"source"`
+	Hours          []Hour   `json:"hours"`
+}
+
+type Hour struct {
+	Datetime       string   `json:"datetime"`
+	DatetimeEpoch  int64    `json:"datetimeEpoch"`
+	Temp           float64  `json:"temp"`
+	Feelslike      float64  `json:"feelslike"`
+	Humidity       float64  `json:"humidity"`
+	Dew            float64  `json:"dew"`
+	Precip         float64  `json:"precip"`
+	Precipprob     float64  `json:"precipprob"`
+	Snow           float64  `json:"snow"`
+	Snowdepth      float64  `json:"snowdepth"`
+	Preciptype     []string `json:"preciptype"`
+	Windgust       float64  `json:"windgust"`
+	Windspeed      float64  `json:"windspeed"`
+	Winddir        float64  `json:"winddir"`
+	Pressure       float64  `json:"pressure"`
+	Visibility     float64  `json:"visibility"`
+	Cloudcover     float64  `json:"cloudcover"`
+	Solarradiation float64  `json:"solarradiation"`
+	Solarenergy    float64  `json:"solarenergy"`
+	Uvindex        float64  `json:"uvindex"`
+	Severerisk     float64  `json:"severerisk"`
+	Conditions     string   `json:"conditions"`
+	Icon           string   `json:"icon"`
+	Stations       []string `json:"stations"`
+	Source         string   `json:"source"`
+}
+
+type Station struct {
+	Distance     float64 `json:"distance"`
+	Latitude     float64 `json:"latitude"`
+	Longitude    float64 `json:"longitude"`
+	UseCount     int     `json:"useCount"`
+	ID           string  `json:"id"`
+	Name         string  `json:"name"`
+	Quality      int     `json:"quality"`
+	Contribution float64 `json:"contribution"`
 }
