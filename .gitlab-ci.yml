@@ -6,16 +6,16 @@ ui:
   stage: build docker
   script:
     - cd weather-ui
-    - docker build -t $DOCKER_REGISTRY/production/weather-ui:2.2 .
-    - docker push $DOCKER_REGISTRY/production/weather-ui:2.2
+    - docker build -t $DOCKER_REGISTRY/production/weather-ui:3.0 .
+    - docker push $DOCKER_REGISTRY/production/weather-ui:3.0
 
 
 server:
   stage: build docker
   script:
     - cd weather-server
-    - docker build -t $DOCKER_REGISTRY/production/weather-server:2.1.6 . --no-cache
-    - docker push $DOCKER_REGISTRY/production/weather-server:2.1.6
+    - docker build -t $DOCKER_REGISTRY/production/weather-server:4.0 . --no-cache
+    - docker push $DOCKER_REGISTRY/production/weather-server:4.0
 
 transfer:
   stage: build docker
