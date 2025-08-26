@@ -13,6 +13,7 @@ bfg-1.13.2.jar
 .DS_Store
 /dist
 image.png
+tmp/
 
 # Log files
 npm-debug.log*

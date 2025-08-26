@@ -1,6 +1,6 @@
 
 # STEP 1 build executable binary
-FROM golang:1.20.1-alpine3.17 as builder
+FROM golang:1.25.0-alpine3.22 AS builder
 RUN apk update && apk add git
 RUN apk --update add ca-certificates
 RUN apk add --no-cache tzdata
@@ -20,10 +20,10 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflag
 # STEP 2 build a small image
 # start from scratch
 FROM scratch
-ENV TZ America/Denver
+ENV TZ=America/Denver
 # Copy our static executable
 COPY --from=builder /go/bin/weather-server /go/bin/weather-server
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
-ENV GO_ENV production
+ENV GO_ENV=production
 ENTRYPOINT ["/go/bin/weather-server"]
