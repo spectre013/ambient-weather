@@ -1,0 +1,108 @@
+.stat-container {
+    padding: 5px 5px;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.stat-box {
+    background-color: var(--card-bg);
+    border-radius: 5px;
+    padding: 5px;
+    border: 1px solid var(--border-color);
+}
+
+.color-range-10-below {
+    color: #1a237e; /* Matches the darkest blue */
+}
+
+.color-range-10-to-19 {
+    color: #283593; /* Matches the dark blue */
+}
+
+.color-range-20-to-29 {
+    color: #3949ab; /* Matches the slightly lighter blue */
+}
+
+.color-range-30-to-39 {
+    color: #42a5f5; /* Matches the light blue */
+}
+
+.color-range-40-to-49 {
+    color: #66bb6a; /* Matches the green */
+}
+
+.color-range-50-to-59 {
+    color: #ffee58; /* Matches the yellow */
+}
+
+.color-range-60-to-69 {
+    color: #ffa726; /* Matches the orange */
+}
+
+.color-range-70-to-79 {
+    color: #ef5350; /* Matches the red-orange */
+}
+
+.color-range-80-to-89 {
+    color: #e53935; /* Matches the red */
+}
+
+.color-range-90-and-above {
+    color: #c62828; /* Matches the darkest red */
+}
+
+
+.tempmodulehome-50-10c {
+    color: #8781bd;
+}
+
+.tempmodulehome-10-0c {
+    color: #487ea9;
+}
+
+.tempmodulehome0-5c {
+    color: #3b9cac;
+}
+
+.tempmodulehome5-10c {
+    color: #9aba2f;
+}
+
+.tempmodulehome10-15c,
+.tempmodulehome15-20c {
+    color: #e6a141;
+}
+
+.tempmodulehome20-25c {
+    color: #ec5a34;
+}
+
+.tempmodulehome25-30c {
+    color: #d05f2d;
+}
+
+.tempmodulehome30-35c {
+    color: #d65b4a;
+}
+
+
+.temphumcircle80-100 {
+    color: #4e95a0;
+}
+
+.temphumcircle60-80 {
+    color: #e6a141;
+}
+
+.temphumcircle35-60 {
+    color: #90b12a;
+}
+
+.temphumcircle25-35 {
+    color: #d05f2d;
+}
+
+.temphumcircle0-25 {
+    color: #d35d4e;
+}

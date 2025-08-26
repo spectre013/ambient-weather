@@ -3,14 +3,15 @@ package main
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 )
 
-func sqlError(err error, value interface{}) {
+func sqlError(method string, err error, value interface{}) {
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			logger.Error("Zero Rows Found ", value)
+			logger.Error(fmt.Sprintf("%s - Zero Rows Found ", method), value)
 		} else {
-			logger.Error("Scan: ", err)
+			logger.Error(fmt.Sprintf("%s - Scan: ", method), err)
 		}
 	}
 }

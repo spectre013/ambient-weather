@@ -1,105 +1,42 @@
 package main
 
 import (
-	_ "database/sql"
-	"encoding/base64"
+	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gorilla/mux"
+	"github.com/nathan-osman/go-sunrise"
 )
 
-func (w Weather) index(wr http.ResponseWriter, r *http.Request) {
-	w.checkForecast()
-	_ = Index(getCSS()).Render(r.Context(), wr)
-}
-
-func (w Weather) setSession(wr http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	unit := vars["unit"]
-
-	session, err := store.Get(r, "units")
+func home(w http.ResponseWriter, _ *http.Request) {
+	res := map[string]string{}
+	res["message"] = "Zoms.net weather API visit https://weather.zoms.net for more information"
+	b, _ := json.Marshal(res)
+	i, err := w.Write(b)
 	if err != nil {
-		errorHandler(err, "Error setting session: ")
+		logger.Error(i, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-	fmt.Printf("%v", session.Values["unit"])
-	session.Values["unit"] = unit
-	err = session.Save(r, wr)
+}
+
+func alerts() []Alert {
+	now := time.Now()
+	loc, err := time.LoadLocation("America/Denver")
 	if err != nil {
-		errorHandler(err, "Error saving session: ")
+		fmt.Println(err)
+		return []Alert{}
 	}
-	http.Redirect(wr, r, "/", http.StatusSeeOther)
-}
-
-func (w Weather) current(wr http.ResponseWriter, r *http.Request) {
-	_, res, err := w.getCurrent()
-	errorHandler(err, "Error getting current weather: ")
-
-	b, err := json.Marshal(res.Record)
-	errorHandler(err, "Error marshalling current weather: ")
-
-	_, err = wr.Write(b)
-	errorHandler(err, "Error writing current weather: ")
-}
-
-func (w Weather) almanac(wr http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	category := cleanPathVars(vars["category"])
-	sensor := cleanPathVars(vars["sensor"])
-
-	_ = Almanac(category, sensor, getCSS()).Render(r.Context(), wr)
-}
-func (w Weather) forecast(wr http.ResponseWriter, r *http.Request) {
-	_ = forecastDetail(forecastData, getCSS(), units).Render(r.Context(), wr)
-}
-
-func (w Weather) almanacDetail(wr http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	category := cleanPathVars(vars["category"])
-	sensor := cleanPathVars(vars["sensor"])
-	t := cleanPathVars(vars["time"])
-
-	a := w.Almanac(t)
-	chart := w.Chart(t, category, sensor)
-	_ = sensorAlmanac(a, sensor, TitleCase(category), chart, t).Render(r.Context(), wr)
-}
-
-func (w Weather) Alert(wr http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id := vars["id"]
-	alertsSql := fmt.Sprintf("select * from alerts where id = '%s'", id)
-
-	a := Alert{}
-	row := w.DB.QueryRow(alertsSql)
-	if err := row.Scan(&a.ID, &a.Alertid, &a.Wxtype, &a.Areadesc,
-		&a.Sent, &a.Effective, &a.Onset, &a.Expires,
-		&a.Ends, &a.Status, &a.Messagetype, &a.Category,
-		&a.Severity, &a.Certainty, &a.Urgency, &a.Event,
-		&a.Sender, &a.SenderName, &a.Headline, &a.Description,
-		&a.Instruction, &a.Response); err != nil {
-		sqlError(err, alertsSql)
-	}
-	a.Sent = a.Sent.In(loc)
-	a.Effective = a.Effective.In(loc)
-	a.Onset = a.Onset.In(loc)
-	a.Ends = a.Ends.In(loc)
-
-	e := AlertDetail(a, w.Alerts(), getCSS()).Render(r.Context(), wr)
-	if e != nil {
-		logger.Error(e)
-	}
-}
-
-func (w Weather) Alerts() []Alert {
-	now := time.Now().Local()
-
-	alertsSql := fmt.Sprintf("select * from alerts where ends >= '%s' order by ends desc", formatDate(now))
-
-	rows, err := w.DB.Query(alertsSql)
+	alertsSql := fmt.Sprintf("select * from alerts where ends >= '%s'", formatDate(now))
+	logger.Info(alertsSql)
+	rows, err := db.Query(alertsSql)
 	if err != nil {
 		logger.Error(err)
 	}
@@ -107,7 +44,13 @@ func (w Weather) Alerts() []Alert {
 	for rows.Next() {
 		a := Alert{}
 		err := rows.Scan(&a.ID, &a.Alertid, &a.Wxtype, &a.Areadesc, &a.Sent, &a.Effective, &a.Onset, &a.Expires, &a.Ends, &a.Status, &a.Messagetype, &a.Category, &a.Severity, &a.Certainty, &a.Urgency, &a.Event, &a.Sender, &a.SenderName, &a.Headline, &a.Description, &a.Instruction, &a.Response)
-		sqlError(err, alertsSql)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				logger.Error("Zero Rows Found ", alertsSql)
+			} else {
+				logger.Error("Scan: ", err)
+			}
+		}
 
 		a.Sent = a.Sent.In(loc)
 		a.Effective = a.Effective.In(loc)
@@ -119,325 +62,39 @@ func (w Weather) Alerts() []Alert {
 	return alerts
 }
 
-func (w Weather) Alertview(wr http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	ids := vars["id"]
-	id, err := strconv.Atoi(ids)
-	errorHandler(err, "Error converting id to int")
-	alerts := w.Alerts()
-	alert := Alert{}
-	prev := 0
-	next := 0
+func astro() Astro {
+	lat, err := strconv.ParseFloat(os.Getenv("LAT"), 64)
+	errorHandler(err, "Error parsing LAT")
+	lng, err := strconv.ParseFloat(os.Getenv("LON"), 64)
+	errorHandler(err, "Error parsing LON")
 
-	if id == 0 && len(alerts) == 1 {
-		alert = alerts[0]
-	} else if id == 0 && len(alerts) > 1 {
-		alert = alerts[0]
-		next = alerts[1].ID
-	} else if id != 0 && len(alerts) > 0 {
-		for i, a := range alerts {
-			if a.ID == id {
-				if i != 0 {
-					prev = alerts[i-1].ID
-				}
-				alert = a
-				if i != len(alerts)-1 {
-					next = alerts[i+1].ID
-				}
-			}
-		}
+	rise, set := sunrise.SunriseSunset(
+		lat, lng, time.Now().Year(), time.Now().Month(), time.Now().Day(),
+	)
+	t := time.Now().Add(24 * time.Hour)
+	riset, sett := sunrise.SunriseSunset(
+		lat, lng, t.Year(), t.Month(), t.Day(),
+	)
+	elevation := sunrise.Elevation(lat, lng, time.Now())
+	hasSunSet := false
+	if elevation <= 0 {
+		hasSunSet = true
 	}
 
-	e := ShowAlert(alert, prev, next).Render(r.Context(), wr)
-	errorHandler(e, "Error rendering alert")
+	astro := Astro{
+		Sunrise:         rise,
+		Sunset:          set,
+		SunriseTomorrow: riset,
+		SunsetTomorrow:  sett,
+		Darkness:        riset.Sub(set),
+		Daylight:        set.Sub(rise),
+		Elevation:       correctSunElevation(elevation, time.Now(), rise, set),
+		HasSunset:       hasSunSet,
+	}
+	return astro
 }
 
-func buildSQL(t string, interval string) string {
-	where := fmt.Sprintf(" where recorded >= NOW() - interval '%s' AND recorded <= NOW() ", interval)
-	if t == "at" {
-		where = " "
-	}
-
-	parts := map[string]string{"tempmax": "tempf", "tempmin": "tempf", "feelmax": "feelslike", "feelmin": "feelslike",
-		"humiditymax": "humidity", "humiditymin": "humidity", "baromax": "Baromrelin", "baromin": "Baromrelin",
-		"dewmax": "dewpoint", "dewmin": "dewpoint", "windmax": "windspeedmph", "gustmax": "windgustmph", "windmin": "windspeedmph", "gustmin": "windgustmph"}
-	base := "(select '%s' as label, CAST(COALESCE(%s,0.0) AS decimal(10,2)) as value, recorded from records%sorder by %s %s limit 1)"
-	sqlparts := make([]string, 0)
-	for k, v := range parts {
-		order := "desc"
-		if strings.Contains(k, "min") {
-			order = "asc"
-		}
-		sqlparts = append(sqlparts, fmt.Sprintf(base, k, v, where, v, order))
-	}
-	return strings.Join(sqlparts, " union all ")
-}
-func (w Weather) Almanac(t string) AlmanacInfo {
-	p := getPill(t)
-	almSQL := buildSQL(t, p.Interval)
-
-	rows, err := w.DB.Query(almSQL)
-	if err != nil {
-		logger.Error(err)
-	}
-	a := AlmanacInfo{}
-	for rows.Next() {
-		r := AlmanacData{}
-		err = rows.Scan(&r.Label, &r.Value, &r.Recorded)
-		if err != nil {
-			logger.Error("Scan:", err)
-		}
-
-		switch r.Label {
-		case "tempmax":
-			a.TempMax = r
-		case "tempmin":
-			a.TempMin = r
-		case "feelmax":
-			a.FeelMax = r
-		case "feelmin":
-			a.FeelMin = r
-		case "humiditymax":
-			a.HumidityMax = r
-		case "humiditymin":
-			a.HumidityMin = r
-		case "baromax":
-			a.BaroMax = r
-		case "baromin":
-			a.BaroMin = r
-		case "dewmax":
-			a.DewpointMax = r
-		case "dewmin":
-			a.DewpointMin = r
-		case "windmax":
-			a.WindMax = r
-		case "windmin":
-			a.WindMin = r
-		case "gustmax":
-			a.WindGustMax = r
-		case "gustmin":
-			a.WindGustMin = r
-		}
-	}
-	logger.Infof("%v", a)
-	return a
-}
-
-type ChartValue struct {
-	Ts  time.Time
-	Max float64
-	Min float64
-}
-
-func (w Weather) Chart(t string, category string, sensor string) string {
-	chart := BuildChart()
-	minSensor := sensor
-	maxSensor := sensor
-	if category == "wind" {
-		maxSensor = "windgustmph"
-	}
-
-	chartSQL := chartQueries(t, minSensor, maxSensor)
-
-	rows, err := w.DB.Query(chartSQL)
-	if err != nil {
-		logger.Error(err)
-	}
-
-	ChartValues := make([]ChartValue, 0)
-	for rows.Next() {
-		a := ChartValue{}
-		err := rows.Scan(&a.Ts, &a.Max, &a.Min)
-		sqlError(err, chartSQL)
-		ChartValues = append(ChartValues, a)
-	}
-	seriesMax := Series{
-		Name: fmt.Sprintf("Max %s", TitleCase(category)),
-		Data: make([]float64, 0),
-	}
-	seriesMin := Series{
-		Name: fmt.Sprintf("Min %s", TitleCase(category)),
-		Data: make([]float64, 0),
-	}
-	xcat := make([]string, 0)
-	for _, v := range ChartValues {
-		seriesMax.Data = append(seriesMax.Data, v.Max)
-		seriesMin.Data = append(seriesMin.Data, v.Min)
-		tformat := v.Ts.Format("15:04")
-		if t == "1m" || t == "1y" || t == "at" {
-			tformat = v.Ts.Format("Jan 02, 06")
-		}
-		xcat = append(xcat, tformat)
-	}
-	chart.Series = append(chart.Series, seriesMax)
-	chart.Series = append(chart.Series, seriesMin)
-	chart.Xaxis.Categories = xcat
-	b, err := json.Marshal(chart)
-	if err != nil {
-		log.Println(err)
-	}
-	return base64.StdEncoding.EncodeToString(b)
-}
-
-func (w Weather) windChart() string {
-
-	chartSQL := `
-		SELECT date_trunc('hour', (recorded at time zone 'mst')) + (floor(date_part('minute', (recorded at time zone 'mst')) / 2) * interval '10 minutes') AS ts,
-			%s as dir
-		FROM records
-			WHERE recorded >= NOW() - interval '1 hour'
-			AND recorded <= NOW()
-		GROUP BY ts, dir
-		order by ts asc
-	`
-
-	rows, err := w.DB.Query(fmt.Sprintf(chartSQL, "winddir"))
-	if err != nil {
-		logger.Error(err)
-	}
-
-	type WindSeries struct {
-		Name string  `json:"name"`
-		Data []int64 `json:"data"`
-	}
-
-	dir := make([]int64, 0)
-	for rows.Next() {
-		var ts time.Time
-		var dirValue int64
-		err := rows.Scan(&ts, &dirValue)
-		sqlError(err, chartSQL)
-		dir = append(dir, dirValue)
-	}
-	s := WindSeries{
-		Name: "Wind Direction",
-		Data: dir,
-	}
-	b, err := json.Marshal(s)
-	if err != nil {
-		log.Println(err)
-	}
-	return string(b)
-}
-
-func BuildChart() ChartData {
-	chart := ChartData{}
-	chart.Legend = Legend{
-		Show:            true,
-		Position:        "top",
-		HorizontalAlign: "left",
-		Labels: legendLabels{
-			Colors:          []string{},
-			UseSeriesColors: true,
-		},
-	}
-	chart.Tooltip.Theme = "Dark"
-	chart.Colors = []string{"#ff7c39cc", "#3b9cac"}
-	chart.Chart = ChartDef{
-		FontFamily: "Satoshi, sans-serif",
-		Height:     600,
-		Width:      1200,
-		Type:       "area",
-		DropShadow: DropShadow{
-			Enabled: true,
-			Color:   "#623CEA14",
-			Top:     10,
-			Blur:    4,
-			Left:    0,
-			Opacity: 0.1,
-		},
-		Toolbar: Toolbar{Show: false},
-	}
-
-	chart.Responsive = make([]Responsive, 0)
-	optSM := Options{ChartOptions{Height: 300}}
-	optMD := Options{ChartOptions{Height: 350}}
-	chart.Responsive = append(chart.Responsive, Responsive{
-		Breakpoint: 1024,
-		Options:    optSM,
-	})
-	chart.Responsive = append(chart.Responsive, Responsive{
-		Breakpoint: 1366,
-		Options:    optMD,
-	})
-	chart.Stroke = Stroke{
-		Width: []int{2, 2},
-		Curve: "straight",
-	}
-	chart.Labels = Labels{
-		Show:     false,
-		Position: "top",
-	}
-	chart.Grid = Grid{
-		Xaxis: Gridaxis{Lines: Lines{Show: true}},
-		Yaxis: Gridaxis{Lines: Lines{Show: true}},
-		Row: GridRowColumn{
-			Colors:  "#C0C0C0",
-			Opacity: 0.5,
-		},
-		Column: GridRowColumn{
-			Colors:  "#C0C0C0",
-			Opacity: 0.5,
-		},
-	}
-	chart.DataLabels = DataLabels{Enabled: false}
-	chart.Markers = Markers{
-		Size:            4,
-		Colors:          "#fff",
-		StrokeColors:    []string{"#3056D3", "#80CAEE"},
-		StrokeWidth:     3,
-		StrokeOpacity:   0.9,
-		StrokeDashArray: 0,
-		FillOpacity:     1,
-		Discrete:        []interface{}{},
-		Hover:           Hover{SizeOffset: 5, Size: 0},
-	}
-	chart.Xaxis = Xaxis{
-		Type:       "category",
-		Categories: createAxis(1, 60),
-		AxisBorder: AxisBorder{Show: false},
-		AxisTicks:  AxisTicks{Show: false},
-		Labels: AxisLabel{
-			Show:  true,
-			Align: "right",
-			Style: LabelStyle{
-				Colors:   "#fff",
-				FontSize: "12px",
-			},
-		},
-	}
-
-	chart.Yaxis = Yaxis{
-		Title: Title{Style: Style{FontSize: "20px"}},
-		Min:   -20,
-		Max:   100,
-		Labels: AxisLabel{
-			Show:  true,
-			Align: "right",
-			Style: LabelStyle{
-				Colors:   "#fff",
-				FontSize: "12px",
-			},
-		},
-	}
-
-	return chart
-}
-
-func createAxis(start int, end int) []string {
-	var result []string
-	for i := start; i <= end; i++ {
-		s := strconv.Itoa(i)
-		if i < 10 {
-			s = "0" + s
-		}
-		result = append(result, s)
-	}
-
-	return result
-}
-
-func (w Weather) trend(t string) Trend {
+func trend(t string) Trend {
 	sel := fmt.Sprintf("AVG(%s)", t)
 
 	start := time.Now()
@@ -447,15 +104,15 @@ func (w Weather) trend(t string) Trend {
 
 	avgQuery := fmt.Sprintf("select %s from records where recorded BETWEEN '%s' AND '%s'", sel, formatDate(end), formatDate(start))
 	logger.Debug(avgQuery)
-	rows := w.DB.QueryRow(avgQuery)
+	rows := db.QueryRow(avgQuery)
 	err := rows.Scan(&avg)
-	sqlError(err, avgQuery)
+	sqlError("Trend1", err, avgQuery)
 
 	currentQuery := "select id,baromrelin,tempf from records order by recorded desc limit 1"
 	logger.Debug(currentQuery)
-	crows := w.DB.QueryRow(currentQuery)
+	crows := db.QueryRow(currentQuery)
 	err = crows.Scan(&cr.ID, &cr.Baromrelin, &cr.Tempf)
-	sqlError(err, currentQuery)
+	sqlError("Trend2", err, currentQuery)
 
 	trend := Trend{}
 	if strings.Contains(t, "temp") {
@@ -485,14 +142,184 @@ func (w Weather) trend(t string) Trend {
 	}
 	return trend
 }
-func (w Weather) getWind() map[string]StatValue {
 
+func lightningMonth() int {
+	d := getTimeframe("month")
+	start := formatDate(d[0])
+	end := formatDate(d[1])
+	s := fmt.Sprintf(`SELECT SUM(A.value) as value
+			FROM (SELECT TO_CHAR(recorded,'YYY-MM-DD') as ldate, 
+				  MAX(lightningday) as value 
+				  FROM records 
+				  where recorded between '%s' and '%s' 
+			GROUP BY ldate) A`, start, end)
+	rows := db.QueryRow(s)
+	lightningMonth := 0
+	err := rows.Scan(&lightningMonth)
+	sqlError("Lightning Month", err, "Error Getting Record: ")
+
+	return lightningMonth
+}
+
+type ChartValue struct {
+	Ts    time.Time `json:"date"`
+	Value float64   `json:"value"`
+}
+
+type ChartData struct {
+	Values []ChartValue `json:"values"`
+	Key    string       `json:"key"`
+	Color  string       `json:"color"`
+}
+
+func chart(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	sensor := cleanString(vars["sensor"])
+	t := cleanString(vars["time"])
+
+	chartData := chartFormat(t, sensor)
+
+	b, err := json.Marshal(chartData)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	i, err := w.Write(b)
+	if err != nil {
+		logger.Error(i, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+}
+
+func chartFormat(t string, sensor string) []ChartData {
+	charts := map[string]map[string][]map[string]string{
+		"temperature": {
+			"sensors": {
+				{"sensor": "tempf", "color": "#EE4B2B", "title": "Temperature"},
+				{"sensor": "dewpoint", "color": "blue", "title": "Dewpoint"},
+			},
+		},
+		"humidity": {
+			"sensors": {
+				{"sensor": "humidity", "color": "green", "title": "Humidity"},
+			},
+		},
+		"windspeed": {
+			"sensors": {
+				{"sensor": "windspeedmph", "color": "orange", "title": "Wind Speed"},
+				{"sensor": "windgustmph", "color": "red", "title": "Wind Gust"},
+			},
+		},
+		"baromrelin": {
+			"sensors": {
+				{"sensor": "baromrelin", "color": "purple", "title": "Barometric Pressure"},
+			},
+		},
+		"lightning": {
+			"sensors": {
+				{"sensor": "lightningday", "color": "yellow", "title": "Lightning"},
+			},
+		},
+		"rain": {
+			"sensors": {
+				{"sensor": "dailyrainin", "color": "blue", "title": "Daily Rain"},
+			},
+		},
+	}
+
+	data := make([]ChartData, 0)
+	for _, sensorData := range charts[sensor]["sensors"] {
+		chartData := ChartData{
+			Values: chartData(t, sensorData["sensor"]),
+			Key:    sensorData["title"],
+			Color:  sensorData["color"],
+		}
+		data = append(data, chartData)
+	}
+
+	return data
+}
+
+func chartData(timeframe string, sensor string) []ChartValue {
+
+	chartSQL := chartQueries(timeframe, sensor)
+	fmt.Println(chartSQL)
+	rows, err := db.Query(chartSQL)
+	if err != nil {
+		logger.Error(err)
+	}
+
+	chartValues := make([]ChartValue, 0)
+	for rows.Next() {
+		a := ChartValue{}
+		if sensor == "dailyrainin" || sensor == "lightningday" {
+			var ts int
+			var value float64
+			err := rows.Scan(&ts, &value)
+			sqlError("Chart", err, chartSQL)
+			a = ChartValue{
+				Ts:    time.Date(time.Now().Year(), time.Now().Month(), ts, 0, 0, 0, 0, time.Local),
+				Value: value,
+			}
+		} else {
+			err := rows.Scan(&a.Ts, &a.Value)
+			sqlError("Chart", err, chartSQL)
+		}
+		chartValues = append(chartValues, a)
+	}
+	return chartValues
+}
+
+func alltime(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	t := vars["type"]
+	c := vars["calc"]
+	t = cleanString(t)
+	c = cleanString(c)
+	order := ""
+	if c == "max" {
+		order = " desc"
+	}
+	type Result struct {
+		Date  string  `json:"date"`
+		Value float64 `json:"value"`
+	}
+	rt := Result{}
+	sel := fmt.Sprintf("%s as value,recorded", t)
+	orderby := fmt.Sprintf("%s%s ", t, order)
+
+	query := fmt.Sprintf("select %s from records order by %s limit 1", sel, orderby)
+	logger.Info(query)
+	rows := db.QueryRow(query)
+	err := rows.Scan(&rt.Value, &rt.Date)
+	sqlError("alltime", err, query)
+
+	b, err := json.Marshal(rt)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	i, err := w.Write(b)
+	if err != nil {
+		logger.Error(i, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func wind() Wind {
+	type Result struct {
+		Reccorded time.Time `json:"date"`
+		Value     float64   `json:"value"`
+	}
 	dates := getTimeframe("day")
 	start := dates[1]
 	end := dates[0]
 
-	maxwind := StatValue{}
-	maxgust := StatValue{}
+	maxwind := Result{}
+	maxgust := Result{}
 	var avg float64
 	var avgdir float64
 
@@ -502,31 +329,194 @@ func (w Weather) getWind() map[string]StatValue {
 	avgDir := fmt.Sprintf("select AVG(winddir) as value from records where recorded BETWEEN '%s' AND '%s'", formatDate(end), formatDate(start))
 
 	logger.Debug(maxSpeed)
-	mrows := w.DB.QueryRow(maxSpeed)
-	err := mrows.Scan(&maxwind.Value, &maxwind.Recorded)
-	sqlError(err, maxSpeed)
+	mrows := db.QueryRow(maxSpeed)
+	err := mrows.Scan(&maxwind.Value, &maxwind.Reccorded)
+	sqlError("wind", err, maxSpeed)
 
 	logger.Debug(maxGust)
-	mgrows := w.DB.QueryRow(maxGust)
-	err = mgrows.Scan(&maxgust.Value, &maxgust.Recorded)
-	sqlError(err, maxGust)
+	mgrows := db.QueryRow(maxGust)
+	err = mgrows.Scan(&maxgust.Value, &maxgust.Reccorded)
+	sqlError("wind", err, maxGust)
 
 	logger.Debug(avgSpeed)
-	asrows := w.DB.QueryRow(avgSpeed)
+	asrows := db.QueryRow(avgSpeed)
 	err = asrows.Scan(&avg)
-	sqlError(err, avgSpeed)
+	sqlError("wind", err, avgSpeed)
 
 	logger.Debug(avgDir)
-	crows := w.DB.QueryRow(avgDir)
+	crows := db.QueryRow(avgDir)
 	err = crows.Scan(&avgdir)
-	sqlError(err, avgDir)
+	sqlError("wind", err, avgDir)
 
-	res := map[string]StatValue{}
-	res["dir"] = StatValue{Value: avgdir}
-	res["wind"] = maxwind
-	res["gust"] = maxgust
-	res["avg"] = StatValue{Value: avg}
+	wind := Wind{
+		Maxdailygust: maxgust.Value,
+		Avg:          int(avg),
+	}
+	return wind
+}
+func minmax(f string) map[string]map[string]StatValue {
+	s := getStats()
 
-	return res
+	minmax := make(map[string]map[string]StatValue)
 
+	for _, v := range s {
+		matched, _ := regexp.MatchString(f+"$", v.ID)
+		if matched {
+			parts := strings.Split(v.ID, "_")
+
+			if _, ok := minmax[parts[1]]; !ok {
+				minmax[parts[1]] = make(map[string]StatValue)
+			}
+			minmax[parts[1]][strings.ToLower(parts[0])] = StatValue{Recorded: v.Recorded, Value: v.Value}
+		}
+	}
+
+	return minmax
+}
+
+func buildConditions(record Record) Conditions {
+	conditions := Conditions{
+		Mac:      record.Mac,
+		Recorded: record.Recorded,
+	}
+
+	conditions.Barometer = Barometer{
+		Baromabsin: record.Baromabsin,
+		Baromrelin: record.Baromrelin,
+		Trend:      trend("baromrelin"),
+		MinMax:     minmax("baromrelin"),
+	}
+
+	conditions.Humidity = Humidity{
+		Humidity: record.Humidity,
+		Dewpoint: record.Dewpoint,
+		MinMax:   minmax("humidity"),
+	}
+
+	conditions.Temp = Temp{
+		Temp:      record.Tempf,
+		Humidity:  record.Humidity,
+		Feelslike: record.Feelslike,
+		Dewpoint:  record.Dewpoint,
+		MinMax:    minmax("tempf"),
+	}
+
+	conditions.Tempin = Tempin{
+		Temp:     record.Tempinf,
+		Humidity: record.Humidityin,
+		MinMax:   minmax("tempinf"),
+	}
+
+	conditions.Temp1 = Tempin{
+		Temp:     record.Temp1f,
+		Humidity: record.Humidity1,
+		MinMax:   minmax("temp1f"),
+	}
+
+	conditions.Temp2 = Tempin{
+		Temp:     record.Temp2f,
+		Humidity: record.Humidity2,
+		MinMax:   minmax("temp2f"),
+	}
+
+	conditions.Temp3 = Tempin{
+		Temp:     record.Temp3f,
+		Humidity: record.Humidity3,
+		MinMax:   minmax("temp3f"),
+	}
+
+	conditions.Temp4 = Tempin{
+		Temp:     record.Temp4f,
+		Humidity: record.Humidity4,
+		MinMax:   minmax("temp4f"),
+	}
+
+	w := wind()
+	conditions.Wind = Wind{
+		Dir:          record.Winddir,
+		Gustmph:      record.Windgustmph,
+		Gustdir:      record.Windgustdir,
+		Speedmph:     record.Windspeedmph,
+		Maxdailygust: w.Maxdailygust,
+		Avg:          w.Avg,
+		MinMax:       minmax("windspeedmph"),
+		GustMinMax:   minmax("windgustmph"),
+	}
+
+	conditions.UV = UV{
+		Uv:             record.Uv,
+		Solarradiation: record.Solarradiation,
+		MinMax:         minmax("uv"),
+	}
+
+	conditions.Rain = Rain{
+		Daily:    record.Dailyrainin,
+		Weekly:   record.Weeklyrainin,
+		Monthly:  record.Monthlyrainin,
+		Yearly:   record.Yearlyrainin,
+		Total:    record.Totalrainin,
+		Lastrain: record.Lastrain,
+	}
+
+	conditions.Alert = alerts()
+
+	conditions.Lightning = Lightning{
+		Day:      record.Lightningday,
+		Hour:     record.Lightninghour,
+		Distance: record.Lightningdistance,
+		Time:     record.Lightningtime,
+		Month:    record.LightningMonth,
+		Minmax:   minmax("lightning"),
+	}
+
+	conditions.AQI = AQI{
+		Pm25:    record.Aqipm25,
+		Pm2524h: record.Aqipm2524h,
+		MinMax:  minmax("aqipm25"),
+	}
+
+	conditions.Astro = astro()
+
+	return conditions
+
+}
+
+func getConditions() Conditions {
+	res := getCurrent()
+	cond := buildConditions(res)
+	return cond
+}
+
+func current(w http.ResponseWriter, _ *http.Request) {
+	cond := getConditions()
+
+	b, err := json.Marshal(cond)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	i, err := w.Write(b)
+	if err != nil {
+		logger.Error(i, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func getForecastHandler(w http.ResponseWriter, _ *http.Request) {
+	res, err := getForecast()
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+	b, err := json.Marshal(res)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+	i, err := w.Write(b)
+	if err != nil {
+		logger.Error(i, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }

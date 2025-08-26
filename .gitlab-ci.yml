@@ -2,44 +2,13 @@ stages:
   - scan
   - build docker
 
-#lint server:
-#  stage: lint
-#  script:
-#    - export PATH=$PATH:/usr/local/go/bin
-#    - cd weather-server
-#    - staticcheck ./...
-
-scan server:
-  stage: scan
+ui:
+  stage: build docker
   script:
-    - |
-      export PATH=$PATH:/usr/local/go/bin
-      echo "Running Truffle Hog"
-      output="$(trufflehog -j filesystem weather-server | jq -C .)"
-  
-      if [ "${output}" != "" ]; then
-        echo "${output}"
-        exit 1
-      else
-        echo "No issues found"
-        exit 0
-      fi
+    - cd weather-ui
+    - docker build -t $DOCKER_REGISTRY/production/weather-ui:2.2 .
+    - docker push $DOCKER_REGISTRY/production/weather-ui:2.2
 
-scan transfer:
-  stage: scan
-  script:
-    - |
-      export PATH=$PATH:/usr/local/go/bin
-      echo "Running Truffle Hog"
-      output="$(trufflehog -j filesystem weather-transfer | jq -C .)"
-      
-      if [ "${output}" != "" ]; then
-        echo "${output}"
-        exit 1
-      else
-        echo "No issues found"
-        exit 0
-      fi
 
 server:
   stage: build docker
@@ -52,5 +21,7 @@ transfer:
   stage: build docker
   script:
     - cd weather-transfer
-    - docker build -t $DOCKER_REGISTRY/production/weather-transfer:2.1.1 . --no-cache
-    - docker push $DOCKER_REGISTRY/production/weather-transfer:2.1.1
+    - docker build -t $DOCKER_REGISTRY/production/weather-transfer:2.1.2 . --no-cache
+    - docker push $DOCKER_REGISTRY/production/weather-transfer:2.1.2
+
+
