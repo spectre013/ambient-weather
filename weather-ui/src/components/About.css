@@ -1,0 +1,64 @@
+.about-dashboard {
+    width: 100%;
+    max-width: 1600px;
+    border-radius: 20px;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    background: rgba(20, 27, 33, 0.5);
+    border: 1px solid var(--border-color);
+}
+
+.about-dashboard .main-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+.about-dashboard .main-content a {
+    color: orange;
+}
+
+.list-container {
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 64rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.list-header {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-align: center;
+    color: var(--text-color);
+}
+
+.list-wrapper {
+    display: flex;
+    gap: 2rem;
+}
+
+.sensor-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex: 1 1 50%;
+}
+
+.sensor-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+}
+
+.sensor-item::before {
+    content: "✓";
+    color: orange; /* A shade of indigo */
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-right: 0.5rem;
+    line-height: 1;
+}

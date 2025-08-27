@@ -76,6 +76,7 @@ func main() {
 	r.HandleFunc("/api/chart/{sensor}/{time}", loggingMiddleware(chart))
 	r.HandleFunc("/api/alltime/{calc}/{type}", loggingMiddleware(alltime))
 	r.HandleFunc("/api/forecast", loggingMiddleware(getForecastHandler))
+	r.HandleFunc("/api/about", loggingMiddleware(about))
 	//Index
 	r.HandleFunc("/", loggingMiddleware(home))
 

@@ -503,6 +503,37 @@ func current(w http.ResponseWriter, _ *http.Request) {
 	}
 }
 
+func about(w http.ResponseWriter, _ *http.Request) {
+	query := `
+		select count(*) as total, max(tempf) as maxtemp, 
+		max(windgustmph) as wind, 
+		min(tempf) as mintemp
+		from records `
+	rows, err := db.Query(query)
+	if err != nil {
+		log.Println(err)
+	}
+	r := About{}
+	for rows.Next() {
+		err = rows.Scan(&r.Records, &r.Maxtemp, &r.Maxgust, &r.Mintemp)
+		if err != nil {
+			logger.Error("Scan:", err)
+		}
+	}
+
+	b, err := json.Marshal(r)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	i, err := w.Write(b)
+	if err != nil {
+		logger.Error(i, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+}
 func getForecastHandler(w http.ResponseWriter, _ *http.Request) {
 	res, err := getForecast()
 	if err != nil {

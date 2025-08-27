@@ -16,6 +16,7 @@ import GaugeComponent from 'react-gauge-component';
 import moment from "moment/moment";
 import AlertInfo from "./components/AlertInfo.tsx";
 localStorage.setItem('units', 'imperial');
+import {useNavigate} from "react-router-dom";
 
 
 function App() {
@@ -24,7 +25,7 @@ function App() {
     const [forecast, setForecast] = useState<ForecastModel>({} as ForecastModel);
     const [conditions, setConditions] = useState<Current>({} as Current);
     const [units, setUnits] = useState<string>("imperial");
-
+    const navigate = useNavigate()
     const forecastURL = "/api/forecast";
 
 
@@ -85,6 +86,10 @@ function App() {
             localStorage.setItem('units', newUnit);
         };
 
+    const about = () => {
+        navigate('/about');
+    };
+
         function sunriseLabel(value: number): string {
             if(value === 0) {
                 return "Rise";
@@ -107,7 +112,7 @@ function App() {
                             <div className="left-panel">
                                 <Temperature temp={conditions.temp} icon={forecast.days[0].icon} conditions={forecast.days[0].conditions} units={units}/>
                                 <div className="info-container">
-                                    <div className="info-card">
+                                    <div className="info-card" onClick={about}>
                                         About
                                     </div>
                                     <div className="info-card" onClick={updateUnit}>
@@ -233,6 +238,7 @@ function App() {
                         </main>
                     </div>
                 </div>
+                <div className='copyright'>&copy; 2018-{moment().format('YYYY')} : zoms.net</div>
             </>
         )
 }

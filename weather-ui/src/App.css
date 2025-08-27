@@ -349,6 +349,12 @@ body {
     border: 1px solid var(--border-color);
 }
 
+.copyright {
+    margin: 20px;
+    text-align: center;
+    color: var(--muted-text);
+}
+
 /* Responsive adjustments */
 @media only screen and (max-width: 1200px) {
     .dashboard {

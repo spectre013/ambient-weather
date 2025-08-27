@@ -8,6 +8,7 @@ import Wind from "./components/details/Wind.tsx";
 import Lightning from "./components/details/Lightning.tsx";
 import Rain from "./components/details/Rain.tsx";
 import Forecast from "./components/details/Forecast.tsx";
+import About from "./components/About.tsx";
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
@@ -19,7 +20,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
                       <Route path="/details/lightning" element={<Lightning />} />
                       <Route path="/details/rain" element={<Rain />} />
                       <Route path="/details/forecast/:day" element={<Forecast />} />
-
+                      <Route path="/about" element={<About />} />
                   </Routes>
               </BrowserRouter>
   </React.StrictMode>,

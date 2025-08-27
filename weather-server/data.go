@@ -375,3 +375,10 @@ type Station struct {
 	Quality      int     `json:"quality"`
 	Contribution float64 `json:"contribution"`
 }
+
+type About struct {
+	Records int     `json:"records"`
+	Maxtemp float64 `json:"maxtemp"`
+	Mintemp float64 `json:"mintemp"`
+	Maxgust float64 `json:"maxgust"`
+}

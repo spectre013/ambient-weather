@@ -191,6 +191,7 @@ const Temperature = () => {
                     </div>
                 </div>
             </div>
+            <div className='copyright'>&copy; 2018-{moment().format('YYYY')} : zoms.net</div>
         </>
     )
 }

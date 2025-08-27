@@ -151,3 +151,10 @@ export interface Alert {
     instruction: string;
     response: string;
 }
+
+export interface AboutModel {
+    records: number;
+    maxtemp: number;
+    mintemp: number;
+    maxgust: number;
+}

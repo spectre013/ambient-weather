@@ -16,6 +16,7 @@ import {
     ResponsiveContainer
 } from 'recharts';
 import {processData} from "../../util/weather.ts";
+import moment from "moment";
 
 const Temperature = () => {
     const navigate = useNavigate();
@@ -157,6 +158,7 @@ const Temperature = () => {
                     </div>
                 </div>
             </div>
+            <div className='copyright'>&copy; 2018-{moment().format('YYYY')} : zoms.net</div>
         </>
     )
 }
