@@ -9,8 +9,8 @@ ui:
   stage: build docker
   script:
     - cd weather-ui
-    - docker build -t $DOCKER_REGISTRY/weather/weather-ui:v3.0 .
-    - docker push $DOCKER_REGISTRY/weather/weather-ui:v3.0
+    - docker build -t $DOCKER_REGISTRY/weather/weather-ui:v3.0.1 .
+    - docker push $DOCKER_REGISTRY/weather/weather-ui:v3.0.1
 
 
 server:
