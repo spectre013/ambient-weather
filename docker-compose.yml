@@ -1,8 +1,46 @@
-version: '3'
+# Use a specific version for compatibility
+version: '3.8'
 
+# Define the services (containers)
 services:
-  weather:
-    build:
-      context: weather
-      dockerfile: Dockerfile
-    image: docker.zoms.net/weather-server:2.0
+  weather-server:
+    container_name: weather-server
+    image: docker.zoms.net/weather/weather-server:v4.0
+    restart: unless-stopped
+    pull_policy: always
+    # Expose port 3000 inside the container to port 6001 on the host
+    ports:
+      - "6001:3000"
+    # Set the environment variables
+    environment:
+      - PORT=3000
+      - DB_HOST=
+      - DB_USER=ambient
+      - DB_PASSWORD=
+      - DB_DATABASE=ambient
+      - ENV=production
+      - LOGLEVEL=Info
+      - ALERT_CRON=*/15 * * * *
+      - LAT=
+      - LON=
+      - WEATHER_API=
+    # Attach the container to the custom network
+    networks:
+      - weather-network
+
+  weather-ui:
+    container_name: weather-ui
+    image: docker.zoms.net/weather/weather-ui:v3.0.1
+    restart: unless-stopped
+    pull_policy: always
+    # Expose port 6000 inside the container to port 6000 on the host
+    ports:
+      - "6000:6000"
+    # Attach the container to the custom network
+    networks:
+      - weather-network
+
+# Define the custom network
+networks:
+  weather-network:
+    driver: bridge

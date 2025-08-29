@@ -1,12 +1,12 @@
 .alert-container {
-    display: grid;
-    grid-template-rows: .5fr 1fr 2fr .5fr;
+    display: flex;
+    flex-direction: column;
 }
 
 .event {
     text-align: center;
     font-weight: bold;
-    font-size: 2em;
+    font-size: 1.5em;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -17,13 +17,13 @@
 }
 
 .headline {
+    margin-top:10px;
     font-size: 18px;
     text-align: center;
 }
 
 .no-alerts {
     font-size: 18px;
-    margin-top: 20px;
 }
 
 .starts, .ends {

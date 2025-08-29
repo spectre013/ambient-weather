@@ -450,6 +450,7 @@ func buildConditions(record Record) Conditions {
 	}
 
 	conditions.Rain = Rain{
+		Hourly:   record.Hourlyrainin,
 		Daily:    record.Dailyrainin,
 		Weekly:   record.Weeklyrainin,
 		Monthly:  record.Monthlyrainin,

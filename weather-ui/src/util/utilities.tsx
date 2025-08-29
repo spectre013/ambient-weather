@@ -18,7 +18,7 @@ export const CustomTooltip = ({ active, payload }) => {
                 color: '#e5e7eb'
             }}>
                 <p className="label" style={{ fontWeight: 'bold' }}>{formattedDate}</p>
-                <p className="intro" style={{ color: payload[0].color }}>{`${payload[0].name} : ${payload[0].value} in`}</p>
+                <p className="intro" style={{ color: payload[0].color }}>{`${payload[0].name} : ${payload[0].value}`}</p>
             </div>
         );
     }

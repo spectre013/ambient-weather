@@ -23,6 +23,55 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* Container for the spinner and text */
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Keyframes for the spinning animation */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+.loading-body {
+    /* Set a dark background and light text color */
+    color: #f7fafc; /* Equivalent to text-gray-100 */
+
+    /* Use Flexbox to center the content vertically and horizontally */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* Ensure the body takes up the full viewport height */
+    min-height: 100vh;
+
+    /* Use a standard sans-serif font */
+    font-family: sans-serif;
+    margin: 0; /* Remove default body margin */
+}
+/* The spinner element styles */
+.spinner {
+    width: 80px;  /* Equivalent to w-20 */
+    height: 80px; /* Equivalent to h-20 */
+    border: 4px solid rgba(255, 255, 255, 0.2); /* Base border */
+    border-top: 4px solid #3B82F6; /* The blue part of the spinner, equivalent to Tailwind blue-500 */
+    border-radius: 50%;
+    animation: spin 1.2s linear infinite; /* Apply the animation */
+}
+
+/* Styles for the loading text */
+.loading-text {
+    margin-top: 1rem; /* Equivalent to mt-4 */
+    font-size: 1.25rem; /* Equivalent to text-xl */
+    font-weight: 500; /* Equivalent to font-medium */
+}
+
 .dashboard {
     width: 100%;
     max-width: 1600px;
@@ -181,7 +230,6 @@ body {
     background-color: var(--main-card);
     border-radius: 15px;
     padding: 20px;
-    height: 223px;
     display: flex;
     flex-direction: column;
     border: 1px solid var(--border-color);
@@ -333,12 +381,20 @@ body {
     border-radius: 15px;
     padding: 10px 15px;
     display: flex;
-    flex-direction: column;
-    gap: 5px;
+    align-items: center;
     border: 1px solid var(--border-color);
     font-size: 15px;
     cursor: pointer;
 }
+
+.connected {
+    color: #22c55e;
+}
+
+.disconnected {
+    color: #ef4444;
+}
+
 .forecast-details {
     width: 100%;
     max-width: 1600px;

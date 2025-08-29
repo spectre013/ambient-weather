@@ -52,13 +52,11 @@ const AlertInfo = (props: Props) => {
                     </div>
                     <div className={`event ` + alertColor()}>
                         <span className="material-symbols-sharp">warning</span>
-                    &nbsp;
-                    { alert.event }
-                        &nbsp;
+                             &nbsp;{ alert.event }&nbsp;
                         <span className="material-symbols-sharp">warning</span>
                     </div>
                     <div className="headline">
-                        <div>{alert.headline}</div>
+                        {alert.headline}
                     </div>
                     <div className="down">
                         <div className="downarrow" onClick={() => changeAlert("down")}>

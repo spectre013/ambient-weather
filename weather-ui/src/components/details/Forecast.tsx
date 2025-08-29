@@ -1,7 +1,7 @@
 import './Forecast.css'
 import {useEffect, useState} from "react";
 import {Day} from "../../models/Forecast.ts";
-import {useParams, useNavigate} from "react-router-dom";
+import {useParams} from "react-router-dom";
 import Guage from "../../util/TemperatureGuage.tsx";
 import {
     BeaufortHex,
@@ -27,6 +27,7 @@ import {
     YAxis
 } from "recharts";
 import {CustomForecastTooltip } from "../../util/utilities.tsx";
+import Header from "../Header.tsx";
 
 const Forecast = () => {
     const { day } = useParams()
@@ -36,7 +37,6 @@ const Forecast = () => {
     const urls = [
         '/api/forecast',
     ];
-    const navigate = useNavigate();
 
     useEffect(() => {
         setUnits(localStorage.getItem('units') || 'imperial');
@@ -64,10 +64,6 @@ const Forecast = () => {
         return 'loading';
     }
 
-    const handleClick = () => {
-        navigate('/');// Navigate to the details page for the specific stat
-    }
-
     function sunLabel(value: number): string {
         if (value === 0) {
             return "Rise";
@@ -79,10 +75,7 @@ const Forecast = () => {
     return (
         <>
         <div className="forecast-details-dashboard">
-            <header className="details-header">
-                    <h1><span className="material-symbols-sharp">thermostat</span> Losron Ranch -  Forecast</h1>
-                    <div className="hasclick" onClick={handleClick}><span className="material-symbols-sharp">home</span></div>
-            </header>
+            <Header />
             <div className="forecast-details-content">
                 <div className="left">
                     <div>Forecast for {moment(forecast.datetime).format('dddd, MMMM Do YYYY')}</div>

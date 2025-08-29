@@ -1,5 +1,4 @@
 import './Lightning.css'
-import {useNavigate} from "react-router-dom";
 import {distanceLabel, formatDay, full} from "../../util/weather.ts";
 import {ChartData} from "../../models/DataSeries.ts";
 import {useEffect, useState} from "react";
@@ -14,9 +13,9 @@ import {
 import moment from "moment";
 import CircleGauge from "../../util/Circlegauge.tsx";
 import {CustomTooltip} from "../../util/utilities.tsx";
+import Header from "../Header.tsx";
 
 const Temperature = () => {
-    const navigate = useNavigate();
     const [fLoaded, setFLoaded] = useState(false);
     const [units, setUnits] = useState<string>("imperial");
     const [lightning, setLightning] = useState<LightningData>({} as LightningData);
@@ -49,10 +48,6 @@ const Temperature = () => {
 
     if (!fLoaded) {
         return 'loading';
-    }
-
-    const handleClick = () => {
-        navigate('/'); // Navigate to the details page for the specific stat
     }
 
     function lightningClass(cnt: number) :string {
@@ -103,10 +98,7 @@ const Temperature = () => {
     return (
         <>
             <div className="details-dashboard">
-                <header className="details-header">
-                    <h1><span className="material-symbols-sharp">bolt</span> Losron Ranch -  Lightning</h1>
-                    <div className="hasclick" onClick={handleClick}><span className="material-symbols-sharp">home</span></div>
-                </header>
+                <Header />
                 <div className="content">
                     <div className="details-content">
                         <div className="details">

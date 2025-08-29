@@ -18,13 +18,13 @@ import AlertInfo from "./components/AlertInfo.tsx";
 localStorage.setItem('units', 'imperial');
 import {useNavigate} from "react-router-dom";
 
-
 function App() {
     const [cLoaded, setCLoaded] = useState(false);
     const [fLoaded, setFLoaded] = useState(false);
     const [forecast, setForecast] = useState<ForecastModel>({} as ForecastModel);
     const [conditions, setConditions] = useState<Current>({} as Current);
     const [units, setUnits] = useState<string>("imperial");
+    const [connected, setConnected] = useState(false);
     const navigate = useNavigate()
     const forecastURL = "/api/forecast";
 
@@ -41,9 +41,11 @@ function App() {
 
             connection.addEventListener('open', () => {
                 console.log('Connection Open!');
+                setConnected(true);
             });
             connection.addEventListener('close', () => {
                 console.log('Connection Close!');
+                setConnected(false);
                 setTimeout(function () {
                     connection = new WebSocket(wsurl);
                 }, 1000);
@@ -57,6 +59,7 @@ function App() {
             connection.onerror = function (error) {
                 console.log(`[error]`, error);
                 connection.close();
+                setConnected(false);
             };
 
 
@@ -86,9 +89,9 @@ function App() {
             localStorage.setItem('units', newUnit);
         };
 
-    const about = () => {
-        navigate('/about');
-    };
+        const about = () => {
+            navigate('/about');
+        };
 
         function sunriseLabel(value: number): string {
             if(value === 0) {
@@ -98,28 +101,44 @@ function App() {
             }
         }
 
-        if (!cLoaded || !fLoaded) {
-            return 'loading';
+        function isConnected(status: boolean): string {
+            if(status) {
+                return "material-symbols-sharp connected"
+            } else {
+                return "material-symbols-sharp disconnected"
+            }
         }
 
 
 
+        if (!cLoaded || !fLoaded) {
+            return (
+                <div className="loading-body">
+                    <div className="loading-container">
+                        <div className="spinner"></div>
+                        <p className="loading-text">Loading...</p>
+                    </div>
+                </div>
+            )
+        }
+
+
     return (
-            <>
-                <div className="dashboard">
-                    <div className="content">
-                        <main className="main-content">
-                            <div className="left-panel">
-                                <Temperature temp={conditions.temp} icon={forecast.days[0].icon} conditions={forecast.days[0].conditions} units={units}/>
+        <>
+            <div className="dashboard">
+                <div className="content">
+                    <main className="main-content">
+                        <div className="left-panel">
+                        <Temperature temp={conditions.temp} icon={forecast.days[0].icon} conditions={forecast.days[0].conditions} units={units}/>
                                 <div className="info-container">
-                                    <div className="info-card" onClick={about}>
-                                        About
-                                    </div>
                                     <div className="info-card" onClick={updateUnit}>
-                                        switch {getOtherUnit(units)}
+                                        Use {getOtherUnit(units)}
                                     </div>
                                     <div className="info-card">
-                                        {full(conditions.date)}
+                                       <span className={isConnected(connected)}>wifi</span>&nbsp;Last Update: {full(conditions.date)}
+                                    </div>
+                                    <div className="info-card" onClick={about}>
+                                        About
                                     </div>
                                 </div>
                                 <section className="alerts-section">
@@ -194,11 +213,11 @@ function App() {
                                                     width: 0.1,
                                                     subArcs:
                                                         [
-                                                            { limit: conditions.astro.SunriseElevation, color: '#1E98D1'},
+                                                            { limit: 0, color: '#1E98D1'},
                                                             { limit: 25, color: '#CBE5F3'},
                                                             { limit: 50, color: '#F0E71A'},
                                                             { limit: 75, color: '#F5560C'},
-                                                            { limit: conditions.astro.SunsetElevation, color: '#C57F51'},
+                                                            { limit: 100, color: '#C57F51'},
                                                         ]
                                                 }}
                                                 pointer={{type: "blob",
@@ -217,9 +236,9 @@ function App() {
                                                     }
                                                 }}
                                                 style={{ width: '100%', height: '100%' }}
-                                                value={conditions.astro.elevation}
-                                                minValue={conditions.astro.SunriseElevation}
-                                                maxValue={conditions.astro.SunsetElevation}
+                                                value={conditions.astro.elevation > 100 ? 1100 : conditions.astro.elevation }
+                                                minValue={0}
+                                                maxValue={100}
                                             />
                                         </div>
                                         <div className="gauge-label">Sunrise { moment(conditions.astro.sunrise).format('LTS') } •

@@ -4,6 +4,8 @@ import {useEffect, useState} from "react";
 import {AboutModel} from "../models/current.ts";
 import {tempLabel, windLabel} from "../util/weather.ts";
 import moment from "moment";
+import {useContext} from "react";
+import {WeatherContext} from "../Context.ts";
 
 const About = () => {
     const navigate = useNavigate();
@@ -12,6 +14,7 @@ const About = () => {
     const urls = [
         '/api/about',
     ];
+    const ctx = useContext(WeatherContext);
 
     useEffect(() => {
         const fetchPromises = urls.map(url => fetch(url));
@@ -46,11 +49,11 @@ const About = () => {
                 <div className="content">
                     <main className="main-content">
                         <header className="details-header">
-                            <h1><span className="material-symbols-sharp">weather_hail</span> Losron Ranch -  About</h1>
+                            <h1><span className="material-symbols-sharp">weather_hail</span> {ctx.shortname} -  About</h1>
                             <div className="hasclick" onClick={handleClick}><span className="material-symbols-sharp">home</span></div>
                         </header>
                         <div>
-                            <p>Lorson Ranch weather is run off an <a
+                            <p>{ctx.shortname} weather is run off an <a
                                 href="https://ambientweather.com/ws-2902-smart-weather-station">Ambient Weather WS-2902</a> located about 10 meters off the ground.</p>
                             <p>The first began around 2018 and has been through several iterations, the first was VueJS with a Golang back end. In 2020 the site was switched
                             to React and Golang. The third iteration was a complete UI rework and done with Golang nad HTMX. The current version has moved back to React with a

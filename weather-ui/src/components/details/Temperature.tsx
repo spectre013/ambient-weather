@@ -1,5 +1,4 @@
 import './Temperature.css'
-import {useNavigate} from "react-router-dom";
 import Guage from "../../util/TemperatureGuage.tsx";
 import {tempColor, tempLabel, tempToHex} from "../../util/weather.ts";
 import {ChartData} from "../../models/DataSeries.ts";
@@ -17,9 +16,9 @@ import {
 } from 'recharts';
 import {processData} from "../../util/weather.ts";
 import moment from "moment";
+import Header from "../Header.tsx";
 
 const Temperature = () => {
-    const navigate = useNavigate();
     const [fLoaded, setFLoaded] = useState(false);
     const [units, setUnits] = useState<string>("imperial");
     const [temp, setTemp] = useState<TempData>({} as TempData);
@@ -54,19 +53,13 @@ const Temperature = () => {
         return 'loading';
     }
 
-    const handleClick = () => {
-        navigate('/'); // Navigate to the details page for the specific stat
-    }
 
     const combinedChartData = processData(chart);
 
     return (
         <>
             <div className="details-dashboard">
-                <header className="details-header">
-                    <h1><span className="material-symbols-sharp">thermostat</span> Losron Ranch -  Temperature</h1>
-                    <div className="hasclick" onClick={handleClick}><span className="material-symbols-sharp">home</span></div>
-                </header>
+                <Header />
                 <div className="content">
                     <div className="details-content">
                         <div className="details">

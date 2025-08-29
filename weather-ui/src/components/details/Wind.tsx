@@ -3,7 +3,6 @@ import './Wind.css'
 import { WindData } from "../../models/current.ts";
 import { createDial } from "../../util/weather.ts";
 import * as weather from '../../util/weather'
-import {useNavigate} from "react-router-dom";
 import {useEffect, useState} from "react";
 import {BeaufortHex, distanceLabel, processData} from "../../util/weather";
 import {
@@ -17,11 +16,11 @@ import {
     ResponsiveContainer
 } from 'recharts';
 import {ChartData} from "../../models/DataSeries.ts";
+import Header from "../Header.tsx";
 
 
 
 const WindBox = () => {
-    const navigate = useNavigate();
     const [fLoaded, setFLoaded] = useState(false);
     const [units, setUnits] = useState<string>("imperial");
     const [wind, setWind] = useState<WindData>({} as WindData);
@@ -54,11 +53,6 @@ const WindBox = () => {
 
     if (!fLoaded) {
         return 'loading';
-    }
-
-
-    const handleClick = () => {
-        navigate('/'); // Navigate to the details page for the specific stat
     }
 
     function timeFormat(date: string) {
@@ -218,10 +212,7 @@ const WindBox = () => {
             <div className="details-dashboard">
                 <div className="content">
                     <main>
-                        <header className="details-header">
-                            <h1><span className="material-symbols-sharp">air</span> Losron Ranch -  Wind</h1>
-                            <div className="hasclick" onClick={handleClick}><span className="material-symbols-sharp">home</span></div>
-                        </header>
+                        <Header />
                         <div className="details-content">
                             <div className="details">
                                 <div className="detail-item">

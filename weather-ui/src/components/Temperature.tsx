@@ -1,7 +1,9 @@
+import {useContext} from "react";
 import {TempData } from "../models/current";
 import "./Temperature.css";
 import {tempColor, tempDisplay, tempLabel} from "../util/weather";
 import { useNavigate } from 'react-router-dom';
+import {WeatherContext} from "../Context.ts";
 
 export interface Props {
     temp: TempData
@@ -12,6 +14,7 @@ export interface Props {
 
 const Temperature = (props:Props) => {
     const navigate = useNavigate();
+    const ctx = useContext(WeatherContext);
 
     const handleClick = () => {
         navigate('/details/temperature'); // Navigate to the /dashboard route
@@ -24,7 +27,7 @@ const Temperature = (props:Props) => {
             <div className="weather-info">
                 <h1 className={`temp-text ${tempColor(props.temp.temp)}`}>{ tempDisplay(props.temp.temp, props.units)}<span className={'main-unit'}>°{ tempLabel(props.units) }</span></h1>
                 <p>{ props.conditions }</p>
-                <div className="location">Lorson Ranch - Colorado Springs</div>
+                <div className="location">{ctx.longname}</div>
             </div>
         </section>
         </>

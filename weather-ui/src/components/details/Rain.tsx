@@ -1,5 +1,4 @@
 import './Rain.css'
-import {useNavigate} from "react-router-dom";
 import {rainLabel, rainDisplay, full, formatDay} from "../../util/weather.ts";
 import {useEffect, useState} from "react";
 import {RainData} from "../../models/current.ts";
@@ -17,9 +16,9 @@ import {
     Tooltip,
     Bar, Legend,
 } from 'recharts';
+import Header from "../Header.tsx";
 
 const Rain = () => {
-    const navigate = useNavigate();
     const [fLoaded, setFLoaded] = useState(false);
     const [units, setUnits] = useState<string>("imperial");
     const [rain, setRain] = useState<RainData>({} as RainData);
@@ -54,10 +53,6 @@ const Rain = () => {
         return 'loading';
     }
 
-    const handleClick = () => {
-        navigate('/'); // Navigate to the details page for the specific stat
-    }
-
     function year(date: string) {
         return moment(date).format('YYYY');
     }
@@ -68,10 +63,7 @@ const Rain = () => {
     return (
         <>
             <div className="details-dashboard">
-                <header className="details-header">
-                    <h1><span className="material-symbols-sharp">water_drop</span> Losron Ranch -  Rain</h1>
-                    <div className="hasclick" onClick={handleClick}><span className="material-symbols-sharp">home</span></div>
-                </header>
+                <Header />
                 <div className="content">
                     <div className="details-content">
                         <div className="details">
@@ -98,12 +90,6 @@ const Rain = () => {
                                 <div className="label">{ month(rain.lastrain) }:</div>
                                 <div className="value">
                                     <span className="rain-blue">{rainDisplay(rain.monthly, units)}</span>&nbsp;{rainLabel(units)}
-                                </div>
-                            </div>
-                            <div className="detail-item">
-                                <div className="label">Last Hour:</div>
-                                <div className="value">
-                                    <span className="rain-blue">{rainDisplay(rain.hourly, units)}</span>&nbsp;{rainLabel(units)}
                                 </div>
                             </div>
                             <div className="detail-item">

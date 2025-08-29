@@ -9,9 +9,13 @@ import Lightning from "./components/details/Lightning.tsx";
 import Rain from "./components/details/Rain.tsx";
 import Forecast from "./components/details/Forecast.tsx";
 import About from "./components/About.tsx";
+import {WeatherContext} from "./Context.ts";
+
+const weatherName = {longname:"Lorson Ranch - Colorado Springs",shortname:"Lorson Ranch",state:"CO",country:"US"};
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
+      <WeatherContext.Provider value={weatherName}>
               <BrowserRouter>
                   <Routes>
                       <Route path="/" element={<App />} />
@@ -23,5 +27,6 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
                       <Route path="/about" element={<About />} />
                   </Routes>
               </BrowserRouter>
+      </WeatherContext.Provider>
   </React.StrictMode>,
 )
