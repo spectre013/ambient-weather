@@ -14,7 +14,7 @@ services:
     # Set the environment variables
     environment:
       - PORT=3000
-      - DB_HOST=
+      - DB_HOST=192.168.1.2
       - DB_USER=ambient
       - DB_PASSWORD=
       - DB_DATABASE=ambient
@@ -27,7 +27,30 @@ services:
     # Attach the container to the custom network
     networks:
       - weather-network
-
+  weather-transfer:
+    container_name: weather-transfer
+    image: docker.zoms.net/weather/weather-transfer:2.1.2
+    restart: unless-stopped
+    pull_policy: always
+    # Expose port 3000 inside the container to port 6001 on the host
+    ports:
+      - "7500:8080"
+    # Set the environment variables
+    environment:
+      - PORT=3000
+      - DB_HOST=192.168.1.2
+      - DB_USER=ambient
+      - DB_PASSWORD=
+      - DB_DATABASE=ambient
+      - ENV=development
+      - LOGLEVEL=Info
+      - ALERT_CRON=*/15 * * * *
+      - LAT=38.725798
+      - LON=-104.66783
+      - WEATHER_API=
+    # Attach the container to the custom network
+    networks:
+      - weather-network
   weather-ui:
     container_name: weather-ui
     image: docker.zoms.net/weather/weather-ui:v3.0.1
