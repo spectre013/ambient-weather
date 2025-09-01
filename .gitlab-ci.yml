@@ -9,7 +9,7 @@ ui:
   stage: build docker
   script:
     - cd weather-ui
-    - docker build -t $DOCKER_REGISTRY/weather/weather-ui:v3.0.2 .
+    - docker build -t $DOCKER_REGISTRY/weather/weather-ui:v3.0.3 .
     - docker push $DOCKER_REGISTRY/weather/weather-ui:v3.0.2
 
 
@@ -17,8 +17,8 @@ server:
   stage: build docker
   script:
     - cd weather-server
-    - docker build -t $DOCKER_REGISTRY/weather/weather-server:v4.0 . --no-cache
-    - docker push $DOCKER_REGISTRY/weather/weather-server:v4.0
+    - docker build -t $DOCKER_REGISTRY/weather/weather-server:v4.0.1 . --no-cache
+    - docker push $DOCKER_REGISTRY/weather/weather-server:v4.0.1
 
 transfer:
   stage: build docker
