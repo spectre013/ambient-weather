@@ -98,7 +98,7 @@ const Temperature = () => {
     return (
         <>
             <div className="details-dashboard">
-                <Header />
+                <Header name="Lightning" icon="bolt" />
                 <div className="content">
                     <div className="details-content">
                         <div className="details">
@@ -148,38 +148,40 @@ const Temperature = () => {
                             <CircleGauge size={275} value={lightning.day} color={lightningToHex(lightning.day)}/>
                         </div>
                     </div>
-                    <div className="bar-chart">
-                        <h3>Last 30 days</h3>
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart
-                                data={chart[0].values}
-                                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                            >
-                                <CartesianGrid stroke="#ccc" />
-                                <XAxis
-                                    dataKey="date"
-                                    tickFormatter={formatDay}
-                                    stroke="#ffffff"
-                                    tick={{ fill: '#ffffff', fontSize: 12 }}
-                                    axisLine={false}
-                                />
-                                <YAxis
-                                    stroke="#ffffff"
-                                    tick={{ fill: '#ffffff', fontSize: 12 }}
-                                    axisLine={false}
-                                />
-                                <Tooltip
-                                    cursor={{ fill: '#4b5563', opacity: 0.5 }}
-                                    content={CustomTooltip}
-                                />
-                                <Bar
-                                    dataKey="value"
-                                    fill="#ff7e00"
-                                    name="Strikes"
-                                />
-                                <Legend />
-                            </BarChart>
-                        </ResponsiveContainer>
+                    <div className="chart-container">
+                        <h3>Last 3 hours</h3>
+                        <div className="chart">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart
+                                    data={chart[0].values}
+                                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                                >
+                                    <CartesianGrid stroke="#ccc" />
+                                    <XAxis
+                                        dataKey="date"
+                                        tickFormatter={formatDay}
+                                        stroke="#ffffff"
+                                        tick={{ fill: '#ffffff', fontSize: 12 }}
+                                        axisLine={false}
+                                    />
+                                    <YAxis
+                                        stroke="#ffffff"
+                                        tick={{ fill: '#ffffff', fontSize: 12 }}
+                                        axisLine={false}
+                                    />
+                                    <Tooltip
+                                        cursor={{ fill: '#4b5563', opacity: 0.5 }}
+                                        content={CustomTooltip}
+                                    />
+                                    <Bar
+                                        dataKey="value"
+                                        fill="#ff7e00"
+                                        name="Strikes"
+                                    />
+                                    <Legend />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
                     </div>
                 </div>
             </div>

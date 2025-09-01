@@ -2,7 +2,12 @@ import {useNavigate} from "react-router-dom";
 import {WeatherContext} from "../Context.ts";
 import {useContext} from "react";
 
-const Header = () => {
+interface HeaderProps {
+    name: string
+    icon: string
+}
+
+const Header = (props: HeaderProps) => {
     const navigate = useNavigate();
     const ctx = useContext(WeatherContext);
 
@@ -12,7 +17,7 @@ const Header = () => {
 
     return (
         <header className="details-header">
-            <h1><span className="material-symbols-sharp">thermostat</span> {ctx.shortname} -  Temperature</h1>
+            <h1><span className="material-symbols-sharp">{props.icon}</span> {ctx.shortname} -  {props.name}</h1>
             <div className="hasclick" onClick={handleClick}><span className="material-symbols-sharp">home</span></div>
         </header>
     );

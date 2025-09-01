@@ -1,5 +1,5 @@
 import './Forecast.css'
-import {useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import {Day} from "../../models/Forecast.ts";
 import {useParams} from "react-router-dom";
 import Guage from "../../util/TemperatureGuage.tsx";
@@ -28,6 +28,7 @@ import {
 } from "recharts";
 import {CustomForecastTooltip } from "../../util/utilities.tsx";
 import Header from "../Header.tsx";
+import {WeatherContext} from "../../Context.ts";
 
 const Forecast = () => {
     const { day } = useParams()
@@ -37,6 +38,7 @@ const Forecast = () => {
     const urls = [
         '/api/forecast',
     ];
+    const ctx = useContext(WeatherContext);
 
     useEffect(() => {
         setUnits(localStorage.getItem('units') || 'imperial');
@@ -75,7 +77,7 @@ const Forecast = () => {
     return (
         <>
         <div className="forecast-details-dashboard">
-            <Header />
+            <Header name="Forecast" icon="thermostat" />
             <div className="forecast-details-content">
                 <div className="left">
                     <div>Forecast for {moment(forecast.datetime).format('dddd, MMMM Do YYYY')}</div>
@@ -158,7 +160,7 @@ const Forecast = () => {
                         <div className="gauge-card dial">
                             <div className="dial"
                                  dangerouslySetInnerHTML={{__html: createDial(forecast.windspeed, forecast.winddir, forecast.windgust,
-                                         BeaufortHex(forecast.windspeed))}}>
+                                         BeaufortHex(forecast.windspeed), ctx[ctx.theme]['card-bg'], ctx[ctx.theme]['text-color'])}} >
                             </div>
                             <div className="gauge-label">Wind information</div>
                         </div>
@@ -248,9 +250,9 @@ const Forecast = () => {
                     </div>
                 </div>
             </div>
-            <div className="charts">
-                <div className="bar-chart">
-                    <h3>Temperature for {moment(forecast.datetime).format('dddd, MMMM Do YYYY')}</h3>
+            <div className="chart-container">
+                <h3>Temperature for {moment(forecast.datetime).format('dddd, MMMM Do YYYY')}</h3>
+                <div className="chart">
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart
                             data={forecast.hours}
@@ -273,7 +275,7 @@ const Forecast = () => {
                                 label={{ value: 'Degrees (°'+tempLabel(units)+')', angle: -90, position: 'insideLeft', offset: 15, fill: '#e5e7eb' }}
                             />
                             <Tooltip
-                                contentStyle={{ backgroundColor: '#2d3748', border: 'none' }}
+                                contentStyle={{ backgroundColor: '#2d3748', border: 'none',  color: ctx[ctx.theme]['bg'] }}
                                 labelFormatter={(label) => new Date(label).toLocaleTimeString()}
                             />
                             <Legend wrapperStyle={{ color: '#e5e7eb',position: 'relative' }} />
@@ -294,8 +296,10 @@ const Forecast = () => {
                         </LineChart>
                     </ResponsiveContainer>
                 </div>
-                <div className="bar-chart">
-                    <h3>Precip for {moment(forecast.datetime).format('dddd, MMMM Do YYYY')}</h3>
+            </div>
+            <div className="chart-container">
+                <h3>Precip for {moment(forecast.datetime).format('dddd, MMMM Do YYYY')}</h3>
+                <div className="chart">
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart
                             data={forecast.hours}
@@ -305,16 +309,16 @@ const Forecast = () => {
                             <XAxis
                                 dataKey="datetime"
                                 stroke="#ffffff"
-                                tick={{ fill: '#ffffff', fontSize: 12 }}
+                                tick={{ fill: ctx[ctx.theme]['text-color'], fontSize: 12 }}
                                 axisLine={false}
                             />
                             <YAxis
                                 stroke="#ffffff"
-                                tick={{ fill: '#ffffff', fontSize: 12 }}
+                                tick={{ fill: ctx[ctx.theme]['text-color'], fontSize: 12 }}
                                 axisLine={false}
                             />
                             <Tooltip
-                                cursor={{ fill: '#4b5563', opacity: 0.5 }}
+                                cursor={{ fill: ctx[ctx.theme]['text-color'], opacity: 0.5 }}
                                 content={CustomForecastTooltip}
                             />
                             <Bar

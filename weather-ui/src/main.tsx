@@ -9,13 +9,15 @@ import Lightning from "./components/details/Lightning.tsx";
 import Rain from "./components/details/Rain.tsx";
 import Forecast from "./components/details/Forecast.tsx";
 import About from "./components/About.tsx";
-import {WeatherContext} from "./Context.ts";
+import {WeatherContext, weatherContext} from "./Context.ts";
 
-const weatherName = {longname:"Lorson Ranch - Colorado Springs",shortname:"Lorson Ranch",state:"CO",country:"US"};
+const theme = localStorage.getItem('theme') || 'dark';
+const body: HTMLElement = document.body;
+body.dataset['theme'] = theme
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-      <WeatherContext.Provider value={weatherName}>
+      <WeatherContext.Provider value={weatherContext}>
               <BrowserRouter>
                   <Routes>
                       <Route path="/" element={<App />} />

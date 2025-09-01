@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect     } from 'react'
 import './App.css'
 import {Current} from "./models/current";
 import { ForecastModel } from "./models/Forecast.ts"
@@ -7,9 +7,9 @@ import Forecast from "./components/Forecast.tsx";
 import Stat from "./components/Stat.tsx";
 import {
     baroLabel,
-    distanceLabel, full, getOtherUnit,
+    distanceLabel, getOtherUnit,
     rainLabel,
-    tempLabel,
+    tempLabel, timeFormatAMPM,
     windLabel
 } from "./util/weather.ts";
 import GaugeComponent from 'react-gauge-component';
@@ -92,6 +92,17 @@ function App() {
         const about = () => {
             navigate('/about');
         };
+        const lightdark = () => {
+            const theme = localStorage.getItem('theme') || 'dark';
+            const body: HTMLElement = document.body;
+            if(theme === 'dark') {
+                localStorage.setItem('theme', 'light');
+                body.dataset['theme'] = 'light';
+            } else {
+                localStorage.setItem('theme', 'dark');
+                body.dataset['theme'] = 'dark';
+            }
+        };
 
         function sunriseLabel(value: number): string {
             if(value === 0) {
@@ -115,6 +126,7 @@ function App() {
             return (
                 <div className="loading-body">
                     <div className="loading-container">
+                        <div>Lorson Ranch, Colorado Springs - Weather</div>
                         <div className="spinner"></div>
                         <p className="loading-text">Loading...</p>
                     </div>
@@ -134,8 +146,11 @@ function App() {
                                     <div className="info-card" onClick={updateUnit}>
                                         Use {getOtherUnit(units)}
                                     </div>
+                                    <div className="info-card" onClick={lightdark}>
+                                        <span className="material-symbols-sharp">contrast</span>
+                                    </div>
                                     <div className="info-card">
-                                       <span className={isConnected(connected)}>wifi</span>&nbsp;Last Update: {full(conditions.date)}
+                                       <span className={isConnected(connected)}>wifi</span>&nbsp;Last Update: {timeFormatAMPM(conditions.date)}
                                     </div>
                                     <div className="info-card" onClick={about}>
                                         About
@@ -195,6 +210,11 @@ function App() {
                                                         },
                                                     ]
                                                 }}
+                                                labels={{
+                                                    valueLabel: {
+                                                        matchColorWithArc: true
+                                                    }
+                                                }}
                                                 value={conditions.uv.uv}
                                                 minValue={0}
                                                 maxValue={12}
@@ -227,7 +247,8 @@ function App() {
                                                     strokeWidth: 0,
                                                     }}
                                                 labels={{
-                                                    valueLabel: { formatTextValue: value => value + 'º' },
+                                                    valueLabel: { formatTextValue: value => value + 'º',
+                                                        matchColorWithArc: true},
                                                     tickLabels: {
                                                         type: "outer",
                                                         defaultTickValueConfig: {
@@ -236,7 +257,7 @@ function App() {
                                                     }
                                                 }}
                                                 style={{ width: '100%', height: '100%' }}
-                                                value={conditions.astro.elevation > 100 ? 1100 : conditions.astro.elevation }
+                                                value={conditions.astro.elevation > 100 ? 100 : conditions.astro.elevation }
                                                 minValue={0}
                                                 maxValue={100}
                                             />

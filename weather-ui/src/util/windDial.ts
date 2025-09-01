@@ -22,7 +22,7 @@ class WindDial {
      * @returns The complete SVG string.
      */
     public generateSvg(): string {
-        const { speed, direction, gusts, color } = this.options;
+        const { speed, direction, gusts, color, radiusColor, tickColor} = this.options;
 
         // The core SVG structure and styling
         const svgContent = `
@@ -37,19 +37,19 @@ class WindDial {
         </style>
 
         <!-- Outer translucent ring -->
-        <circle cx="${this.cx}" cy="${this.cy}" r="${this.outerRadius}" fill="none" stroke="rgba(0, 0, 0, 0.2)" stroke-width="20" />
+        <circle cx="${this.cx}" cy="${this.cy}" r="${this.outerRadius}" fill="none" stroke=${radiusColor} stroke-width="20" />
 
         <!-- Compass points (N, E, S, W) -->
-        <text class="wind-dial-text" font-size="20" x="${this.cx}" y="${this.cy - this.outerRadius - 15}">N</text>
-        <text class="wind-dial-text" font-size="20" x="${this.cx + this.outerRadius + 15}" y="${this.cy}">E</text>
-        <text class="wind-dial-text" font-size="20" x="${this.cx}" y="${this.cy + this.outerRadius + 15}">S</text>
-        <text class="wind-dial-text" font-size="20" x="${this.cx - this.outerRadius - 15}" y="${this.cy}">W</text>
+        <text class="wind-dial-text" fill="${tickColor}" stroke="${tickColor}" font-size="20" x="${this.cx}" y="${this.cy - this.outerRadius - 15}">N</text>
+        <text class="wind-dial-text" fill="${tickColor}" stroke="${tickColor}" font-size="20" x="${this.cx + this.outerRadius + 15}" y="${this.cy}">E</text>
+        <text class="wind-dial-text" fill="${tickColor}" stroke="${tickColor}" font-size="20" x="${this.cx}" y="${this.cy + this.outerRadius + 15}">S</text>
+        <text class="wind-dial-text" fill="${tickColor}" stroke="${tickColor}" font-size="20" x="${this.cx - this.outerRadius - 15}" y="${this.cy}">W</text>
 
         <!-- Dynamic tick marks -->
-        ${this.generateTickMarks()}
+        ${this.generateTickMarks(tickColor)}
 
         <!-- Central circle -->
-        <circle cx="${this.cx}" cy="${this.cy}" r="${this.innerRadius}" fill="rgba(0, 0, 0, 0.2)" />
+        <circle cx="${this.cx}" cy="${this.cy}" r="${this.innerRadius}" fill=${radiusColor} />
 
         <!-- Wind speed text -->
         <text class="wind-dial-text" fill="${color}" stroke="${color}" font-size="40" font-weight="bold" x="${this.cx}" y="${this.cy - 10}">${speed}</text>
@@ -70,7 +70,7 @@ class WindDial {
      * Helper function to generate the tick marks around the dial.
      * @returns A string containing SVG path elements for the ticks.
      */
-    private generateTickMarks(): string {
+    private generateTickMarks(tickColor: string): string {
         let ticks = '';
         const numTicks = 36;
         const majorTicks = 4; // N, E, S, W
@@ -90,7 +90,7 @@ class WindDial {
             const x2 = this.cx + currentInnerRadius * Math.sin(angle);
             const y2 = this.cy - currentInnerRadius * Math.cos(angle);
 
-            ticks += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="rgba(255, 255, 255, 0.8)" stroke-width="2" stroke-linecap="round" />`;
+            ticks += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke=${tickColor} stroke-width="2" stroke-linecap="round" />`;
         }
         return ticks;
     }

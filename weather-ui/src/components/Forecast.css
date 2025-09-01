@@ -12,6 +12,7 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
+    color: var(--text-color);
 }
 
 .forecast-header h2 {

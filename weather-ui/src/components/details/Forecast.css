@@ -6,7 +6,10 @@
 .forecast-info {
     text-align: center;
     margin: 20px auto;
+    padding: 5px;
     border: 1px solid var(--border-color);
+    background-color: var(--card-bg);
+    border-radius: 15px;
 }
 
 .left {

@@ -1,4 +1,17 @@
-:root {
+
+body[data-theme='light'] {
+    --bg: #F9F6EE;
+    --card-bg: #f7fafc;
+    --main-card: #f3f4f6;
+    --text-color: #1a202c;
+    --muted-text: #6b7280;
+    --border-color: rgba(0, 0, 0, 0.5);
+    --gradient-1: #38bdf8;
+    --gradient-2: #818cf8;
+    --gradient-3: #fcd34d;
+}
+
+body[data-theme='dark'] {
     --bg: #0d1219;
     --card-bg: #141b21;
     --main-card: #141b21;
@@ -15,7 +28,7 @@ body {
     background-color: var(--bg);
     color: var(--text-color);
     max-width: 1400px;
-    margin: 0 auto;
+    margin: 10px auto;
     padding: 0;
 
     min-height: 100vh;
@@ -28,6 +41,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 20px;
 }
 
 /* Keyframes for the spinning animation */
@@ -78,28 +92,26 @@ body {
     border-radius: 20px;
     overflow: hidden;
     backdrop-filter: blur(10px);
-    background: rgba(20, 27, 33, 0.5);
+    background: var(--bg);
     border: 1px solid var(--border-color);
 }
 
 .details-dashboard {
     max-width: 1600px;
-    height: 98vh;
     border-radius: 20px;
-    overflow: hidden;
     backdrop-filter: blur(10px);
     border: 1px solid var(--border-color);
-    background: rgba(20, 27, 33, 0.5);
+    background: var(--bg);
     margin: 20px;
     padding: 5px;
+    color: var(--text-color);
 }
 
 .forecast-details-dashboard {
     max-width: 1600px;
-    height: 98vh;
     border-radius: 20px;
     backdrop-filter: blur(10px);
-    background: rgba(20, 27, 33, 0.5);
+    background: var(--bg);
     border: 1px solid var(--border-color);
     margin: 20px;
     padding: 5px;
@@ -152,9 +164,7 @@ body {
 }
 
 .content {
-    padding: 20px;
-    display: grid;
-    gap: 20px;
+    padding: 20px
 }
 
 .header {
@@ -220,6 +230,7 @@ body {
 .location {
     margin-top: 15px;
     font-size: 14px;
+    color: var(--text-color);
 }
 
 .location span {
@@ -233,6 +244,7 @@ body {
     display: flex;
     flex-direction: column;
     border: 1px solid var(--border-color);
+    color: var(--text-color);
 }
 
 
@@ -279,13 +291,6 @@ body {
     color: var(--muted-text);
 }
 
-.map-section {
-    background-color: var(--card-bg);
-    border-radius: 15px;
-    padding: 15px;
-    border: 1px solid var(--border-color);
-    overflow: hidden;
-}
 
 .map-section img {
     width: 100%;
@@ -293,6 +298,13 @@ body {
     object-fit: cover;
     border-radius: 10px;
     min-height: 250px;
+}
+
+.details {
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+    background-color: var(--card-bg);
+    padding: 10px;
 }
 
 .details-content {
@@ -333,6 +345,14 @@ body {
  }
 
 
+.chart-container {
+    height: 550px;
+    padding: 10px;
+    background-color: var(--card-bg);
+    border-radius: 15px;
+    border: 1px solid var(--border-color);
+    margin: 20px;
+}
 .chart {
     height: 450px;
 }
@@ -383,6 +403,7 @@ body {
     display: flex;
     align-items: center;
     border: 1px solid var(--border-color);
+    color: var(--text-color);
     font-size: 15px;
     cursor: pointer;
 }
@@ -420,7 +441,6 @@ body {
         grid-template-columns: 1fr;
     }
     .details-dashboard {
-        width: 100%;
         grid-template-columns: 1fr;
     }
     .forecast-details-content {
@@ -432,7 +452,7 @@ body {
     .details-content {
         display: block;
     }
-    .chart {
+    .chart-container {
         display: none;
     }
     .dial {
@@ -462,5 +482,8 @@ body {
     }
     .forecast-details-content {
         grid-template-columns: 1fr;
+    }
+    .chart-container {
+        display: none;
     }
 }

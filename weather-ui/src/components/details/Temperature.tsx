@@ -2,7 +2,7 @@ import './Temperature.css'
 import Guage from "../../util/TemperatureGuage.tsx";
 import {tempColor, tempLabel, tempToHex} from "../../util/weather.ts";
 import {ChartData} from "../../models/DataSeries.ts";
-import {useEffect, useState} from "react";
+import {useEffect, useState, useContext} from "react";
 import { TempData } from "../../models/current.ts";
 import {
     LineChart,
@@ -17,6 +17,7 @@ import {
 import {processData} from "../../util/weather.ts";
 import moment from "moment";
 import Header from "../Header.tsx";
+import {WeatherContext} from "../../Context.ts";
 
 const Temperature = () => {
     const [fLoaded, setFLoaded] = useState(false);
@@ -27,6 +28,7 @@ const Temperature = () => {
         '/api/current',
         '/api/chart/temperature/3h',
     ];
+    const ctx = useContext(WeatherContext);
 
     useEffect(() => {
         setUnits('imperial'); // Set the units to imperial by default
@@ -59,8 +61,8 @@ const Temperature = () => {
     return (
         <>
             <div className="details-dashboard">
-                <Header />
-                <div className="content">
+                <Header name="Temperature" icon="thermostat" />
+                    <div className="content">
                     <div className="details-content">
                         <div className="details">
                                 <div className="detail-item">
@@ -104,50 +106,54 @@ const Temperature = () => {
                                    value={Number(temp.temp.toFixed(0))} />
                         </div>
                     </div>
-                    <div className="chart">
-                        <h3>Last 3 hours</h3>
-                        <ResponsiveContainer width="100%" height="100%">
-                            <LineChart
-                                data={combinedChartData}
-                                margin={{
-                                    top: 5,
-                                    right: 30,
-                                    left: 20,
-                                    bottom: 5,
-                                }}
-                            >
-                                <CartesianGrid strokeDasharray="3 3" stroke="#4a5568" />
-                                <XAxis
-                                    dataKey="date"
-                                    stroke="#9ca3af"
-                                    tickFormatter={(date) => date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    label={{ value: 'Time of Day', position: 'insideBottom', offset: -15, fill: '#e5e7eb' }}
-                                />
-                                <YAxis
-                                    stroke="#9ca3af"
-                                    label={{ value: 'Degrees (°'+tempLabel(units)+')', angle: -90, position: 'insideLeft', offset: 15, fill: '#e5e7eb' }}
-                                />
-                                <Tooltip
-                                    contentStyle={{ backgroundColor: '#2d3748', border: 'none' }}
-                                    labelFormatter={(label) => new Date(label).toLocaleTimeString()}
-                                />
-                                <Legend wrapperStyle={{ color: '#e5e7eb',position: 'relative' }} />
-                                <Line
-                                    type="monotone"
-                                    dataKey="Dewpoint"
-                                    stroke="#60a5fa"
-                                    activeDot={{ r: 8 }}
-                                    dot={false}
-                                />
-                                <Line
-                                    type="monotone"
-                                    dataKey="Temperature"
-                                    stroke="#ef4444"
-                                    activeDot={{ r: 8 }}
-                                    dot={false}
-                                />
-                            </LineChart>
-                        </ResponsiveContainer>
+                        <div className="chart-container">
+                            <h3>Last 3 hours</h3>
+                            <div className="chart">
+                                <ResponsiveContainer width="100%" height="90%">
+                                    <LineChart
+                                        data={combinedChartData}
+                                        margin={{
+                                            top: 5,
+                                            right: 30,
+                                            left: 20,
+                                            bottom: 5,
+                                        }}
+                                    >
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#4a5568" />
+                                        <XAxis
+                                            dataKey="date"
+                                            stroke="#9ca3af"
+                                            tickFormatter={(date) => date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            label={{ value: 'Time of Day', position: 'insideBottom', offset: -15, fill:  ctx[ctx.theme]['text-color'] }}
+                                        />
+                                        <YAxis
+                                            stroke="#9ca3af"
+                                            label={{ value: 'Degrees (°'+tempLabel(units)+')', angle: -90,
+                                                position: 'insideLeft', offset: 15, fill: ctx[ctx.theme]['text-color']
+                                        }}
+                                        />
+                                        <Tooltip
+                                            contentStyle={{ backgroundColor: '#2d3748', border: 'none', color: ctx[ctx.theme]['bg'] }}
+                                            labelFormatter={(label) => new Date(label).toLocaleTimeString()}
+                                        />
+                                        <Legend wrapperStyle={{ color:  ctx[ctx.theme]['text-color'],position: 'relative' }} />
+                                        <Line
+                                            type="monotone"
+                                            dataKey="Dewpoint"
+                                            stroke="#60a5fa"
+                                            activeDot={{ r: 8 }}
+                                            dot={false}
+                                        />
+                                        <Line
+                                            type="monotone"
+                                            dataKey="Temperature"
+                                            stroke="#ef4444"
+                                            activeDot={{ r: 8 }}
+                                            dot={false}
+                                        />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            </div>
                     </div>
                 </div>
             </div>

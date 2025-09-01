@@ -1,6 +1,6 @@
 import './Rain.css'
 import {rainLabel, rainDisplay, full, formatDay} from "../../util/weather.ts";
-import {useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import {RainData} from "../../models/current.ts";
 import {ChartData} from "../../models/DataSeries.ts";
 import RainGuage from "../../util/RainGauge.tsx";
@@ -17,6 +17,7 @@ import {
     Bar, Legend,
 } from 'recharts';
 import Header from "../Header.tsx";
+import {WeatherContext} from "../../Context.ts";
 
 const Rain = () => {
     const [fLoaded, setFLoaded] = useState(false);
@@ -27,6 +28,7 @@ const Rain = () => {
         '/api/current',
         '/api/chart/rain/3h',
     ];
+    const ctx = useContext(WeatherContext);
 
     useEffect(() => {
         setUnits('imperial'); // Set the units to imperial by default
@@ -63,7 +65,7 @@ const Rain = () => {
     return (
         <>
             <div className="details-dashboard">
-                <Header />
+                <Header name="Precipitation" icon="water_drop"/>
                 <div className="content">
                     <div className="details-content">
                         <div className="details">
@@ -106,41 +108,43 @@ const Rain = () => {
                             </div>
                         </div>
                         <div className="rain-gauge">
-                            <RainGuage rainAmount={rain.daily} size={300} gaugeColor="#555" waterColor="#3b9cac" tickColor="#fff"/>
+                            <RainGuage rainAmount={rain.daily} size={300} gaugeColor="#555" waterColor="#3b9cac" tickColor={ctx[ctx.theme]['text-color']}/>
                         </div>
                     </div>
-                    <div className="bar-chart">
-                        <h3>Last 30 days</h3>
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart
-                                data={chart[0].values}
-                                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                            >
-                                <CartesianGrid stroke="#ccc" />
-                                <XAxis
-                                    dataKey="date"
-                                    tickFormatter={formatDay}
-                                    stroke="#ffffff"
-                                    tick={{ fill: '#ffffff', fontSize: 12 }}
-                                    axisLine={false}
-                                />
-                                <YAxis
-                                    stroke="#ffffff"
-                                    tick={{ fill: '#ffffff', fontSize: 12 }}
-                                    axisLine={false}
-                                />
-                                <Tooltip
-                                    cursor={{ fill: '#4b5563', opacity: 0.5 }}
-                                    content={CustomTooltip}
-                                />
-                                <Bar
-                                    dataKey="value"
-                                    fill="#3b9cac"
-                                    name={rainLabel(units)}
-                                />
-                                <Legend />
-                            </BarChart>
-                        </ResponsiveContainer>
+                    <div className="chart-container">
+                        <h3>Last 3 hours</h3>
+                        <div className="chart">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart
+                                    data={chart[0].values}
+                                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                                >
+                                    <CartesianGrid stroke="#ccc" />
+                                    <XAxis
+                                        dataKey="date"
+                                        tickFormatter={formatDay}
+                                        stroke="#ffffff"
+                                        tick={{ fill: ctx[ctx.theme]['text-color'], fontSize: 12 }}
+                                        axisLine={false}
+                                    />
+                                    <YAxis
+                                        stroke="#ffffff"
+                                        tick={{ fill: ctx[ctx.theme]['text-color'], fontSize: 12 }}
+                                        axisLine={false}
+                                    />
+                                    <Tooltip
+                                        cursor={{ fill: ctx[ctx.theme]['text-color'], opacity: 0.5 }}
+                                        content={CustomTooltip}
+                                    />
+                                    <Bar
+                                        dataKey="value"
+                                        fill="#3b9cac"
+                                        name={rainLabel(units)}
+                                    />
+                                    <Legend />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
                     </div>
                 </div>
             </div>

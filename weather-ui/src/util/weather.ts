@@ -24,6 +24,10 @@ export function timeFormat(time: string):string {
     return moment(time).format("HH:mm");
 }
 
+export function timeFormatAMPM(time: string):string {
+    return moment(time).format("HH:mm:ss A");
+}
+
 export function getOtherUnit(units: string): string {
     if (units === 'metric') {
         return 'Imperial';
@@ -346,12 +350,14 @@ export const formatDay = (dateString: string):string => {
     return date.getDate().toString();
 };
 
-export function createDial(speed: number, direction: number, gusts: number, color: string) : string  {
+export function createDial(speed: number, direction: number, gusts: number, color: string, radiusColor: string, tickColor: string) : string  {
     const windData: WindDialOptions = {
         speed: speed,
         direction: direction, // East
         gusts: gusts,
         color: color,
+        radiusColor: radiusColor,
+        tickColor: tickColor
     };
 
     const windDial = new WindDial(windData);

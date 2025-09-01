@@ -3,7 +3,7 @@ import './Wind.css'
 import { WindData } from "../../models/current.ts";
 import { createDial } from "../../util/weather.ts";
 import * as weather from '../../util/weather'
-import {useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import {BeaufortHex, distanceLabel, processData} from "../../util/weather";
 import {
     LineChart,
@@ -17,6 +17,7 @@ import {
 } from 'recharts';
 import {ChartData} from "../../models/DataSeries.ts";
 import Header from "../Header.tsx";
+import {WeatherContext} from "../../Context.ts";
 
 
 
@@ -29,6 +30,7 @@ const WindBox = () => {
         '/api/current',
         '/api/chart/windspeed/3h',
     ];
+    const ctx = useContext(WeatherContext);
 
     useEffect(() => {
         setUnits('imperial'); // Set the units to imperial by default
@@ -212,7 +214,7 @@ const WindBox = () => {
             <div className="details-dashboard">
                 <div className="content">
                     <main>
-                        <Header />
+                        <Header name="Wind" icon="air" />
                         <div className="details-content">
                             <div className="details">
                                 <div className="detail-item">
@@ -247,53 +249,55 @@ const WindBox = () => {
                             </div>
                             <div className="dial"
                                  dangerouslySetInnerHTML={{__html: createDial(wind.windspeedmph, wind.winddir, wind.windgustmph,
-                                         BeaufortHex(wind.windspeedmph))}}>
+                                         BeaufortHex(wind.windspeedmph), ctx[ctx.theme]['card-bg'], ctx[ctx.theme]['text-color'])}} >
                             </div>
                         </div>
-                        <div className="chart">
+                        <div className="chart-container">
                             <h3>Last 3 hours</h3>
-                            <ResponsiveContainer width="100%" height="100%">
-                                <LineChart
-                                    data={combinedChartData}
-                                    margin={{
-                                        top: 5,
-                                        right: 30,
-                                        left: 20,
-                                        bottom: 5,
-                                    }}
-                                >
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#4a5568" />
-                                    <XAxis
-                                        dataKey="date"
-                                        stroke="#9ca3af"
-                                        tickFormatter={(date) => date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                        label={{ value: 'Time of Day', position: 'insideBottom', offset: -15, fill: '#e5e7eb' }}
-                                    />
-                                    <YAxis
-                                        stroke="#9ca3af"
-                                        label={{ value: 'Speed (mph)', angle: -90, position: 'insideLeft', offset: 15, fill: '#e5e7eb' }}
-                                    />
-                                    <Tooltip
-                                        contentStyle={{ backgroundColor: '#2d3748', border: 'none' }}
-                                        labelFormatter={(label) => new Date(label).toLocaleTimeString()}
-                                    />
-                                    <Legend wrapperStyle={{ color: '#e5e7eb',position: 'relative' }} />
-                                    <Line
-                                        type="monotone"
-                                        dataKey="Wind Speed"
-                                        stroke="#f97316"
-                                        activeDot={{ r: 8 }}
-                                        dot={false}
-                                    />
-                                    <Line
-                                        type="monotone"
-                                        dataKey="Wind Gust"
-                                        stroke="#ef4444"
-                                        activeDot={{ r: 8 }}
-                                        dot={false}
-                                    />
-                                </LineChart>
-                            </ResponsiveContainer>
+                            <div className="chart">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <LineChart
+                                        data={combinedChartData}
+                                        margin={{
+                                            top: 5,
+                                            right: 30,
+                                            left: 20,
+                                            bottom: 5,
+                                        }}
+                                    >
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#4a5568" />
+                                        <XAxis
+                                            dataKey="date"
+                                            stroke="#9ca3af"
+                                            tickFormatter={(date) => date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            label={{ value: 'Time of Day', position: 'insideBottom', offset: -15, fill:  ctx[ctx.theme]['text-color'] }}
+                                        />
+                                        <YAxis
+                                            stroke="#9ca3af"
+                                            label={{ value: 'Speed (mph)', angle: -90, position: 'insideLeft', offset: 15, fill:  ctx[ctx.theme]['text-color'] }}
+                                        />
+                                        <Tooltip
+                                            contentStyle={{ backgroundColor: '#2d3748', border: 'none' }}
+                                            labelFormatter={(label) => new Date(label).toLocaleTimeString()}
+                                        />
+                                        <Legend wrapperStyle={{ color: '#e5e7eb',position: 'relative' }} />
+                                        <Line
+                                            type="monotone"
+                                            dataKey="Wind Speed"
+                                            stroke="#f97316"
+                                            activeDot={{ r: 8 }}
+                                            dot={false}
+                                        />
+                                        <Line
+                                            type="monotone"
+                                            dataKey="Wind Gust"
+                                            stroke="#ef4444"
+                                            activeDot={{ r: 8 }}
+                                            dot={false}
+                                        />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            </div>
                         </div>
                     </main>
                 </div>
