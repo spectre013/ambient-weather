@@ -10,7 +10,7 @@ ui:
   script:
     - cd weather-ui
     - docker build -t $DOCKER_REGISTRY/weather/weather-ui:v3.0.3 .
-    - docker push $DOCKER_REGISTRY/weather/weather-ui:v3.0.2
+    - docker push $DOCKER_REGISTRY/weather/weather-ui:v3.0.3
 
 
 server:
