@@ -229,6 +229,22 @@ CREATE INDEX IF NOT EXISTS humidity2idx
     ON public.records USING btree
         (humidity2 ASC NULLS LAST, recorded ASC NULLS LAST)
     TABLESPACE pg_default;
+-- Index: humidity3idx
+
+-- DROP INDEX IF EXISTS public.humidity3idx;
+
+CREATE INDEX IF NOT EXISTS humidity3idx
+    ON public.records USING btree
+        (humidity3 ASC NULLS LAST, recorded ASC NULLS LAST)
+    TABLESPACE pg_default;
+-- Index: humidity4idx
+
+-- DROP INDEX IF EXISTS public.humidity4idx;
+
+CREATE INDEX IF NOT EXISTS humidity4idx
+    ON public.records USING btree
+        (humidity4 ASC NULLS LAST, recorded ASC NULLS LAST)
+    TABLESPACE pg_default;
 -- Index: humidityidx
 
 -- DROP INDEX IF EXISTS public.humidityidx;
@@ -276,6 +292,22 @@ CREATE INDEX IF NOT EXISTS temp1fidx
 CREATE INDEX IF NOT EXISTS temp2fidx
     ON public.records USING btree
         (temp2f ASC NULLS LAST, recorded ASC NULLS LAST)
+    TABLESPACE pg_default;
+-- Index: temp3fidx
+
+-- DROP INDEX IF EXISTS public.temp3fidx;
+
+CREATE INDEX IF NOT EXISTS temp3fidx
+    ON public.records USING btree
+        (temp3f ASC NULLS LAST, recorded ASC NULLS LAST)
+    TABLESPACE pg_default;
+-- Index: temp4fidx
+
+-- DROP INDEX IF EXISTS public.temp4fidx;
+
+CREATE INDEX IF NOT EXISTS temp4fidx
+    ON public.records USING btree
+        (temp4f ASC NULLS LAST, recorded ASC NULLS LAST)
     TABLESPACE pg_default;
 -- Index: tempfidx
 
@@ -333,6 +365,7 @@ CREATE INDEX IF NOT EXISTS windspeedmphidx
     ON public.records USING btree
         (windspeedmph ASC NULLS LAST, recorded ASC NULLS LAST)
     TABLESPACE pg_default;
+
 
 -- Table: public.stats
 

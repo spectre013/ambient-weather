@@ -432,6 +432,10 @@ body {
     color: var(--muted-text);
 }
 
+.copyright a {
+    color: orange;
+}
+
 /* Responsive adjustments */
 @media only screen and (max-width: 1200px) {
     .dashboard {

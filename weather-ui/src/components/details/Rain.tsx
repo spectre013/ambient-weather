@@ -18,6 +18,7 @@ import {
 } from 'recharts';
 import Header from "../Header.tsx";
 import {WeatherContext} from "../../Context.ts";
+import Footer from "../Footer.tsx";
 
 const Rain = () => {
     const [fLoaded, setFLoaded] = useState(false);
@@ -148,7 +149,7 @@ const Rain = () => {
                     </div>
                 </div>
             </div>
-            <div className='copyright'>&copy; 2018-{moment().format('YYYY')} : zoms.net</div>
+            <Footer />
         </>
     )
 }

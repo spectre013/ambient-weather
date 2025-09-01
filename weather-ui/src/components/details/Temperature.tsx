@@ -15,9 +15,9 @@ import {
     ResponsiveContainer
 } from 'recharts';
 import {processData} from "../../util/weather.ts";
-import moment from "moment";
 import Header from "../Header.tsx";
 import {WeatherContext} from "../../Context.ts";
+import Footer from "../Footer.tsx";
 
 const Temperature = () => {
     const [fLoaded, setFLoaded] = useState(false);
@@ -157,7 +157,7 @@ const Temperature = () => {
                     </div>
                 </div>
             </div>
-            <div className='copyright'>&copy; 2018-{moment().format('YYYY')} : zoms.net</div>
+            <Footer />
         </>
     )
 }

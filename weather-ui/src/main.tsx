@@ -9,6 +9,7 @@ import Lightning from "./components/details/Lightning.tsx";
 import Rain from "./components/details/Rain.tsx";
 import Forecast from "./components/details/Forecast.tsx";
 import About from "./components/About.tsx";
+import Admin from "./components/Admin.tsx";
 import {WeatherContext, weatherContext} from "./Context.ts";
 
 const theme = localStorage.getItem('theme') || 'dark';
@@ -27,6 +28,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
                       <Route path="/details/rain" element={<Rain />} />
                       <Route path="/details/forecast/:day" element={<Forecast />} />
                       <Route path="/about" element={<About />} />
+                      <Route path="/admin" element={<Admin />} />
                   </Routes>
               </BrowserRouter>
       </WeatherContext.Provider>

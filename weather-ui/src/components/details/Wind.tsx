@@ -18,6 +18,7 @@ import {
 import {ChartData} from "../../models/DataSeries.ts";
 import Header from "../Header.tsx";
 import {WeatherContext} from "../../Context.ts";
+import Footer from "../Footer.tsx";
 
 
 
@@ -302,7 +303,7 @@ const WindBox = () => {
                     </main>
                 </div>
             </div>
-            <div className='copyright'>&copy; 2018-{moment().format('YYYY')} : zoms.net</div>
+            <Footer />
         </>
 
 

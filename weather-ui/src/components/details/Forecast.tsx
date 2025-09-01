@@ -29,6 +29,7 @@ import {
 import {CustomForecastTooltip } from "../../util/utilities.tsx";
 import Header from "../Header.tsx";
 import {WeatherContext} from "../../Context.ts";
+import Footer from "../Footer.tsx";
 
 const Forecast = () => {
     const { day } = useParams()
@@ -332,7 +333,7 @@ const Forecast = () => {
                 </div>
             </div>
         </div>
-            <div className='copyright'>&copy; 2018-{moment().format('YYYY')} : zoms.net</div>
+        <Footer />
         </>
     )
 }

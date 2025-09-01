@@ -17,6 +17,7 @@ import moment from "moment/moment";
 import AlertInfo from "./components/AlertInfo.tsx";
 localStorage.setItem('units', 'imperial');
 import {useNavigate} from "react-router-dom";
+import Footer from "./components/Footer.tsx";
 
 function App() {
     const [cLoaded, setCLoaded] = useState(false);
@@ -278,7 +279,7 @@ function App() {
                         </main>
                     </div>
                 </div>
-                <div className='copyright'>&copy; 2018-{moment().format('YYYY')} : zoms.net</div>
+                <Footer />
             </>
         )
 }

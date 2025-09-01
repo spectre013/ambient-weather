@@ -20,7 +20,6 @@ services:
       - DB_DATABASE=ambient
       - ENV=production
       - LOGLEVEL=Info
-      - ALERT_CRON=*/15 * * * *
       - LAT=
       - LON=
       - WEATHER_API=
@@ -45,9 +44,6 @@ services:
       - ENV=development
       - LOGLEVEL=Info
       - ALERT_CRON=*/15 * * * *
-      - LAT=38.725798
-      - LON=-104.66783
-      - WEATHER_API=
     # Attach the container to the custom network
     networks:
       - weather-network
