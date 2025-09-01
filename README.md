@@ -21,6 +21,9 @@ This is a custom display for data from the Ambient Weather PWS  and requires an 
 ### Update Environment Variables
 Update the environment variables in the file `docker-compose.yml` with your own values.
 
+### Nginx Setup
+You will need to update the nginx configuration file `nginx.conf` to point to your own domain name or ip address.
+* Update the weather_upstream server with the IP address of the host that weather-server is running on.
 
 ### PostgreSQL Setup
 	
