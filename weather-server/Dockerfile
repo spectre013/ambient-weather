@@ -1,6 +1,6 @@
 
 # STEP 1 build executable binary
-FROM golang:1.25.0-alpine3.22 AS builder
+FROM golang:1.25.1-alpine3.22 AS builder
 RUN apk update && apk add git
 RUN apk --update add ca-certificates
 RUN apk add --no-cache tzdata
