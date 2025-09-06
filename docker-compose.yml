@@ -5,7 +5,7 @@ version: '3.8'
 services:
   weather-server:
     container_name: weather-server
-    image: docker.zoms.net/weather/weather-server:v4.0
+    image: docker.zoms.net/weather/weather-server:v4.0.2
     restart: unless-stopped
     pull_policy: always
     # Expose port 3000 inside the container to port 6001 on the host
@@ -49,7 +49,7 @@ services:
       - weather-network
   weather-ui:
     container_name: weather-ui
-    image: docker.zoms.net/weather/weather-ui:v3.0.1
+    image: docker.zoms.net/weather/weather-ui:v3.0.4
     restart: unless-stopped
     pull_policy: always
     # Expose port 6000 inside the container to port 6000 on the host
