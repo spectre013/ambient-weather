@@ -8,6 +8,7 @@ export interface ThemeColors {
     "gradient-1": string;
     "gradient-2": string;
     "gradient-3": string;
+    "dial-bg": string;
 }
 
 export interface WeatherContextModel {

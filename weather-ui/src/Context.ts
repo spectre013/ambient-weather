@@ -15,7 +15,8 @@ export const weatherContext = {
         "border-color": "rgba(0, 0, 0, 0.5)",
         "gradient-1": "#38bdf8",
         "gradient-2": "#818cf8",
-        "gradient-3": "#fcd34d"
+        "gradient-3": "#fcd34d",
+        "dial-bg": "rgba(255, 255, 255, 0.5)"
     },
     dark:{
         "bg": "#0d1219",
@@ -26,7 +27,8 @@ export const weatherContext = {
         "border-color": "rgba(255, 255, 255, 0.05)",
         "gradient-1": "#38bdf8",
         "gradient-2": "#818cf8",
-        "gradient-3": "#fcd34d"
+        "gradient-3": "#fcd34d",
+        "dial-bg": "rgba(0, 0, 0, 0.5)"
     }
 } as WeatherContextModel;
 //rgba(255, 255, 255, 0.8)

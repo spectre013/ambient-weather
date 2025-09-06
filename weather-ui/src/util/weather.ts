@@ -28,6 +28,15 @@ export function timeFormatAMPM(time: string):string {
     return moment(time).format("HH:mm:ss A");
 }
 
+export function freezeDate(date: string):string {
+    const date1 = moment('2010-01-1');
+    const date2 = moment(date);
+    if(date2.isBefore(date1)) {
+        return "N/A";
+    }
+    return date2.format("YYYY-MM-DD HH:mm:ss");
+}
+
 export function getOtherUnit(units: string): string {
     if (units === 'metric') {
         return 'Imperial';

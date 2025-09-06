@@ -143,6 +143,38 @@ func trend(t string) Trend {
 	return trend
 }
 
+func getClimate(w http.ResponseWriter, _ *http.Request) {
+	climate := ConvertRawToClimateRecords(almanacQueries("avgs"))
+
+	b, err := json.Marshal(climate)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	i, err := w.Write(b)
+	if err != nil {
+		logger.Error(i, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func getFirstFreeze(w http.ResponseWriter, _ *http.Request) {
+	ff := firstFreeze()
+
+	b, err := json.Marshal(ff)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	i, err := w.Write(b)
+	if err != nil {
+		logger.Error(i, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
 func lightningMonth() int {
 	d := getTimeframe("month")
 	start := formatDate(d[0])

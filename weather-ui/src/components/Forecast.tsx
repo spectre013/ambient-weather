@@ -21,6 +21,18 @@ const Forecast = (props:Props) => {
     const forecastClick = (day: number) => {
         navigate('/details/forecast/'+day); // Navigate to the /dashboard route
     };
+    function isAfterNoon():number {
+        const now = new Date(); // Creates a new Date object with the current time.
+        const hour = now.getHours(); // Extracts the hour (0-23) from the Date object.
+
+        // The hour for noon is 12 (in 24-hour format).
+        // Any hour greater than or equal to 12 is considered noon or after.
+        if (hour >= 12) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
 
     function render(day: Day, i: number)  {
         return (
@@ -39,7 +51,7 @@ const Forecast = (props:Props) => {
             </div>
         )
     }
-    const days = props.forecast.days.slice(1, 10);
+    const days = props.forecast.days.slice(isAfterNoon(), 10);
     return (
         <section className="forecast-section">
             <div className="forecast-header">

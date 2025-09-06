@@ -118,3 +118,104 @@ func chartQueries(t string, sensor string) string {
 
 	return fmt.Sprintf(sqlString, sensor, timeFrame)
 }
+
+func almanacQueries(data string) []ClimateRaw {
+	avgs := `SELECT
+		EXTRACT(YEAR FROM recorded) AS year,
+		EXTRACT(MONTH FROM recorded) AS month,
+		ROUND(max(monthlyrainin)::numeric, 2) AS avg_rain,
+		ROUND(AVG(tempf)::numeric, 2) AS avg_temp,
+		ROUND(MAX(tempf)::numeric, 2) AS max_temp,
+		ROUND(MIN(tempf)::numeric, 2) AS min_temp
+	FROM
+		records
+	GROUP BY
+		year,
+		month
+	ORDER BY
+		year,
+		month`
+
+	query := avgs
+	rows, err := db.Query(query)
+	logger.Println(err, query)
+	if err != nil {
+		log.Println(err)
+	}
+	climate := make([]ClimateRaw, 0)
+	for rows.Next() {
+		r := ClimateRaw{}
+		err = rows.Scan(&r.Year, &r.Month, &r.AvgRain, &r.AvgTemp, &r.MaxTemp, &r.MinTemp)
+		if err != nil {
+			logger.Error("Climate Scan:", err)
+		}
+		climate = append(climate, r)
+	}
+	err = rows.Err()
+	if err != nil {
+		logger.Error(err)
+	}
+
+	return climate
+}
+
+func firstFreeze() []FirstFreeze {
+	query := `WITH freezes_by_year AS (
+			SELECT
+				EXTRACT(YEAR FROM recorded) AS year,
+				recorded
+			FROM
+				records
+			WHERE
+				tempf <= 32
+		),
+		spring_freezes AS (
+			SELECT
+				year,
+				MAX(recorded) AS last_spring_freeze
+			FROM
+				freezes_by_year
+			WHERE
+				EXTRACT(MONTH FROM recorded) BETWEEN 1 AND 6 -- January to June
+			GROUP BY
+				year
+		),
+		fall_freezes AS (
+			SELECT
+				year,
+				MIN(recorded) AS first_fall_freeze
+			FROM
+				freezes_by_year
+			WHERE
+				EXTRACT(MONTH FROM recorded) BETWEEN 7 AND 12 -- July to December
+			GROUP BY
+				year
+		)
+		SELECT
+			COALESCE(sf.year,ff.year) AS year,
+			COALESCE(sf.last_spring_freeze,'2000-01-01') AS last_spring_freeze,
+			COALESCE(ff.first_fall_freeze,'2000-01-01') AS first_fall_freeze
+		FROM
+			spring_freezes sf
+		FULL OUTER JOIN
+			fall_freezes ff ON sf.year = ff.year
+		ORDER BY
+			year;`
+
+	ff := make([]FirstFreeze, 0)
+
+	rows, err := db.Query(query)
+	logger.Println(err, query)
+	if err != nil {
+		log.Println(err)
+	}
+	for rows.Next() {
+		r := FirstFreeze{}
+		err = rows.Scan(&r.Year, &r.Spring, &r.Fall)
+		if err != nil {
+			logger.Error("Climate Scan:", err)
+		}
+		ff = append(ff, r)
+	}
+	return ff
+}

@@ -436,6 +436,78 @@ body {
     color: orange;
 }
 
+/* --- Dropdown Menu --- */
+.dropdown-container {
+    position: relative;
+    display: inline-block;
+    border-radius: 10px;
+    border: none;
+}
+
+.dropdown-container button {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    cursor: pointer;
+    border: none;
+}
+button:focus {
+    outline: none; !important;
+}
+.more-button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    font-weight: 500; /* from font-medium */
+}
+.more-button svg {
+    margin-left: 0.5rem; /* from ml-2 */
+    height: 1.25rem;
+    width: 1.25rem;
+}
+.more-button:focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px #1F2937, 0 0 0 4px #3B82F6;
+}
+
+.dropdown-menu {
+    position: absolute;
+    right: 0;
+    margin-top: 0.5rem; /* from mt-2 */
+    width: 12rem; /* from w-48 */
+    border-radius: 0.375rem; /* from rounded-md */
+    background-color: #1f2937; /* from bg-gray-800 */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* from shadow-lg */
+    border: 1px solid rgba(0,0,0,0.05);
+    transform-origin: top right;
+    transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+    opacity: 0;
+    transform: scale(0.95);
+    pointer-events: none; /* Prevents interaction when hidden */
+}
+
+.dropdown-menu.active {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto; /* Allows interaction when visible */
+}
+
+.dropdown-menu-inner {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+}
+.dropdown-menu a {
+    color: #D1D5DB; /* from text-gray-300 */
+    display: block;
+    padding: 0.5rem 1rem; /* from px-4 py-2 */
+    font-size: 0.875rem; /* from text-sm */
+    text-decoration: none;
+}
+.dropdown-menu a:hover {
+    background-color: #374151; /* from hover:bg-gray-700 */
+}
+
 /* Responsive adjustments */
 @media only screen and (max-width: 1200px) {
     .dashboard {
@@ -455,6 +527,9 @@ body {
     }
     .details-content {
         display: block;
+    }
+    .climate-details-content {
+        grid-template-columns: 1fr;
     }
     .chart-container {
         display: none;

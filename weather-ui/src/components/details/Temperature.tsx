@@ -52,7 +52,15 @@ const Temperature = () => {
     },[]);
 
     if (!fLoaded) {
-        return 'loading';
+        return (
+            <div className="loading-body">
+                <div className="loading-container">
+                    <div>Lorson Ranch, Colorado Springs - Weather</div>
+                    <div className="spinner"></div>
+                    <p className="loading-text">Loading...</p>
+                </div>
+            </div>
+        )
     }
 
 

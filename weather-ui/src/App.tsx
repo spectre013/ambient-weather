@@ -1,4 +1,4 @@
-import { useState, useEffect     } from 'react'
+import { useState, useEffect, useRef, ChangeEvent } from 'react'
 import './App.css'
 import {Current} from "./models/current";
 import { ForecastModel } from "./models/Forecast.ts"
@@ -28,6 +28,8 @@ function App() {
     const [connected, setConnected] = useState(false);
     const navigate = useNavigate()
     const forecastURL = "/api/forecast";
+    const [isDropdownOpen, setDropdownOpen] = useState(false);
+    const dropdownRef = useRef(null);
 
 
         useEffect(() => {
@@ -84,6 +86,44 @@ function App() {
             });
         }, []);
 
+        useEffect(() => {
+            function handleClickOutside(event: ChangeEvent<HTMLInputElement>) {
+                // @ts-expect-error - ignore error as we are checking for null
+                if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                    setDropdownOpen(false);
+                }
+            }
+            // Bind the event listener
+            // @ts-expect-error - ignore error as we are checking for null
+            document.addEventListener("mousedown", handleClickOutside);
+            return () => {
+                // Unbind the event listener on component cleanup
+                // @ts-expect-error - ignore error as we are checking for null
+                document.removeEventListener("mousedown", handleClickOutside);
+            };
+        }, [dropdownRef]);
+
+        // Effect to close the dropdown when the 'Escape' key is pressed
+        useEffect(() => {
+            function handleKeyDown(event: ChangeEvent<HTMLInputElement>) {
+                // @ts-expect-error - ignore error as we are checking for null
+                if (event.key === 'Escape') {
+                    setDropdownOpen(false);
+                }
+            }
+            // @ts-expect-error - ignore error as we are checking for null
+            document.addEventListener("keydown", handleKeyDown);
+            return () => {
+                // @ts-expect-error - ignore error as we are checking for null
+                document.removeEventListener("keydown", handleKeyDown);
+            };
+        }, []);
+
+        // Function to toggle the dropdown's visibility
+        const toggleDropdown = () => {
+            setDropdownOpen(!isDropdownOpen);
+        };
+
         const updateUnit = () => {
             const newUnit = getOtherUnit(units).toLowerCase();
             setUnits(newUnit);
@@ -93,6 +133,11 @@ function App() {
         const about = () => {
             navigate('/about');
         };
+
+        const climate = () => {
+            navigate('/climate');
+        };
+
         const lightdark = () => {
             const theme = localStorage.getItem('theme') || 'dark';
             const body: HTMLElement = document.body;
@@ -153,8 +198,20 @@ function App() {
                                     <div className="info-card">
                                        <span className={isConnected(connected)}>wifi</span>&nbsp;Last Update: {timeFormatAMPM(conditions.date)}
                                     </div>
-                                    <div className="info-card" onClick={about}>
-                                        About
+                                    <div className="info-card">
+                                        <div className="dropdown-container" ref={dropdownRef}>
+                                            <div onClick={toggleDropdown}
+                                                    className="control-button more-button">
+                                                More... <span className="material-symbols-sharp">keyboard_arrow_down</span>
+                                            </div>
+
+                                            <div className={`dropdown-menu ${isDropdownOpen ? 'active' : ''}`} role="menu" aria-orientation="vertical">
+                                                <div className="dropdown-menu-inner" role="none">
+                                                    <a href="#" role="menuitem" onClick={climate}>Climate Data</a>
+                                                    <a href="#" role="menuitem" onClick={about}>About</a>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <section className="alerts-section">

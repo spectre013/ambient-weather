@@ -10,7 +10,6 @@ const AlertInfo = (props: Props) => {
     const [alert, setAlert] = useState({} as Alert);
 
     function changeAlert(dir: string) {
-        console.log(dir, currentAlert, props.alerts.length);
         if(dir === "down" && currentAlert < props.alerts.length) {
             setCurrentAlert(currentAlert + 1)
         }

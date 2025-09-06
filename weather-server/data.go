@@ -382,3 +382,29 @@ type About struct {
 	Mintemp float64 `json:"mintemp"`
 	Maxgust float64 `json:"maxgust"`
 }
+
+type ClimateRaw struct {
+	Year    int     `json:"year"`
+	Month   int     `json:"month"`
+	AvgRain float64 `json:"avgrain"`
+	AvgTemp float64 `json:"avgtemp"`
+	MaxTemp float64 `json:"maxtemp"`
+	MinTemp float64 `json:"mintemp"`
+}
+
+type ClimateRecord struct {
+	Year int
+	Data ClimateData
+}
+type ClimateData struct {
+	AvgRain []float64 `json:"avgrain"`
+	AvgTemp []float64 `json:"avgtemp"`
+	MaxTemp []float64 `json:"maxtemp"`
+	MinTemp []float64 `json:"mintemp"`
+}
+
+type FirstFreeze struct {
+	Year   int    `json:"year,omitempty"`
+	Spring string `json:"spring" json:"spring,omitempty"`
+	Fall   string `json:"fall" json:"fall,omitempty"`
+}

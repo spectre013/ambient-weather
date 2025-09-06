@@ -5,6 +5,7 @@ import (
 	"log"
 	"math"
 	"regexp"
+	"sort"
 	"time"
 )
 
@@ -110,4 +111,56 @@ func correctSunElevation(elevation float64, now time.Time, sunrise time.Time, su
 		elevation = 50 + (50 - elevation)
 	}
 	return elevation
+}
+
+func NewClimateData() ClimateData {
+	return ClimateData{
+		AvgRain: make([]float64, 13),
+		AvgTemp: make([]float64, 13),
+		MaxTemp: make([]float64, 13),
+		MinTemp: make([]float64, 13),
+	}
+}
+
+// ConvertRawToClimateRecords transforms a slice of raw monthly data points
+// into a structured slice of yearly records.
+func ConvertRawToClimateRecords(rawData []ClimateRaw) []ClimateRecord {
+	// Use a map to group raw records by year for efficient processing.
+	recordsByYear := make(map[int]*ClimateRecord)
+
+	for _, rawRecord := range rawData {
+		// Check if we have already started processing this year.
+		record, exists := recordsByYear[rawRecord.Year]
+
+		// If not, create a new ClimateRecord for this year.
+		if !exists {
+			record = &ClimateRecord{
+				Year: rawRecord.Year,
+				Data: NewClimateData(),
+			}
+			recordsByYear[rawRecord.Year] = record
+		}
+
+		// Place the data into the correct month's index.
+		// We assume Month is a valid index (1-12).
+		if rawRecord.Month > 0 && rawRecord.Month < 13 {
+			record.Data.AvgRain[rawRecord.Month] = rawRecord.AvgRain
+			record.Data.AvgTemp[rawRecord.Month] = rawRecord.AvgTemp
+			record.Data.MaxTemp[rawRecord.Month] = rawRecord.MaxTemp
+			record.Data.MinTemp[rawRecord.Month] = rawRecord.MinTemp
+		}
+	}
+
+	// Convert the map into a slice.
+	result := make([]ClimateRecord, 0, len(recordsByYear))
+	for _, record := range recordsByYear {
+		result = append(result, *record)
+	}
+
+	// Sort the final slice by year for consistent output.
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].Year < result[j].Year
+	})
+
+	return result
 }

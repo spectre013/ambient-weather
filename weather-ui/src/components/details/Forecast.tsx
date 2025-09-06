@@ -52,7 +52,6 @@ const Forecast = () => {
             })
             .then(data => {
                 // 'data' will be an array containing the JSON data from each fetch
-                console.log(day, data);
                 const forecastData: Day = data[0].days[parseInt(day || '0')];
                 setForecast(forecastData);
                 setFLoaded(true);
@@ -64,7 +63,15 @@ const Forecast = () => {
     },[]);
 
     if (!fLoaded) {
-        return 'loading';
+        return (
+            <div className="loading-body">
+                <div className="loading-container">
+                    <div>Lorson Ranch, Colorado Springs - Weather</div>
+                    <div className="spinner"></div>
+                    <p className="loading-text">Loading...</p>
+                </div>
+            </div>
+        )
     }
 
     function sunLabel(value: number): string {
