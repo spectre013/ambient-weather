@@ -17,8 +17,8 @@ server:
   stage: build docker
   script:
     - cd weather-server
-    - docker build -t $DOCKER_REGISTRY/weather/weather-server:v4.0.2 . --no-cache
-    - docker push $DOCKER_REGISTRY/weather/weather-server:v4.0.2
+    - docker build -t $DOCKER_REGISTRY/weather/weather-server:v4.0.5 . --no-cache
+    - docker push $DOCKER_REGISTRY/weather/weather-server:v4.0.5
 
 transfer:
   stage: build docker
