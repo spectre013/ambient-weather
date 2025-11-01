@@ -23,10 +23,10 @@ type Astro struct {
 	Sunset          time.Time     `json:"sunset"`
 	SunriseTomorrow time.Time     `json:"sunriseTomorrow"`
 	SunsetTomorrow  time.Time     `json:"sunsetTomorrow"`
-	Darkness        time.Duration `json:"darkness,omitempty"`
-	Daylight        time.Duration `json:"daylight,omitempty"`
-	Elevation       float64       `json:"elevation,omitempty"`
-	HasSunset       bool          `json:"hasSunset,omitempty"`
+	Darkness        time.Duration `json:"darkness"`
+	Daylight        time.Duration `json:"daylight"`
+	Elevation       float64       `json:"elevation"`
+	HasSunset       bool          `json:"hasSunset"`
 }
 
 type Conditions struct {
@@ -48,6 +48,29 @@ type Conditions struct {
 	UV        UV        `json:"uv"`
 	Astro     Astro     `json:"astro"`
 	Alert     []Alert   `json:"alert"`
+}
+
+type AppConditions struct {
+	ID         int       `json:"id"`
+	Mac        string    `json:"mac"`
+	Recorded   time.Time `json:"date"`
+	Barometer  Barometer `json:"barometer"`
+	Humidity   Humidity  `json:"humidity"`
+	Temp       Temp      `json:"temp"`
+	Tempin     Tempin    `json:"tempin"`
+	Temp1      Tempin    `json:"temp1"`
+	Temp2      Tempin    `json:"temp2"`
+	Temp3      Tempin    `json:"temp3"`
+	Temp4      Tempin    `json:"temp4"`
+	Rain       Rain      `json:"rain"`
+	Lightning  Lightning `json:"lightning"`
+	AQI        AQI       `json:"aqi"`
+	Wind       Wind      `json:"wind"`
+	UV         UV        `json:"uv"`
+	Astro      Astro     `json:"astro"`
+	Alert      []Alert   `json:"alert"`
+	Conditions Day       `json:"conditions"`
+	Forecast   Forecast  `json:"forecast"`
 }
 
 type Barometer struct {
@@ -246,8 +269,8 @@ type Alerts struct {
 }
 type Geometry struct {
 	Type        string        `json:"type"`
-	Coordinates []interface{} `json:"coordinates,omitempty"`
-	Geometries  []*Geometry   `json:"geometries,omitempty"`
+	Coordinates []interface{} `json:"coordinates"`
+	Geometries  []*Geometry   `json:"geometries"`
 }
 type Property struct {
 	IDURI    string `json:"@id"`

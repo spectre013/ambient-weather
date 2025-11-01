@@ -514,15 +514,151 @@ func buildConditions(record Record) Conditions {
 
 }
 
+func buildAppConditions(record Record, forecast Forecast) AppConditions {
+	conditions := AppConditions{
+		Mac:      record.Mac,
+		Recorded: record.Recorded,
+	}
+
+	conditions.Barometer = Barometer{
+		Baromabsin: record.Baromabsin,
+		Baromrelin: record.Baromrelin,
+		Trend:      trend("baromrelin"),
+		MinMax:     minmax("baromrelin"),
+	}
+
+	conditions.Humidity = Humidity{
+		Humidity: record.Humidity,
+		Dewpoint: record.Dewpoint,
+		MinMax:   minmax("humidity"),
+	}
+
+	conditions.Temp = Temp{
+		Temp:      record.Tempf,
+		Humidity:  record.Humidity,
+		Feelslike: record.Feelslike,
+		Dewpoint:  record.Dewpoint,
+		MinMax:    minmax("tempf"),
+	}
+
+	conditions.Tempin = Tempin{
+		Temp:     record.Tempinf,
+		Humidity: record.Humidityin,
+		MinMax:   minmax("tempinf"),
+	}
+
+	conditions.Temp1 = Tempin{
+		Temp:     record.Temp1f,
+		Humidity: record.Humidity1,
+		MinMax:   minmax("temp1f"),
+	}
+
+	conditions.Temp2 = Tempin{
+		Temp:     record.Temp2f,
+		Humidity: record.Humidity2,
+		MinMax:   minmax("temp2f"),
+	}
+
+	conditions.Temp3 = Tempin{
+		Temp:     record.Temp3f,
+		Humidity: record.Humidity3,
+		MinMax:   minmax("temp3f"),
+	}
+
+	conditions.Temp4 = Tempin{
+		Temp:     record.Temp4f,
+		Humidity: record.Humidity4,
+		MinMax:   minmax("temp4f"),
+	}
+
+	w := wind()
+	conditions.Wind = Wind{
+		Dir:          record.Winddir,
+		Gustmph:      record.Windgustmph,
+		Gustdir:      record.Windgustdir,
+		Speedmph:     record.Windspeedmph,
+		Maxdailygust: w.Maxdailygust,
+		Avg:          w.Avg,
+		MinMax:       minmax("windspeedmph"),
+		GustMinMax:   minmax("windgustmph"),
+	}
+
+	conditions.UV = UV{
+		Uv:             record.Uv,
+		Solarradiation: record.Solarradiation,
+		MinMax:         minmax("uv"),
+	}
+
+	conditions.Rain = Rain{
+		Hourly:   record.Hourlyrainin,
+		Daily:    record.Dailyrainin,
+		Weekly:   record.Weeklyrainin,
+		Monthly:  record.Monthlyrainin,
+		Yearly:   record.Yearlyrainin,
+		Total:    record.Totalrainin,
+		Lastrain: record.Lastrain,
+	}
+
+	conditions.Alert = alerts()
+
+	conditions.Lightning = Lightning{
+		Day:      record.Lightningday,
+		Hour:     record.Lightninghour,
+		Distance: record.Lightningdistance,
+		Time:     record.Lightningtime,
+		Month:    record.LightningMonth,
+		Minmax:   minmax("lightning"),
+	}
+
+	conditions.AQI = AQI{
+		Pm25:    record.Aqipm25,
+		Pm2524h: record.Aqipm2524h,
+		MinMax:  minmax("aqipm25"),
+	}
+
+	conditions.Astro = astro()
+
+	conditions.Forecast = forecast
+	conditions.Conditions = forecast.Days[0]
+
+	return conditions
+
+}
+
 func getConditions() Conditions {
 	res := getCurrent()
 	cond := buildConditions(res)
 	return cond
 }
 
+func getAppConditions() AppConditions {
+	res := getCurrent()
+	forecast, err := getForecast()
+	if err != nil {
+		logger.Error(forecast, err)
+	}
+	cond := buildAppConditions(res, forecast)
+	return cond
+}
+
 func current(w http.ResponseWriter, _ *http.Request) {
 	cond := getConditions()
 
+	b, err := json.Marshal(cond)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	i, err := w.Write(b)
+	if err != nil {
+		logger.Error(i, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func app(w http.ResponseWriter, _ *http.Request) {
+	cond := getAppConditions()
 	b, err := json.Marshal(cond)
 	if err != nil {
 		log.Println(err)
