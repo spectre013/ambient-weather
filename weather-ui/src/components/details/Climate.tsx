@@ -150,8 +150,8 @@ function Climate() {
                             <thead>
                             <tr>
                                 <th>Year</th>
-                                <th>First Freeze</th>
                                 <th>Last Freeze</th>
+                                <th>First Freeze</th>
                             </tr>
                             </thead>
                             <tbody>
