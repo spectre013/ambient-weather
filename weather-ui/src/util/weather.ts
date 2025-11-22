@@ -142,7 +142,7 @@ export function baroDisplay(baro: number, units: string): string {
     return b.toFixed(2);
 }
 export function windDisplay(wind: number, units: string): string {
-    if (units === 'imperial') {
+    if (units === 'metric') {
         return (wind / 2.237).toFixed(0);
     }
     return wind.toFixed(0);
