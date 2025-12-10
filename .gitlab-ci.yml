@@ -4,6 +4,7 @@ before_script:
 stages:
   - scan
   - build docker
+  - deploy
 
 ui:
   stage: build docker
@@ -28,3 +29,15 @@ transfer:
     - docker push $DOCKER_REGISTRY/weather/weather-transfer:2.1.2
 
 
+deploy:
+  stage: deploy
+  script: -|
+    sed -i "s/WEATHER_API=/WEATHER_API=$WEATHERAPI/g" docker-compose.yml
+    sed -i "s/DB_PASSWORD=/DB_PASSWORD=$DB_PASSWORD/g" docker-compose.yml
+    scp docker-compose.yml ghost:/opt/weather
+    ssh ghost "cd /opt/weather/ && docker-compose down && docker-compose up -d
+    git reset --hard
+  rules:
+    - changes:
+        - docker-compose.yml
+      when: on_success

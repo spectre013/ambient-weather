@@ -5,7 +5,7 @@ version: '3.8'
 services:
   weather-server:
     container_name: weather-server
-    image: docker.zoms.net/weather/weather-server:v4.0.2
+    image: docker.zoms.net/weather/weather-server:v4.0.5
     restart: unless-stopped
     pull_policy: always
     # Expose port 3000 inside the container to port 6001 on the host
@@ -14,15 +14,18 @@ services:
     # Set the environment variables
     environment:
       - PORT=3000
-      - DB_HOST=192.168.1.2
+      - DB_HOST=10.10.1.120
       - DB_USER=ambient
       - DB_PASSWORD=
       - DB_DATABASE=ambient
-      - ENV=production
+      - ENV=development
       - LOGLEVEL=Info
-      - LAT=
-      - LON=
+      - IPGEO=8f49895e7692474fa1e6c4852948883
+      - ALERT_CRON=*/15 * * * *
+      - LAT=38.725798
+      - LON=-104.66783
       - WEATHER_API=
+      - ASSETS=/app/public
     # Attach the container to the custom network
     networks:
       - weather-network
@@ -37,19 +40,22 @@ services:
     # Set the environment variables
     environment:
       - PORT=3000
-      - DB_HOST=192.168.1.2
+      - DB_HOST=10.10.1.120
       - DB_USER=ambient
       - DB_PASSWORD=
       - DB_DATABASE=ambient
       - ENV=development
       - LOGLEVEL=Info
       - ALERT_CRON=*/15 * * * *
+      - LAT=38.725798
+      - LON=-104.66783
     # Attach the container to the custom network
     networks:
       - weather-network
+
   weather-ui:
     container_name: weather-ui
-    image: docker.zoms.net/weather/weather-ui:v3.0.4
+    image: docker.zoms.net/weather/weather-ui:v3.0.5
     restart: unless-stopped
     pull_policy: always
     # Expose port 6000 inside the container to port 6000 on the host
@@ -63,3 +69,4 @@ services:
 networks:
   weather-network:
     driver: bridge
+
