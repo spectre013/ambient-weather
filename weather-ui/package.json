@@ -20,7 +20,7 @@
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-gauge-component": "^1.2.64",
-    "react-router-dom": "^7.10.1",
+    "react-router-dom": "^7.12.0",
     "recharts": "^3.5.1"
   },
   "devDependencies": {
