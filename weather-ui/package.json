@@ -17,23 +17,23 @@
     "html-entities": "^2.6.0",
     "moment": "^2.30.1",
     "moment-duration-format": "^2.3.2",
-    "react": "^19.2.1",
-    "react-dom": "^19.2.1",
-    "react-gauge-component": "^1.2.64",
-    "react-router-dom": "^7.10.1",
-    "recharts": "^3.5.1"
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "react-gauge-component": "^2.0.23",
+    "react-router-dom": "^7.13.0",
+    "recharts": "^3.7.0"
   },
   "devDependencies": {
     "@types/moment-duration-format": "^2.2.7",
-    "@types/react": "^19.2.7",
+    "@types/react": "^19.2.9",
     "@types/react-dom": "^19.2.3",
-    "@typescript-eslint/eslint-plugin": "^8.49.0",
-    "@typescript-eslint/parser": "^8.49.0",
+    "@typescript-eslint/eslint-plugin": "^8.53.1",
+    "@typescript-eslint/parser": "^8.53.1",
     "@vitejs/plugin-react": "^5.1.2",
-    "eslint": "^9.39.1",
+    "eslint": "^9.39.2",
     "eslint-plugin-react-hooks": "^7.0.1",
-    "eslint-plugin-react-refresh": "^0.4.24",
+    "eslint-plugin-react-refresh": "^0.4.26",
     "typescript": "^5.9.3",
-    "vite": "^7.2.7"
+    "vite": "^7.3.1"
   }
 }
