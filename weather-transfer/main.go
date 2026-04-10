@@ -22,7 +22,6 @@ import (
 
 var logger = logrus.New()
 var db *sql.DB
-var LastModified time.Time
 
 func init() {
 	logger.Out = os.Stdout
@@ -87,7 +86,7 @@ func main() {
 	logger.Info(aj.NextRun())
 
 	s.StartAsync()
-	calculateStats()
+	//calculateStats()
 	e := echo.New()
 	e.GET("/", index)
 	e.GET("/api/receiver", ambientin)
@@ -96,6 +95,22 @@ func main() {
 func index(c echo.Context) error {
 	return c.String(http.StatusOK, "Ambient Weather Receiver ")
 }
+
+func CalculateFeelsLike(temp float64, windspeed float64, humidity int) float64 {
+	feelslike := temp
+	if temp <= 50 && windspeed > 3 {
+		feelslike = calculateWindChill(temp, windspeed)
+	} else if temp >= 80 {
+		feelslike = calculateHeatIndex(temp, float64(humidity))
+	} else {
+		feelslike = temp
+	}
+	return feelslike
+}
+
+func cToF(c float64) float64     { return toFixed((c*1.8)+32.0, 2) }
+func msToMph(ms float64) float64 { return toFixed(ms*2.23694, 2) }
+
 func ambientin(c echo.Context) error {
 	logger.Info(c.Request().URL.String())
 	output := map[string]interface{}{}
@@ -174,7 +189,7 @@ func ambientin(c echo.Context) error {
 			if k == "lightningtime" {
 				i, err := strconv.ParseInt(v[0], 10, 64)
 				if err != nil {
-					panic(err)
+					logger.Error(err)
 				}
 				output[k] = time.Unix(i, 0)
 			}
@@ -211,15 +226,8 @@ func ambientin(c echo.Context) error {
 	}
 
 	rec.Dewpoint = dewpoint(rec.Tempf, rec.Humidity)
-	if rec.Tempf >= 70 {
-		rec.Feelslike = heatIndex(rec.Tempf, rec.Humidity)
-	} else {
-		if rec.Windgustmph > 3 {
-			rec.Feelslike = windChill(rec.Tempf, rec.Windspeedmph)
-		} else {
-			rec.Feelslike = rec.Tempf
-		}
-	}
+	rec.Feelslike = CalculateFeelsLike(rec.Tempf, rec.Windspeedmph, rec.Humidity)
+
 	logger.Info("Received Record ", formatDate(rec.Recorded))
 	inserted := insertRecord(rec)
 	if inserted {
@@ -229,35 +237,24 @@ func ambientin(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
-func heatIndex(T float64, humidity int) float64 {
-	RH := float64(humidity)
-	feelsLike := -42.379 + 2.04901523*T + 10.14333127*RH - .22475541*T*RH - .00683783*T*T - .05481717*RH*RH + .00122874*T*T*RH + .00085282*T*RH*RH - .00000199*T*T*RH*RH
-	if RH < 13 && (T >= 80 && T <= 112) {
-		feelsLike = feelsLike - ((13-RH)/4)*math.Sqrt((17-math.Abs(T-95.))/17)
-		if RH > 85 && (T >= 80 && T <= 87) {
-			feelsLike = feelsLike + ((RH-85)/10)*((87-RH)/5)
-		}
-	}
-	return toFixed(feelsLike, 2)
+func calculateWindChill(t, v float64) float64 {
+	return 35.74 + (0.6215 * t) - (35.75 * math.Pow(v, 0.16)) + (0.4275 * t * math.Pow(v, 0.16))
 }
 
-func windChill(temperature float64, windSpeed float64) float64 {
-	if windSpeed < 3 || temperature > 50 {
-		return temperature
+func calculateHeatIndex(t, rh float64) float64 {
+	hi := 0.5 * (t + 61.0 + ((t - 68.0) * 1.2) + (rh * 0.094))
+	if hi > 80 {
+		hi = -42.379 + 2.04901523*t + 10.14333127*rh - 0.22475541*t*rh - 0.00683783*t*t - 0.05481717*rh*rh + 0.00122874*t*t*rh + 0.00085282*t*rh*rh - 0.00000199*t*t*rh*rh
 	}
-
-	windChill := 35.74 + 0.6215*temperature - 35.75*math.Pow(windSpeed, 0.16) + 0.4275*temperature*math.Pow(windSpeed, 0.16)
-	return toFixed(windChill, 2)
+	return hi
 }
 
 func dewpoint(temp float64, humidity int) float64 {
-	tc := (temp - 32) * 5 / 9
-	L := math.Log(float64(humidity) / 100)
-	M := 17.27 * tc
-	N := 237.3 + tc
-	B := (L + (M / N)) / 17.27
-	dp := (237.3 * B) / (1 - B)
-	return toFixed((dp*9/5)+32, 2)
+	temp = (temp - 32) * 5 / 9
+	const a, b = 17.625, 243.04
+	alpha := math.Log(float64(humidity)/100.0) + ((a * temp) / (b + temp))
+	dewPointC := (b * alpha) / (a - alpha)
+	return toFixed(cToF(dewPointC), 2)
 }
 
 func round(num float64) int {
@@ -476,13 +473,6 @@ func updateAlerts() {
 func getAlerts() []Property {
 	uri := "https://api.weather.gov/alerts/active?area=CO"
 	result := make([]Property, 0)
-	if !LastModified.IsZero() {
-		_, err := alertRequest("HEAD", uri)
-		if err != nil {
-			logger.Error(err)
-			return result
-		}
-	}
 
 	res, err := alertRequest("GET", uri)
 	if err != nil {
@@ -513,7 +503,7 @@ func alertRequest(t string, url string) (body []byte, err error) {
 	}
 
 	req.Header.Add("User-Agent", `Zoms Weather, wxcos@zoms.net`)
-
+	logger.Debug(url)
 	resp, err := client.Do(req)
 	if err != nil || resp.StatusCode != 200 {
 		err = errors.New("server responded with an error")
@@ -527,8 +517,7 @@ func alertRequest(t string, url string) (body []byte, err error) {
 			logger.Error(err)
 			return
 		}
-		l, _ := time.Parse("Mon, 2 Jan 2006 15:04:05 GMT", resp.Header["Last-Modified"][0])
-		LastModified = l
+		logger.Debug(fmt.Sprintf("%v", resp.Header))
 	}
 
 	return

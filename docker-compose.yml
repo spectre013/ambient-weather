@@ -31,7 +31,7 @@ services:
       - weather-network
   weather-transfer:
     container_name: weather-transfer
-    image: docker.zoms.net/weather/weather-transfer:2.1.3
+    image: docker.zoms.net/weather/weather-transfer:2.1.5
     restart: unless-stopped
     pull_policy: always
     # Expose port 3000 inside the container to port 6001 on the host

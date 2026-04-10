@@ -25,18 +25,18 @@ transfer:
   stage: build docker
   script:
     - cd weather-transfer
-    - docker build -t $DOCKER_REGISTRY/weather/weather-transfer:2.1.3 . --no-cache
-    - docker push $DOCKER_REGISTRY/weather/weather-transfer:2.1.3
+    - docker build -t $DOCKER_REGISTRY/weather/weather-transfer:2.1.5 . --no-cache
+    - docker push $DOCKER_REGISTRY/weather/weather-transfer:2.1.5
 
 
 deploy:
   stage: deploy
-  script: -|
-    sed -i "s/WEATHER_API=/WEATHER_API=$WEATHERAPI/g" docker-compose.yml
-    sed -i "s/DB_PASSWORD=/DB_PASSWORD=$DB_PASSWORD/g" docker-compose.yml
-    scp docker-compose.yml ghost:/opt/weather
-    ssh ghost "cd /opt/weather/ && docker-compose down && docker-compose up -d
-    git reset --hard
+  script:
+    - sed -i "s/WEATHER_API=/WEATHER_API=$WEATHERAPI/g" docker-compose.yml
+    - sed -i "s/DB_PASSWORD=/DB_PASSWORD=$DB_PASSWORD/g" docker-compose.yml
+    - scp docker-compose.yml $DEPLOY_HOST:/opt/weather
+    - ssh $DEPLOY_HOST "cd /opt/weather/ && docker-compose pull && docker-compose down && docker-compose up -d
+    - git reset --hard
   rules:
     - changes:
         - docker-compose.yml
