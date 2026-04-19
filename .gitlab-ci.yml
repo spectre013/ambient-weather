@@ -35,7 +35,7 @@ deploy:
     - sed -i "s/WEATHER_API=/WEATHER_API=$WEATHERAPI/g" docker-compose.yml
     - sed -i "s/DB_PASSWORD=/DB_PASSWORD=$DB_PASSWORD/g" docker-compose.yml
     - scp docker-compose.yml $DEPLOY_HOST:/opt/weather
-    - ssh $DEPLOY_HOST "cd /opt/weather/ && docker-compose pull && docker-compose down && docker-compose up -d
+    - ssh $DEPLOY_HOST "cd /opt/weather/ && docker-compose pull && docker-compose down && docker-compose up -d"
     - git reset --hard
   rules:
     - changes:

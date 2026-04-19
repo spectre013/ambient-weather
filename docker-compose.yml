@@ -1,6 +1,5 @@
-# Use a specific version for compatibility
-version: '3.8'
 
+name: weather
 # Define the services (containers)
 services:
   weather-server:
@@ -16,15 +15,14 @@ services:
       - PORT=3000
       - DB_HOST=10.10.1.120
       - DB_USER=ambient
-      - DB_PASSWORD=
+      - DB_PASSWORD=${DB_PASSWORD}
       - DB_DATABASE=ambient
       - ENV=development
       - LOGLEVEL=Info
-      - IPGEO=8f49895e7692474fa1e6c4852948883
       - ALERT_CRON=*/15 * * * *
       - LAT=38.725798
       - LON=-104.66783
-      - WEATHER_API=
+      - WEATHER_API=${WEATHER_API}
       - ASSETS=/app/public
     # Attach the container to the custom network
     networks:
@@ -42,7 +40,7 @@ services:
       - PORT=3000
       - DB_HOST=10.10.1.120
       - DB_USER=ambient
-      - DB_PASSWORD=
+      - DB_PASSWORD=${DB_PASSWORD}
       - DB_DATABASE=ambient
       - ENV=development
       - LOGLEVEL=Info
