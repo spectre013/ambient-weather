@@ -1,26 +1,50 @@
 
+/*body[data-theme='light'] {*/
+/*    --bg: #F9F6EE;*/
+/*    --card-bg: #f7fafc;*/
+/*    --main-card: #f3f4f6;*/
+/*    --text-color: #1a202c;*/
+/*    --muted-text: #6b7280;*/
+/*    --border-color: rgba(0, 0, 0, 0.5);*/
+/*    --gradient-1: #38bdf8;*/
+/*    --gradient-2: #818cf8;*/
+/*    --gradient-3: #fcd34d;*/
+/*}*/
+
 body[data-theme='light'] {
-    --bg: #F9F6EE;
-    --card-bg: #f7fafc;
-    --main-card: #f3f4f6;
-    --text-color: #1a202c;
-    --muted-text: #6b7280;
-    --border-color: rgba(0, 0, 0, 0.5);
-    --gradient-1: #38bdf8;
-    --gradient-2: #818cf8;
-    --gradient-3: #fcd34d;
+    --bg: #f8fafc;          /* Very light cool grey */
+    --card-bg: #ffffff;     /* Pure white cards */
+    --main-card: #ffffff;
+    --text-color: #1e293b;  /* Deep slate text */
+    --muted-text: #64748b;
+    --border-color: rgba(0, 0, 0, 0.05);
+    --gradient-1: #0ea5e9;  /* Vivid Blue */
+    --gradient-2: #8b5cf6;  /* Vivid Purple */
+    --gradient-3: #f59e0b;  /* Amber */
 }
 
+/*body[data-theme='dark'] {*/
+/*    --bg: #0d1219;*/
+/*    --card-bg: #141b21;*/
+/*    --main-card: #141b21;*/
+/*    --text-color: #e3e9f4;*/
+/*    --muted-text: #6b7280;*/
+/*    --border-color: rgba(255, 255, 255, 0.05);*/
+/*    --gradient-1: #38bdf8;*/
+/*    --gradient-2: #818cf8;*/
+/*    --gradient-3: #fcd34d;*/
+/*}*/
+
 body[data-theme='dark'] {
-    --bg: #0d1219;
-    --card-bg: #141b21;
-    --main-card: #141b21;
-    --text-color: #e3e9f4;
-    --muted-text: #6b7280;
-    --border-color: rgba(255, 255, 255, 0.05);
-    --gradient-1: #38bdf8;
-    --gradient-2: #818cf8;
-    --gradient-3: #fcd34d;
+    --bg: #262626;          /* Deep neutral stone */
+    --card-bg: #323232;     /* Subtle lift */
+    --main-card: #323232;
+    --text-color: #e5e5e5;  /* Soft white */
+    --muted-text: #a3a3a3;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --gradient-1: #fb7185;  /* Rose */
+    --gradient-2: #f472b6;  /* Pink */
+    --gradient-3: #fbbf24;  /* Amber */
 }
 
 body {
@@ -229,12 +253,12 @@ body {
 
 .location {
     margin-top: 15px;
-    font-size: 14px;
+    font-size: 22px;
     color: var(--text-color);
 }
 
 .location span {
-    color: var(--muted-text);
+    color: var(--text-color);
 }
 
 .alerts-section {
