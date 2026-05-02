@@ -35,7 +35,7 @@ func alerts() []Alert {
 		return []Alert{}
 	}
 	alertsSql := fmt.Sprintf("select * from alerts where ends >= '%s'", formatDate(now))
-	logger.Info(alertsSql)
+	logger.Debug(alertsSql)
 	rows, err := db.Query(alertsSql)
 	if err != nil {
 		logger.Error(err)
@@ -379,7 +379,6 @@ func wind() Wind {
 	crows := db.QueryRow(avgDir)
 	err = crows.Scan(&avgdir)
 	sqlError("wind", err, avgDir)
-
 	wind := Wind{
 		Maxdailygust: maxgust.Value,
 		Avg:          int(avg),
@@ -514,7 +513,7 @@ func buildConditions(record Record) Conditions {
 
 }
 
-func buildAppConditions(record Record, forecast Forecast) AppConditions {
+func buildAppConditions(record Record, forecast []ForecastDB) AppConditions {
 	conditions := AppConditions{
 		Mac:      record.Mac,
 		Recorded: record.Recorded,
@@ -618,8 +617,13 @@ func buildAppConditions(record Record, forecast Forecast) AppConditions {
 
 	conditions.Astro = astro()
 
-	conditions.Forecast = forecast
-	conditions.Conditions = forecast.Days[0]
+	if len(forecast) > 0 {
+		conditions.Forecast = forecast[0]
+		conditions.Conditions = forecast[0].Conditions
+	} else {
+		conditions.Forecast = ForecastDB{}
+		conditions.Conditions = ""
+	}
 
 	return conditions
 
@@ -633,7 +637,7 @@ func getConditions() Conditions {
 
 func getAppConditions() AppConditions {
 	res := getCurrent()
-	forecast, err := getForecast()
+	forecast, err := GetForecasts()
 	if err != nil {
 		logger.Error(forecast, err)
 	}
@@ -703,8 +707,25 @@ func about(w http.ResponseWriter, _ *http.Request) {
 	}
 
 }
+func getForecastsHandler(w http.ResponseWriter, _ *http.Request) {
+	res, err := GetForecasts()
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+	b, err := json.Marshal(res)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+	i, err := w.Write(b)
+	if err != nil {
+		logger.Error(i, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
 func getForecastHandler(w http.ResponseWriter, _ *http.Request) {
-	res, err := getForecast()
+	res, err := GetForecasts()
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)

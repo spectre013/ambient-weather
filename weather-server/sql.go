@@ -55,6 +55,7 @@ func getRecord(sqlStatement string) Record {
 
 	return r
 }
+
 func getStats() []Stat {
 	stats := make([]Stat, 0)
 	rows, err := db.Query("Select * from stats")
@@ -74,6 +75,87 @@ func getStats() []Stat {
 		logger.Error(err)
 	}
 	return stats
+}
+
+func GetForecasts() ([]ForecastDB, error) {
+	query := `
+		SELECT 
+			datetime, datetime_epoch, tempmax, tempmin, temp, feelslikemax, 
+			feelslikemin, feelslike, dew, humidity, precip, precipprob, 
+			precipcover, preciptype, snow, snowdepth, windgust, windspeed, 
+			winddir, pressure, cloudcover, visibility, solarradiation, 
+			solarenergy, uvindex, severerisk, sunrise, sunrise_epoch, 
+			sunset, sunset_epoch, moonphase, conditions, description, 
+			icon, stations, source, hours, summary 
+		FROM forecast
+		ORDER BY datetime ASC`
+
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var forecasts []ForecastDB
+
+	for rows.Next() {
+		var f ForecastDB
+		err := rows.Scan(
+			&f.Datetime, &f.DatetimeEpoch, &f.TempMax, &f.TempMin, &f.Temp, &f.FeelsLikeMax,
+			&f.FeelsLikeMin, &f.FeelsLike, &f.Dew, &f.Humidity, &f.Precip, &f.PrecipProb,
+			&f.PrecipCover, &f.PrecipType, &f.Snow, &f.SnowDepth, &f.WindGust, &f.WindSpeed,
+			&f.WindDir, &f.Pressure, &f.CloudCover, &f.Visibility, &f.SolarRadiation,
+			&f.SolarEnergy, &f.UVIndex, &f.SevereRisk, &f.Sunrise, &f.SunriseEpoch,
+			&f.Sunset, &f.SunsetEpoch, &f.MoonPhase, &f.Conditions, &f.Description,
+			&f.Icon, &f.Stations, &f.Source, &f.Hours, &f.Summary,
+		)
+		if err != nil {
+			return nil, err
+		}
+		forecasts = append(forecasts, f)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return forecasts, nil
+}
+
+func GetForecastByTimestamp(ts time.Time) (*ForecastDB, error) {
+	f := &ForecastDB{}
+
+	query := `
+        SELECT 
+            datetime, datetime_epoch, tempmax, tempmin, temp, feelslikemax, 
+            feelslikemin, feelslike, dew, humidity, precip, precipprob, 
+            precipcover, preciptype, snow, snowdepth, windgust, windspeed, 
+            winddir, pressure, cloudcover, visibility, solarradiation, 
+            solarenergy, uvindex, severerisk, sunrise, sunrise_epoch, 
+            sunset, sunset_epoch, moonphase, conditions, description, 
+            icon, stations, source, hours, summary 
+        FROM forecast
+        WHERE datetime = $1`
+
+	// QueryRow chained with Scan is the standard pattern for single records
+	err := db.QueryRow(query, ts).Scan(
+		&f.Datetime, &f.DatetimeEpoch, &f.TempMax, &f.TempMin, &f.Temp, &f.FeelsLikeMax,
+		&f.FeelsLikeMin, &f.FeelsLike, &f.Dew, &f.Humidity, &f.Precip, &f.PrecipProb,
+		&f.PrecipCover, &f.PrecipType, &f.Snow, &f.SnowDepth, &f.WindGust, &f.WindSpeed,
+		&f.WindDir, &f.Pressure, &f.CloudCover, &f.Visibility, &f.SolarRadiation,
+		&f.SolarEnergy, &f.UVIndex, &f.SevereRisk, &f.Sunrise, &f.SunriseEpoch,
+		&f.Sunset, &f.SunsetEpoch, &f.MoonPhase, &f.Conditions, &f.Description,
+		&f.Icon, &f.Stations, &f.Source, &f.Hours, &f.Summary,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil // Return nil if no record was found
+		}
+		return nil, err // Return the actual error (connection, syntax, etc.)
+	}
+
+	return f, nil
 }
 
 func chartQueries(t string, sensor string) string {

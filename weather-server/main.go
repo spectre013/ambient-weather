@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -81,7 +80,8 @@ func main() {
 	r.HandleFunc("/api/firstfreeze", loggingMiddleware(getFirstFreeze))
 	r.HandleFunc("/api/about", loggingMiddleware(about))
 	//Index
-	r.HandleFunc("/", loggingMiddleware(home))
+	r.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("./public"))))
+	//r.Handle("/", http.FileServer(http.Dir("./public")))
 
 	srv := &http.Server{
 		Handler: r,
@@ -136,22 +136,4 @@ func makeRequest(url string, header map[string]string) ([]byte, error) {
 		return nil, err
 	}
 	return body, nil
-}
-
-func getForecast() (Forecast, error) {
-	includes := "days%2Chours"
-	url := fmt.Sprintf("https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/Colorado%%20Springs?unitGroup=us&iconSets=icon2&include=%s&key=%s&contentType=json", includes, os.Getenv("WEATHER_API"))
-	header := map[string]string{}
-	res, err := makeRequest(url, header)
-	if err != nil {
-		logger.Error("Error in Get Forecast", err)
-		return Forecast{}, err
-	}
-	f := Forecast{}
-	err = json.Unmarshal(res, &f)
-	if err != nil {
-		logger.Error("Error in Unmarshall Forecast", err)
-		return f, err
-	}
-	return f, err
 }

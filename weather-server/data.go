@@ -51,26 +51,26 @@ type Conditions struct {
 }
 
 type AppConditions struct {
-	ID         int       `json:"id"`
-	Mac        string    `json:"mac"`
-	Recorded   time.Time `json:"date"`
-	Barometer  Barometer `json:"barometer"`
-	Humidity   Humidity  `json:"humidity"`
-	Temp       Temp      `json:"temp"`
-	Tempin     Tempin    `json:"tempin"`
-	Temp1      Tempin    `json:"temp1"`
-	Temp2      Tempin    `json:"temp2"`
-	Temp3      Tempin    `json:"temp3"`
-	Temp4      Tempin    `json:"temp4"`
-	Rain       Rain      `json:"rain"`
-	Lightning  Lightning `json:"lightning"`
-	AQI        AQI       `json:"aqi"`
-	Wind       Wind      `json:"wind"`
-	UV         UV        `json:"uv"`
-	Astro      Astro     `json:"astro"`
-	Alert      []Alert   `json:"alert"`
-	Conditions Day       `json:"conditions"`
-	Forecast   Forecast  `json:"forecast"`
+	ID         int        `json:"id"`
+	Mac        string     `json:"mac"`
+	Recorded   time.Time  `json:"date"`
+	Barometer  Barometer  `json:"barometer"`
+	Humidity   Humidity   `json:"humidity"`
+	Temp       Temp       `json:"temp"`
+	Tempin     Tempin     `json:"tempin"`
+	Temp1      Tempin     `json:"temp1"`
+	Temp2      Tempin     `json:"temp2"`
+	Temp3      Tempin     `json:"temp3"`
+	Temp4      Tempin     `json:"temp4"`
+	Rain       Rain       `json:"rain"`
+	Lightning  Lightning  `json:"lightning"`
+	AQI        AQI        `json:"aqi"`
+	Wind       Wind       `json:"wind"`
+	UV         UV         `json:"uv"`
+	Astro      Astro      `json:"astro"`
+	Alert      []Alert    `json:"alert"`
+	Conditions string     `json:"conditions"`
+	Forecast   ForecastDB `json:"forecast"`
 }
 
 type Barometer struct {
@@ -430,4 +430,45 @@ type FirstFreeze struct {
 	Year   int    `json:"year,omitempty"`
 	Spring string `json:"spring" json:"spring,omitempty"`
 	Fall   string `json:"fall" json:"fall,omitempty"`
+}
+
+type ForecastDB struct {
+	Datetime       time.Time `json:"datetime"`
+	DatetimeEpoch  int64     `json:"datetimeEpoch"`
+	TempMax        float64   `json:"tempmax"`
+	TempMin        float64   `json:"tempmin"`
+	Temp           float64   `json:"temp"`
+	FeelsLikeMax   float64   `json:"feelslikemax"`
+	FeelsLikeMin   float64   `json:"feelslikemin"`
+	FeelsLike      float64   `json:"feelslike"`
+	Dew            float64   `json:"dew"`
+	Humidity       float64   `json:"humidity"`
+	Precip         float64   `json:"precip"`
+	PrecipProb     float64   `json:"precipprob"`
+	PrecipCover    float64   `json:"precipcover"`
+	PrecipType     string    `json:"preciptype"` // Flattened slice to string
+	Snow           float64   `json:"snow"`
+	SnowDepth      float64   `json:"snowdepth"`
+	WindGust       float64   `json:"windgust"`
+	WindSpeed      float64   `json:"windspeed"`
+	WindDir        float64   `json:"winddir"`
+	Pressure       float64   `json:"pressure"`
+	CloudCover     float64   `json:"cloudcover"`
+	Visibility     float64   `json:"visibility"`
+	SolarRadiation float64   `json:"solarradiation"`
+	SolarEnergy    float64   `json:"solarenergy"`
+	UVIndex        float64   `json:"uvindex"`
+	SevereRisk     float64   `json:"severerisk"`
+	Sunrise        string    `json:"sunrise"` // Format "HH:MM:SS"
+	SunriseEpoch   int64     `json:"sunriseEpoch"`
+	Sunset         string    `json:"sunset"` // Format "HH:MM:SS"
+	SunsetEpoch    int64     `json:"sunsetEpoch"`
+	MoonPhase      float64   `json:"moonphase"`
+	Conditions     string    `json:"conditions"`
+	Description    string    `json:"description"`
+	Icon           string    `json:"icon"`
+	Stations       string    `json:"stations"` // Flattened slice to string
+	Source         string    `json:"source"`
+	Hours          string    `json:"hours"` // Raw JSON string
+	Summary        string    `json:"summary"`
 }
