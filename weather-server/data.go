@@ -254,6 +254,7 @@ type Alert struct {
 	Description string    `json:"description"`
 	Instruction string    `json:"instruction"`
 	Response    string    `json:"response"`
+	Summary     string    `json:"summary"`
 }
 
 type Alerts struct {

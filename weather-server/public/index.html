@@ -1,6 +1,6 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
     <meta http-equiv="Default-Style" content="blue">
     <meta content="Ambient WS-2000 Weather station" name="description">
     <meta content="website" property="og:type">
@@ -23,540 +23,272 @@
     <link href="/favicons/apple-touch-icon.png" rel="apple-touch-icon" sizes="152x152">
     <link href="/favicons/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180">
     <title>Weather Lorson Ranch, Colorado Springs</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap"
-          rel="stylesheet">
-    <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@24,400,0,0">
+    <title>E-ink Weather Dashboard</title>
     <script>
-        document.write('<link rel="stylesheet" href="/css/main.css?v=' + new Date().getTime() + '">');
-    </script>
-    <script src="/js/mustache.js"></script>
-    <script src="/js/moment.js"></script>
-    <script src="/js/util.js"></script>
-    <style id="gauge-fade-in-style">
-        @keyframes gaugeComponentFadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
+        document.write('<link rel="stylesheet" href=' + new Date().getTime() + '"/css/main.css?v=">');
+        function addScript( src ) {
+            let s = document.createElement( 'script' );
+            s.setAttribute( 'src', src );
+            document.head.appendChild( s );
         }
-    </style>
+    </script>
 </head>
-<body data-theme="light">
-<div id="loading"> Loading .... </div>
-<div id="root" style="display: none;">
-    <div class="dashboard">
-        <div class="content">
-            <section class="title-header">
-                <div class="location">Lorson Ranch - Colorado Springs</div>
-                <div class="info-container">
-                    <div class="info-card">Use Metric</div>
-                    <div class="info-card"><span class="material-symbols-sharp">contrast</span></div>
-                    <div id="updated" class="info-card"></div>
-                    <div class="info-card">
-                        <div class="dropdown-container">
-                            <div class="control-button more-button">More... <span class="material-symbols-sharp">keyboard_arrow_down</span>
-                            </div>
-                            <div class="dropdown-menu " role="menu" aria-orientation="vertical">
-                                <div class="dropdown-menu-inner" role="none"><a href="#" role="menuitem">Climate
-                                    Data</a><a href="#" role="menuitem">About</a></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <section class="alerts-section">
-                <div class="alerts-info">
-                    <div class="no-alerts">No Alerts!</div>
-                </div>
-            </section>
-            <main class="main-content">
-                <div class="left-panel">
-                    <section id="temperature" class="current-weather"></section>
-                    <section class="forecast-section">
-                        <div class="forecast-header">
-                            <h2>10-Day Forecast</h2>
-                        </div>
-                        <div class="forecast-list">
-                            <div class="forecast-day">
-                                <div class="day-date">Apr 29th</div>
-                                <div class="weather-icon"><img alt="" src="/images/icons/rain.png"></div>
-                                <div class="day-info">
-                                    <div class="day-temp">36°<div class="temp-bar-container">
-                                        <div class="temp-bar"
-                                             style="background: linear-gradient(to right, rgb(66, 165, 245), rgb(255, 238, 88)); width: 100%;">
-                                        </div>
-                                    </div>55°</div>
-                                </div>
-                            </div>
-                            <div class="forecast-day">
-                                <div class="day-date">Apr 30th</div>
-                                <div class="weather-icon"><img alt="" src="/images/icons/rain.png"></div>
-                                <div class="day-info">
-                                    <div class="day-temp">37°<div class="temp-bar-container">
-                                        <div class="temp-bar"
-                                             style="background: linear-gradient(to right, rgb(66, 165, 245), rgb(102, 187, 106)); width: 100%;">
-                                        </div>
-                                    </div>45°</div>
-                                </div>
-                            </div>
-                            <div class="forecast-day">
-                                <div class="day-date">May 1st</div>
-                                <div class="weather-icon"><img alt="" src="/images/icons/rain.png"></div>
-                                <div class="day-info">
-                                    <div class="day-temp">34°<div class="temp-bar-container">
-                                        <div class="temp-bar"
-                                             style="background: linear-gradient(to right, rgb(66, 165, 245), rgb(102, 187, 106)); width: 100%;">
-                                        </div>
-                                    </div>48°</div>
-                                </div>
-                            </div>
-                            <div class="forecast-day">
-                                <div class="day-date">May 2nd</div>
-                                <div class="weather-icon"><img alt="" src="/images/icons/rain.png"></div>
-                                <div class="day-info">
-                                    <div class="day-temp">33°<div class="temp-bar-container">
-                                        <div class="temp-bar"
-                                             style="background: linear-gradient(to right, rgb(66, 165, 245), rgb(255, 238, 88)); width: 100%;">
-                                        </div>
-                                    </div>59°</div>
-                                </div>
-                            </div>
-                            <div class="forecast-day">
-                                <div class="day-date">May 3rd</div>
-                                <div class="weather-icon"><img alt="" src="/images/icons/partly-cloudy-day.png">
-                                </div>
-                                <div class="day-info">
-                                    <div class="day-temp">39°<div class="temp-bar-container">
-                                        <div class="temp-bar"
-                                             style="background: linear-gradient(to right, rgb(66, 165, 245), rgb(255, 167, 38)); width: 100%;">
-                                        </div>
-                                    </div>67°</div>
-                                </div>
-                            </div>
-                            <div class="forecast-day">
-                                <div class="day-date">May 4th</div>
-                                <div class="weather-icon"><img alt="" src="/images/icons/rain.png"></div>
-                                <div class="day-info">
-                                    <div class="day-temp">45°<div class="temp-bar-container">
-                                        <div class="temp-bar"
-                                             style="background: linear-gradient(to right, rgb(102, 187, 106), rgb(255, 167, 38)); width: 100%;">
-                                        </div>
-                                    </div>67°</div>
-                                </div>
-                            </div>
-                            <div class="forecast-day">
-                                <div class="day-date">May 5th</div>
-                                <div class="weather-icon"><img alt="" src="/images/icons/rain.png"></div>
-                                <div class="day-info">
-                                    <div class="day-temp">47°<div class="temp-bar-container">
-                                        <div class="temp-bar"
-                                             style="background: linear-gradient(to right, rgb(102, 187, 106), rgb(255, 167, 38)); width: 100%;">
-                                        </div>
-                                    </div>68°</div>
-                                </div>
-                            </div>
-                            <div class="forecast-day">
-                                <div class="day-date">May 6th</div>
-                                <div class="weather-icon"><img alt="" src="/images/icons/rain.png"></div>
-                                <div class="day-info">
-                                    <div class="day-temp">46°<div class="temp-bar-container">
-                                        <div class="temp-bar"
-                                             style="background: linear-gradient(to right, rgb(102, 187, 106), rgb(255, 167, 38)); width: 100%;">
-                                        </div>
-                                    </div>67°</div>
-                                </div>
-                            </div>
-                            <div class="forecast-day">
-                                <div class="day-date">May 7th</div>
-                                <div class="weather-icon"><img alt="" src="/images/icons/rain.png"></div>
-                                <div class="day-info">
-                                    <div class="day-temp">31°<div class="temp-bar-container">
-                                        <div class="temp-bar"
-                                             style="background: linear-gradient(to right, rgb(66, 165, 245), rgb(102, 187, 106)); width: 100%;">
-                                        </div>
-                                    </div>46°</div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                </div>
-                <div class="right-panel">
-                    <div class="stats-grid">
-                        <div class="stat-card hasclick">
-                            <div class="stat-icon"><span class="material-symbols-sharp">thermostat</span></div>
-                            <div class="value"><span class="color-range-50-to-59">51</span><span
-                                    class="stat-value-unit">°F</span></div>
-                            <div class="label">Feels Like</div>
-                        </div>
-                        <div class="stat-card hasclick">
-                            <div class="stat-icon"><span class="material-symbols-sharp">air</span></div>
-                            <div class="value"><span class="beaufort1-3">3</span><span
-                                    class="stat-value-unit">MPH</span></div>
-                            <div class="label">Wind Speed</div>
-                        </div>
-                        <div class="stat-card hasclick">
-                            <div class="stat-icon"><span class="material-symbols-sharp">air</span></div>
-                            <div class="value"><span class="beaufort1-3">10</span><span
-                                    class="stat-value-unit">MPH</span></div>
-                            <div class="label">Wind Gust</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon"><span class="material-symbols-sharp">humidity_mid</span></div>
-                            <div class="value"><span class="">48</span><span class="stat-value-unit">%</span></div>
-                            <div class="label">Humidity</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon"><span class="material-symbols-sharp">water_drop</span></div>
-                            <div class="value"><span class="">29.88</span><span class="stat-value-unit">inHG</span>
-                            </div>
-                            <div class="label">Barometer</div>
-                        </div>
-                        <div class="stat-card hasclick">
-                            <div class="stat-icon"><span class="material-symbols-sharp">thermostat</span></div>
-                            <div class="value"><span class="color-range-30-to-39">32</span><span
-                                    class="stat-value-unit">°F</span></div>
-                            <div class="label">Dewpoint</div>
-                        </div>
-                        <div class="stat-card hasclick">
-                            <div class="stat-icon"><span class="material-symbols-sharp">water_drop</span></div>
-                            <div class="value"><span class="">0.00</span><span class="stat-value-unit">in</span>
-                            </div>
-                            <div class="label">Precipitation</div>
-                        </div>
-                        <div class="stat-card hasclick">
-                            <div class="stat-icon"><span class="material-symbols-sharp">bolt</span></div>
-                            <div class="value"><span class="">1</span><span class="stat-value-unit"></span></div>
-                            <div class="label">Lightning Today</div>
-                        </div>
-                        <div class="stat-card hasclick">
-                            <div class="stat-icon"><span class="material-symbols-sharp">bolt</span></div>
-                            <div class="value"><span class="">14</span><span class="stat-value-unit">mi</span></div>
-                            <div class="label">Lightning Distance</div>
-                        </div>
-                    </div>
-                    <div class="gauges-grid">
-                        <div class="gauge-card uv-gauge">
-                            <div class="gauge-container">
-                                <div class="gauge"
-                                     style="width: 100%; height: 100%; max-width: 100%; max-height: 100%; overflow: hidden;">
-                                    <svg width="100%" height="100%" preserveAspectRatio="xMidYMid meet"
-                                         viewBox="0 0 317.4609375 216.9348362184481"
-                                         style="visibility: visible; opacity: 1; max-width: 100%; max-height: 100%; display: block; animation: auto ease 0s 1 normal none running none;">
-                                        <g class="gauge-content"
-                                           transform="translate(158.73046875, 148.88180639553676)"
-                                           style="visibility: visible; opacity: 1;">
-                                            <g class="doughnut" transform="translate(0, 0)">
-                                                <g class="outerSubArc">
-                                                    <path
-                                                            d="M-109.108,45.194A1,1,0,0,1,-110.418,44.645A119.102,119.102,0,0,1,-115.301,-29.851A1,1,0,0,1,-114.074,-30.566L-111.176,-29.79A1,1,0,0,1,-110.467,-28.573A114.102,114.102,0,0,0,-105.792,42.748A1,1,0,0,1,-106.337,44.046Z"
-                                                            style="fill: rgb(91, 225, 44);"></path>
-                                                </g>
-                                                <g class="outerSubArc">
-                                                    <path
-                                                            d="M-114.074,-30.566A1,1,0,0,1,-114.779,-31.799A119.102,119.102,0,0,1,-39.238,-112.453A1,1,0,0,1,-37.961,-111.831L-36.997,-108.99A1,1,0,0,1,-37.614,-107.724A114.102,114.102,0,0,0,-109.954,-30.488A1,1,0,0,1,-111.176,-29.79Z"
-                                                            style="fill: rgb(245, 205, 25);"></path>
-                                                </g>
-                                                <g class="outerSubArc">
-                                                    <path
-                                                            d="M-37.961,-111.831A1,1,0,0,1,-37.328,-113.102A119.102,119.102,0,0,1,37.328,-113.102A1,1,0,0,1,37.961,-111.831L36.997,-108.99A1,1,0,0,1,35.737,-108.362A114.102,114.102,0,0,0,-35.737,-108.362A1,1,0,0,1,-36.997,-108.99Z"
-                                                            style="fill: rgb(245, 139, 25);"></path>
-                                                </g>
-                                                <g class="outerSubArc">
-                                                    <path
-                                                            d="M37.961,-111.831A1,1,0,0,1,39.238,-112.453A119.102,119.102,0,0,1,114.779,-31.799A1,1,0,0,1,114.074,-30.566L111.176,-29.79A1,1,0,0,1,109.954,-30.488A114.102,114.102,0,0,0,37.614,-107.724A1,1,0,0,1,36.997,-108.99Z"
-                                                            style="fill: rgb(234, 66, 40);"></path>
-                                                </g>
-                                                <g class="outerSubArc">
-                                                    <path
-                                                            d="M114.074,-30.566A1,1,0,0,1,115.301,-29.851A119.102,119.102,0,0,1,110.418,44.645A1,1,0,0,1,109.108,45.194L106.337,44.046A1,1,0,0,1,105.792,42.748A114.102,114.102,0,0,0,110.467,-28.573A1,1,0,0,1,111.176,-29.79Z"
-                                                            style="fill: violet;"></path>
-                                                </g>
-                                                <g class="subArc">
-                                                    <path d="M-103.569,42.9L-77.677,32.175Z"
-                                                          style="fill: rgb(91, 225, 44);"></path>
-                                                </g>
-                                                <g class="subArc">
-                                                    <path
-                                                            d="M-102.901,41.865A1,1,0,0,1,-104.214,41.309A112.102,112.102,0,1,1,104.214,41.309A1,1,0,0,1,102.901,41.865L78.853,31.904A1,1,0,0,1,78.304,30.616A84.077,84.077,0,1,0,-78.304,30.616A1,1,0,0,1,-78.853,31.904Z"
-                                                            style="fill: rgb(92, 92, 92);"></path>
-                                                </g>
-                                            </g>
-                                            <g class="pointer" style="visibility: visible; opacity: 1;"></g>
-                                            <g class="value-text" transform="translate(0, 29.426876635911494)"><text
-                                                    transform="rotate(0)"
-                                                    style="font-size: 33.3334px; fill: rgb(91, 225, 44); text-shadow: black 1px 0.5px 0px, black 0px 0px 0.03em, black 0px 0px 0.01em; text-anchor: middle;">0</text>
-                                            </g>
-                                            <path class="tick-line" d="M-113.143,46.866L-120.393,49.868"
-                                                  stroke="rgb(173 172 171)" stroke-width="1.1210238718442473"
-                                                  fill="none"></path>
-                                            <g class="tick-value"
-                                               transform="translate(-122.46454992076606, 54.08954910263098)"><text
-                                                    transform="rotate(0)"
-                                                    style="font-size: 13.4523px; fill: rgb(173, 172, 171); text-anchor: end;">0</text>
-                                            </g>
-                                            <path class="tick-line" d="M113.143,46.866L120.393,49.868"
-                                                  stroke="rgb(173 172 171)" stroke-width="1.1210238718442473"
-                                                  fill="none"></path>
-                                            <g class="tick-value"
-                                               transform="translate(122.46454992076607, 54.08954910263097)"><text
-                                                    transform="rotate(0)"
-                                                    style="font-size: 13.4523px; fill: rgb(173, 172, 171); text-anchor: start;">12</text>
-                                            </g>
-                                            <path class="tick-line" d="M-118.293,-31.696L-125.872,-33.727"
-                                                  stroke="rgb(173 172 171)" stroke-width="1.1210238718442473"
-                                                  fill="none"></path>
-                                            <g class="tick-value"
-                                               transform="translate(-128.0379826705271, -30.94460244154507)"><text
-                                                    transform="rotate(0)"
-                                                    style="font-size: 13.4523px; fill: rgb(173, 172, 171); text-anchor: end;">2</text>
-                                            </g>
-                                            <path class="tick-line" d="M-39.365,-115.966L-41.888,-123.397"
-                                                  stroke="rgb(173 172 171)" stroke-width="1.1210238718442473"
-                                                  fill="none"></path>
-                                            <g class="tick-value"
-                                               transform="translate(-42.60830342038393, -123.27796653762597)"><text
-                                                    transform="rotate(0)"
-                                                    style="font-size: 13.4523px; fill: rgb(173, 172, 171); text-anchor: middle;">5</text>
-                                            </g>
-                                            <path class="tick-line" d="M39.365,-115.966L41.888,-123.397"
-                                                  stroke="rgb(173 172 171)" stroke-width="1.1210238718442473"
-                                                  fill="none"></path>
-                                            <g class="tick-value"
-                                               transform="translate(42.60830342038395, -123.27796653762597)"><text
-                                                    transform="rotate(0)"
-                                                    style="font-size: 13.4523px; fill: rgb(173, 172, 171); text-anchor: middle;">7</text>
-                                            </g>
-                                            <path class="tick-line" d="M118.293,-31.696L125.872,-33.727"
-                                                  stroke="rgb(173 172 171)" stroke-width="1.1210238718442473"
-                                                  fill="none"></path>
-                                            <g class="tick-value"
-                                               transform="translate(128.0379826705271, -30.944602441545054)"><text
-                                                    transform="rotate(0)"
-                                                    style="font-size: 13.4523px; fill: rgb(173, 172, 171); text-anchor: start;">10</text>
-                                            </g>
-                                            <path class="tick-line" d="M113.143,46.866L120.393,49.868"
-                                                  stroke="rgb(173 172 171)" stroke-width="1.1210238718442473"
-                                                  fill="none"></path>
-                                            <g class="tick-value"
-                                               transform="translate(122.46454992076607, 54.08954910263097)"><text
-                                                    transform="rotate(0)"
-                                                    style="font-size: 13.4523px; fill: rgb(173, 172, 171); text-anchor: start;">12</text>
-                                            </g>
-                                        </g>
-                                    </svg></div>
-                                <div class="gauge-label">UV Index</div>
-                            </div>
-                        </div>
-                        <div class="gauge-card sunrise-gauge">
-                            <div class="gauge-container">
-                                <div class="gauge"
-                                     style="width: 100%; height: 100%; max-width: 100%; max-height: 100%; overflow: hidden;">
-                                    <svg width="100%" height="100%" preserveAspectRatio="xMidYMid meet"
-                                         viewBox="0 0 299.9921875 114.68020615908374"
-                                         style="visibility: visible; opacity: 1; max-width: 100%; max-height: 100%; display: block; animation: auto ease 0s 1 normal none running none;">
-                                        <g class="gauge-content"
-                                           transform="translate(149.99609375, 107.45662515107006)"
-                                           style="visibility: visible; opacity: 1;">
-                                            <g class="doughnut" transform="translate(0, 0)">
-                                                <defs>
-                                                    <linearGradient id="subArc-linear-gradient-0.8548372050267975"
-                                                                    x1="0%" x2="100%" y1="0%" y2="0%">
-                                                        <stop offset="0%"
-                                                              style="stop-color: rgb(30, 152, 209); stop-opacity: 1;">
-                                                        </stop>
-                                                        <stop offset="25%"
-                                                              style="stop-color: rgb(203, 229, 243); stop-opacity: 1;">
-                                                        </stop>
-                                                        <stop offset="50%"
-                                                              style="stop-color: rgb(240, 231, 26); stop-opacity: 1;">
-                                                        </stop>
-                                                        <stop offset="75%"
-                                                              style="stop-color: rgb(245, 86, 12); stop-opacity: 1;">
-                                                        </stop>
-                                                        <stop offset="100%"
-                                                              style="stop-color: rgb(197, 127, 81); stop-opacity: 1;">
-                                                        </stop>
-                                                    </linearGradient>
-                                                </defs>
-                                                <defs>
-                                                    <linearGradient id="subArc-linear-gradient-0.05013718771241116"
-                                                                    x1="0%" x2="100%" y1="0%" y2="0%">
-                                                        <stop offset="0%"
-                                                              style="stop-color: rgb(30, 152, 209); stop-opacity: 1;">
-                                                        </stop>
-                                                        <stop offset="25%"
-                                                              style="stop-color: rgb(203, 229, 243); stop-opacity: 1;">
-                                                        </stop>
-                                                        <stop offset="50%"
-                                                              style="stop-color: rgb(240, 231, 26); stop-opacity: 1;">
-                                                        </stop>
-                                                        <stop offset="75%"
-                                                              style="stop-color: rgb(245, 86, 12); stop-opacity: 1;">
-                                                        </stop>
-                                                        <stop offset="100%"
-                                                              style="stop-color: rgb(197, 127, 81); stop-opacity: 1;">
-                                                        </stop>
-                                                    </linearGradient>
-                                                </defs>
-                                                <defs>
-                                                    <linearGradient id="subArc-linear-gradient-0.39476003826012507"
-                                                                    x1="0%" x2="100%" y1="0%" y2="0%">
-                                                        <stop offset="0%"
-                                                              style="stop-color: rgb(30, 152, 209); stop-opacity: 1;">
-                                                        </stop>
-                                                        <stop offset="25%"
-                                                              style="stop-color: rgb(203, 229, 243); stop-opacity: 1;">
-                                                        </stop>
-                                                        <stop offset="50%"
-                                                              style="stop-color: rgb(240, 231, 26); stop-opacity: 1;">
-                                                        </stop>
-                                                        <stop offset="75%"
-                                                              style="stop-color: rgb(245, 86, 12); stop-opacity: 1;">
-                                                        </stop>
-                                                        <stop offset="100%"
-                                                              style="stop-color: rgb(197, 127, 81); stop-opacity: 1;">
-                                                        </stop>
-                                                    </linearGradient>
-                                                </defs>
-                                                <defs>
-                                                    <linearGradient id="subArc-linear-gradient-0.07361606479075822"
-                                                                    x1="0%" x2="100%" y1="0%" y2="0%">
-                                                        <stop offset="0%"
-                                                              style="stop-color: rgb(30, 152, 209); stop-opacity: 1;">
-                                                        </stop>
-                                                        <stop offset="25%"
-                                                              style="stop-color: rgb(203, 229, 243); stop-opacity: 1;">
-                                                        </stop>
-                                                        <stop offset="50%"
-                                                              style="stop-color: rgb(240, 231, 26); stop-opacity: 1;">
-                                                        </stop>
-                                                        <stop offset="75%"
-                                                              style="stop-color: rgb(245, 86, 12); stop-opacity: 1;">
-                                                        </stop>
-                                                        <stop offset="100%"
-                                                              style="stop-color: rgb(197, 127, 81); stop-opacity: 1;">
-                                                        </stop>
-                                                    </linearGradient>
-                                                </defs>
-                                                <g class="subArc">
-                                                    <path
-                                                            d="M-103.135,-3.465A1,1,0,0,1,-104.114,-4.508A104.212,104.212,0,0,1,104.114,-4.508A1,1,0,0,1,103.135,-3.465L94.713,-3.297A1,1,0,0,1,93.694,-4.251A93.79,93.79,0,0,0,-93.694,-4.251A1,1,0,0,1,-94.713,-3.297Z"
-                                                            style="fill: url('#subArc-linear-gradient-0.02727790598206159');">
-                                                    </path>
-                                                </g>
-                                                <defs>
-                                                    <linearGradient id="subArc-linear-gradient-0.02727790598206159"
-                                                                    x1="0%" x2="100%" y1="0%" y2="0%">
-                                                        <stop offset="0%"
-                                                              style="stop-color: rgb(30, 152, 209); stop-opacity: 1;">
-                                                        </stop>
-                                                        <stop offset="25%"
-                                                              style="stop-color: rgb(203, 229, 243); stop-opacity: 1;">
-                                                        </stop>
-                                                        <stop offset="50%"
-                                                              style="stop-color: rgb(240, 231, 26); stop-opacity: 1;">
-                                                        </stop>
-                                                        <stop offset="75%"
-                                                              style="stop-color: rgb(245, 86, 12); stop-opacity: 1;">
-                                                        </stop>
-                                                        <stop offset="100%"
-                                                              style="stop-color: rgb(197, 127, 81); stop-opacity: 1;">
-                                                        </stop>
-                                                    </linearGradient>
-                                                </defs>
-                                            </g>
-                                            <g class="pointer"
-                                               transform="translate(98.98125837751815, -1.9798891598115531)"
-                                               style="visibility: visible; opacity: 1;">
-                                                <circle cx="0" cy="0" r="11.9996875" fill="#ffd319"
-                                                        stroke="rgb(197, 127, 81)" stroke-width="0"></circle>
-                                            </g>
-                                            <path class="tick-line" d="M-107.317,-2.147L-114.61,-2.293"
-                                                  stroke="rgb(173 172 171)" stroke-width="1.0421163992537443"
-                                                  fill="none"></path>
-                                            <g class="tick-value"
-                                               transform="translate(-116.6936940871793, 0.7921640830360408)"><text
-                                                    transform="rotate(0)"
-                                                    style="font-size: 12.5054px; fill: rgb(173, 172, 171); text-anchor: end;">Rise</text>
-                                            </g>
-                                            <path class="tick-line" d="M107.317,-2.147L114.61,-2.293"
-                                                  stroke="rgb(173 172 171)" stroke-width="1.0421163992537443"
-                                                  fill="none"></path>
-                                            <g class="tick-value"
-                                               transform="translate(116.6936940871793, 0.7921640830360266)"><text
-                                                    transform="rotate(0)"
-                                                    style="font-size: 12.5054px; fill: rgb(173, 172, 171); text-anchor: start;">Set</text>
-                                            </g>
-                                            <g class="value-text" transform="translate(0, -14.06857138992555)"><text
-                                                    transform="rotate(0)"
-                                                    style="font-size: 31.4992px; fill: rgb(197, 127, 81); text-shadow: black 1px 0.5px 0px, black 0px 0px 0.03em, black 0px 0px 0.01em; text-anchor: middle;">100º</text>
-                                            </g>
-                                        </g>
-                                    </svg></div>
-                            </div>
-                            <div class="gauge-label">Sunrise 6:04:38 AM • Sunset 7:47:24 PM</div>
-                        </div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-icon"><span class="material-symbols-sharp">thermostat</span></div>
-                            <div class="value"><span class="color-range-60-to-69">70</span><span
-                                    class="stat-value-unit">°F</span></div>
-                            <div class="label">Living room</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon"><span class="material-symbols-sharp">thermostat</span></div>
-                            <div class="value"><span class="color-range-60-to-69">70</span><span
-                                    class="stat-value-unit">°F</span></div>
-                            <div class="label">Master Bedroom</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon"><span class="material-symbols-sharp">thermostat</span></div>
-                            <div class="value"><span class="color-range-60-to-69">65</span><span
-                                    class="stat-value-unit">°F</span></div>
-                            <div class="label">Hannah's room</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon"><span class="material-symbols-sharp">thermostat</span></div>
-                            <div class="value"><span class="color-range-60-to-69">64</span><span
-                                    class="stat-value-unit">°F</span></div>
-                            <div class="label">Basement</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon"><span class="material-symbols-sharp">thermostat</span></div>
-                            <div class="value"><span class="color-range-70-to-79">72</span><span
-                                    class="stat-value-unit">°F</span></div>
-                            <div class="label">Garage</div>
-                        </div>
-                    </div>
-                </div>
-            </main>
+<body>
+
+<div class="dashboard">
+    <div class="header">
+        <h1>Lorson Ranch</h1>
+        <p>WEDNESDAY, APRIL 22, 2026</p>
+    </div>
+
+    <div class="current">
+        <div class="temp">77.9&deg;</div>
+        <div class="cond">Partially cloudy</div>
+        <div class="hl">H: 78&deg; &nbsp;&nbsp; L: 45&deg; &nbsp;&nbsp; FEELS LIKE: 77&deg;</div>
+    </div>
+
+    <div class="details">
+        <div class="details-item clickable" onclick="openModal('rainModal')">
+            <div>RAIN</div>
+            <div>0.0 in</div>
+        </div>
+        <div class="details-item">
+            <div>WIND</div>
+            <div>14 MPH</div>
+        </div>
+        <div class="details-item">
+            <div>WIND GUST</div>
+            <div>18 MPH</div>
         </div>
     </div>
-    <footer id="footer" class="copyright">©2018-2026 : zoms.net</footer>
+
+    <div class="section-title">HOURLY FORECAST</div>
+    <div class="hourly">
+
+        <div class="hourly-item">
+            <div>12 am</div>
+            <div style="font-weight: bold; margin-top: 5px;">76.9&deg;</div>
+        </div>
+
+        <div class="hourly-item">
+            <div>1 am</div>
+            <div style="font-weight: bold; margin-top: 5px;">72&deg;</div>
+        </div>
+
+        <div class="hourly-item">
+            <div>2 am</div>
+            <div style="font-weight: bold; margin-top: 5px;">67&deg;</div>
+        </div>
+
+        <div class="hourly-item">
+            <div>3 am</div>
+            <div style="font-weight: bold; margin-top: 5px;">63&deg;</div>
+        </div>
+
+        <div class="hourly-item">
+            <div>4 am</div>
+            <div style="font-weight: bold; margin-top: 5px;">61&deg;</div>
+        </div>
+
+        <div class="hourly-item">
+            <div>5 am</div>
+            <div style="font-weight: bold; margin-top: 5px;">58&deg;</div>
+        </div>
+
+        <div class="hourly-item">
+            <div>6 am</div>
+            <div style="font-weight: bold; margin-top: 5px;">56&deg;</div>
+        </div>
+
+        <div class="hourly-item">
+            <div>7 am</div>
+            <div style="font-weight: bold; margin-top: 5px;">54&deg;</div>
+        </div>
+        <div class="hourly-item">
+            <div>12 am</div>
+            <div style="font-weight: bold; margin-top: 5px;">76.9&deg;</div>
+        </div>
+
+        <div class="hourly-item">
+            <div>1 am</div>
+            <div style="font-weight: bold; margin-top: 5px;">72&deg;</div>
+        </div>
+
+        <div class="hourly-item">
+            <div>2 am</div>
+            <div style="font-weight: bold; margin-top: 5px;">67&deg;</div>
+        </div>
+
+        <div class="hourly-item">
+            <div>3 am</div>
+            <div style="font-weight: bold; margin-top: 5px;">63&deg;</div>
+        </div>
+
+        <div class="hourly-item">
+            <div>4 am</div>
+            <div style="font-weight: bold; margin-top: 5px;">61&deg;</div>
+        </div>
+
+        <div class="hourly-item">
+            <div>5 am</div>
+            <div style="font-weight: bold; margin-top: 5px;">58&deg;</div>
+        </div>
+
+        <div class="hourly-item">
+            <div>6 am</div>
+            <div style="font-weight: bold; margin-top: 5px;">56&deg;</div>
+        </div>
+
+        <div class="hourly-item">
+            <div>7 am</div>
+            <div style="font-weight: bold; margin-top: 5px;">54&deg;</div>
+        </div>
+
+    </div>
+
+    <div class="section-title">5-DAY FORECAST</div>
+    <div class="daily">
+
+        <div class="daily-item">
+            <div style="font-weight: bold; font-size: 1.2em;">THU</div>
+            <div style="margin: 10px 0;">P.CLDY</div>
+            <div style="font-weight: bold;">H: 63&deg;</div>
+            <div>L: 45&deg;</div>
+        </div>
+
+        <div class="daily-item">
+            <div style="font-weight: bold; font-size: 1.2em;">FRI</div>
+            <div style="margin: 10px 0;">P.CLDY</div>
+            <div style="font-weight: bold;">H: 67&deg;</div>
+            <div>L: 35&deg;</div>
+        </div>
+
+        <div class="daily-item">
+            <div style="font-weight: bold; font-size: 1.2em;">SAT</div>
+            <div style="margin: 10px 0;">P.CLDY</div>
+            <div style="font-weight: bold;">H: 67&deg;</div>
+            <div>L: 38&deg;</div>
+        </div>
+
+        <div class="daily-item">
+            <div style="font-weight: bold; font-size: 1.2em;">SUN</div>
+            <div style="margin: 10px 0;">RAIN</div>
+            <div style="font-weight: bold;">H: 63&deg;</div>
+            <div>L: 42&deg;</div>
+        </div>
+
+        <div class="daily-item">
+            <div style="font-weight: bold; font-size: 1.2em;">MON</div>
+            <div style="margin: 10px 0;">RAIN</div>
+            <div style="font-weight: bold;">H: 61&deg;</div>
+            <div>L: 39.1&deg;</div>
+        </div>
+    </div>
+    <div class="details no-bottom">
+        <div class="details-item">
+            <div>BAROMETER</div>
+            <div>29.49 in</div>
+        </div>
+        <div class="details-item">
+            <div>HUMIDITY</div>
+            <div>12%</div>
+        </div>
+        <div class="details-item">
+            <div>DEWPOINT</div>
+            <div>58&deg;</div>
+        </div>
+    </div>
+    <div class="details no-bottom">
+        <div class="details-item">
+            <div>LIGHTNING</div>
+            <div>0</div>
+        </div>
+        <div class="details-item">
+            <div>LIGHTNING DISTANCE</div>
+            <div>0</div>
+        </div>
+        <div class="details-item">
+            <div>UV</div>
+            <div>0</div>
+        </div>
+        <div class="details-item">
+            <div>SOLAR RADIATION</div>
+            <div>0</div>
+        </div>
+    </div>
+    <div class="details no-bottom">
+        <div class="details-item">
+            <div>SUNRISE</div>
+            <div>06:12 am</div>
+        </div>
+        <div class="details-item">
+            <div>SUNSET</div>
+            <div>07:23 pm</div>
+        </div>
+        <div class="details-item">
+            <div>MOONPHASE</div>
+            <div>WAXING</div>
+        </div>
+    </div>
+    <div class="details no-bottom">
+        <div class="details-item">
+            <div>Living</div>
+            <div>67&deg;</div>
+        </div>
+        <div class="details-item">
+            <div>Master</div>
+            <div>67&deg;</div>
+        </div>
+        <div class="details-item">
+            <div>HANNAH</div>
+            <div>67&deg;</div>
+        </div>
+        <div class="details-item">
+            <div>BASMENT</div>
+            <div>67&deg;</div>
+        </div>
+        <div class="details-item">
+            <div>GARAGE</div>
+            <div>67&deg;</div>
+        </div>
+    </div>
+    <footer>
+        &copy; 2018-2026 zoms.net
+    </footer>
 </div>
 
-<div class="gauge-component-arc-tooltip"></div>
-<span id="recharts_measurement_span" aria-hidden="true" style="position: absolute; top: -20000px; left: 0px; padding: 0px; margin: 0px; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; white-space: pre; font-size: 16px; letter-spacing: normal;">7</span>
-<script id="footer-template" type="x-tmpl-mustache">
-    ©2018-{{ year }} : weather.zoms.net
-</script>
-<script id="updated-template" type="x-tmpl-mustache">
-    <span class="material-symbols-sharp connected">wifi</span>&nbsp;Last Update: {{ updated }}
-</script>
-<script id="temperature-template" type="x-tmpl-mustache">
-    <div class="weather-icon"><img alt="{{ conditions }}" src="/images/icons/{{ icon }}.png"/></div>
-    <div class="weather-info">
-        <h1 class="temp-text {{ tempClass }}">{{ tempDisplay }}<span class="main-unit">°{{ tempLabel }}</span></h1>
-        <p>{{ conditions }}</p>
+<div id="rainModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('rainModal')">&times;</span>
+        <h2 style="margin-top:0;">RAIN DETAILS</h2>
+        <div class="modal-details">
+            <div><span>Daily Rain</span> <span>0.0 in</span></div>
+            <div><span>Hourly Rain</span> <span>0.0 in</span></div>
+            <div><span>Event Rain</span> <span>0.0 in</span></div>
+            <div><span>Weekly Rain</span> <span>0.0 in</span></div>
+            <div><span>Monthly Rain</span> <span>0.05 in</span></div>
+            <div><span>Yearly Rain</span> <span>1.12 in</span></div>
+            <div><span>Last Rain</span> <span>2026-04-02</span></div>
+        </div>
     </div>
+</div>
+
+<script>
+    function openModal(modalId) {
+        document.getElementById(modalId).style.display = "block";
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = "none";
+    }
+
+    // Close modal if user clicks outside of it
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = "none";
+        }
+    }
 </script>
-<script src="/js/weather.js"></script>
+
 </body>
 </html>

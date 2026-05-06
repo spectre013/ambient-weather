@@ -383,3 +383,67 @@ CREATE TABLE IF NOT EXISTS public.stats
 
 ALTER TABLE IF EXISTS public.stats
     OWNER to ambient;
+
+-- Table: public.forecast
+
+-- DROP TABLE IF EXISTS public.forecast;
+
+CREATE TABLE IF NOT EXISTS public.forecast
+(
+    datetime timestamp with time zone NOT NULL,
+    datetime_epoch bigint,
+    tempmax numeric(5,2),
+    tempmin numeric(5,2),
+    temp numeric(5,2),
+    feelslikemax numeric(5,2),
+    feelslikemin numeric(5,2),
+    feelslike numeric(5,2),
+    dew numeric(5,2),
+    humidity numeric(5,2),
+    precip numeric(5,3),
+    precipprob numeric(5,2),
+    precipcover numeric(5,2),
+    preciptype text COLLATE pg_catalog."default",
+    snow numeric(5,2),
+    snowdepth numeric(5,2),
+    windgust numeric(5,2),
+    windspeed numeric(5,2),
+    winddir numeric(5,2),
+    pressure numeric(6,2),
+    cloudcover numeric(5,2),
+    visibility numeric(5,2),
+    solarradiation numeric(6,2),
+    solarenergy numeric(5,2),
+    uvindex integer,
+    severerisk integer,
+    sunrise time without time zone,
+    sunrise_epoch bigint,
+    sunset time without time zone,
+    sunset_epoch bigint,
+    moonphase numeric(3,2),
+    conditions text COLLATE pg_catalog."default",
+    description text COLLATE pg_catalog."default",
+    icon text COLLATE pg_catalog."default",
+    stations text COLLATE pg_catalog."default",
+    source text COLLATE pg_catalog."default",
+    hours text COLLATE pg_catalog."default",
+    summary text COLLATE pg_catalog."default",
+    CONSTRAINT forecast_pkey PRIMARY KEY (datetime)
+)
+
+    TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.forecast
+    OWNER to ambient;
+-- Index: idx_weather_date_desc
+
+-- DROP INDEX IF EXISTS public.idx_weather_date_desc;
+
+CREATE INDEX IF NOT EXISTS idx_weather_date_desc
+    ON public.forecast USING btree
+        (datetime DESC NULLS FIRST)
+    TABLESPACE pg_default;
+
+
+ALTER TABLE alerts
+    ADD COLUMN summary TEXT;

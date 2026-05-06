@@ -1,23 +1,27 @@
 package main
 
 import (
+	"bytes"
+	"context"
 	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/go-co-op/gocron"
-	"github.com/joho/godotenv"
-	"github.com/labstack/echo/v4"
-	_ "github.com/lib/pq"
-	"github.com/sirupsen/logrus"
 	"io"
 	"log"
 	"math"
 	"net/http"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/go-co-op/gocron"
+	"github.com/joho/godotenv"
+	"github.com/labstack/echo/v4"
+	_ "github.com/lib/pq"
+	"github.com/sirupsen/logrus"
 )
 
 var logger = logrus.New()
@@ -64,11 +68,17 @@ func main() {
 
 	s := gocron.NewScheduler(loc)
 	var aj *gocron.Job
+	var fj *gocron.Job
 
 	if os.Getenv("LOGLEVEL") == "Debug" {
 		fmt.Println("Starting every minute alert update")
 
 		aj, err = s.Every(1).Minute().Do(updateAlerts)
+		if err != nil {
+			logger.Error(err)
+		}
+
+		fj, err = s.Every(1).Minute().Do(getForecast)
 		if err != nil {
 			logger.Error(err)
 		}
@@ -79,11 +89,18 @@ func main() {
 		if err != nil {
 			logger.Error(err)
 		}
+
+		fmt.Println("Starting cron Forecast update", os.Getenv("ALERT_CRON"))
+		fj, err = s.Cron(os.Getenv("FORECAST_CRON")).Do(getForecast)
+		if err != nil {
+			logger.Error(err)
+		}
 	}
 	if err != nil {
 		logger.Error(err)
 	}
 	logger.Info(aj.NextRun())
+	logger.Info(fj.NextRun())
 
 	s.StartAsync()
 	//calculateStats()
@@ -433,45 +450,251 @@ func insertRecord(r Record) bool {
 	return true
 }
 
+func getForecast() (Forecast, error) {
+	includes := "days%2Chours"
+	url := fmt.Sprintf("https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/Colorado%%20Springs?unitGroup=us&iconSets=icon2&include=%s&key=%s&contentType=json", includes, os.Getenv("WEATHER_API"))
+	header := map[string]string{}
+	res, err := makeRequest(url, header)
+	if err != nil {
+		logger.Error("Error in Get Forecast", err)
+		return Forecast{}, err
+	}
+
+	f := Forecast{}
+	err = json.Unmarshal(res, &f)
+	if err != nil {
+		logger.Error("Error in Unmarshall Forecast", err)
+		return Forecast{}, err
+	}
+
+	for k, v := range f.Days {
+		if k == 0 && time.Now().Hour() > 12 {
+			continue
+		}
+		day, err := convertDayToDB(v)
+		if err != nil {
+			logger.Error("Error in convertDayToDB", err)
+		}
+		day.Summary, err = getForecastSummary(v)
+		if err != nil {
+			logger.Error("Error in getForecastSummary", err)
+		}
+		err = insertForecast(day)
+		if err != nil {
+			logger.Error("Error in insertForecast", err)
+		}
+	}
+
+	return f, err
+}
+
+func getForecastSummary(day Day) (string, error) {
+	event := fmt.Sprintf(`write a forcast summary based on the following forecast data do not use any 
+                                 markdown or prepend any response before or after the summary.\n
+						        High: %.2f°F, Low: %.2f°F, Dewpoint: %.2f°F, Humidity %.2f%%, Visibility %.2f mi, 
+                                Wind Speed: %.2f MPH, Wind Direction %.2f, Wind Gusts: %.2f MPH, 
+                                preciptype: %s, expected Precipitation: %.2f in, Precipitation Prob: %.2f%`,
+		day.Tempmax, day.Tempmin, day.Dew, day.Humidity, day.Visibility, day.Windspeed,
+		day.Winddir, day.Windgust, strings.Join(day.Preciptype, ","), day.Precip,
+		day.Precipprob)
+	summary, err := summerize(event)
+	if err != nil {
+		logger.Error(err)
+		summary = ""
+	}
+	return summary, nil
+}
+
+func insertForecast(f forecastDB) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	query := `
+	INSERT INTO forecast (
+		datetime, datetime_epoch, tempmax, tempmin, temp, feelslikemax, feelslikemin, 
+		feelslike, dew, humidity, precip, precipprob, precipcover, preciptype, 
+		snow, snowdepth, windgust, windspeed, winddir, pressure, cloudcover, 
+		visibility, solarradiation, solarenergy, uvindex, severerisk, sunrise, 
+		sunrise_epoch, sunset, sunset_epoch, moonphase, conditions, description, 
+		icon, stations, source, hours,summary
+	) VALUES (
+		$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, 
+		$18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, 
+		$33, $34, $35, $36, $37,$38
+	)
+	ON CONFLICT (datetime) DO UPDATE SET
+		datetime_epoch = EXCLUDED.datetime_epoch,
+		tempmax = EXCLUDED.tempmax,
+		tempmin = EXCLUDED.tempmin,
+		temp = EXCLUDED.temp,
+		feelslikemax = EXCLUDED.feelslikemax,
+		feelslikemin = EXCLUDED.feelslikemin,
+		feelslike = EXCLUDED.feelslike,
+		dew = EXCLUDED.dew,
+		humidity = EXCLUDED.humidity,
+		precip = EXCLUDED.precip,
+		precipprob = EXCLUDED.precipprob,
+		precipcover = EXCLUDED.precipcover,
+		preciptype = EXCLUDED.preciptype,
+		snow = EXCLUDED.snow,
+		snowdepth = EXCLUDED.snowdepth,
+		windgust = EXCLUDED.windgust,
+		windspeed = EXCLUDED.windspeed,
+		winddir = EXCLUDED.winddir,
+		pressure = EXCLUDED.pressure,
+		cloudcover = EXCLUDED.cloudcover,
+		visibility = EXCLUDED.visibility,
+		solarradiation = EXCLUDED.solarradiation,
+		solarenergy = EXCLUDED.solarenergy,
+		uvindex = EXCLUDED.uvindex,
+		severerisk = EXCLUDED.severerisk,
+		sunrise = EXCLUDED.sunrise,
+		sunrise_epoch = EXCLUDED.sunrise_epoch,
+		sunset = EXCLUDED.sunset,
+		sunset_epoch = EXCLUDED.sunset_epoch,
+		moonphase = EXCLUDED.moonphase,
+		conditions = EXCLUDED.conditions,
+		description = EXCLUDED.description,
+		icon = EXCLUDED.icon,
+		stations = EXCLUDED.stations,
+		source = EXCLUDED.source,
+		hours = EXCLUDED.hours,
+		summary = EXCLUDED.summary;`
+
+	_, err := db.ExecContext(ctx, query,
+		f.Datetime, f.DatetimeEpoch, f.TempMax, f.TempMin, f.Temp, f.FeelsLikeMax, f.FeelsLikeMin,
+		f.FeelsLike, f.Dew, f.Humidity, f.Precip, f.PrecipProb, f.PrecipCover, f.PrecipType,
+		f.Snow, f.SnowDepth, f.WindGust, f.WindSpeed, f.WindDir, f.Pressure, f.CloudCover,
+		f.Visibility, f.SolarRadiation, f.SolarEnergy, f.UVIndex, f.SevereRisk, f.Sunrise,
+		f.SunriseEpoch, f.Sunset, f.SunsetEpoch, f.MoonPhase, f.Conditions, f.Description,
+		f.Icon, f.Stations, f.Source, f.Hours, f.Summary,
+	)
+
+	if err != nil {
+		return fmt.Errorf("upsert failed for datetime %v: %w", f.Datetime, err)
+	}
+
+	return nil
+}
+
+func convertDayToDB(d Day) (forecastDB, error) {
+	// Serialize the Hours slice to a JSON string
+	hoursJSON, err := json.Marshal(d.Hours)
+	if err != nil {
+		return forecastDB{}, err
+	}
+	datetime, err := time.Parse("2006-01-02", d.Datetime)
+	if err != nil {
+		datetime = time.Now()
+	}
+	return forecastDB{
+		Datetime:      datetime,
+		DatetimeEpoch: d.DatetimeEpoch,
+		TempMax:       d.Tempmax,
+		TempMin:       d.Tempmin,
+		Temp:          d.Temp,
+		FeelsLikeMax:  d.Feelslikemax,
+		FeelsLikeMin:  d.Feelslikemin,
+		FeelsLike:     d.Feelslike,
+		Dew:           d.Dew,
+		Humidity:      d.Humidity,
+		Precip:        d.Precip,
+		PrecipProb:    d.Precipprob,
+		PrecipCover:   d.Precipcover,
+		// Convert []string to comma-separated string
+		PrecipType:     strings.Join(d.Preciptype, ","),
+		Snow:           d.Snow,
+		SnowDepth:      d.Snowdepth,
+		WindGust:       d.Windgust,
+		WindSpeed:      d.Windspeed,
+		WindDir:        d.Winddir,
+		Pressure:       d.Pressure,
+		CloudCover:     d.Cloudcover,
+		Visibility:     d.Visibility,
+		SolarRadiation: d.Solarradiation,
+		SolarEnergy:    d.Solarenergy,
+		UVIndex:        d.Uvindex,
+		SevereRisk:     d.Severerisk,
+		Sunrise:        d.Sunrise,
+		SunriseEpoch:   d.SunriseEpoch,
+		Sunset:         d.Sunset,
+		SunsetEpoch:    d.SunsetEpoch,
+		MoonPhase:      d.Moonphase,
+		Conditions:     d.Conditions,
+		Description:    d.Description,
+		Icon:           d.Icon,
+		// Convert []string to comma-separated string
+		Stations: strings.Join(d.Stations, ","),
+		Source:   d.Source,
+		Hours:    string(hoursJSON),
+	}, nil
+}
+
 func updateAlerts() {
 	fmt.Println("Updating Alerts ... ")
 	insertSql := `
-		insert into alerts (id, alertid, wxtype, areadesc, sent, effective, onset, expires, ends, status,
-		messagetype, category, severity, certainty, urgency, event, sender, senderName, headline, description,
-		instruction, response)
-		values (DEFAULT,$1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21)
+		INSERT INTO alerts (
+			id, wxtype, areadesc, sent, effective, onset, expires, ends, status,
+			messagetype, category, severity, certainty, urgency, event, sender, 
+			senderName, headline, description, instruction, response, summary
+		)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22)
+		ON CONFLICT (id) 
+		DO UPDATE SET 
+			wxtype      = EXCLUDED.wxtype,
+			areadesc    = EXCLUDED.areadesc,
+			sent        = EXCLUDED.sent,
+			effective   = EXCLUDED.effective,
+			onset       = EXCLUDED.onset,
+			expires     = EXCLUDED.expires,
+			ends        = EXCLUDED.ends,
+			status      = EXCLUDED.status,
+			messagetype = EXCLUDED.messagetype,
+			category    = EXCLUDED.category,
+			severity    = EXCLUDED.severity,
+			certainty   = EXCLUDED.certainty,
+			urgency     = EXCLUDED.urgency,
+			event       = EXCLUDED.event,
+			sender      = EXCLUDED.sender,
+			senderName  = EXCLUDED.senderName,
+			headline    = EXCLUDED.headline,
+			description = EXCLUDED.description,
+			instruction = EXCLUDED.instruction,
+			response    = EXCLUDED.response;
 	`
 
 	iAlerts := getAlerts()
 	for _, v := range iAlerts {
-		checkSql := fmt.Sprintf(`select id from alerts where alertid = '%s'`, v.IDURI)
+		checkSql := fmt.Sprintf(`SELECT EXISTS(SELECT 1 FROM alerts WHERE id = '%s')`, v.ID)
 		rows := db.QueryRow(checkSql)
-		var id int
-		err := rows.Scan(&id)
+		var exists bool
+		err := rows.Scan(&exists)
 		if err != nil {
-			if err == sql.ErrNoRows {
-				logger.Error("No Alerts Found for ID :", v.IDURI)
-				id = -1
-			} else {
-				logger.Error(fmt.Sprintf("Scan: %v", err))
-			}
+			logger.Error(fmt.Sprintf("Scan: %v", err))
 		}
-		if id == -1 {
-			_, err := db.Exec(insertSql, v.IDURI, v.Type, v.AreaDesc, v.Sent, v.Effective, v.Onset,
-				v.Expires, v.Ends, v.Status,
-				v.MessageType, v.Category, v.Severity, v.Certainty, v.Urgency, v.Event, v.Sender, v.SenderName,
-				v.Headline, v.Description, v.Instruction, v.Response)
+		if !exists || v.MessageType == "updated" {
+			event := fmt.Sprintf("write a short summery of the following text only include the summary in your response: Severity: %s Event: %s Headline:%s Description: %s Instructions: %s", v.Severity, v.Event, v.Headline, v.Description, v.Instruction)
+			summary, err := summerize(event)
+			if err != nil {
+				fmt.Println("Error:", err)
+				return
+			}
+			logger.Info(v.ID, summary)
+			_, err = db.Exec(insertSql, v.ID, v.Type, v.AreaDesc, v.Sent, v.Effective, v.Onset,
+				v.Expires, v.Ends, v.Status, v.MessageType, v.Category, v.Severity, v.Certainty, v.Urgency, v.Event,
+				v.Sender, v.SenderName, v.Headline, v.Description, v.Instruction, v.Response, summary)
 			logger.Info(fmt.Sprintf("Inserted Alert %s", v.Headline))
 			if err != nil {
 				logger.Error(err)
 			}
 		}
+
 	}
 
 }
 
 func getAlerts() []Property {
-	uri := "https://api.weather.gov/alerts/active?area=CO"
+	uri := "https://api.weather.gov/alerts/active/area/CO"
 	result := make([]Property, 0)
 
 	res, err := alertRequest("GET", uri)
@@ -485,13 +708,49 @@ func getAlerts() []Property {
 		logger.Error(err)
 	}
 
+	zones := []string{"COZ084", "COZ085"}
 	for _, v := range alerts.Features {
-		if strings.Contains(v.Properties.AreaDesc, "El Paso") {
+		if hasCommon(zones, v.Properties.Geocode.UGC) {
 			result = append(result, v.Properties)
 		}
 	}
 
 	return result
+}
+
+func hasCommon(slice1, slice2 []string) bool {
+	for _, v := range slice1 {
+		if slices.Contains(slice2, v) {
+			return true
+		}
+	}
+	return false
+}
+
+func summerize(prompt string) (string, error) {
+	url := "http://10.10.1.120:11434/api/generate"
+	payload := OllamaRequest{
+		Model:  "llama3.1:8b",
+		Prompt: prompt,
+		Stream: false,
+	}
+
+	jsonData, _ := json.Marshal(payload)
+
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		logger.Error("Error asking AI", err)
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(resp.Body)
+	var result OllamaResponse
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return "", err
+	}
+	return result.Response, nil
 }
 
 func alertRequest(t string, url string) (body []byte, err error) {
@@ -523,135 +782,32 @@ func alertRequest(t string, url string) (body []byte, err error) {
 	return
 }
 
-type Alerts struct {
-	Type     string `json:"type"`
-	Features []struct {
-		ID         string   `json:"id"`
-		Type       string   `json:"type"`
-		Geometry   Geometry `json:"geometry"`
-		Properties Property `json:"properties"`
-	} `json:"features"`
-	Title   string    `json:"title"`
-	Updated time.Time `json:"updated"`
-}
+func makeRequest(url string, header map[string]string) ([]byte, error) {
+	logger.Debug(url)
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		logger.Error(err)
+		return nil, err
+	}
+	if _, ok := header["User-Agent"]; !ok {
+		req.Header.Add("User-Agent", `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.27 Safari/537.36`)
+	}
+	if len(header) > 0 {
+		for key, value := range header {
+			req.Header.Add(key, value)
+		}
+	}
+	logger.Debug(req.Header)
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
 
-type Geometry struct {
-	Type        string        `json:"type"`
-	Coordinates []interface{} `json:"coordinates,omitempty"`
-	Geometries  []*Geometry   `json:"geometries,omitempty"`
-}
-type Property struct {
-	IDURI    string `json:"@id"`
-	Type     string `json:"@type"`
-	ID       string `json:"id"`
-	AreaDesc string `json:"areaDesc"`
-	Geocode  struct {
-		UGC  []string `json:"UGC"`
-		SAME []string `json:"SAME"`
-	} `json:"geocode"`
-	AffectedZones []string      `json:"affectedZones"`
-	References    []interface{} `json:"references"`
-	Sent          time.Time     `json:"sent"`
-	Effective     time.Time     `json:"effective"`
-	Onset         time.Time     `json:"onset"`
-	Expires       time.Time     `json:"expires"`
-	Ends          time.Time     `json:"ends"`
-	Status        string        `json:"status"`
-	MessageType   string        `json:"messageType"`
-	Category      string        `json:"category"`
-	Severity      string        `json:"severity"`
-	Certainty     string        `json:"certainty"`
-	Urgency       string        `json:"urgency"`
-	Event         string        `json:"event"`
-	Sender        string        `json:"sender"`
-	SenderName    string        `json:"senderName"`
-	Headline      string        `json:"headline"`
-	Description   string        `json:"description"`
-	Instruction   string        `json:"instruction"`
-	Response      string        `json:"response"`
-	Parameters    struct {
-		NWSheadline  []string `json:"NWSheadline"`
-		PIL          []string `json:"PIL"`
-		BLOCKCHANNEL []string `json:"BLOCKCHANNEL"`
-	} `json:"parameters"`
-}
-
-// Record data for main database  table
-type Record struct {
-	ID                int       `json:"id" db:"id"`
-	Mac               string    `json:"mac" db:"mac"`
-	Recorded          time.Time `json:"date" db:"recorded"`
-	Baromabsin        float64   `json:"baromabsin" db:"baromabsin"`
-	Baromrelin        float64   `json:"baromrelin" db:"baromrelin"`
-	Battout           int       `json:"battout" db:"battout"`
-	Batt1             int       `json:"batt1" db:"batt1"`
-	Batt2             int       `json:"batt2" db:"batt2"`
-	Batt3             int       `json:"batt3" db:"batt3"`
-	Batt4             int       `json:"batt4" db:"batt4"`
-	Batt5             int       `json:"batt5" db:"batt5"`
-	Batt6             int       `json:"batt6" db:"batt6"`
-	Batt7             int       `json:"batt7" db:"batt7"`
-	Batt8             int       `json:"batt8" db:"batt8"`
-	Batt9             int       `json:"batt9" db:"batt9"`
-	Batt10            int       `json:"batt10" db:"batt10"`
-	Battlightning     int       `json:"battlightning" db:"battlightning"`
-	Co2               float64   `json:"co2" db:"co2"`
-	Dailyrainin       float64   `json:"dailyrainin" db:"dailyrainin"`
-	Dewpoint          float64   `json:"dewpoint" db:"dewpoint"`
-	Eventrainin       float64   `json:"eventrain" db:"eventrainin"`
-	Feelslike         float64   `json:"feelslike" db:"feelslike"`
-	Hourlyrainin      float64   `json:"hourlyrainin" db:"hourlyrainin"`
-	Hourlyrain        float64   `json:"hourlyrain" db:"hourlyrain"`
-	Humidity          int       `json:"humidity" db:"humidity"`
-	Humidity1         int       `json:"humidity1" db:"humidity1"`
-	Humidity2         int       `json:"humidity2" db:"humidity2"`
-	Humidity3         int       `json:"humidity3" db:"humidity3"`
-	Humidity4         int       `json:"humidity4" db:"humidity4"`
-	Humidity5         int       `json:"humidity5" db:"humidity5"`
-	Humidity6         int       `json:"humidity6" db:"humidity6"`
-	Humidity7         int       `json:"humidity7" db:"humidity7"`
-	Humidity8         int       `json:"humidity8" db:"humidity8"`
-	Humidity9         int       `json:"humidity9" db:"humidity9"`
-	Humidity10        int       `json:"humidity10" db:"humidity10"`
-	Humidityin        int       `json:"humidityin" db:"humidityin"`
-	Lastrain          time.Time `json:"lastrain" db:"lastrain"`
-	Maxdailygust      float64   `json:"maxdailygust" db:"maxdailygust"`
-	Relay1            int       `json:"relay1" db:"relay1"`
-	Relay2            int       `json:"relay2" db:"relay2"`
-	Relay3            int       `json:"relay3" db:"relay3"`
-	Relay4            int       `json:"relay4" db:"relay4"`
-	Relay5            int       `json:"relay5" db:"relay5"`
-	Relay6            int       `json:"relay6" db:"relay6"`
-	Relay7            int       `json:"relay7" db:"relay7"`
-	Relay8            int       `json:"relay8" db:"relay8"`
-	Relay9            int       `json:"relay9" db:"relay9"`
-	Relay10           int       `json:"relay10" db:"relay10"`
-	Monthlyrainin     float64   `json:"monthlyrainin" db:"monthlyrainin"`
-	Solarradiation    float64   `json:"solarradiation" db:"solarradiation"`
-	Tempf             float64   `json:"tempf" db:"tempf"`
-	Temp1f            float64   `json:"temp1f" db:"temp1f"`
-	Temp2f            float64   `json:"temp2f" db:"temp2f"`
-	Temp3f            float64   `json:"temp3f" db:"temp3f"`
-	Temp4f            float64   `json:"temp4f" db:"temp4f"`
-	Temp5f            float64   `json:"temp5f" db:"temp5f"`
-	Temp6f            float64   `json:"temp6f" db:"temp6f"`
-	Temp7f            float64   `json:"temp7f" db:"temp7f"`
-	Temp8f            float64   `json:"temp8f" db:"temp8f"`
-	Temp9f            float64   `json:"temp9f" db:"temp9f"`
-	Temp10f           float64   `json:"temp10f" db:"temp10f"`
-	Tempinf           float64   `json:"tempinf" db:"tempinf"`
-	Totalrainin       float64   `json:"totalrainin" db:"totalrainin"`
-	Uv                float64   `json:"uv" db:"uv"`
-	Weeklyrainin      float64   `json:"weeklyrainin" db:"weeklyrainin"`
-	Winddir           int       `json:"winddir" db:"winddir"`
-	Windgustmph       float64   `json:"windgustmph" db:"windgustmph"`
-	Windgustdir       int       `json:"windgustdir" db:"windgustdir"`
-	Windspeedmph      float64   `json:"windspeedmph" db:"windspeedmph"`
-	Yearlyrainin      float64   `json:"yearlyrainin" db:"yearlyrainin"`
-	Lightningday      int       `json:"lightningday" db:"lightiningday"`
-	Lightninghour     int       `json:"lightninghour" db:"lightininghour"`
-	Lightningdistance float64   `json:"lightningdistance" db:"lightningdistance"`
-	Lightningtime     time.Time `json:"lightningtime" db:"lightningtime"`
-	Aqipm25           int       `json:"aqipm25" db:"aqi"`
-	Aqipm2524h        int       `json:"aqipm2524h" db:"aqi24"`
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		logger.Error(err)
+		return nil, err
+	}
+	return body, nil
 }

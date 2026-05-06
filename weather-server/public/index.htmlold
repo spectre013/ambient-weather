@@ -1,0 +1,409 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Default-Style" content="blue">
+    <meta content="Ambient WS-2000 Weather station" name="description">
+    <meta content="website" property="og:type">
+    <meta content="7 days" name="revisit-after">
+    <meta content="web" name="distribution">
+    <meta content="Lorson Ranch, Colorado Springs, CO" property="og:title">
+    <meta content="Lorson Ranch, Colorado Springs, CO" property="og:site_name">
+    <meta content="Ambient WS-2000 Weather station Lorson Ranch, Colorado Springs, CO" property="og:description">
+    <meta content="place" property="og:type">
+    <meta content="INDEX,FOLLOW" name="robots">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Lorson Ranch, Colorado Springs, CO">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, viewport-fit=cover">
+    <link href="/favicons/64x64.png" rel="icon shortcut" sizes="64x64">
+    <link href="/favicons/128x128.png" rel="icon shortcut" sizes="128x128">
+    <link href="/favicons/192x192.png" rel="icon shortcut" sizes="192x192">
+    <link href="/favicons/apple-touch-icon.png" rel="apple-touch-icon" sizes="76x76">
+    <link href="/favicons/apple-touch-icon.png" rel="apple-touch-icon" sizes="120x120">
+    <link href="/favicons/apple-touch-icon.png" rel="apple-touch-icon" sizes="152x152">
+    <link href="/favicons/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180">
+    <title>Weather Lorson Ranch, Colorado Springs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@24,400,0,0">
+    <script>
+        document.write('<link rel="stylesheet" href=' + new Date().getTime() + '"/css/main.css.old?v=">');
+        function addScript( src ) {
+            let s = document.createElement( 'script' );
+            s.setAttribute( 'src', src );
+            document.head.appendChild( s );
+        }
+        addScript("/js/util.js?v=" + new Date().getTime());
+    </script>
+
+    <script src="/js/mustache.js"></script>
+    <script src="/js/moment.js"></script>
+    <style id="gauge-fade-in-style">
+        @keyframes gaugeComponentFadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body data-theme="light">
+<div id="loading"> Loading .... </div>
+<div id="root" style="display: none;">
+    <div class="dashboard">
+        <div class="content">
+            <section class="title-header">
+                <div class="location">Lorson Ranch - Colorado Springs</div>
+                <div class="info-container">
+                    <div class="info-card">Use Metric</div>
+                    <div class="info-card"><span class="material-symbols-sharp">contrast</span></div>
+                    <div id="updated" class="info-card"></div>
+                    <div class="info-card">
+                        <div class="dropdown-container">
+                            <div class="control-button more-button">More... <span class="material-symbols-sharp">keyboard_arrow_down</span>
+                            </div>
+                            <div class="dropdown-menu " role="menu" aria-orientation="vertical">
+                                <div class="dropdown-menu-inner" role="none"><a href="#" role="menuitem">Climate
+                                    Data</a><a href="#" role="menuitem">About</a></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="alerts-section">
+                <div class="alerts-info">
+                    <div class="no-alerts">No Alerts!</div>
+                </div>
+            </section>
+            <main class="main-content">
+                <div class="left-panel">
+                    <section id="temperature" class="current-weather"></section>
+                    <section class="forecast-section">
+                        <div class="forecast-header">
+                            <h2>10-Day Forecast</h2>
+                        </div>
+                        <div id="forecast" class="forecast-list"></div>
+                    </section>
+                </div>
+                <div class="right-panel">
+                    <div id="stats-cards" class="stats-grid"></div>
+                    <div class="gauges-grid">
+                        <div class="gauge-card uv-gauge">
+                            <div class="gauge-container">
+                                <div class="gauge"
+                                     style="width: 100%; height: 100%; max-width: 100%; max-height: 100%; overflow: hidden;">
+                                    <svg width="100%" height="100%" preserveAspectRatio="xMidYMid meet"
+                                         viewBox="0 0 317.4609375 216.9348362184481"
+                                         style="visibility: visible; opacity: 1; max-width: 100%; max-height: 100%; display: block; animation: auto ease 0s 1 normal none running none;">
+                                        <g class="gauge-content"
+                                           transform="translate(158.73046875, 148.88180639553676)"
+                                           style="visibility: visible; opacity: 1;">
+                                            <g class="doughnut" transform="translate(0, 0)">
+                                                <g class="outerSubArc">
+                                                    <path
+                                                            d="M-109.108,45.194A1,1,0,0,1,-110.418,44.645A119.102,119.102,0,0,1,-115.301,-29.851A1,1,0,0,1,-114.074,-30.566L-111.176,-29.79A1,1,0,0,1,-110.467,-28.573A114.102,114.102,0,0,0,-105.792,42.748A1,1,0,0,1,-106.337,44.046Z"
+                                                            style="fill: rgb(91, 225, 44);"></path>
+                                                </g>
+                                                <g class="outerSubArc">
+                                                    <path
+                                                            d="M-114.074,-30.566A1,1,0,0,1,-114.779,-31.799A119.102,119.102,0,0,1,-39.238,-112.453A1,1,0,0,1,-37.961,-111.831L-36.997,-108.99A1,1,0,0,1,-37.614,-107.724A114.102,114.102,0,0,0,-109.954,-30.488A1,1,0,0,1,-111.176,-29.79Z"
+                                                            style="fill: rgb(245, 205, 25);"></path>
+                                                </g>
+                                                <g class="outerSubArc">
+                                                    <path
+                                                            d="M-37.961,-111.831A1,1,0,0,1,-37.328,-113.102A119.102,119.102,0,0,1,37.328,-113.102A1,1,0,0,1,37.961,-111.831L36.997,-108.99A1,1,0,0,1,35.737,-108.362A114.102,114.102,0,0,0,-35.737,-108.362A1,1,0,0,1,-36.997,-108.99Z"
+                                                            style="fill: rgb(245, 139, 25);"></path>
+                                                </g>
+                                                <g class="outerSubArc">
+                                                    <path
+                                                            d="M37.961,-111.831A1,1,0,0,1,39.238,-112.453A119.102,119.102,0,0,1,114.779,-31.799A1,1,0,0,1,114.074,-30.566L111.176,-29.79A1,1,0,0,1,109.954,-30.488A114.102,114.102,0,0,0,37.614,-107.724A1,1,0,0,1,36.997,-108.99Z"
+                                                            style="fill: rgb(234, 66, 40);"></path>
+                                                </g>
+                                                <g class="outerSubArc">
+                                                    <path
+                                                            d="M114.074,-30.566A1,1,0,0,1,115.301,-29.851A119.102,119.102,0,0,1,110.418,44.645A1,1,0,0,1,109.108,45.194L106.337,44.046A1,1,0,0,1,105.792,42.748A114.102,114.102,0,0,0,110.467,-28.573A1,1,0,0,1,111.176,-29.79Z"
+                                                            style="fill: violet;"></path>
+                                                </g>
+                                                <g class="subArc">
+                                                    <path d="M-103.569,42.9L-77.677,32.175Z"
+                                                          style="fill: rgb(91, 225, 44);"></path>
+                                                </g>
+                                                <g class="subArc">
+                                                    <path
+                                                            d="M-102.901,41.865A1,1,0,0,1,-104.214,41.309A112.102,112.102,0,1,1,104.214,41.309A1,1,0,0,1,102.901,41.865L78.853,31.904A1,1,0,0,1,78.304,30.616A84.077,84.077,0,1,0,-78.304,30.616A1,1,0,0,1,-78.853,31.904Z"
+                                                            style="fill: rgb(92, 92, 92);"></path>
+                                                </g>
+                                            </g>
+                                            <g class="pointer" style="visibility: visible; opacity: 1;"></g>
+                                            <g class="value-text" transform="translate(0, 29.426876635911494)"><text
+                                                    transform="rotate(0)"
+                                                    style="font-size: 33.3334px; fill: rgb(91, 225, 44); text-shadow: black 1px 0.5px 0px, black 0px 0px 0.03em, black 0px 0px 0.01em; text-anchor: middle;">0</text>
+                                            </g>
+                                            <path class="tick-line" d="M-113.143,46.866L-120.393,49.868"
+                                                  stroke="rgb(173 172 171)" stroke-width="1.1210238718442473"
+                                                  fill="none"></path>
+                                            <g class="tick-value"
+                                               transform="translate(-122.46454992076606, 54.08954910263098)"><text
+                                                    transform="rotate(0)"
+                                                    style="font-size: 13.4523px; fill: rgb(173, 172, 171); text-anchor: end;">0</text>
+                                            </g>
+                                            <path class="tick-line" d="M113.143,46.866L120.393,49.868"
+                                                  stroke="rgb(173 172 171)" stroke-width="1.1210238718442473"
+                                                  fill="none"></path>
+                                            <g class="tick-value"
+                                               transform="translate(122.46454992076607, 54.08954910263097)"><text
+                                                    transform="rotate(0)"
+                                                    style="font-size: 13.4523px; fill: rgb(173, 172, 171); text-anchor: start;">12</text>
+                                            </g>
+                                            <path class="tick-line" d="M-118.293,-31.696L-125.872,-33.727"
+                                                  stroke="rgb(173 172 171)" stroke-width="1.1210238718442473"
+                                                  fill="none"></path>
+                                            <g class="tick-value"
+                                               transform="translate(-128.0379826705271, -30.94460244154507)"><text
+                                                    transform="rotate(0)"
+                                                    style="font-size: 13.4523px; fill: rgb(173, 172, 171); text-anchor: end;">2</text>
+                                            </g>
+                                            <path class="tick-line" d="M-39.365,-115.966L-41.888,-123.397"
+                                                  stroke="rgb(173 172 171)" stroke-width="1.1210238718442473"
+                                                  fill="none"></path>
+                                            <g class="tick-value"
+                                               transform="translate(-42.60830342038393, -123.27796653762597)"><text
+                                                    transform="rotate(0)"
+                                                    style="font-size: 13.4523px; fill: rgb(173, 172, 171); text-anchor: middle;">5</text>
+                                            </g>
+                                            <path class="tick-line" d="M39.365,-115.966L41.888,-123.397"
+                                                  stroke="rgb(173 172 171)" stroke-width="1.1210238718442473"
+                                                  fill="none"></path>
+                                            <g class="tick-value"
+                                               transform="translate(42.60830342038395, -123.27796653762597)"><text
+                                                    transform="rotate(0)"
+                                                    style="font-size: 13.4523px; fill: rgb(173, 172, 171); text-anchor: middle;">7</text>
+                                            </g>
+                                            <path class="tick-line" d="M118.293,-31.696L125.872,-33.727"
+                                                  stroke="rgb(173 172 171)" stroke-width="1.1210238718442473"
+                                                  fill="none"></path>
+                                            <g class="tick-value"
+                                               transform="translate(128.0379826705271, -30.944602441545054)"><text
+                                                    transform="rotate(0)"
+                                                    style="font-size: 13.4523px; fill: rgb(173, 172, 171); text-anchor: start;">10</text>
+                                            </g>
+                                            <path class="tick-line" d="M113.143,46.866L120.393,49.868"
+                                                  stroke="rgb(173 172 171)" stroke-width="1.1210238718442473"
+                                                  fill="none"></path>
+                                            <g class="tick-value"
+                                               transform="translate(122.46454992076607, 54.08954910263097)"><text
+                                                    transform="rotate(0)"
+                                                    style="font-size: 13.4523px; fill: rgb(173, 172, 171); text-anchor: start;">12</text>
+                                            </g>
+                                        </g>
+                                    </svg></div>
+                                <div class="gauge-label">UV Index</div>
+                            </div>
+                        </div>
+                        <div class="gauge-card sunrise-gauge">
+                            <div class="gauge-container">
+                                <div class="gauge"
+                                     style="width: 100%; height: 100%; max-width: 100%; max-height: 100%; overflow: hidden;">
+                                    <svg width="100%" height="100%" preserveAspectRatio="xMidYMid meet"
+                                         viewBox="0 0 299.9921875 114.68020615908374"
+                                         style="visibility: visible; opacity: 1; max-width: 100%; max-height: 100%; display: block; animation: auto ease 0s 1 normal none running none;">
+                                        <g class="gauge-content"
+                                           transform="translate(149.99609375, 107.45662515107006)"
+                                           style="visibility: visible; opacity: 1;">
+                                            <g class="doughnut" transform="translate(0, 0)">
+                                                <defs>
+                                                    <linearGradient id="subArc-linear-gradient-0.8548372050267975"
+                                                                    x1="0%" x2="100%" y1="0%" y2="0%">
+                                                        <stop offset="0%"
+                                                              style="stop-color: rgb(30, 152, 209); stop-opacity: 1;">
+                                                        </stop>
+                                                        <stop offset="25%"
+                                                              style="stop-color: rgb(203, 229, 243); stop-opacity: 1;">
+                                                        </stop>
+                                                        <stop offset="50%"
+                                                              style="stop-color: rgb(240, 231, 26); stop-opacity: 1;">
+                                                        </stop>
+                                                        <stop offset="75%"
+                                                              style="stop-color: rgb(245, 86, 12); stop-opacity: 1;">
+                                                        </stop>
+                                                        <stop offset="100%"
+                                                              style="stop-color: rgb(197, 127, 81); stop-opacity: 1;">
+                                                        </stop>
+                                                    </linearGradient>
+                                                </defs>
+                                                <defs>
+                                                    <linearGradient id="subArc-linear-gradient-0.05013718771241116"
+                                                                    x1="0%" x2="100%" y1="0%" y2="0%">
+                                                        <stop offset="0%"
+                                                              style="stop-color: rgb(30, 152, 209); stop-opacity: 1;">
+                                                        </stop>
+                                                        <stop offset="25%"
+                                                              style="stop-color: rgb(203, 229, 243); stop-opacity: 1;">
+                                                        </stop>
+                                                        <stop offset="50%"
+                                                              style="stop-color: rgb(240, 231, 26); stop-opacity: 1;">
+                                                        </stop>
+                                                        <stop offset="75%"
+                                                              style="stop-color: rgb(245, 86, 12); stop-opacity: 1;">
+                                                        </stop>
+                                                        <stop offset="100%"
+                                                              style="stop-color: rgb(197, 127, 81); stop-opacity: 1;">
+                                                        </stop>
+                                                    </linearGradient>
+                                                </defs>
+                                                <defs>
+                                                    <linearGradient id="subArc-linear-gradient-0.39476003826012507"
+                                                                    x1="0%" x2="100%" y1="0%" y2="0%">
+                                                        <stop offset="0%"
+                                                              style="stop-color: rgb(30, 152, 209); stop-opacity: 1;">
+                                                        </stop>
+                                                        <stop offset="25%"
+                                                              style="stop-color: rgb(203, 229, 243); stop-opacity: 1;">
+                                                        </stop>
+                                                        <stop offset="50%"
+                                                              style="stop-color: rgb(240, 231, 26); stop-opacity: 1;">
+                                                        </stop>
+                                                        <stop offset="75%"
+                                                              style="stop-color: rgb(245, 86, 12); stop-opacity: 1;">
+                                                        </stop>
+                                                        <stop offset="100%"
+                                                              style="stop-color: rgb(197, 127, 81); stop-opacity: 1;">
+                                                        </stop>
+                                                    </linearGradient>
+                                                </defs>
+                                                <defs>
+                                                    <linearGradient id="subArc-linear-gradient-0.07361606479075822"
+                                                                    x1="0%" x2="100%" y1="0%" y2="0%">
+                                                        <stop offset="0%"
+                                                              style="stop-color: rgb(30, 152, 209); stop-opacity: 1;">
+                                                        </stop>
+                                                        <stop offset="25%"
+                                                              style="stop-color: rgb(203, 229, 243); stop-opacity: 1;">
+                                                        </stop>
+                                                        <stop offset="50%"
+                                                              style="stop-color: rgb(240, 231, 26); stop-opacity: 1;">
+                                                        </stop>
+                                                        <stop offset="75%"
+                                                              style="stop-color: rgb(245, 86, 12); stop-opacity: 1;">
+                                                        </stop>
+                                                        <stop offset="100%"
+                                                              style="stop-color: rgb(197, 127, 81); stop-opacity: 1;">
+                                                        </stop>
+                                                    </linearGradient>
+                                                </defs>
+                                                <g class="subArc">
+                                                    <path
+                                                            d="M-103.135,-3.465A1,1,0,0,1,-104.114,-4.508A104.212,104.212,0,0,1,104.114,-4.508A1,1,0,0,1,103.135,-3.465L94.713,-3.297A1,1,0,0,1,93.694,-4.251A93.79,93.79,0,0,0,-93.694,-4.251A1,1,0,0,1,-94.713,-3.297Z"
+                                                            style="fill: url('#subArc-linear-gradient-0.02727790598206159');">
+                                                    </path>
+                                                </g>
+                                                <defs>
+                                                    <linearGradient id="subArc-linear-gradient-0.02727790598206159"
+                                                                    x1="0%" x2="100%" y1="0%" y2="0%">
+                                                        <stop offset="0%"
+                                                              style="stop-color: rgb(30, 152, 209); stop-opacity: 1;">
+                                                        </stop>
+                                                        <stop offset="25%"
+                                                              style="stop-color: rgb(203, 229, 243); stop-opacity: 1;">
+                                                        </stop>
+                                                        <stop offset="50%"
+                                                              style="stop-color: rgb(240, 231, 26); stop-opacity: 1;">
+                                                        </stop>
+                                                        <stop offset="75%"
+                                                              style="stop-color: rgb(245, 86, 12); stop-opacity: 1;">
+                                                        </stop>
+                                                        <stop offset="100%"
+                                                              style="stop-color: rgb(197, 127, 81); stop-opacity: 1;">
+                                                        </stop>
+                                                    </linearGradient>
+                                                </defs>
+                                            </g>
+                                            <g class="pointer"
+                                               transform="translate(98.98125837751815, -1.9798891598115531)"
+                                               style="visibility: visible; opacity: 1;">
+                                                <circle cx="0" cy="0" r="11.9996875" fill="#ffd319"
+                                                        stroke="rgb(197, 127, 81)" stroke-width="0"></circle>
+                                            </g>
+                                            <path class="tick-line" d="M-107.317,-2.147L-114.61,-2.293"
+                                                  stroke="rgb(173 172 171)" stroke-width="1.0421163992537443"
+                                                  fill="none"></path>
+                                            <g class="tick-value"
+                                               transform="translate(-116.6936940871793, 0.7921640830360408)"><text
+                                                    transform="rotate(0)"
+                                                    style="font-size: 12.5054px; fill: rgb(173, 172, 171); text-anchor: end;">Rise</text>
+                                            </g>
+                                            <path class="tick-line" d="M107.317,-2.147L114.61,-2.293"
+                                                  stroke="rgb(173 172 171)" stroke-width="1.0421163992537443"
+                                                  fill="none"></path>
+                                            <g class="tick-value"
+                                               transform="translate(116.6936940871793, 0.7921640830360266)"><text
+                                                    transform="rotate(0)"
+                                                    style="font-size: 12.5054px; fill: rgb(173, 172, 171); text-anchor: start;">Set</text>
+                                            </g>
+                                            <g class="value-text" transform="translate(0, -14.06857138992555)"><text
+                                                    transform="rotate(0)"
+                                                    style="font-size: 31.4992px; fill: rgb(197, 127, 81); text-shadow: black 1px 0.5px 0px, black 0px 0px 0.03em, black 0px 0px 0.01em; text-anchor: middle;">100º</text>
+                                            </g>
+                                        </g>
+                                    </svg></div>
+                            </div>
+                            <div class="gauge-label">Sunrise 6:04:38 AM • Sunset 7:47:24 PM</div>
+                        </div>
+                    </div>
+                    <div id="internal-cards" class="stats-grid"></div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <footer id="footer" class="copyright">©2018-2026 : zoms.net</footer>
+</div>
+
+<div class="gauge-component-arc-tooltip"></div>
+<span id="recharts_measurement_span" aria-hidden="true" style="position: absolute; top: -20000px; left: 0px; padding: 0px; margin: 0px; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; white-space: pre; font-size: 16px; letter-spacing: normal;">7</span>
+<script id="footer-template" type="x-tmpl-mustache">
+    ©2018-{{ year }} : weather.zoms.net
+</script>
+<script id="updated-template" type="x-tmpl-mustache">
+    <span class="material-symbols-sharp connected">wifi</span>&nbsp;Last Update: {{ updated }}
+</script>
+<script id="temperature-template" type="x-tmpl-mustache">
+    <div class="weather-icon"><img alt="{{ conditions }}" src="/images/icons/{{ icon }}.png"/></div>
+    <div class="weather-info">
+        <h1 class="temp-text {{ tempClass }}">{{ tempDisplay }}<span class="main-unit">°{{ tempLabel }}</span></h1>
+        <p>{{ conditions }}</p>
+    </div>
+</script>
+<script id="forecast-template" type="x-tmpl-mustache">
+    <div id="{{ day }}" class="forecast-day" onclick="showForecast(this)">
+        <div class="day-date">{{ date }} </div>
+        <div class="weather-icon"><img alt="{{ description }} " src="/images/icons/{{ icon }}.png"></div>
+        <div class="day-info">
+            <div class="day-temp">{{ tempmin }}°<div class="temp-bar-container">
+                <div class="temp-bar"
+                     style="background: {{ gradient.background }}; {{ gradient.width }}">
+                </div>
+            </div>{{ tempmax }}°</div>
+        </div>
+    </div>
+    <div id="summary-{{ day }}" class="summary hidden">{{ summary }} </div>
+</script>
+<script id="stat-template" type="x-tmpl-mustache">
+    <div class="stat-card">
+        <div class="stat-icon"><span class="material-symbols-sharp">{{ icon }}</span></div>
+        <div class="value"><span class="{{ className }}">{{ value }}</span><span
+                class="stat-value-unit">{{ unit }}</span></div>
+        <div class="label">{{ name }}</div>
+    </div>
+</script>
+<script>
+    console.log("Loading Weather.js")
+    addScript("/js/weather.js?v=" + new Date().getTime());
+</script>
+</body>
+</html>

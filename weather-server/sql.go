@@ -78,6 +78,7 @@ func getStats() []Stat {
 }
 
 func GetForecasts() ([]ForecastDB, error) {
+	start := time.Now().Format("2006-01-02")
 	query := `
 		SELECT 
 			datetime, datetime_epoch, tempmax, tempmin, temp, feelslikemax, 
@@ -88,9 +89,10 @@ func GetForecasts() ([]ForecastDB, error) {
 			sunset, sunset_epoch, moonphase, conditions, description, 
 			icon, stations, source, hours, summary 
 		FROM forecast
-		ORDER BY datetime ASC`
+		where datetime >= '%s'
+		ORDER BY datetime ASC limit 12`
 
-	rows, err := db.Query(query)
+	rows, err := db.Query(fmt.Sprintf(query, start))
 	if err != nil {
 		return nil, err
 	}

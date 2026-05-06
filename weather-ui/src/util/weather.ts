@@ -1,4 +1,4 @@
-import moment from "moment/moment";
+    import moment from "moment/moment";
 import {ChartData} from "../models/DataSeries.ts";
 import {WindDialOptions} from "../models/WindDial.ts";
 import WindDial from "./windDial.ts";
