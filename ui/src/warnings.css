@@ -1,0 +1,384 @@
+    .tsunami-warning {
+    color: #FD6347;
+}
+.tornado-warning {
+    color: #FF0000;
+}
+.extreme-wind-warning {
+    color: #FF8C00;
+}
+.severe-thunderstorm-warning {
+    color: #FFA500;
+}
+.flash-flood-warning {
+    color: #8B0000;
+}
+.flash-flood-statement {
+    color: #8B0000;
+}
+.severe-weather-statement {
+    color: #00FFFF;
+}
+.shelter-in-place-warning {
+    color: #FA8072;
+}
+.evacuation---immediate {
+    color: #7FFF00;
+}
+.civil-danger-warning {
+    color: #FFB6C1;
+}
+.nuclear-power-plant-warning {
+    color: #4B0082;
+}
+.radiological-hazard-warning {
+    color: #4B0082;
+}
+.hazardous-materials-warning {
+    color: #4B0082;
+}
+.fire-warning {
+    color: #A0522D;
+}
+.civil-emergency-message {
+    color: #FFB6C1;
+}
+.law-enforcement-warning {
+    color: #C0C0C0;
+}
+.storm-surge-warning {
+    color: #B524F7;
+}
+.hurricane-force-wind-warning {
+    color: #CD5C5C;
+}
+.hurricane-warning {
+    color: #DC143C;
+}
+.typhoon-warning {
+    color: #DC143C;
+}
+.special-marine-warning {
+    color: #FFA500;
+}
+.blizzard-warning {
+    color: #FF4500;
+}
+.snow-squall-warning {
+    color: #C71585;
+}
+.ice-storm-warning {
+    color: #8B008B;
+}
+.winter-storm-warning {
+    color: #FF69B4;
+}
+.high-wind-warning {
+    color: #DAA520;
+}
+.tropical-storm-warning {
+    color: #B22222;
+}
+.storm-warning {
+    color: #9400D3;
+}
+.tsunami-advisory {
+    color: #D2691E;
+}
+.tsunami-watch {
+    color: #FF00FF;
+}
+.avalanche-warning {
+    color: #1E90FF;
+}
+.earthquake-warning {
+    color: #8B4513;
+}
+.volcano-warning {
+    color: #2F4F4F;
+}
+.ashfall-warning {
+    color: #A9A9A9;
+}
+.coastal-flood-warning {
+    color: #228B22;
+}
+.lakeshore-flood-warning {
+    color: #228B22;
+}
+.flood-warning {
+    color: #00FF00;
+}
+.high-surf-warning {
+    color: #228B22;
+}
+.dust-storm-warning {
+    color: #FFE4C4;
+}
+.blowing-dust-warning {
+    color: #FFE4C4;
+}
+.lake-effect-snow-warning {
+    color: #008B8B;
+}
+.excessive-heat-warning {
+    color: #C71585;
+}
+.tornado-watch {
+    color: #FFFF00;
+}
+.severe-thunderstorm-watch {
+    color: #DB7093;
+}
+.flash-flood-watch {
+    color: #2E8B57;
+}
+.gale-warning {
+    color: #DDA0DD;
+}
+.flood-statement {
+    color: #00FF00;
+}
+.wind-chill-warning {
+    color: #B0C4DE;
+}
+.extreme-cold-warning {
+    color: #0000FF;
+}
+.hard-freeze-warning {
+    color: #9400D3;
+}
+.freeze-warning {
+    color: #483D8B;
+}
+.red-flag-warning {
+    color: #FF1493;
+}
+.storm-surge-watch {
+    color: #DB7FF7;
+}
+.hurricane-watch {
+    color: #FF00FF;
+}
+.hurricane-force-wind-watch {
+    color: #9932CC;
+}
+.typhoon-watch {
+    color: #FF00FF;
+}
+.tropical-storm-watch {
+    color: #F08080;
+}
+.storm-watch {
+    color: #FFE4B5;
+}
+.hurricane-local-statement {
+    color: #FFE4B5;
+}
+.typhoon-local-statement {
+    color: #FFE4B5;
+}
+.tropical-storm-local-statement {
+    color: #FFE4B5;
+}
+.tropical-depression-local-statement {
+    color: #FFE4B5;
+}
+.avalanche-advisory {
+    color: #CD853F;
+}
+.freezing-rain-advisory {
+    color: #DA70D6;
+}
+.winter-weather-advisory {
+    color: #7B68EE;
+}
+.lake-effect-snow-advisory {
+    color: #48D1CC;
+}
+.wind-chill-advisory {
+    color: #AFEEEE;
+}
+.heat-advisory {
+    color: #FF7F50;
+}
+.urban-and-small-stream-flood-advisory {
+    color: #00FF7F;
+}
+.small-stream-flood-advisory {
+    color: #00FF7F;
+}
+.arroyo-and-small-stream-flood-advisory {
+    color: #00FF7F;
+}
+.flood-advisory {
+    color: #00FF7F;
+}
+.hydrologic-advisory {
+    color: #00FF7F;
+}
+.lakeshore-flood-advisory {
+    color: #7CFC00;
+}
+.coastal-flood-advisory {
+    color: #7CFC00;
+}
+.high-surf-advisory {
+    color: #BA55D3;
+}
+.heavy-freezing-spray-warning {
+    color: #00BFFF;
+}
+.dense-fog-advisory {
+    color: #708090;
+}
+.dense-smoke-advisory {
+    color: #F0E68C;
+}
+.small-craft-advisory-for-hazardous-seas {
+    color: #D8BFD8;
+}
+.small-craft-advisory-for-rough-bar {
+    color: #D8BFD8;
+}
+.small-craft-advisory-for-winds {
+    color: #D8BFD8;
+}
+.small-craft-advisory {
+    color: #D8BFD8;
+}
+.brisk-wind-advisory {
+    color: #D8BFD8;
+}
+.hazardous-seas-warning {
+    color: #D8BFD8;
+}
+.dust-advisory {
+    color: #BDB76B;
+}
+.blowing-dust-advisory {
+    color: #BDB76B;
+}
+.lake-wind-advisory {
+    color: #D2B48C;
+}
+.wind-advisory {
+    color: #D2B48C;
+}
+.frost-advisory {
+    color: #6495ED;
+}
+.ashfall-advisory {
+    color: #696969;
+}
+.freezing-fog-advisory {
+    color: #008080;
+}
+.freezing-spray-advisory {
+    color: #00BFFF;
+}
+.low-water-advisory {
+    color: #A52A2A;
+}
+.local-area-emergency {
+    color: #C0C0C0;
+}
+.child-abduction-emergency {
+    color: #FFD700;
+}
+.avalanche-watch {
+    color: #F4A460;
+}
+.blizzard-watch {
+    color: #ADFF2F;
+}
+.rip-current-statement {
+    color: #40E0D0;
+}
+.beach-hazards-statement {
+    color: #40E0D0;
+}
+.gale-watch {
+    color: #FFC0CB;
+}
+.winter-storm-watch {
+    color: #4682B4;
+}
+.hazardous-seas-watch {
+    color: #483D8B;
+}
+.heavy-freezing-spray-watch {
+    color: #BC8F8F;
+}
+.coastal-flood-watch {
+    color: #66CDAA;
+}
+.lakeshore-flood-watch {
+    color: #66CDAA;
+}
+.flood-watch {
+    color: #2E8B57;
+}
+.high-wind-watch {
+    color: #B8860B;
+}
+.excessive-heat-watch {
+    color: #800000;
+}
+.extreme-cold-watch {
+    color: #0000FF;
+}
+.wind-chill-watch {
+    color: #5F9EA0;
+}
+.lake-effect-snow-watch {
+    color: #87CEFA;
+}
+.hard-freeze-watch {
+    color: #4169E1;
+}
+.freeze-watch {
+    color: #00FFFF;
+}
+.fire-weather-watch {
+    color: #FFDEAD;
+}
+.extreme-fire-danger {
+    color: #E9967A;
+}
+.telephone-outage-911 {
+    color: #C0C0C0;
+}
+.coastal-flood-statement {
+    color: #6B8E23;
+}
+.lakeshore-flood-statement {
+    color: #6B8E23;
+}
+.special-weather-statement {
+    color: #FFE4B5;
+}
+.marine-weather-statement {
+    color: #FFDAB9;
+}
+.air-quality-alert {
+    color: #808080;
+}
+.air-stagnation-advisory {
+    color: #808080;
+}
+.hazardous-weather-outlook {
+    color: #EEE8AA;
+}
+.hydrologic-outlook {
+    color: #90EE90;
+}
+.short-term-forecast {
+    color: #98FB98;
+}
+.administrative-message {
+    color: #C0C0C0;
+}
+.test {
+    color: #F0FFFF;
+}

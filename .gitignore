@@ -30,4 +30,4 @@ yarn-error.log*
 *.sln
 *.sw?
 weather-notify/weather-notify
-weather-server/ambient-weather
+server/ambient-weather

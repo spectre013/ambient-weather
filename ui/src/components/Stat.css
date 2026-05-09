@@ -1,0 +1,60 @@
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.stat-card {
+    background-color: var(--card-bg);
+    border-radius: 15px;
+    padding: 15px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    border: 1px solid var(--border-color);
+}
+
+
+.hasclick {
+    cursor: pointer;
+}
+
+.stat-card .value {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.stat-card .label {
+    font-size: 14px;
+    color: var(--muted-text);
+    margin: 0;
+}
+
+.stat-icon {
+    font-size: 20px;
+    color: var(--text-color);
+    margin-bottom: 2px;
+}
+
+.stat-value-unit {
+    font-size: 14px;
+    color: var(--muted-text);
+}
+
+.beaufort1-3 {
+    color: #90b12a
+}
+
+.beaufort3-4 {
+    color: #e6a141
+}
+
+.beaufort4-5 {
+    color: #ff7c39
+}
+
+.beaufort6 {
+    color: #d35d4e
+}

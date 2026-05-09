@@ -4,30 +4,36 @@ before_script:
 stages:
   - scan
   - build docker
-  - deploy
+#  - deploy
 
 ui:
   stage: build docker
   script:
-    - cd weather-ui
-    - docker build -t $DOCKER_REGISTRY/weather/weather-ui:v3.0.6 .
-    - docker push $DOCKER_REGISTRY/weather/weather-ui:v3.0.6
+    - cd ui
+    - docker build -t $DOCKER_REGISTRY/weather/ui:v3.0.6 .
+    - docker push $DOCKER_REGISTRY/weather/ui:v3.0.6
 
 
 server:
   stage: build docker
   script:
-    - cd weather-server
-    - docker build -t $DOCKER_REGISTRY/weather/weather-server:v4.0.6 . --no-cache
-    - docker push $DOCKER_REGISTRY/weather/weather-server:v4.0.6
+    - cd server
+    - docker build -t $DOCKER_REGISTRY/weather/server:v4.0.6 . --no-cache
+    - docker push $DOCKER_REGISTRY/weather/server:v4.0.6
 
-transfer:
+processor:
   stage: build docker
   script:
-    - cd weather-transfer
-    - docker build -t $DOCKER_REGISTRY/weather/weather-transfer:2.1.5 . --no-cache
-    - docker push $DOCKER_REGISTRY/weather/weather-transfer:2.1.5
+    - cd processor
+    - docker build -t $DOCKER_REGISTRY/weather/processor:2.2 . --no-cache
+    - docker push $DOCKER_REGISTRY/weather/processor:2.2
 
+receiver:
+  stage: build docker
+  script:
+    - cd receiver
+    - docker build -t $DOCKER_REGISTRY/weather/receiver:1.0 . --no-cache
+    - docker push $DOCKER_REGISTRY/weather/receiver:1.0
 
 deploy:
   stage: deploy
