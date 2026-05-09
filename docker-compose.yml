@@ -27,6 +27,8 @@ services:
     # Attach the container to the custom network
     networks:
       - weather-network
+    extra_hosts:
+      - "zoms-gitlab:10.10.1.124"
   processor:
     container_name: processor
     image: docker.zoms.net/weather/processor:2.2
@@ -71,6 +73,8 @@ services:
     # Attach the container to the custom network
     networks:
       - weather-network
+    extra_hosts:
+      - "zoms-gitlab:10.10.1.124"
 
   weather-ui:
     container_name: weather-ui
