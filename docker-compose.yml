@@ -47,6 +47,7 @@ services:
       - ENV=development
       - LOGLEVEL=Info
       - ALERT_CRON=*/15 * * * *
+      - FORECAST_CRON="0 */4 * * *"
       - LAT=38.725798
       - LON=-104.66783
       - MQTT_HOST=tcp://10.10.1.124:1883
