@@ -27,14 +27,14 @@ services:
     # Attach the container to the custom network
     networks:
       - weather-network
-  weather-transfer:
-    container_name: weather-transfer
-    image: docker.zoms.net/weather/weather-transfer:2.1.5
+  processor:
+    container_name: processor
+    image: docker.zoms.net/weather/processor:2.2
     restart: unless-stopped
     pull_policy: always
     # Expose port 3000 inside the container to port 6001 on the host
     ports:
-      - "7500:8080"
+      - "7501:8081"
     # Set the environment variables
     environment:
       - PORT=3000
@@ -47,6 +47,27 @@ services:
       - ALERT_CRON=*/15 * * * *
       - LAT=38.725798
       - LON=-104.66783
+      - MQTT_HOST=tcp://10.10.1.124:1883
+      - MQTT_SUBSCRIBE=weather/incoming
+      - MQTT_USERNAME=brian
+      - MQTT_PASSWORD=${DB_PASSWORD}
+    # Attach the container to the custom network
+    networks:
+      - weather-network
+  receiver:
+    container_name: receiver
+    image: docker.zoms.net/weather/receiver:1.0
+    restart: unless-stopped
+    pull_policy: always
+    # Expose port 3000 inside the container to port 6001 on the host
+    ports:
+      - "7500:8080"
+    # Set the environment variables
+    environment:
+      - MQTT_HOST=tcp://10.10.1.124:1883
+      - MQTT_PUBLISH=weather/incoming
+      - MQTT_USERNAME=brian
+      - MQTT_PASSWORD=${DB_PASSWORD}
     # Attach the container to the custom network
     networks:
       - weather-network
