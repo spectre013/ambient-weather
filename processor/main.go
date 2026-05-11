@@ -68,7 +68,7 @@ func main() {
 	}
 
 	opts := mqtt.NewClientOptions().AddBroker(os.Getenv("MQTT_HOST"))
-	opts.SetClientID("go_processor")
+	opts.SetClientID(os.Getenv("MQTT_CLIENTID"))
 	opts.SetUsername(os.Getenv("MQTT_USERNAME"))
 	opts.SetPassword(os.Getenv("MQTT_PASSWORD"))
 
@@ -105,7 +105,7 @@ func main() {
 			logger.Error(err)
 		}
 
-		fmt.Println("Starting cron Forecast update", os.Getenv("ALERT_CRON"))
+		fmt.Println("Starting cron Forecast update", os.Getenv("FORECAST_CRON"))
 		fj, err = s.Cron(os.Getenv("FORECAST_CRON")).Do(getForecast)
 		if err != nil {
 			logger.Error(err)
@@ -384,7 +384,6 @@ func getForecast() (Forecast, error) {
 		logger.Error("Error in Get Forecast", err)
 		return Forecast{}, err
 	}
-
 	f := Forecast{}
 	err = json.Unmarshal(res, &f)
 	if err != nil {
@@ -392,10 +391,7 @@ func getForecast() (Forecast, error) {
 		return Forecast{}, err
 	}
 
-	for k, v := range f.Days {
-		if k == 0 && time.Now().Hour() > 12 {
-			continue
-		}
+	for _, v := range f.Days {
 		day, err := convertDayToDB(v)
 		if err != nil {
 			logger.Error("Error in convertDayToDB", err)
@@ -513,20 +509,19 @@ func convertDayToDB(d Day) (forecastDB, error) {
 		datetime = time.Now()
 	}
 	return forecastDB{
-		Datetime:      datetime,
-		DatetimeEpoch: d.DatetimeEpoch,
-		TempMax:       d.Tempmax,
-		TempMin:       d.Tempmin,
-		Temp:          d.Temp,
-		FeelsLikeMax:  d.Feelslikemax,
-		FeelsLikeMin:  d.Feelslikemin,
-		FeelsLike:     d.Feelslike,
-		Dew:           d.Dew,
-		Humidity:      d.Humidity,
-		Precip:        d.Precip,
-		PrecipProb:    d.Precipprob,
-		PrecipCover:   d.Precipcover,
-		// Convert []string to comma-separated string
+		Datetime:       datetime,
+		DatetimeEpoch:  d.DatetimeEpoch,
+		TempMax:        d.Tempmax,
+		TempMin:        d.Tempmin,
+		Temp:           d.Temp,
+		FeelsLikeMax:   d.Feelslikemax,
+		FeelsLikeMin:   d.Feelslikemin,
+		FeelsLike:      d.Feelslike,
+		Dew:            d.Dew,
+		Humidity:       d.Humidity,
+		Precip:         d.Precip,
+		PrecipProb:     d.Precipprob,
+		PrecipCover:    d.Precipcover,
 		PrecipType:     strings.Join(d.Preciptype, ","),
 		Snow:           d.Snow,
 		SnowDepth:      d.Snowdepth,
@@ -548,10 +543,9 @@ func convertDayToDB(d Day) (forecastDB, error) {
 		Conditions:     d.Conditions,
 		Description:    d.Description,
 		Icon:           d.Icon,
-		// Convert []string to comma-separated string
-		Stations: strings.Join(d.Stations, ","),
-		Source:   d.Source,
-		Hours:    string(hoursJSON),
+		Stations:       strings.Join(d.Stations, ","),
+		Source:         d.Source,
+		Hours:          string(hoursJSON),
 	}, nil
 }
 

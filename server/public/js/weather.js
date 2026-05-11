@@ -30,19 +30,20 @@
         document.body.addEventListener('click', (event) => {
             // Handle Rain Modal Open
             const rainBtn = event.target.closest('#rain');
+            console.log(rainBtn);
             if (rainBtn) {
-                const modalId = rainBtn.parentNode.id + "Modal";
+                const modalId = rainBtn.id + "Modal";
                 const modal = document.getElementById(modalId);
+                console.log(modalId)
                 if (modal) modal.style.display = "block";
-            }
-
-            // Handle Modal Close (clicking outside)
-            if (event.target.classList.contains('modal')) {
-                event.target.style.display = "none";
             }
         });
     }
 
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = "none";
+    }
+    window.closeModal = closeModal;
     // 4. Helper Methods
     function getConditions(conditions) {
         let tag = conditions;

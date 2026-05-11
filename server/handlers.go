@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/dyindude/moonphase"
 	"github.com/gorilla/mux"
 	"github.com/nathan-osman/go-sunrise"
 )
@@ -80,7 +81,7 @@ func astro() Astro {
 	if elevation <= 0 {
 		hasSunSet = true
 	}
-
+	phase, illumination, name := getMoonPhase()
 	astro := Astro{
 		Sunrise:         rise,
 		Sunset:          set,
@@ -90,8 +91,16 @@ func astro() Astro {
 		Daylight:        set.Sub(rise),
 		Elevation:       correctSunElevation(elevation, time.Now(), rise, set),
 		HasSunset:       hasSunSet,
+		MoonIlluminance: illumination,
+		MoonPhase:       phase,
+		MoonPhaseName:   name,
 	}
 	return astro
+}
+
+func getMoonPhase() (float64, float64, string) {
+	m := moonphase.New(time.Now())
+	return m.Phase(), m.Illumination() * 100, m.PhaseName()
 }
 
 func trend(t string) Trend {

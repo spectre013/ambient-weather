@@ -27,6 +27,9 @@ type Astro struct {
 	Daylight        time.Duration `json:"daylight"`
 	Elevation       float64       `json:"elevation"`
 	HasSunset       bool          `json:"hasSunset"`
+	MoonIlluminance float64       `json:"moonIlluminance"`
+	MoonPhase       float64       `json:"moonPhase"`
+	MoonPhaseName   string        `json:"moonPhaseName"`
 }
 
 type Conditions struct {
