@@ -39,7 +39,7 @@ receiver:
   script:
     - cd receiver
     - docker build -t $CI_REGISTRY/weather/receiver:$RECEIVER_VERSION . --no-cache
-    - docker push $CI_REGISTRY  /weather/receiver:$RECEIVER_VERSION
+    - docker push $CI_REGISTRY/weather/receiver:$RECEIVER_VERSION
 
 #deploy:
 #  stage: deploy
