@@ -4,7 +4,7 @@ name: weather
 services:
   weather-server:
     container_name: weather-server
-    image: docker.zoms.net/weather/weather-server:v4.0.6
+    image: docker.zoms.net/weather/server:v4.1.0
     restart: unless-stopped
     pull_policy: always
     # Expose port 3000 inside the container to port 6001 on the host
@@ -31,7 +31,7 @@ services:
       - "zoms-gitlab:10.10.1.124"
   processor:
     container_name: processor
-    image: docker.zoms.net/weather/processor:2.2
+    image: docker.zoms.net/weather/processor:v2.2.0
     restart: unless-stopped
     pull_policy: always
     # Expose port 3000 inside the container to port 6001 on the host
@@ -59,7 +59,7 @@ services:
       - weather-network
   receiver:
     container_name: receiver
-    image: docker.zoms.net/weather/receiver:1.0
+    image: docker.zoms.net/weather/receiver:v1.0.0
     restart: unless-stopped
     pull_policy: always
     # Expose port 3000 inside the container to port 6001 on the host
@@ -79,7 +79,7 @@ services:
 
   weather-ui:
     container_name: weather-ui
-    image: docker.zoms.net/weather/weather-ui:v3.0.6
+    image: docker.zoms.net/weather/weather-ui:v3.1.0
     restart: unless-stopped
     pull_policy: always
     # Expose port 6000 inside the container to port 6000 on the host
