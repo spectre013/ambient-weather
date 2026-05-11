@@ -1,6 +1,12 @@
 before_script:
   - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
 
+variables:
+  UI_VERSION: "v3.1.0"
+  SERVER_VERSION: "v4.1.0"
+  PROCESSOR_VERSION: "v2.2.0"
+  RECEIVER_VERSION: "v1.0.0"
+
 stages:
   - scan
   - build docker
@@ -10,30 +16,30 @@ ui:
   stage: build docker
   script:
     - cd ui
-    - docker build -t $CI_REGISTRY/weather/ui:v3.1.0 .
-    - docker push $CI_REGISTRY/weather/ui:v3.1.0
+    - docker build -t $CI_REGISTRY/weather/ui:$UI_VERSION . --no-cache
+    - docker push $CI_REGISTRY/weather/ui:$UI_VERSION
 
 
 server:
   stage: build docker
   script:
     - cd server
-    - docker build -t $CI_REGISTRY/weather/server:v4.1.0 . --no-cache
-    - docker push $CI_REGISTRY/weather/server:v4.1.0
+    - docker build -t $CI_REGISTRY/weather/server:$SERVER_VERSION . --no-cache
+    - docker push $CI_REGISTRY/weather/server:$SERVER_VERSION
 
 processor:
   stage: build docker
   script:
     - cd processor
-    - docker build -t $CI_REGISTRY/weather/processor:v2.2.0 . --no-cache
-    - docker push $CI_REGISTRY/weather/processor:v2.2.0
+    - docker build -t $CI_REGISTRY/weather/processor:$PROCESSOR_VERSION . --no-cache
+    - docker push $CI_REGISTRY/weather/processor:$PROCESSOR_VERSION
 
 receiver:
   stage: build docker
   script:
     - cd receiver
-    - docker build -t $CI_REGISTRY/weather/receiver:v1.0.0 . --no-cache
-    - docker push $CI_REGISTRY  /weather/receiver:v1.0.0
+    - docker build -t $CI_REGISTRY/weather/receiver:$RECEIVER_VERSION . --no-cache
+    - docker push $CI_REGISTRY  /weather/receiver:$RECEIVER_VERSION
 
 #deploy:
 #  stage: deploy
