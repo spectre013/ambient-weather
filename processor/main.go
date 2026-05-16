@@ -110,6 +110,10 @@ func main() {
 		if err != nil {
 			logger.Error(err)
 		}
+
+		//kick of an alert and a forecast when we start the server.
+		go updateAlerts()
+		go getForecast()
 	}
 	if err != nil {
 		logger.Error(err)
@@ -375,22 +379,21 @@ func insertRecord(r Record) bool {
 	return true
 }
 
-func getForecast() (Forecast, error) {
+func getForecast() {
 	includes := "days%2Chours"
 	url := fmt.Sprintf("https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/Colorado%%20Springs?unitGroup=us&iconSets=icon2&include=%s&key=%s&contentType=json", includes, os.Getenv("WEATHER_API"))
 	header := map[string]string{}
 	res, err := makeRequest(url, header)
 	if err != nil {
 		logger.Error("Error in Get Forecast", err)
-		return Forecast{}, err
 	}
+	logger.Info("Received Forecast")
 	f := Forecast{}
 	err = json.Unmarshal(res, &f)
 	if err != nil {
 		logger.Error("Error in Unmarshall Forecast", err)
-		return Forecast{}, err
 	}
-
+	logger.Info("Processing Forecast days: ", len(f.Days))
 	for _, v := range f.Days {
 		day, err := convertDayToDB(v)
 		if err != nil {
@@ -405,8 +408,6 @@ func getForecast() (Forecast, error) {
 			logger.Error("Error in insertForecast", err)
 		}
 	}
-
-	return f, err
 }
 
 func getForecastSummary(day Day) (string, error) {
@@ -718,11 +719,12 @@ func makeRequest(url string, header map[string]string) ([]byte, error) {
 		}
 	}
 	logger.Debug(req.Header)
+	logger.Info("Sending request: ", url)
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
-
+	logger.Info("Received Response with status code: ", resp.StatusCode)
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		logger.Error(err)
