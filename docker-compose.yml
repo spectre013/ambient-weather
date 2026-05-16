@@ -54,6 +54,7 @@ services:
       - MQTT_SUBSCRIBE=weather/incoming
       - MQTT_USERNAME=brian
       - MQTT_PASSWORD=${DB_PASSWORD}
+      - WEATHER_API=${WEATHER_API}
     # Attach the container to the custom network
     networks:
       - weather-network
