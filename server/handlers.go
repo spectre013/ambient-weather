@@ -44,7 +44,7 @@ func alerts() []Alert {
 	alerts := make([]Alert, 0)
 	for rows.Next() {
 		a := Alert{}
-		err := rows.Scan(&a.ID, &a.Alertid, &a.Wxtype, &a.Areadesc, &a.Sent, &a.Effective, &a.Onset, &a.Expires, &a.Ends, &a.Status, &a.Messagetype, &a.Category, &a.Severity, &a.Certainty, &a.Urgency, &a.Event, &a.Sender, &a.SenderName, &a.Headline, &a.Description, &a.Instruction, &a.Response)
+		err := rows.Scan(&a.AlertID, &a.Wxtype, &a.Areadesc, &a.Sent, &a.Effective, &a.Onset, &a.Expires, &a.Ends, &a.Status, &a.Messagetype, &a.Category, &a.Severity, &a.Certainty, &a.Urgency, &a.Event, &a.Sender, &a.SenderName, &a.Headline, &a.Description, &a.Instruction, &a.Response, &a.Summary)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				logger.Error("Zero Rows Found ", alertsSql)

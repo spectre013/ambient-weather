@@ -549,68 +549,73 @@ func convertDayToDB(d Day) (forecastDB, error) {
 		Hours:          string(hoursJSON),
 	}, nil
 }
-
 func updateAlerts() {
-	fmt.Println("Updating Alerts ... ")
-	insertSql := `
-		INSERT INTO alerts (
-			id, wxtype, areadesc, sent, effective, onset, expires, ends, status,
-			messagetype, category, severity, certainty, urgency, event, sender, 
-			senderName, headline, description, instruction, response, summary
-		)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22)
-		ON CONFLICT (id) 
-		DO UPDATE SET 
-			wxtype      = EXCLUDED.wxtype,
-			areadesc    = EXCLUDED.areadesc,
-			sent        = EXCLUDED.sent,
-			effective   = EXCLUDED.effective,
-			onset       = EXCLUDED.onset,
-			expires     = EXCLUDED.expires,
-			ends        = EXCLUDED.ends,
-			status      = EXCLUDED.status,
-			messagetype = EXCLUDED.messagetype,
-			category    = EXCLUDED.category,
-			severity    = EXCLUDED.severity,
-			certainty   = EXCLUDED.certainty,
-			urgency     = EXCLUDED.urgency,
-			event       = EXCLUDED.event,
-			sender      = EXCLUDED.sender,
-			senderName  = EXCLUDED.senderName,
-			headline    = EXCLUDED.headline,
-			description = EXCLUDED.description,
-			instruction = EXCLUDED.instruction,
-			response    = EXCLUDED.response;
-	`
+	logger.Info("Updating Alerts ...")
 
-	iAlerts := getAlerts()
-	for _, v := range iAlerts {
-		checkSql := fmt.Sprintf(`SELECT EXISTS(SELECT 1 FROM alerts WHERE id = '%s')`, v.ID)
-		rows := db.QueryRow(checkSql)
+	const checkSql = `SELECT EXISTS(SELECT 1 FROM alerts WHERE alertid = $1)`
+
+	const insertSql = `
+        INSERT INTO alerts (
+            alertid, wxtype, areadesc, sent, effective, onset, expires, ends, status,
+            messagetype, category, severity, certainty, urgency, event, sender,
+            sendername, headline, description, instruction, response, summary
+        )
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22)
+        ON CONFLICT (alertid) DO UPDATE SET
+            wxtype      = EXCLUDED.wxtype,
+            areadesc    = EXCLUDED.areadesc,
+            sent        = EXCLUDED.sent,
+            effective   = EXCLUDED.effective,
+            onset       = EXCLUDED.onset,
+            expires     = EXCLUDED.expires,
+            ends        = EXCLUDED.ends,
+            status      = EXCLUDED.status,
+            messagetype = EXCLUDED.messagetype,
+            category    = EXCLUDED.category,
+            severity    = EXCLUDED.severity,
+            certainty   = EXCLUDED.certainty,
+            urgency     = EXCLUDED.urgency,
+            event       = EXCLUDED.event,
+            sender      = EXCLUDED.sender,
+            sendername  = EXCLUDED.sendername,
+            headline    = EXCLUDED.headline,
+            description = EXCLUDED.description,
+            instruction = EXCLUDED.instruction,
+            response    = EXCLUDED.response,
+            summary     = EXCLUDED.summary
+    `
+
+	for _, v := range getAlerts() {
 		var exists bool
-		err := rows.Scan(&exists)
+		if err := db.QueryRow(checkSql, v.ID).Scan(&exists); err != nil {
+			logger.Error(fmt.Sprintf("alert exists check %s: %v", v.ID, err))
+			continue
+		}
+		if exists && !strings.EqualFold(v.MessageType, "Update") {
+			continue
+		}
+
+		prompt := fmt.Sprintf(
+			"write a short summary of the following text only include the summary in your response: Severity: %s Event: %s Headline: %s Description: %s Instructions: %s",
+			v.Severity, v.Event, v.Headline, v.Description, v.Instruction,
+		)
+		summary, err := summerize(prompt)
 		if err != nil {
-			logger.Error(fmt.Sprintf("Scan: %v", err))
-		}
-		if !exists || v.MessageType == "updated" {
-			event := fmt.Sprintf("write a short summery of the following text only include the summary in your response: Severity: %s Event: %s Headline:%s Description: %s Instructions: %s", v.Severity, v.Event, v.Headline, v.Description, v.Instruction)
-			summary, err := summerize(event)
-			if err != nil {
-				fmt.Println("Error:", err)
-				return
-			}
-			logger.Info(v.ID, summary)
-			_, err = db.Exec(insertSql, v.ID, v.Type, v.AreaDesc, v.Sent, v.Effective, v.Onset,
-				v.Expires, v.Ends, v.Status, v.MessageType, v.Category, v.Severity, v.Certainty, v.Urgency, v.Event,
-				v.Sender, v.SenderName, v.Headline, v.Description, v.Instruction, v.Response, summary)
-			logger.Info(fmt.Sprintf("Inserted Alert %s", v.Headline))
-			if err != nil {
-				logger.Error(err)
-			}
+			logger.Error(fmt.Sprintf("summarize %s: %v", v.ID, err))
+			continue
 		}
 
+		if _, err := db.Exec(insertSql,
+			v.ID, v.Event /*wxtype?*/, v.AreaDesc, v.Sent, v.Effective, v.Onset,
+			v.Expires, v.Ends, v.Status, v.MessageType, v.Category, v.Severity,
+			v.Certainty, v.Urgency, v.Event, v.Sender, v.SenderName,
+			v.Headline, v.Description, v.Instruction, v.Response, summary,
+		); err != nil {
+			logger.Error(fmt.Sprintf("alert insert %s: %v", v.ID, err))
+			continue
+		}
+		logger.Info(fmt.Sprintf("Inserted/updated alert %s (%s)", v.ID, v.Headline))
 	}
-
 }
 
 func getAlerts() []Property {

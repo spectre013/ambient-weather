@@ -235,8 +235,7 @@ type Record struct {
 }
 
 type Alert struct {
-	ID          int       `json:"id"`
-	Alertid     string    `json:"alertid"`
+	AlertID     string    `json:"id"`
 	Wxtype      string    `json:"wxtype"`
 	Areadesc    string    `json:"areadesc"`
 	Sent        time.Time `json:"sent"`

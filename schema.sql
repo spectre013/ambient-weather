@@ -43,10 +43,8 @@ ALTER SEQUENCE public.records_seq
 -- Table: public.alerts
 
 -- DROP TABLE IF EXISTS public.alerts;
-
 CREATE TABLE IF NOT EXISTS public.alerts
 (
-    id integer NOT NULL DEFAULT nextval('alerts_seq'::regclass),
     alertid character varying(255) COLLATE pg_catalog."default" NOT NULL DEFAULT ''::character varying,
     wxtype character varying(255) COLLATE pg_catalog."default" NOT NULL DEFAULT ''::character varying,
     areadesc text COLLATE pg_catalog."default" NOT NULL DEFAULT ''::character varying,
@@ -68,7 +66,7 @@ CREATE TABLE IF NOT EXISTS public.alerts
     description text COLLATE pg_catalog."default" NOT NULL DEFAULT ''::text,
     instruction text COLLATE pg_catalog."default" NOT NULL DEFAULT ''::text,
     response character varying(255) COLLATE pg_catalog."default" NOT NULL DEFAULT ''::character varying,
-    CONSTRAINT alerts_pkey PRIMARY KEY (id)
+    CONSTRAINT alerts_pkey PRIMARY KEY (alertid)
 )
 
     TABLESPACE pg_default;
