@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"os"
@@ -106,34 +105,4 @@ func loggingMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		// Call the next handler, which can be another middleware in the chain, or the final handler.
 		next.ServeHTTP(w, r)
 	})
-}
-
-func makeRequest(url string, header map[string]string) ([]byte, error) {
-	logger.Debug(url)
-	client := &http.Client{}
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		logger.Error(err)
-		return nil, err
-	}
-	if _, ok := header["User-Agent"]; !ok {
-		req.Header.Add("User-Agent", `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.27 Safari/537.36`)
-	}
-	if len(header) > 0 {
-		for key, value := range header {
-			req.Header.Add(key, value)
-		}
-	}
-	logger.Debug(req.Header)
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		logger.Error(err)
-		return nil, err
-	}
-	return body, nil
 }
