@@ -42,7 +42,7 @@ services:
       - MQTT_PASS=${DB_PASSWORD}
       - MQTT_TOPIC=ambient/#
       - MQTT_STATS_TOPIC=weather/stats
-      - DATABASE_URL=postgres://ambient:${DB_PASSWORD}0@10.10.1.120:5432/ambient?sslmode=disable
+      - DATABASE_URL=postgres://ambient:${DB_PASSWORD}@10.10.1.120:5432/ambient?sslmode=disable
       - STATION_MAC=WS-5000
       - ELEVATION=1746.5
       - SNAPSHOT_INTERVAL=1m
