@@ -21,7 +21,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflag
 FROM ubuntu:24.04
 ENV TZ America/Denver
 # Copy our static executable
-COPY --from=builder /go/bin/processor /go/bin/stats
+COPY --from=builder /go/bin/stats /go/bin/stats
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
 ENV GO_ENV production
