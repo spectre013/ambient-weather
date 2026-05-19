@@ -1,30 +1,31 @@
 package main
 
 import (
+	"context"
 	"database/sql"
-	"fmt"
-	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
-	_ "github.com/lib/pq"
-
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 )
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
-} // use default options
-var db *sql.DB
-var logger = logrus.New()
+	CheckOrigin:     func(r *http.Request) bool { return true },
+}
+
+var (
+	db     *sql.DB
+	logger = logrus.New()
+)
 
 func init() {
 	logger.Out = os.Stdout
@@ -32,44 +33,52 @@ func init() {
 }
 
 func main() {
-	var err error
+	// Load .env in development. In production we expect the runtime to
+	// inject environment variables.
 	if os.Getenv("GO_ENV") != "production" {
-		err = godotenv.Load()
-		if err != nil {
-			log.Fatal("Error loading .env file")
+		if err := godotenv.Load(); err != nil {
+			logger.WithError(err).Fatal("error loading .env file")
 		}
 	}
-	logLevel := logrus.InfoLevel
-	if os.Getenv("LOGLEVEL") == "Debug" {
-		logLevel = logrus.DebugLevel
-	}
-	logger.Info("Setting Debug Level to ", logLevel)
-	logger.SetLevel(logLevel)
 
-	dburi := fmt.Sprintf("user=%s password=%s host=%s port=5432 dbname=%s sslmode=disable", os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), os.Getenv("DB_DATABASE"))
-	db, err = sql.Open("postgres", dburi)
+	// Parse and validate all configuration up front.
+	cfg, err := LoadConfig()
 	if err != nil {
-		panic(err)
+		logger.WithError(err).Fatal("invalid configuration")
 	}
+	config = cfg
 
+	if cfg.LogLevel == "Debug" {
+		logger.SetLevel(logrus.DebugLevel)
+	}
+	logger.WithField("level", logger.GetLevel()).Info("log level configured")
+
+	db, err = sql.Open("postgres", cfg.DSN())
+	if err != nil {
+		logger.WithError(err).Fatal("failed to open postgres connection")
+	}
 	defer db.Close()
 
-	err = db.Ping()
-	if err != nil {
-		panic(err)
+	// Sensible pool defaults; tune based on load.
+	db.SetMaxOpenConns(25)
+	db.SetMaxIdleConns(5)
+	db.SetConnMaxLifetime(5 * time.Minute)
+
+	if err := db.Ping(); err != nil {
+		logger.WithError(err).Fatal("failed to ping database")
 	}
 
-	// Setup Web Sockets
+	// Set up the websocket hub and broadcast loop.
 	hub := newHub()
 	go hub.run()
 	go broadcast(hub)
 
 	r := mux.NewRouter()
 	r.HandleFunc("/api/ws", func(w http.ResponseWriter, r *http.Request) {
-		logger.Info("Websocket connection")
+		logger.Info("websocket connection")
 		serveWs(hub, w, r)
 	})
-	//API
+
 	r.HandleFunc("/api/current", loggingMiddleware(current))
 	r.HandleFunc("/api/app", loggingMiddleware(app))
 	r.HandleFunc("/api/chart/{sensor}/{time}", loggingMiddleware(chart))
@@ -78,31 +87,37 @@ func main() {
 	r.HandleFunc("/api/climate", loggingMiddleware(getClimate))
 	r.HandleFunc("/api/firstfreeze", loggingMiddleware(getFirstFreeze))
 	r.HandleFunc("/api/about", loggingMiddleware(about))
-	//Index
-	r.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("./public"))))
-	//r.Handle("/", http.FileServer(http.Dir("./public")))
+	r.HandleFunc("/", loggingMiddleware(home))
 
 	srv := &http.Server{
 		Handler: r,
-		Addr:    ":" + os.Getenv("PORT"),
-		// Good practice: enforce timeouts for servers you create!
-		WriteTimeout: 15 * time.Second,
-		ReadTimeout:  15 * time.Second,
+		Addr:    ":" + cfg.Port,
+		// Added IdleTimeout and ReadHeaderTimeout to protect
+		// against slow-loris-style resource exhaustion.
+		WriteTimeout:      15 * time.Second,
+		ReadTimeout:       15 * time.Second,
+		ReadHeaderTimeout: 5 * time.Second,
+		IdleTimeout:       120 * time.Second,
 	}
-	log.Println("Starting server on " + os.Getenv("PORT"))
-	log.Fatal(srv.ListenAndServe())
-}
 
-func loggingMiddleware(next http.HandlerFunc) http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Do stuff here
-		logger.Infof(
-			"%s\t%s\t%s",
-			time.Now().Format("2006-01-02 15:04:05"),
-			r.Method,
-			r.RequestURI,
-		)
-		// Call the next handler, which can be another middleware in the chain, or the final handler.
-		next.ServeHTTP(w, r)
-	})
+	// Graceful shutdown: catch SIGINT/SIGTERM, stop accepting
+	// new connections, and give in-flight requests up to 30s to finish.
+	go func() {
+		logger.WithField("port", cfg.Port).Info("starting server")
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logger.WithError(err).Fatal("server failed")
+		}
+	}()
+
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
+	<-stop
+	logger.Info("shutdown signal received")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		logger.WithError(err).Error("server shutdown failed")
+	}
+	logger.Info("server stopped")
 }

@@ -4,17 +4,22 @@ import (
 	"time"
 )
 
-// Stat Stat Table structure
-type Stat struct {
-	ID       string
-	Recorded time.Time
-	Value    float64
-}
-
-// StatValue date and value of minmax
 type StatValue struct {
 	Value    float64   `json:"value"`
 	Recorded time.Time `json:"date"`
+}
+
+type Periods struct {
+	Day     *StatValue `json:"day,omitempty"`
+	Month   *StatValue `json:"month,omitempty"`
+	Year    *StatValue `json:"year,omitempty"`
+	AllTime *StatValue `json:"alltime,omitempty"`
+}
+
+type FieldStats struct {
+	Min Periods  `json:"min"`
+	Max Periods  `json:"max"`
+	Avg *Periods `json:"avg,omitempty"`
 }
 
 // Astro Moon sun data
@@ -77,32 +82,32 @@ type AppConditions struct {
 }
 
 type Barometer struct {
-	Baromabsin float64                         `json:"baromabsin"`
-	Baromrelin float64                         `json:"baromrelin"`
-	Trend      Trend                           `json:"trend"`
-	MinMax     map[string]map[string]StatValue `json:"minmax"`
+	Baromabsin float64    `json:"baromabsin"`
+	Baromrelin float64    `json:"baromrelin"`
+	Trend      Trend      `json:"trend"`
+	MinMax     FieldStats `json:"minmax"`
 }
 
 type Humidity struct {
-	Humidity int                             `json:"humidity"`
-	Dewpoint float64                         `json:"dewpoint"`
-	MinMax   map[string]map[string]StatValue `json:"minmax"`
+	Humidity int        `json:"humidity"`
+	Dewpoint float64    `json:"dewpoint"`
+	MinMax   FieldStats `json:"minmax"`
 }
 
 type Temp struct {
-	Temp      float64                         `json:"temp"`
-	Humidity  int                             `json:"humidity"`
-	Batt      int                             `json:"battout"`
-	Feelslike float64                         `json:"feelslike"`
-	Dewpoint  float64                         `json:"dewpoint"`
-	MinMax    map[string]map[string]StatValue `json:"minmax"`
+	Temp      float64    `json:"temp"`
+	Humidity  int        `json:"humidity"`
+	Batt      int        `json:"battout"`
+	Feelslike float64    `json:"feelslike"`
+	Dewpoint  float64    `json:"dewpoint"`
+	MinMax    FieldStats `json:"minmax"`
 }
 
 type Tempin struct {
-	Temp     float64                         `json:"temp"`
-	Humidity int                             `json:"humidity"`
-	Batt     int                             `json:"battout"`
-	MinMax   map[string]map[string]StatValue `json:"minmax"`
+	Temp     float64    `json:"temp"`
+	Humidity int        `json:"humidity"`
+	Batt     int        `json:"battout"`
+	MinMax   FieldStats `json:"minmax"`
 }
 
 type Rain struct {
@@ -117,35 +122,34 @@ type Rain struct {
 }
 
 type Lightning struct {
-	Day      int                             `json:"day"`
-	Hour     int                             `json:"hour"`
-	Distance float64                         `json:"distance"`
-	Time     time.Time                       `json:"time"`
-	Month    int                             `json:"month"`
-	Minmax   map[string]map[string]StatValue `json:"minmax"`
+	Day      int        `json:"day"`
+	Hour     int        `json:"hour"`
+	Distance float64    `json:"distance"`
+	Time     time.Time  `json:"time"`
+	Month    int        `json:"month"`
+	Minmax   FieldStats `json:"minmax"`
 }
 
 type AQI struct {
-	Pm25    int                             `json:"pm25"`
-	Pm2524h int                             `json:"pm2524h"`
-	MinMax  map[string]map[string]StatValue `json:"minmax"`
+	Pm25    int        `json:"pm25"`
+	Pm2524h int        `json:"pm2524h"`
+	MinMax  FieldStats `json:"minmax"`
 }
 
 type Wind struct {
-	Dir          int                             `json:"winddir"`
-	Gustmph      float64                         `json:"windgustmph"`
-	Gustdir      int                             `json:"windgustdir"`
-	Speedmph     float64                         `json:"windspeedmph"`
-	Maxdailygust float64                         `json:"maxdailygust"`
-	Avg          int                             `json:"windavg"`
-	MinMax       map[string]map[string]StatValue `json:"minmax"`
-	GustMinMax   map[string]map[string]StatValue `json:"gustminmax"`
+	Dir        int        `json:"winddir"`
+	Gustmph    float64    `json:"windgustmph"`
+	Gustdir    int        `json:"windgustdir"`
+	Speedmph   float64    `json:"windspeedmph"`
+	Avg        float64    `json:"windavg"`
+	MinMax     FieldStats `json:"minmax"`
+	GustMinMax FieldStats `json:"gustminmax"`
 }
 
 type UV struct {
-	Uv             float64                         `json:"uv"`
-	Solarradiation float64                         `json:"solarradiation"`
-	MinMax         map[string]map[string]StatValue `json:"minmax"`
+	Uv             float64    `json:"uv"`
+	Solarradiation float64    `json:"solarradiation"`
+	MinMax         FieldStats `json:"minmax"`
 }
 
 type Trend struct {

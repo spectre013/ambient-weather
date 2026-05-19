@@ -5,23 +5,16 @@
 package main
 
 import (
-	"log"
+	"encoding/json"
 	"time"
 )
 
 // Hub maintains the set of active clients and broadcasts messages to the
 // clients.
 type Hub struct {
-	// Registered clients.
-	clients map[*Client]bool
-
-	// Inbound messages from the clients.
-	broadcast chan []byte
-
-	// Register requests from the clients.
-	register chan *Client
-
-	// Unregister requests from clients.
+	clients    map[*Client]bool
+	broadcast  chan []byte
+	register   chan *Client
 	unregister chan *Client
 }
 
@@ -35,14 +28,31 @@ func newHub() *Hub {
 }
 
 func broadcast(hub *Hub) {
-	for range time.NewTicker(30 * time.Second).C {
-		c := getConditions()
-		m, err := conditionsToJson(c)
-		if err != nil {
-			log.Println(err)
-			continue
+	ticker := time.NewTicker(30 * time.Second)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		tick(hub)
+	}
+}
+
+func tick(hub *Hub) {
+	defer func() {
+		if r := recover(); r != nil {
+			logger.WithField("panic", r).Error("broadcast tick panicked")
 		}
-		hub.broadcast <- m
+	}()
+
+	c := getConditions()
+	m, err := json.Marshal(c)
+	if err != nil {
+		logger.WithError(err).Error("broadcast: marshal conditions")
+		return
+	}
+	// Non-blocking send: if no clients are connected, drop the tick.
+	select {
+	case hub.broadcast <- m:
+	default:
 	}
 }
 
