@@ -344,7 +344,7 @@ func wind(timeFrame string) float64 {
 	if err := db.QueryRow(avgSpeedQ).Scan(&avg); err != nil && err != sql.ErrNoRows {
 		sqlError("wind", err, avgSpeedQ)
 	}
-	logger.Info(avgSpeedQ, avg.Float64)
+
 	return avg.Float64
 }
 
