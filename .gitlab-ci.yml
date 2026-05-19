@@ -23,10 +23,10 @@ ui:
 stats:
   stage: build docker
   script:
-    - cd server
+    - cd stats
     - docker build -t $CI_REGISTRY/weather/stats:$STATS_VERSION . --no-cache
     - docker push $CI_REGISTRY/weather/stats:$STATS_VERSION
-    -
+
 server:
   stage: build docker
   script:
