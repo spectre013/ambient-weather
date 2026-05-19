@@ -165,6 +165,35 @@ button { font: inherit; color: inherit; }
 }
 .alert .cta:hover { background: color-mix(in oklch, var(--accent) 18%, var(--bg)); }
 
+.alert-actions {
+  display: flex; align-items: center; gap: 10px;
+}
+.alert-pager {
+  display: inline-flex; align-items: center; gap: 2px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: 2px;
+  background: var(--surface);
+}
+.alert-pager .pg {
+  border: none; background: none; cursor: pointer;
+  width: 22px; height: 22px;
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 14px; line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.alert-pager .pg:hover { color: var(--ink); background: var(--bg-2); }
+.alert-pager .pg-count {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  padding: 0 6px;
+  font-variant-numeric: tabular-nums;
+}
+.alert-pager .pg-count .sep { color: var(--faint); margin: 0 1px; }
+
 /* NWS event color tints — derived from spectre013/ambient-weather AlertInfo.css.
    Each rule sets --nws on the alert; styling reads it for the left rail, sev pill, & title. */
 .alert[class*="nws-"] {
@@ -179,6 +208,7 @@ button { font: inherit; color: inherit; }
   font-weight: 600;
 }
 .alert[class*="nws-"] .title { color: var(--nws); font-weight: 600; }
+
 
 .alert.nws-tsunami-warning { --nws: #FD6347; }
 .alert.nws-tornado-warning { --nws: #FF0000; }

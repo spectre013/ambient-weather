@@ -66,6 +66,7 @@ CREATE TABLE IF NOT EXISTS public.alerts
     description text COLLATE pg_catalog."default" NOT NULL DEFAULT ''::text,
     instruction text COLLATE pg_catalog."default" NOT NULL DEFAULT ''::text,
     response character varying(255) COLLATE pg_catalog."default" NOT NULL DEFAULT ''::character varying,
+    summary text COLLATE pg_catalog."default",
     CONSTRAINT alerts_pkey PRIMARY KEY (alertid)
 )
 
@@ -369,17 +370,41 @@ CREATE INDEX IF NOT EXISTS windspeedmphidx
 
 -- DROP TABLE IF EXISTS public.stats;
 
-CREATE TABLE IF NOT EXISTS public.stats
-(
-    id character varying(100) COLLATE pg_catalog."default" NOT NULL DEFAULT ''::character varying,
-    recorded timestamp(0) without time zone DEFAULT (now())::timestamp without time zone,
-    value numeric NOT NULL DEFAULT 0.0,
-    CONSTRAINT stats_pkey PRIMARY KEY (id)
-)
+CREATE TABLE period_stats (
+      period       TEXT NOT NULL,        -- 'day' | 'month' | 'year' | 'alltime'
+      period_start DATE NOT NULL,        -- '2026-05-18', '2026-05-01', '2026-01-01', '1970-01-01' for alltime
+      field        TEXT NOT NULL,        -- 'tempf', 'humidity', ...
+      min_value    NUMERIC(10,2),
+      min_at       TIMESTAMPTZ,
+      max_value    NUMERIC(10,2),
+      max_at       TIMESTAMPTZ,
+      sum_value    NUMERIC(14,4),        -- running sum for avg + native sum for rain/lightning
+      sample_count BIGINT NOT NULL DEFAULT 0,
+      updated_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+      PRIMARY KEY (period, period_start, field)
+);
 
-    TABLESPACE pg_default;
+CREATE INDEX idx_period_stats_period ON period_stats(period, period_start DESC);
 
 ALTER TABLE IF EXISTS public.stats
+    OWNER to ambient;
+
+CREATE VIEW period_stats_v AS
+SELECT period, period_start, field,
+       min_value, min_at,
+       max_value, max_at,
+       CASE WHEN sample_count > 0 THEN sum_value / sample_count END AS avg_value,
+       sum_value, sample_count, updated_at
+FROM period_stats;
+
+
+CREATE TABLE stat_ingest_log (
+     recorded TIMESTAMPTZ PRIMARY KEY,
+     folded_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+
+ALTER TABLE IF EXISTS public.stat_ingest_log
     OWNER to ambient;
 
 -- Table: public.forecast
@@ -441,7 +466,3 @@ CREATE INDEX IF NOT EXISTS idx_weather_date_desc
     ON public.forecast USING btree
         (datetime DESC NULLS FIRST)
     TABLESPACE pg_default;
-
-
-ALTER TABLE alerts
-    ADD COLUMN summary TEXT;

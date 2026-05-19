@@ -81,47 +81,7 @@ func main() {
 		fmt.Println(token.Error())
 	}
 	logger.Info("Subscribed to MQTT Channel", os.Getenv("MQTT_SUBSCRIBE"))
-	s := gocron.NewScheduler(loc)
-	var aj *gocron.Job
-	var fj *gocron.Job
 
-	if os.Getenv("LOGLEVEL") == "Debug" {
-		fmt.Println("Starting every minute alert update")
-
-		aj, err = s.Every(1).Minute().Do(updateAlerts)
-		if err != nil {
-			logger.Error(err)
-		}
-
-		fj, err = s.Every(1).Minute().Do(getForecast)
-		if err != nil {
-			logger.Error(err)
-		}
-
-	} else {
-		fmt.Println("Starting cron alert update", os.Getenv("ALERT_CRON"))
-		aj, err = s.Cron(os.Getenv("ALERT_CRON")).Do(updateAlerts)
-		if err != nil {
-			logger.Error(err)
-		}
-
-		fmt.Println("Starting cron Forecast update", os.Getenv("FORECAST_CRON"))
-		fj, err = s.Cron(os.Getenv("FORECAST_CRON")).Do(getForecast)
-		if err != nil {
-			logger.Error(err)
-		}
-
-		//kick of an alert and a forecast when we start the server.
-		go updateAlerts()
-		go getForecast()
-	}
-	if err != nil {
-		logger.Error(err)
-	}
-	logger.Info(aj.NextRun())
-	logger.Info(fj.NextRun())
-
-	s.StartAsync()
 	//calculateStats()
 	e := echo.New()
 	e.GET("/", index)
