@@ -1,5 +1,6 @@
+
 # STEP 1 build executable binary
-FROM golang:1.25.6-alpine as builder
+FROM golang:1.25.6-alpine3.22 AS builder
 RUN apk update && apk add git
 RUN apk --update add ca-certificates
 RUN apk add --no-cache tzdata
@@ -18,11 +19,11 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags="-w -s" -o /go/bin/processor
 # STEP 2 build a small image
 # start from scratch
-FROM ubuntu:24.04
-ENV TZ America/Denver
+FROM scratch
+ENV TZ=America/Denver
 # Copy our static executable
 COPY --from=builder /go/bin/processor /go/bin/processor
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
-ENV GO_ENV production
+ENV GO_ENV=production
 ENTRYPOINT ["/go/bin/processor"]

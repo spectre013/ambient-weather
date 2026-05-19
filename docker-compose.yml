@@ -2,9 +2,9 @@
 name: weather
 # Define the services (containers)
 services:
-  weather-server:
+  server:
     container_name: weather-server
-    image: docker.zoms.net/weather/server:v4.1.0
+    image: docker.zoms.net/weather/server:v5.0.0
     restart: unless-stopped
     pull_policy: always
     # Expose port 3000 inside the container to port 6001 on the host
@@ -17,13 +17,10 @@ services:
       - DB_USER=ambient
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_DATABASE=ambient
-      - ENV=development
+      - ENV=Production
       - LOGLEVEL=Info
-      - ALERT_CRON=*/15 * * * *
       - LAT=38.725798
       - LON=-104.66783
-      - WEATHER_API=${WEATHER_API}
-      - ASSETS=/app/public
     # Attach the container to the custom network
     networks:
       - weather-network
@@ -31,7 +28,7 @@ services:
       - "zoms-gitlab:10.10.1.124"
   processor:
     container_name: weather-processor
-    image: docker.zoms.net/weather/processor:v2.2.0
+    image: docker.zoms.net/weather/processor:v3.0.0
     restart: unless-stopped
     pull_policy: always
     # Expose port 3000 inside the container to port 6001 on the host
@@ -39,28 +36,25 @@ services:
       - "7501:8081"
     # Set the environment variables
     environment:
-      - PORT=3000
-      - DB_HOST=10.10.1.120
-      - DB_USER=ambient
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_DATABASE=ambient
-      - ENV=development
-      - LOGLEVEL=Info
-      - ALERT_CRON=*/15 * * * *
-      - FORECAST_CRON=0 */4 * * *
-      - LAT=38.725798
-      - LON=-104.66783
-      - MQTT_HOST=tcp://10.10.1.124:1883
-      - MQTT_SUBSCRIBE=weather/incoming
-      - MQTT_USERNAME=brian
-      - MQTT_PASSWORD=${DB_PASSWORD}
-      - WEATHER_API=${WEATHER_API}
+      - MQTT_BROKER=tcp://10.10.1.124:1883
+      - MQTT_CLIENT_ID=weather-processor
+      - MQTT_USER=brian
+      - MQTT_PASS=${DB_PASSWORD}
+      - MQTT_TOPIC=ambient/#
+      - MQTT_STATS_TOPIC=weather/stats
+      - DATABASE_URL=postgres://ambient:${DB_PASSWORD}0@10.10.1.120:5432/ambient?sslmode=disable
+      - STATION_MAC=WS-5000
+      - ELEVATION=1746.5
+      - SNAPSHOT_INTERVAL=1m
+      - RAIN_EVENT_GAP=1h
     # Attach the container to the custom network
     networks:
       - weather-network
-  receiver:
-    container_name: weather-receiver
-    image: docker.zoms.net/weather/receiver:v1.0.0
+    extra_hosts:
+      - "zoms-gitlab:10.10.1.124"
+  stats:
+    container_name: weather-stats
+    image: docker.zoms.net/weather/stats:v1.0.0
     restart: unless-stopped
     pull_policy: always
     # Expose port 3000 inside the container to port 6001 on the host
@@ -68,10 +62,19 @@ services:
       - "7500:8080"
     # Set the environment variables
     environment:
-      - MQTT_HOST=tcp://10.10.1.124:1883
-      - MQTT_PUBLISH=weather/incoming
+      - MQTT_BROKER=tcp://10.10.1.124:1883
+      - MQTT_CLIENT_ID=weather-stats
       - MQTT_USERNAME=brian
       - MQTT_PASSWORD=${DB_PASSWORD}
+      - MQTT_STATS_SUBSCRIBE=weather/stats
+      - STATION_MAC=WS-5000
+      - DATABASE_URL=postgres://ambient:${DB_PASSWORD}@10.10.1.120:5432/ambient?sslmode=disable
+      - ALERT_CRON=*/15 * * * *
+      - FORECAST_CRON=0 */4 * * *
+      - LAT=38.725798
+      - LON=-104.66783
+      - WEATHER_API=${WEATHER_API}
+
     # Attach the container to the custom network
     networks:
       - weather-network
@@ -80,7 +83,7 @@ services:
 
   weather-ui:
     container_name: weather-ui
-    image: docker.zoms.net/weather/ui:v3.1.0
+    image: docker.zoms.net/weather/ui:v3.2.0
     restart: unless-stopped
     pull_policy: always
     # Expose port 6000 inside the container to port 6000 on the host
@@ -94,4 +97,3 @@ services:
 networks:
   weather-network:
     driver: bridge
-

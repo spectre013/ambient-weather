@@ -15,14 +15,14 @@ RUN go mod download
 COPY . .
 
 #build the binary
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags="-w -s" -o /go/bin/processor
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags="-w -s" -o /go/bin/stats
 # STEP 2 build a small image
 # start from scratch
 FROM ubuntu:24.04
 ENV TZ America/Denver
 # Copy our static executable
-COPY --from=builder /go/bin/processor /go/bin/processor
+COPY --from=builder /go/bin/processor /go/bin/stats
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
 ENV GO_ENV production
-ENTRYPOINT ["/go/bin/processor"]
+ENTRYPOINT ["/go/bin/stats"]
