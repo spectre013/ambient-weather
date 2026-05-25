@@ -84,9 +84,9 @@ export default function HomePage() {
       </div>
 
       <div className="section-rule" style={{ marginTop: 18 }}>
-        <span className="h">§ 14-day outlook</span>
+        <span className="h">§ 10-day outlook</span>
         <span className="line" />
-        <span className="meta">Visual Crossing · NOAA NDFD ensemble</span>
+        <span className="meta">NOAA GFS · HRRR · NBM ensemble</span>
       </div>
       <div className="card">
         <DailyList days={forecast.days} tzOffsetH={tzOffsetH} units={units} />

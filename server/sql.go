@@ -55,7 +55,7 @@ func GetForecasts() ([]ForecastDB, error) {
 			icon, stations, source, hours, summary
 		FROM forecast
 		WHERE datetime >= $1
-		ORDER BY datetime ASC LIMIT 12`
+		ORDER BY datetime ASC LIMIT 10`
 
 	rows, err := db.Query(query, start)
 	if err != nil {

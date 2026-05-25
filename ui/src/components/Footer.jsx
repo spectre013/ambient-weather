@@ -12,8 +12,8 @@ export default function Footer({ forecast }) {
       <div className="col">
         <span className="h">Network</span>
         <span>NWS, METAR & nearby ASOS</span>
-        <span>{forecast.stations}</span>
-        <span>Forecast © Visual Crossing · NOAA NDFD</span>
+        <span>KPUB,KFCS,KFLY,KCWN,KCOS,KMNH</span>
+        <span>Forecast © NOAA NDFD Models GFS · HRRR · NBM</span>
       </div>
       <div className="col">
         <span className="h">Services</span>

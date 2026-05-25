@@ -2,8 +2,8 @@ before_script:
   - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
 
 variables:
-  UI_VERSION: "v3.2.0"
-  SERVER_VERSION: "v5.0.0"
+  UI_VERSION: "v3.2.1"
+  SERVER_VERSION: "v5.0.1"
   PROCESSOR_VERSION: "v3.0.0"
 #  RECEIVER_VERSION: "v1.0.0"
   STATS_VERSION: "v1.0.0"
