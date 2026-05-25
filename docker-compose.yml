@@ -28,7 +28,7 @@ services:
       - "zoms-gitlab:10.10.1.124"
   processor:
     container_name: weather-processor
-    image: docker.zoms.net/weather/processor:v3.0.1
+    image: docker.zoms.net/weather/processor:v3.0.0
     restart: unless-stopped
     pull_policy: always
     # Expose port 3000 inside the container to port 6001 on the host
@@ -83,7 +83,7 @@ services:
 
   weather-ui:
     container_name: weather-ui
-    image: docker.zoms.net/weather/ui:v3.2.0
+    image: docker.zoms.net/weather/ui:v3.2.1
     restart: unless-stopped
     pull_policy: always
     # Expose port 6000 inside the container to port 6000 on the host
