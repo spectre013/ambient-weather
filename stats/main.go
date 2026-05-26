@@ -268,7 +268,7 @@ func insertForecast(f forecastDB) error {
 	defer cancel()
 
 	const query = `
-	INSERT INTO forecast (
+	INSERT INTO vcforecast (
 		datetime, datetime_epoch, tempmax, tempmin, temp, feelslikemax, feelslikemin,
 		feelslike, dew, humidity, precip, precipprob, precipcover, preciptype,
 		snow, snowdepth, windgust, windspeed, winddir, pressure, cloudcover,
