@@ -479,3 +479,24 @@ type ForecastDB struct {
 	Hours          string    `json:"hours"` // Raw JSON string
 	Summary        string    `json:"summary"`
 }
+
+type HistoryResponse struct {
+	Date     string        `json:"date"`     // "2026-04-22" (local day)
+	TZOffset int           `json:"tzoffset"` // local UTC offset in hours, DST-aware
+	Hours    []HistoryHour `json:"hours"`
+	Latest   *LatestPoint  `json:"latest,omitempty"`
+}
+
+type HistoryHour struct {
+	Datetime  string  `json:"datetime"` // "HH:00:00" local
+	Temp      float64 `json:"temp"`
+	Humidity  float64 `json:"humidity"`
+	Windspeed float64 `json:"windspeed"`
+	Precip    float64 `json:"precip"`
+	Source    string  `json:"source"` // always "obs"
+}
+
+type LatestPoint struct {
+	Datetime time.Time `json:"datetime"` // full timestamp, UTC
+	Temp     float64   `json:"temp"`
+}

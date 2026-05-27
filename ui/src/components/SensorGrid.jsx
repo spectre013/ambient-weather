@@ -15,8 +15,6 @@ export default function SensorGrid({ current, units }) {
       {SENSOR_DEFS.map((s) => {
         const data = current[s.key];
         if (!data) return null;
-        console.log(s.key)
-        console.log(current[s.key].minmax.max.day.value);
         return (
           <div className="sensor" key={s.name}>
             <div className="name">

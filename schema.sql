@@ -411,7 +411,7 @@ ALTER TABLE IF EXISTS public.stat_ingest_log
 
 -- DROP TABLE IF EXISTS public.forecast;
 
-CREATE TABLE IF NOT EXISTS public.forecast
+CREATE TABLE IF NOT EXISTS public.vcforecast
 (
     datetime timestamp with time zone NOT NULL,
     datetime_epoch bigint,
@@ -450,13 +450,13 @@ CREATE TABLE IF NOT EXISTS public.forecast
     stations text COLLATE pg_catalog."default",
     source text COLLATE pg_catalog."default",
     hours text COLLATE pg_catalog."default",
-    summary text COLLATE pg_catalog."default",
-    CONSTRAINT forecast_pkey PRIMARY KEY (datetime)
+    summary text COLLATE pg_catalog."default"
 )
+TABLESPACE pg_default;
 
-    TABLESPACE pg_default;
+ALTER TABLE vcforecast ADD PRIMARY KEY (datetime);
 
-ALTER TABLE IF EXISTS public.forecast
+ALTER TABLE IF EXISTS public.vcforecast
     OWNER to ambient;
 -- Index: idx_weather_date_desc
 

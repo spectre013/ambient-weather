@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
+	"math"
 	"time"
 )
 
@@ -226,4 +228,118 @@ func firstFreeze() []FirstFreeze {
 		logger.WithError(err).Error("firstFreeze rows.Err")
 	}
 	return ff
+}
+
+func getHistory(ctx context.Context) (HistoryResponse, error) {
+	loc := config.Location
+	now := time.Now().In(loc)
+
+	dayStart := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, loc)
+	// exclusive upper bound: the start of the current (in-progress) hour
+	currentHourStart := time.Date(now.Year(), now.Month(), now.Day(), now.Hour(), 0, 0, 0, loc)
+
+	_, offsetSeconds := now.Zone()
+
+	resp := HistoryResponse{
+		Date:     dayStart.Format("2006-01-02"),
+		TZOffset: offsetSeconds / 3600,
+		Hours:    []HistoryHour{},
+	}
+
+	// For each local-time hour bucket:
+	//   - temp/humidity/windspeed come from the record nearest to HH:00
+	//     (DISTINCT ON the hour, ordered by distance from the hour boundary).
+	//   - precip is MAX(dailyrainin) over the hour.
+	// The two are computed separately and joined on the hour bucket.
+	const query = `
+		WITH nearest AS (
+			SELECT DISTINCT ON (date_trunc('hour', recorded AT TIME ZONE $1))
+				date_trunc('hour', recorded AT TIME ZONE $1) AS hour_bucket,
+				tempf        AS temp,
+				humidity     AS humidity,
+				windspeedmph AS windspeed
+			FROM records
+			WHERE recorded >= $2 AND recorded < $3
+			ORDER BY
+				date_trunc('hour', recorded AT TIME ZONE $1),
+				ABS(EXTRACT(EPOCH FROM (
+					(recorded AT TIME ZONE $1)
+					- date_trunc('hour', recorded AT TIME ZONE $1)
+				)))
+		),
+		rain AS (
+			SELECT date_trunc('hour', recorded AT TIME ZONE $1) AS hour_bucket,
+			       MAX(dailyrainin) AS precip
+			FROM records
+			WHERE recorded >= $2 AND recorded < $3
+			GROUP BY date_trunc('hour', recorded AT TIME ZONE $1)
+		)
+		SELECT
+			to_char(n.hour_bucket, 'HH24:00:00') AS hour_label,
+			n.temp,
+			n.humidity,
+			n.windspeed,
+			COALESCE(r.precip, 0) AS precip
+		FROM nearest n
+		LEFT JOIN rain r USING (hour_bucket)
+		ORDER BY n.hour_bucket`
+
+	rows, err := db.QueryContext(ctx, query, config.LocationStr, dayStart, currentHourStart)
+	if err != nil {
+		return resp, fmt.Errorf("history query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var h HistoryHour
+		var temp, humidity, windspeed, precip sql.NullFloat64
+		var label string
+		if err := rows.Scan(&label, &temp, &humidity, &windspeed, &precip); err != nil {
+			return resp, fmt.Errorf("history scan: %w", err)
+		}
+		h.Datetime = label
+		h.Temp = round2(temp.Float64)
+		h.Humidity = round2(humidity.Float64)
+		h.Windspeed = round2(windspeed.Float64)
+		h.Precip = round2(precip.Float64)
+		h.Source = "obs"
+		resp.Hours = append(resp.Hours, h)
+	}
+	if err := rows.Err(); err != nil {
+		return resp, fmt.Errorf("history rows: %w", err)
+	}
+
+	// latest raw record (full precision timestamp, UTC)
+	latest, err := getLatestPoint(ctx)
+	if err != nil {
+		// non-fatal: return hours without latest
+		logger.Error("history latest: ", err)
+	} else {
+		resp.Latest = latest
+	}
+
+	return resp, nil
+}
+
+func getLatestPoint(ctx context.Context) (*LatestPoint, error) {
+	const q = `
+		SELECT recorded, tempf
+		FROM records
+		ORDER BY recorded DESC
+		LIMIT 1`
+	var lp LatestPoint
+	err := db.QueryRowContext(ctx, q).Scan(&lp.Datetime, &lp.Temp)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+	lp.Datetime = lp.Datetime.UTC()
+	lp.Temp = round2(lp.Temp)
+	return &lp, nil
+}
+
+func round2(f float64) float64 {
+	return math.Round(f*100) / 100
 }

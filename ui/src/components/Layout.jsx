@@ -10,6 +10,8 @@ import { useWeatherData } from "../hooks/useWeatherData";
 const DATA_SOURCE = "live"; // "fixture" | "live"
 const WS_URL = "/api/ws";
 const FORECAST_URL = "/api/forecast";
+const HISTORY_URL = "/api/history";
+
 
 const FIXTURES = {
   current: `${import.meta.env.BASE_URL}data/current.json`,
@@ -24,10 +26,11 @@ export default function Layout() {
   const [accent, setAccent]     = useLocalStorage("ws.accent", "#476aa8");
   const [showSensors, setShowSensors] = useLocalStorage("ws.showSensors", true);
 
-  const { current, forecast, conn } = useWeatherData({
+  const { current, forecast, history, conn } = useWeatherData({
     source: DATA_SOURCE,
     wsUrl: WS_URL,
     forecastUrl: FORECAST_URL,
+    historyUrl: HISTORY_URL,
     fixturePaths: FIXTURES,
   });
 
@@ -58,7 +61,7 @@ export default function Layout() {
             theme={theme}
             onThemeChange={setTheme}
         />
-        <Outlet context={{ current, forecast, conn, prefs, setPref, units }} />
+        <Outlet context={{ current, history, forecast, conn, prefs, setPref, units }} />
         <Footer forecast={forecast} />
       </div>
   );

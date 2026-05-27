@@ -22,40 +22,50 @@ export const normalizeForecast = (raw) => {
 };
 
 // Loads `current` (websocket) and `forecast` (HTTP) and exposes them along
-// with a connection state. Falls back to bundled fixture if the source is
-// "fixture" or the network call fails.
-export function useWeatherData({ source, wsUrl, forecastUrl, fixturePaths }) {
+// with a connection state. In "fixture" mode it serves the bundled JSON;
+// in "live" mode it fetches the configured endpoints.
+export function useWeatherData({ source, wsUrl, forecastUrl, historyUrl, fixturePaths }) {
   const [current, setCurrent] = useState(null);
   const [forecast, setForecast] = useState(null);
+  const [history, setHistory] = useState(null);
   const [conn, setConn] = useState("idle");
   const wsRef = useRef(null);
 
   useEffect(() => {
     let cancelled = false;
-    const loadOffline = () => {
+
+    if (source === "fixture") {
       Promise.all([
         fetch(fixturePaths.current).then((r) => r.json()),
         fetch(fixturePaths.forecast).then((r) => r.json()),
-      ]).then(([c, f]) => {
+        fetch(fixturePaths.history).then((r) => r.json()),
+      ]).then(([c, f, h]) => {
         if (cancelled) return;
         setCurrent(c);
         setForecast(normalizeForecast(f));
-        setConn("offline");
-      }).catch((e) => console.error("offline data load failed", e));
-    };
-
-    if (source === "fixture") { loadOffline(); return () => { cancelled = true; }; }
+        setHistory(h);
+      }).catch((e) => console.error("fixture load failed", e));
+      return () => { cancelled = true; };
+    }
 
     fetch(forecastUrl)
-      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
-      .then((f) => { if (cancelled) return; setForecast(normalizeForecast(f)); })
-      .catch((e) => {
-        console.warn("forecast fetch failed, falling back to fixture:", e.message);
-        loadOffline();
-      });
+        .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+        .then((f) => { if (cancelled) return; setForecast(normalizeForecast(f)); })
+        .catch((e) => console.warn("forecast fetch failed:", e.message));
 
-    return () => { cancelled = true; };
-  }, [source, forecastUrl, fixturePaths.current, fixturePaths.forecast]);
+    // History: hourly observations recorded so far today. Poll on a slow
+    // heartbeat so a new completed hour appears within a minute even when
+    // the websocket only carries minute-level `current`.
+    const fetchHistory = () =>
+        fetch(historyUrl)
+            .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+            .then((h) => { if (!cancelled) setHistory(h); })
+            .catch((e) => console.warn("history fetch failed:", e.message));
+    fetchHistory();
+    const histTimer = setInterval(fetchHistory, 60000);
+
+    return () => { cancelled = true; clearInterval(histTimer); };
+  }, [source, forecastUrl, historyUrl, fixturePaths.current, fixturePaths.forecast, fixturePaths.history]);
 
   useEffect(() => {
     if (source === "fixture") return;
@@ -87,5 +97,6 @@ export function useWeatherData({ source, wsUrl, forecastUrl, fixturePaths }) {
     };
   }, [source, wsUrl]);
 
-  return { current, forecast, conn };
+  return { current, forecast, history, conn };
 }
+  

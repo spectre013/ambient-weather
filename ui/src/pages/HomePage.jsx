@@ -17,12 +17,12 @@ import HourlyStrip from "../components/HourlyStrip";
 import DailyList from "../components/DailyList";
 
 export default function HomePage() {
-  const { current, forecast, units, tweaks } = useOutletContext();
+  const { current, forecast, history, units, prefs } = useOutletContext();
   const today = forecast.days[0];
   const nowDate = new Date(current.date);
   const tzOffsetH = forecast.tzoffset;
   const todayHours = today.hours;
-
+  console.log(history);
   return (
     <>
       {current.alert && current.alert[0] && <AlertBar alerts={current.alert} />}
@@ -36,9 +36,13 @@ export default function HomePage() {
         <div className="label">
           <span>Today · 24-hour record</span>
           <span className="right" style={{ display: "flex", gap: 14 }}>
+            <span style={{ display: "flex", alignItems: "center", gap: 3 }}>
+              <i style={{ display: "inline-block", width: 6, height: 1, background: "var(--muted)", borderRadius: 2 }} /> <i style={{ display: "inline-block", width: 6, height: 1, background: "var(--muted)", borderRadius: 2 }} />
+              <span>Forecasted</span>
+            </span>
             <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <i style={{ display: "inline-block", width: 12, height: 2, background: "var(--accent)", borderRadius: 2 }} />
-              <span>Temperature</span>
+              <span>Actual</span>
             </span>
             <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <i style={{ display: "inline-block", width: 8, height: 8, background: "var(--cool)", opacity: 0.5, borderRadius: 1 }} />
@@ -46,7 +50,7 @@ export default function HomePage() {
             </span>
           </span>
         </div>
-        <TwentyFourChart hours={todayHours} nowHour={nowDate.getUTCHours() + tzOffsetH} units={units} />
+        <TwentyFourChart hours={todayHours} history={history} current={current} nowHour={nowDate.getUTCHours() + tzOffsetH} units={units} />
       </div>
 
       <div className="grid">
