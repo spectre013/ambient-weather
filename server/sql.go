@@ -252,37 +252,37 @@ func getHistory(ctx context.Context) (HistoryResponse, error) {
 	//   - precip is MAX(dailyrainin) over the hour.
 	// The two are computed separately and joined on the hour bucket.
 	const query = `
-		WITH nearest AS (
-			SELECT DISTINCT ON (date_trunc('hour', recorded AT TIME ZONE $1))
-				date_trunc('hour', recorded AT TIME ZONE $1) AS hour_bucket,
-				tempf        AS temp,
-				humidity     AS humidity,
-				windspeedmph AS windspeed
-			FROM records
-			WHERE recorded >= $2 AND recorded < $3
-			ORDER BY
-				date_trunc('hour', recorded AT TIME ZONE $1),
-				ABS(EXTRACT(EPOCH FROM (
-					(recorded AT TIME ZONE $1)
-					- date_trunc('hour', recorded AT TIME ZONE $1)
-				)))
-		),
-		rain AS (
-			SELECT date_trunc('hour', recorded AT TIME ZONE $1) AS hour_bucket,
-			       MAX(dailyrainin) AS precip
-			FROM records
-			WHERE recorded >= $2 AND recorded < $3
-			GROUP BY date_trunc('hour', recorded AT TIME ZONE $1)
-		)
-		SELECT
-			to_char(n.hour_bucket, 'HH24:00:00') AS hour_label,
-			n.temp,
-			n.humidity,
-			n.windspeed,
-			COALESCE(r.precip, 0) AS precip
-		FROM nearest n
-		LEFT JOIN rain r USING (hour_bucket)
-		ORDER BY n.hour_bucket`
+			WITH nearest AS (
+				SELECT DISTINCT ON (date_trunc('hour', recorded AT TIME ZONE $1))
+					date_trunc('hour', recorded AT TIME ZONE $1) AS hour_bucket,
+					tempf        AS temp,
+					humidity     AS humidity,
+					windspeedmph AS windspeed
+				FROM records
+				WHERE recorded >= $2 AND recorded < $3
+				ORDER BY
+					date_trunc('hour', recorded AT TIME ZONE $1),
+					ABS(EXTRACT(EPOCH FROM (
+						(recorded AT TIME ZONE $1)
+						- date_trunc('hour', recorded AT TIME ZONE $1)
+					)))
+			),
+			rain AS (
+				SELECT date_trunc('hour', recorded AT TIME ZONE $1) AS hour_bucket,
+					   MAX(dailyrainin) AS precip
+				FROM records
+				WHERE recorded >= $2 AND recorded < $3
+				GROUP BY date_trunc('hour', recorded AT TIME ZONE $1)
+			)
+			SELECT
+				to_char(n.hour_bucket, 'HH24:00:00') AS hour_label,
+				n.temp,
+				n.humidity,
+				n.windspeed,
+				COALESCE(r.precip, 0) AS precip
+			FROM nearest n
+			LEFT JOIN rain r USING (hour_bucket)
+			ORDER BY n.hour_bucket`
 
 	rows, err := db.QueryContext(ctx, query, config.LocationStr, dayStart, currentHourStart)
 	if err != nil {

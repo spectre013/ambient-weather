@@ -1,0 +1,13 @@
+[Unit]
+Description=RTL-433 SDR Receiver
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/rtl_433 -f 915M -Y classic -M level -F json -F "mqtt://<host>:1883,user=<user>,pass=<pass>,retain=0,events=ambient[/model][/id]"
+Restart=always
+User=brian
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
