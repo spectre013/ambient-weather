@@ -5,6 +5,10 @@ import {showT, tUnit, fmtTime} from "../utils/format";
 
 export default function Hero({ current, forecast, units }) {
   const today = forecast.days[0];
+  // Prefer the observed station conditions (from /api/current websocket); fall
+  // back to the forecast's today values when no observation exists yet.
+  const conditions = current.conditions || today.conditions;
+  const icon = current.icon || today.icon;
   const hi = today.tempmax;
   const lo = today.tempmin;
   const t = current.temp.temp;
@@ -30,7 +34,7 @@ export default function Hero({ current, forecast, units }) {
               <span className="num">{Math.round(showT(t, units))}</span>
               <span className="deg">{tUnit(units)}</span>
             </div>
-            <div className="cond">{today.conditions}<br/>feels like {Math.round(showT(feels, units))}{tUnit(units)}</div>
+            <div className="cond">{conditions}<br/>feels like {Math.round(showT(feels, units))}{tUnit(units)}</div>
           </div>
           <div className="row">
             <div className="kv"><span className="k">High today</span><span className="v">{Math.round(showT(aHi, units))}{tUnit(units)}</span></div>
@@ -40,7 +44,7 @@ export default function Hero({ current, forecast, units }) {
           </div>
         </div>
         <div className="iconbox">
-          <WeatherIcon kind={today.icon} size={120} />
+          <WeatherIcon kind={icon} size={120} />
           <div className="hilo">
             <span><b>H</b> {Math.round(showT(hi, units))}°</span>
             <span><b>L</b> {Math.round(showT(lo, units))}°</span>

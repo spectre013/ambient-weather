@@ -466,3 +466,37 @@ CREATE INDEX IF NOT EXISTS idx_weather_date_desc
     ON public.forecast USING btree
         (datetime DESC NULLS FIRST)
     TABLESPACE pg_default;
+
+-- ----------------------------------------------------------------------------
+-- Table: public.conditions
+-- ----------------------------------------------------------------------------
+-- Observed current conditions for a station, pulled from the NWS
+-- /stations/{id}/observations/latest endpoint by the stats service every
+-- 15 minutes. One row per observation (keyed by station + observed_at);
+-- the server reads the latest row to populate /api/app `conditions`/`icon`.
+
+CREATE TABLE IF NOT EXISTS public.conditions
+(
+    id               bigserial PRIMARY KEY,
+    station          text        NOT NULL,
+    observed_at      timestamptz NOT NULL,
+    conditions       text,                 -- human text (NWS textDescription, refined)
+    icon             text,                 -- derived Visual-Crossing-style icon kind
+    text_description text,                 -- raw NWS textDescription
+    present_weather  text,                 -- JSON-encoded raw presentWeather[]
+    cloud_layers     text,                 -- JSON-encoded raw cloudLayers[]
+    raw_icon         text,                 -- original NWS icon URL
+    temperature      numeric(6,2),         -- °F (converted from observed °C)
+    humidity         numeric(6,2),         -- %
+    created_at       timestamptz NOT NULL DEFAULT now(),
+    CONSTRAINT conditions_station_observed_uk UNIQUE (station, observed_at)
+)
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.conditions
+    OWNER to ambient;
+
+CREATE INDEX IF NOT EXISTS idx_conditions_observed
+    ON public.conditions USING btree
+        (station, observed_at DESC)
+    TABLESPACE pg_default;

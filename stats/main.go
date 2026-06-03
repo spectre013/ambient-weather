@@ -109,6 +109,9 @@ func main() {
 		if _, err := s.Every(1).Minute().Do(getForecast); err != nil {
 			logger.Error(err)
 		}
+		if _, err := s.Every(1).Minute().Do(getStationConditions); err != nil {
+			logger.Error(err)
+		}
 		if _, err := s.Every(5).Minute().Do(runDailyRebuild); err != nil {
 			logger.Error(err)
 		}
@@ -119,6 +122,11 @@ func main() {
 		}
 		logger.Info("Forecast cron: ", os.Getenv("FORECAST_CRON"))
 		if _, err := s.Cron(os.Getenv("FORECAST_CRON")).Do(getForecast); err != nil {
+			logger.Error(err)
+		}
+		conditionsCron := getEnvDefault("CONDITIONS_CRON", "*/15 * * * *")
+		logger.Info("Conditions cron: ", conditionsCron)
+		if _, err := s.Cron(conditionsCron).Do(getStationConditions); err != nil {
 			logger.Error(err)
 		}
 		rebuildCron := os.Getenv("STATS_REBUILD_CRON")
@@ -133,6 +141,7 @@ func main() {
 		// startup
 		go updateAlerts()
 		go getForecast()
+		go getStationConditions()
 	}
 
 	s.StartAsync()
@@ -384,6 +393,196 @@ func convertDayToDB(d Day) (forecastDB, error) {
 		Source:         d.Source,
 		Hours:          string(hoursJSON),
 	}, nil
+}
+
+// ----------------------------------------------------------------------------
+// Current conditions (NWS station observation)
+// ----------------------------------------------------------------------------
+
+// getStationConditions pulls the latest observation for the configured NWS
+// station and upserts it into the conditions table. Scheduled every 15 minutes.
+func getStationConditions() {
+	station := getEnvDefault("STATION_ID", "KCOS")
+	url := fmt.Sprintf("https://api.weather.gov/stations/%s/observations/latest", station)
+
+	// alertRequest sets the User-Agent the weather.gov API requires.
+	res, err := alertRequest("GET", url)
+	if err != nil {
+		logger.Error("getStationConditions: ", err)
+		return
+	}
+
+	var obs NWSObservation
+	if err := json.Unmarshal(res, &obs); err != nil {
+		logger.Error("getStationConditions unmarshal: ", err)
+		return
+	}
+	p := obs.Properties
+
+	if p.Timestamp.IsZero() {
+		logger.Warn("getStationConditions: observation has no timestamp; skipping")
+		return
+	}
+
+	pwJSON, _ := json.Marshal(p.PresentWeather)
+	clJSON, _ := json.Marshal(p.CloudLayers)
+
+	c := conditionsDB{
+		Station:         station,
+		ObservedAt:      p.Timestamp,
+		Conditions:      deriveConditionsText(p),
+		Icon:            nwsIconToVC(p.Icon),
+		TextDescription: p.TextDescription,
+		PresentWeather:  string(pwJSON),
+		CloudLayers:     string(clJSON),
+		RawIcon:         p.Icon,
+		Temperature:     celsiusToF(p.Temperature.Value),
+		Humidity:        p.RelativeHumidity.Value,
+	}
+
+	if err := insertConditions(c); err != nil {
+		logger.Error("insertConditions: ", err)
+		return
+	}
+	logger.Infof("Stored conditions for %s @ %s: %q (%s)", station, p.Timestamp, c.Conditions, c.Icon)
+}
+
+func insertConditions(c conditionsDB) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	const query = `
+	INSERT INTO public.conditions (
+		station, observed_at, conditions, icon, text_description,
+		present_weather, cloud_layers, raw_icon, temperature, humidity
+	) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+	ON CONFLICT (station, observed_at) DO UPDATE SET
+		conditions       = EXCLUDED.conditions,
+		icon             = EXCLUDED.icon,
+		text_description = EXCLUDED.text_description,
+		present_weather  = EXCLUDED.present_weather,
+		cloud_layers     = EXCLUDED.cloud_layers,
+		raw_icon         = EXCLUDED.raw_icon,
+		temperature      = EXCLUDED.temperature,
+		humidity         = EXCLUDED.humidity`
+
+	_, err := db.ExecContext(ctx, query,
+		c.Station, c.ObservedAt, c.Conditions, c.Icon, c.TextDescription,
+		c.PresentWeather, c.CloudLayers, c.RawIcon, c.Temperature, c.Humidity,
+	)
+	if err != nil {
+		return fmt.Errorf("upsert conditions for %s @ %v: %w", c.Station, c.ObservedAt, err)
+	}
+	return nil
+}
+
+func celsiusToF(c *float64) *float64 {
+	if c == nil {
+		return nil
+	}
+	f := *c*9/5 + 32
+	return &f
+}
+
+// deriveConditionsText returns a human-readable conditions string. NWS
+// textDescription is already friendly ("Partly Cloudy", "Light Rain"); when it's
+// absent we fall back to a label derived from the highest cloud-cover layer.
+func deriveConditionsText(p NWSObservationProps) string {
+	if d := strings.TrimSpace(p.TextDescription); d != "" {
+		return d
+	}
+	// Cloud amounts, least → most cover.
+	labels := map[string]string{
+		"SKC": "Clear", "CLR": "Clear", "FEW": "Mostly Clear",
+		"SCT": "Partly Cloudy", "BKN": "Mostly Cloudy", "OVC": "Overcast",
+	}
+	best := ""
+	for _, l := range p.CloudLayers {
+		if lbl, ok := labels[strings.ToUpper(l.Amount)]; ok {
+			best = lbl
+		}
+	}
+	if best != "" {
+		return best
+	}
+	return "Clear"
+}
+
+// nwsIconToVC maps an NWS icon URL to a Visual-Crossing-style icon kind that the
+// app's bundled asset set already understands (see ui icons / WeatherIconView).
+// URLs look like https://api.weather.gov/icons/land/day/sct?size=medium or
+// .../night/tsra,40 (the trailing ",NN" is a precip probability we ignore).
+func nwsIconToVC(iconURL string) string {
+	if iconURL == "" {
+		return "partly-cloudy-day"
+	}
+	// Strip query string, then split the path.
+	path := iconURL
+	if i := strings.IndexByte(path, '?'); i >= 0 {
+		path = path[:i]
+	}
+	parts := strings.Split(path, "/")
+
+	night := false
+	code := ""
+	for i, seg := range parts {
+		if seg == "day" || seg == "night" {
+			night = seg == "night"
+			if i+1 < len(parts) {
+				code = parts[i+1]
+			}
+			break
+		}
+	}
+	// Strip the optional ",NN" probability suffix and lowercase.
+	if i := strings.IndexByte(code, ','); i >= 0 {
+		code = code[:i]
+	}
+	code = strings.ToLower(code)
+
+	suffix := func(base string) string {
+		if night {
+			return base + "-night"
+		}
+		return base + "-day"
+	}
+
+	switch code {
+	case "skc", "few":
+		return suffix("clear")
+	case "sct", "bkn", "wind_skc", "wind_few", "wind_sct", "wind_bkn":
+		return suffix("partly-cloudy")
+	case "ovc", "wind_ovc":
+		return "cloudy"
+	case "rain", "rain_showers", "rain_showers_hi":
+		return suffix("showers")
+	case "rain_fzra", "fzra", "rain_sleet", "snow_sleet", "sleet":
+		return "sleet"
+	case "tsra", "tsra_sct", "tsra_hi":
+		return suffix("thunder-showers")
+	case "snow", "rain_snow", "snow_fzra":
+		return suffix("snow-showers")
+	case "blizzard", "cold":
+		return "blizzard"
+	case "fog", "fzfg", "dust", "smoke", "haze":
+		return "fog"
+	case "wind", "wind_skc_few":
+		return "wind"
+	case "hot":
+		return "hot"
+	case "hurricane", "tropical_storm", "tornado":
+		return "wind"
+	default:
+		return "partly-cloudy-day"
+	}
+}
+
+// getEnvDefault returns the env var for key, or def when unset/empty.
+func getEnvDefault(key, def string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return def
 }
 
 // ----------------------------------------------------------------------------

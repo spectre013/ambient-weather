@@ -56,6 +56,11 @@ type Conditions struct {
 	UV        UV        `json:"uv"`
 	Astro     Astro     `json:"astro"`
 	Alert     []Alert   `json:"alert"`
+	// Observed current conditions from the NWS station (populated by the stats
+	// service into the conditions table). Empty when no observation exists yet;
+	// clients fall back to the forecast's today values in that case.
+	Conditions string `json:"conditions"`
+	Icon       string `json:"icon"`
 }
 
 type AppConditions struct {
@@ -78,7 +83,18 @@ type AppConditions struct {
 	Astro      Astro      `json:"astro"`
 	Alert      []Alert    `json:"alert"`
 	Conditions string     `json:"conditions"`
+	Icon       string     `json:"icon"`
 	Forecast   ForecastDB `json:"forecast"`
+}
+
+// StationConditions is the latest observed conditions row for a station,
+// populated by the stats service from the NWS observations endpoint.
+type StationConditions struct {
+	Conditions  string    `json:"conditions"`
+	Icon        string    `json:"icon"`
+	ObservedAt  time.Time `json:"observed_at"`
+	Temperature float64   `json:"temperature"`
+	Humidity    float64   `json:"humidity"`
 }
 
 type Barometer struct {

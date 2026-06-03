@@ -4,7 +4,7 @@ name: weather
 services:
   server:
     container_name: weather-server
-    image: docker.zoms.net/weather/server:v5.0.1
+    image: docker.zoms.net/weather/server:v5.1.0
     restart: unless-stopped
     pull_policy: always
     # Expose port 3000 inside the container to port 6001 on the host
@@ -21,6 +21,7 @@ services:
       - LOGLEVEL=Info
       - LAT=38.725798
       - LON=-104.66783
+      - STATION_ID=KCOS
     # Attach the container to the custom network
     networks:
       - weather-network
@@ -54,7 +55,7 @@ services:
       - "zoms-gitlab:10.10.1.124"
   stats:
     container_name: weather-stats
-    image: docker.zoms.net/weather/stats:v1.0.0
+    image: docker.zoms.net/weather/stats:v1.1.0
     restart: unless-stopped
     pull_policy: always
     # Expose port 3000 inside the container to port 6001 on the host
@@ -71,6 +72,8 @@ services:
       - DATABASE_URL=postgres://ambient:${DB_PASSWORD}@10.10.1.120:5432/ambient?sslmode=disable
       - ALERT_CRON=*/15 * * * *
       - FORECAST_CRON=0 */4 * * *
+      - CONDITIONS_CRON=*/15 * * * *
+      - STATION_ID=KCOS
       - LAT=38.725798
       - LON=-104.66783
       - WEATHER_API=${WEATHER_API}
@@ -83,7 +86,7 @@ services:
 
   weather-ui:
     container_name: weather-ui
-    image: docker.zoms.net/weather/ui:v3.2.1
+    image: docker.zoms.net/weather/ui:v3.3.0
     restart: unless-stopped
     pull_policy: always
     # Expose port 6000 inside the container to port 6000 on the host

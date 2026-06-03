@@ -135,6 +135,57 @@ type Property struct {
 	} `json:"parameters"`
 }
 
+// ----------------------------------------------------------------------------
+// NWS station observation (api.weather.gov/stations/{id}/observations/latest)
+// ----------------------------------------------------------------------------
+
+type NWSObservation struct {
+	Properties NWSObservationProps `json:"properties"`
+}
+
+type NWSObservationProps struct {
+	Timestamp        time.Time           `json:"timestamp"`
+	TextDescription  string              `json:"textDescription"`
+	Icon             string              `json:"icon"`
+	PresentWeather   []NWSPresentWeather `json:"presentWeather"`
+	CloudLayers      []NWSCloudLayer     `json:"cloudLayers"`
+	Temperature      NWSQuantity         `json:"temperature"`
+	RelativeHumidity NWSQuantity         `json:"relativeHumidity"`
+}
+
+// NWSQuantity is a measured value with units. Value is a pointer because the
+// feed sends null when an instrument is down or the value is unavailable.
+type NWSQuantity struct {
+	UnitCode string   `json:"unitCode"`
+	Value    *float64 `json:"value"`
+}
+
+type NWSPresentWeather struct {
+	Intensity string `json:"intensity"`
+	Modifier  string `json:"modifier"`
+	Weather   string `json:"weather"`
+	RawString string `json:"rawString"`
+}
+
+type NWSCloudLayer struct {
+	Base   NWSQuantity `json:"base"`
+	Amount string      `json:"amount"`
+}
+
+// conditionsDB mirrors the public.conditions table columns.
+type conditionsDB struct {
+	Station         string    `json:"station"`
+	ObservedAt      time.Time `json:"observed_at"`
+	Conditions      string    `json:"conditions"`
+	Icon            string    `json:"icon"`
+	TextDescription string    `json:"text_description"`
+	PresentWeather  string    `json:"present_weather"`
+	CloudLayers     string    `json:"cloud_layers"`
+	RawIcon         string    `json:"raw_icon"`
+	Temperature     *float64  `json:"temperature"`
+	Humidity        *float64  `json:"humidity"`
+}
+
 type OllamaRequest struct {
 	Model  string `json:"model"`
 	Prompt string `json:"prompt"`

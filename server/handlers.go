@@ -550,10 +550,17 @@ func nullTimeOr(t sql.NullTime, fallback time.Time) time.Time {
 	return fallback
 }
 
-func buildBaseConditions(record Record) Conditions {
+func buildBaseConditions(record Record, observed *StationConditions) Conditions {
 	c := Conditions{
 		Mac:      record.Mac,
 		Recorded: record.Recorded,
+	}
+
+	// Observed current conditions (NWS station). Left empty when no observation
+	// exists yet; clients fall back to the forecast's today values.
+	if observed != nil {
+		c.Conditions = observed.Conditions
+		c.Icon = observed.Icon
 	}
 
 	c.Barometer = Barometer{
@@ -614,8 +621,8 @@ func buildBaseConditions(record Record) Conditions {
 	return c
 }
 
-func buildAppConditions(record Record, forecast []ForecastDB) AppConditions {
-	base := buildBaseConditions(record)
+func buildAppConditions(record Record, forecast []ForecastDB, observed *StationConditions) AppConditions {
+	base := buildBaseConditions(record, observed)
 
 	app := AppConditions{
 		ID:        base.ID,
@@ -638,18 +645,28 @@ func buildAppConditions(record Record, forecast []ForecastDB) AppConditions {
 		Alert:     base.Alert,
 	}
 
+	// Observed conditions/icon come from the base (NWS station). Fall back to the
+	// forecast's today summary when there's no observation yet; icon stays empty
+	// so the app falls back to the forecast icon.
+	app.Conditions = base.Conditions
+	app.Icon = base.Icon
 	if len(forecast) > 0 {
 		app.Forecast = forecast[0]
-		app.Conditions = forecast[0].Conditions
+		if app.Conditions == "" {
+			app.Conditions = forecast[0].Conditions
+		}
 	} else {
 		app.Forecast = ForecastDB{}
-		app.Conditions = ""
 	}
 	return app
 }
 
 func getConditions() Conditions {
-	return buildBaseConditions(getCurrent())
+	observed, err := GetLatestConditions(config.Station)
+	if err != nil {
+		logger.WithError(err).Error("getConditions: conditions load failed")
+	}
+	return buildBaseConditions(getCurrent(), observed)
 }
 
 func getAppConditions() AppConditions {
@@ -658,7 +675,11 @@ func getAppConditions() AppConditions {
 	if err != nil {
 		logger.WithError(err).Error("getAppConditions: forecast load failed")
 	}
-	return buildAppConditions(res, forecast)
+	observed, err := GetLatestConditions(config.Station)
+	if err != nil {
+		logger.WithError(err).Error("getAppConditions: conditions load failed")
+	}
+	return buildAppConditions(res, forecast, observed)
 }
 
 func current(w http.ResponseWriter, _ *http.Request) {

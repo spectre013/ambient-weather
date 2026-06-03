@@ -1,9 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" data-theme="light" data-density="comfortable">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Default-Style" content="blue">
-    <meta content="Ambient WS-2000 Weather station" name="description">
+    <meta content="Ambient WS-5000 Weather station" name="description">
     <meta content="website" property="og:type">
     <meta content="7 days" name="revisit-after">
     <meta content="web" name="distribution">
@@ -24,12 +24,16 @@
     <link href="/favicons/apple-touch-icon.png" rel="apple-touch-icon" sizes="152x152">
     <link href="/favicons/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180">
     <title>Weather Lorson Ranch, Colorado Springs</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@24,400,0,0" />
-    <script type="module" crossorigin src="/assets/index-CQ_8W4uH.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-KlyNUaQ6.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+    <script>
+      try {
+        document.documentElement.dataset.theme = JSON.parse(localStorage.getItem("ws.theme")) || "light";
+      } catch {}
+    </script>
+    <script type="module" crossorigin src="/assets/index-BNGUWVtt.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CDuuLz1Z.css">
   </head>
   <body>
     <div id="root"></div>

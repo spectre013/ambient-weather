@@ -22,6 +22,7 @@ type Config struct {
 	LocationStr string
 	LogLevel    string
 	GoEnv       string
+	Station     string
 }
 
 // LoadConfig reads environment variables and validates required values.
@@ -36,6 +37,7 @@ func LoadConfig() (*Config, error) {
 		LogLevel:    os.Getenv("LOGLEVEL"),
 		GoEnv:       os.Getenv("GO_ENV"),
 		LocationStr: getEnvDefault("TZ", "America/Denver"),
+		Station:     getEnvDefault("STATION_ID", "KCOS"),
 	}
 
 	if cfg.Port == "" {

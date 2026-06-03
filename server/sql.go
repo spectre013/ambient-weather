@@ -120,6 +120,39 @@ func GetForecastByTimestamp(ts time.Time) (*ForecastDB, error) {
 	return f, nil
 }
 
+// GetLatestConditions returns the most recent observed conditions row for the
+// given station, or (nil, nil) when none exist yet.
+func GetLatestConditions(station string) (*StationConditions, error) {
+	const query = `
+		SELECT conditions, icon, observed_at, temperature, humidity
+		FROM conditions
+		WHERE station = $1
+		ORDER BY observed_at DESC
+		LIMIT 1`
+
+	var (
+		c           StationConditions
+		conditions  sql.NullString
+		icon        sql.NullString
+		temperature sql.NullFloat64
+		humidity    sql.NullFloat64
+	)
+	err := db.QueryRow(query, station).Scan(
+		&conditions, &icon, &c.ObservedAt, &temperature, &humidity,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+	c.Conditions = conditions.String
+	c.Icon = icon.String
+	c.Temperature = temperature.Float64
+	c.Humidity = humidity.Float64
+	return &c, nil
+}
+
 func chartQuery(timeframe, sensor string) (string, bool) {
 	if !allowedChartSensors[sensor] {
 		return "", false
