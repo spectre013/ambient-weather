@@ -38,10 +38,10 @@ func loadAlerts() []Alert {
 	loc := config.Location
 
 	// Date is now parameterized.
-	const alertsSQL = "select * from alerts where ends >= $1"
-	logger.Debug(alertsSQL)
+	const alertsSQL = "select * from alerts where expires >= $1"
+	logger.Debug(alertsSQL, now.Format("2006-01-02 15:04:05"))
 
-	rows, err := db.Query(alertsSQL, now)
+	rows, err := db.Query(alertsSQL, now.Format("2006-01-02 15:04:05"))
 	if err != nil {
 		logger.WithError(err).Error("alerts query")
 		return []Alert{}
