@@ -463,7 +463,7 @@ ALTER TABLE IF EXISTS public.vcforecast
 -- DROP INDEX IF EXISTS public.idx_weather_date_desc;
 
 CREATE INDEX IF NOT EXISTS idx_weather_date_desc
-    ON public.forecast USING btree
+    ON public.vcforecast USING btree
         (datetime DESC NULLS FIRST)
     TABLESPACE pg_default;
 
