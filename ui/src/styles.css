@@ -194,6 +194,160 @@ button { font: inherit; color: inherit; }
 }
 .alert-pager .pg-count .sep { color: var(--faint); margin: 0 1px; }
 
+/* ── Alert advisory modal ─────────────────────────────────────────── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: oklch(0.15 0.01 60 / 0.55);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.modal {
+  --nws: var(--accent);
+  width: min(920px, 100%);
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-top: 5px solid var(--nws);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 60px oklch(0.2 0.02 60 / 0.35);
+  overflow: hidden;
+}
+.modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--rule-2);
+}
+.modal-head-main { display: flex; flex-direction: column; gap: 6px; }
+.modal .sev {
+  align-self: flex-start;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--nws);
+  border: 1px solid var(--nws);
+  background: color-mix(in oklch, var(--nws) 14%, var(--surface));
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+.modal-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--nws);
+  margin: 0;
+  line-height: 1.2;
+}
+.modal-sub { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.modal-close {
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 26px;
+  line-height: 1;
+  padding: 0 4px;
+  border-radius: var(--radius);
+}
+.modal-close:hover { color: var(--ink); background: var(--bg-2); }
+
+.modal-cols { display: flex; min-height: 0; flex: 1; }
+.modal-list {
+  flex: 0 0 220px;
+  border-right: 1px solid var(--rule-2);
+  overflow-y: auto;
+  background: var(--bg-2);
+}
+.modal-list-head {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 12px 14px 8px;
+}
+.modal-list-item {
+  --nws: var(--accent);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+  text-align: left;
+  border: none;
+  border-left: 3px solid transparent;
+  background: none;
+  cursor: pointer;
+  padding: 10px 14px;
+}
+.modal-list-item:hover { background: var(--surface); }
+.modal-list-item.is-active {
+  background: var(--surface);
+  border-left-color: var(--nws);
+}
+.mli-event { font-size: 13px; font-weight: 500; color: var(--ink); }
+.modal-list-item.is-active .mli-event { color: var(--nws); }
+.mli-meta { font-family: var(--font-mono); font-size: 10px; color: var(--muted); }
+
+.modal-detail { flex: 1; overflow-y: auto; padding: 18px 22px 24px; min-width: 0; }
+.modal-headline {
+  font-size: 14px;
+  color: var(--ink-2);
+  margin: 0 0 16px;
+  line-height: 1.45;
+}
+.modal-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px 20px;
+  margin: 0 0 18px;
+  padding: 14px 0;
+  border-top: 1px solid var(--rule-2);
+  border-bottom: 1px solid var(--rule-2);
+}
+.modal-facts div { display: flex; flex-direction: column; gap: 2px; }
+.modal-facts dt {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.modal-facts dd { margin: 0; font-size: 13px; color: var(--ink); }
+.modal-section { margin-bottom: 18px; }
+.modal-section h3 {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--nws);
+  margin: 0 0 6px;
+}
+.modal-section p { margin: 0; font-size: 13px; line-height: 1.55; color: var(--ink-2); }
+.modal-section p.pre { white-space: pre-wrap; font-family: var(--font-mono); font-size: 12px; }
+
+@media (max-width: 640px) {
+  .modal-backdrop { padding: 0; }
+  .modal { max-height: 100vh; height: 100%; border-radius: 0; border-top-width: 4px; }
+  .modal-cols { flex-direction: column; }
+  .modal-list {
+    flex: 0 0 auto;
+    max-height: 30vh;
+    border-right: none;
+    border-bottom: 1px solid var(--rule-2);
+  }
+}
+
 /* NWS event color tints — derived from spectre013/ambient-weather AlertInfo.css.
    Each rule sets --nws on the alert; styling reads it for the left rail, sev pill, & title. */
 .alert[class*="nws-"] {
@@ -210,134 +364,134 @@ button { font: inherit; color: inherit; }
 .alert[class*="nws-"] .title { color: var(--nws); font-weight: 600; }
 
 
-.alert.nws-tsunami-warning { --nws: #FD6347; }
-.alert.nws-tornado-warning { --nws: #FF0000; }
-.alert.nws-extreme-wind-warning { --nws: #FF8C00; }
-.alert.nws-severe-thunderstorm-warning { --nws: #FFA500; }
-.alert.nws-flash-flood-warning { --nws: #8B0000; }
-.alert.nws-flash-flood-statement { --nws: #8B0000; }
-.alert.nws-severe-weather-statement { --nws: #00CED1; }
-.alert.nws-shelter-in-place-warning { --nws: #FA8072; }
-.alert.nws-evacuation-immediate { --nws: #7FFF00; }
-.alert.nws-civil-danger-warning { --nws: #FFB6C1; }
-.alert.nws-nuclear-power-plant-warning { --nws: #4B0082; }
-.alert.nws-radiological-hazard-warning { --nws: #4B0082; }
-.alert.nws-hazardous-materials-warning { --nws: #4B0082; }
-.alert.nws-fire-warning { --nws: #A0522D; }
-.alert.nws-civil-emergency-message { --nws: #FFB6C1; }
-.alert.nws-law-enforcement-warning { --nws: #C0C0C0; }
-.alert.nws-storm-surge-warning { --nws: #B524F7; }
-.alert.nws-hurricane-force-wind-warning { --nws: #CD5C5C; }
-.alert.nws-hurricane-warning { --nws: #DC143C; }
-.alert.nws-typhoon-warning { --nws: #DC143C; }
-.alert.nws-special-marine-warning { --nws: #FFA500; }
-.alert.nws-blizzard-warning { --nws: #FF4500; }
-.alert.nws-snow-squall-warning { --nws: #C71585; }
-.alert.nws-ice-storm-warning { --nws: #8B008B; }
-.alert.nws-winter-storm-warning { --nws: #FF69B4; }
-.alert.nws-high-wind-warning { --nws: #DAA520; }
-.alert.nws-tropical-storm-warning { --nws: #B22222; }
-.alert.nws-storm-warning { --nws: #9400D3; }
-.alert.nws-tsunami-advisory { --nws: #D2691E; }
-.alert.nws-tsunami-watch { --nws: #FF00FF; }
-.alert.nws-avalanche-warning { --nws: #1E90FF; }
-.alert.nws-earthquake-warning { --nws: #8B4513; }
-.alert.nws-volcano-warning { --nws: #2F4F4F; }
-.alert.nws-ashfall-warning { --nws: #A9A9A9; }
-.alert.nws-coastal-flood-warning { --nws: #228B22; }
-.alert.nws-lakeshore-flood-warning { --nws: #228B22; }
-.alert.nws-flood-warning { --nws: #228B22; }
-.alert.nws-high-surf-warning { --nws: #228B22; }
-.alert.nws-dust-storm-warning { --nws: #C9A57C; }
-.alert.nws-blowing-dust-warning { --nws: #C9A57C; }
-.alert.nws-lake-effect-snow-warning { --nws: #008B8B; }
-.alert.nws-excessive-heat-warning { --nws: #C71585; }
-.alert.nws-tornado-watch { --nws: #C9B100; }
-.alert.nws-severe-thunderstorm-watch { --nws: #DB7093; }
-.alert.nws-flash-flood-watch { --nws: #2E8B57; }
-.alert.nws-gale-warning { --nws: #DDA0DD; }
-.alert.nws-flood-statement { --nws: #228B22; }
-.alert.nws-wind-chill-warning { --nws: #B0C4DE; }
-.alert.nws-extreme-cold-warning { --nws: #0000FF; }
-.alert.nws-hard-freeze-warning { --nws: #9400D3; }
-.alert.nws-freeze-warning { --nws: #483D8B; }
-.alert.nws-red-flag-warning { --nws: #FF1493; }
-.alert.nws-storm-surge-watch { --nws: #DB7FF7; }
-.alert.nws-hurricane-watch { --nws: #FF00FF; }
-.alert.nws-hurricane-force-wind-watch { --nws: #9932CC; }
-.alert.nws-typhoon-watch { --nws: #FF00FF; }
-.alert.nws-tropical-storm-watch { --nws: #F08080; }
-.alert.nws-storm-watch { --nws: #C9A859; }
-.alert.nws-hurricane-local-statement { --nws: #C9A859; }
-.alert.nws-typhoon-local-statement { --nws: #C9A859; }
-.alert.nws-tropical-storm-local-statement { --nws: #C9A859; }
-.alert.nws-tropical-depression-local-statement { --nws: #C9A859; }
-.alert.nws-avalanche-advisory { --nws: #CD853F; }
-.alert.nws-freezing-rain-advisory { --nws: #DA70D6; }
-.alert.nws-winter-weather-advisory { --nws: #7B68EE; }
-.alert.nws-lake-effect-snow-advisory { --nws: #48D1CC; }
-.alert.nws-wind-chill-advisory { --nws: #87A9C9; }
-.alert.nws-heat-advisory { --nws: #FF7F50; }
-.alert.nws-urban-and-small-stream-flood-advisory { --nws: #2E9F4D; }
-.alert.nws-small-stream-flood-advisory { --nws: #2E9F4D; }
-.alert.nws-arroyo-and-small-stream-flood-advisory { --nws: #2E9F4D; }
-.alert.nws-flood-advisory { --nws: #2E9F4D; }
-.alert.nws-hydrologic-advisory { --nws: #2E9F4D; }
-.alert.nws-lakeshore-flood-advisory { --nws: #58A52B; }
-.alert.nws-coastal-flood-advisory { --nws: #58A52B; }
-.alert.nws-high-surf-advisory { --nws: #BA55D3; }
-.alert.nws-heavy-freezing-spray-warning { --nws: #00BFFF; }
-.alert.nws-dense-fog-advisory { --nws: #708090; }
-.alert.nws-dense-smoke-advisory { --nws: #BFA85F; }
-.alert.nws-small-craft-advisory-for-hazardous-seas { --nws: #B89AB8; }
-.alert.nws-small-craft-advisory-for-rough-bar { --nws: #B89AB8; }
-.alert.nws-small-craft-advisory-for-winds { --nws: #B89AB8; }
-.alert.nws-small-craft-advisory { --nws: #B89AB8; }
-.alert.nws-brisk-wind-advisory { --nws: #B89AB8; }
-.alert.nws-hazardous-seas-warning { --nws: #B89AB8; }
-.alert.nws-dust-advisory { --nws: #BDB76B; }
-.alert.nws-blowing-dust-advisory { --nws: #BDB76B; }
-.alert.nws-lake-wind-advisory { --nws: #B89878; }
-.alert.nws-wind-advisory { --nws: #B89878; }
-.alert.nws-frost-advisory { --nws: #6495ED; }
-.alert.nws-ashfall-advisory { --nws: #696969; }
-.alert.nws-freezing-fog-advisory { --nws: #008080; }
-.alert.nws-freezing-spray-advisory { --nws: #00BFFF; }
-.alert.nws-low-water-advisory { --nws: #A52A2A; }
-.alert.nws-local-area-emergency { --nws: #A0A0A0; }
-.alert.nws-child-abduction-emergency { --nws: #C9A300; }
-.alert.nws-avalanche-watch { --nws: #F4A460; }
-.alert.nws-blizzard-watch { --nws: #6FB31C; }
-.alert.nws-rip-current-statement { --nws: #2EBFB0; }
-.alert.nws-beach-hazards-statement { --nws: #2EBFB0; }
-.alert.nws-gale-watch { --nws: #C99AA8; }
-.alert.nws-winter-storm-watch { --nws: #4682B4; }
-.alert.nws-hazardous-seas-watch { --nws: #483D8B; }
-.alert.nws-heavy-freezing-spray-watch { --nws: #BC8F8F; }
-.alert.nws-coastal-flood-watch { --nws: #66CDAA; }
-.alert.nws-lakeshore-flood-watch { --nws: #66CDAA; }
-.alert.nws-flood-watch { --nws: #2E8B57; }
-.alert.nws-high-wind-watch { --nws: #B8860B; }
-.alert.nws-excessive-heat-watch { --nws: #800000; }
-.alert.nws-extreme-cold-watch { --nws: #0000FF; }
-.alert.nws-wind-chill-watch { --nws: #5F9EA0; }
-.alert.nws-lake-effect-snow-watch { --nws: #4FA8E0; }
-.alert.nws-hard-freeze-watch { --nws: #4169E1; }
-.alert.nws-freeze-watch { --nws: #00CED1; }
-.alert.nws-fire-weather-watch { --nws: #B8860B; }
-.alert.nws-extreme-fire-danger { --nws: #E9967A; }
+.alert.nws-tsunami-warning, .modal.nws-tsunami-warning, .modal-list-item.nws-tsunami-warning { --nws: #FD6347; }
+.alert.nws-tornado-warning, .modal.nws-tornado-warning, .modal-list-item.nws-tornado-warning { --nws: #FF0000; }
+.alert.nws-extreme-wind-warning, .modal.nws-extreme-wind-warning, .modal-list-item.nws-extreme-wind-warning { --nws: #FF8C00; }
+.alert.nws-severe-thunderstorm-warning, .modal.nws-severe-thunderstorm-warning, .modal-list-item.nws-severe-thunderstorm-warning { --nws: #FFA500; }
+.alert.nws-flash-flood-warning, .modal.nws-flash-flood-warning, .modal-list-item.nws-flash-flood-warning { --nws: #8B0000; }
+.alert.nws-flash-flood-statement, .modal.nws-flash-flood-statement, .modal-list-item.nws-flash-flood-statement { --nws: #8B0000; }
+.alert.nws-severe-weather-statement, .modal.nws-severe-weather-statement, .modal-list-item.nws-severe-weather-statement { --nws: #00CED1; }
+.alert.nws-shelter-in-place-warning, .modal.nws-shelter-in-place-warning, .modal-list-item.nws-shelter-in-place-warning { --nws: #FA8072; }
+.alert.nws-evacuation-immediate, .modal.nws-evacuation-immediate, .modal-list-item.nws-evacuation-immediate { --nws: #7FFF00; }
+.alert.nws-civil-danger-warning, .modal.nws-civil-danger-warning, .modal-list-item.nws-civil-danger-warning { --nws: #FFB6C1; }
+.alert.nws-nuclear-power-plant-warning, .modal.nws-nuclear-power-plant-warning, .modal-list-item.nws-nuclear-power-plant-warning { --nws: #4B0082; }
+.alert.nws-radiological-hazard-warning, .modal.nws-radiological-hazard-warning, .modal-list-item.nws-radiological-hazard-warning { --nws: #4B0082; }
+.alert.nws-hazardous-materials-warning, .modal.nws-hazardous-materials-warning, .modal-list-item.nws-hazardous-materials-warning { --nws: #4B0082; }
+.alert.nws-fire-warning, .modal.nws-fire-warning, .modal-list-item.nws-fire-warning { --nws: #A0522D; }
+.alert.nws-civil-emergency-message, .modal.nws-civil-emergency-message, .modal-list-item.nws-civil-emergency-message { --nws: #FFB6C1; }
+.alert.nws-law-enforcement-warning, .modal.nws-law-enforcement-warning, .modal-list-item.nws-law-enforcement-warning { --nws: #C0C0C0; }
+.alert.nws-storm-surge-warning, .modal.nws-storm-surge-warning, .modal-list-item.nws-storm-surge-warning { --nws: #B524F7; }
+.alert.nws-hurricane-force-wind-warning, .modal.nws-hurricane-force-wind-warning, .modal-list-item.nws-hurricane-force-wind-warning { --nws: #CD5C5C; }
+.alert.nws-hurricane-warning, .modal.nws-hurricane-warning, .modal-list-item.nws-hurricane-warning { --nws: #DC143C; }
+.alert.nws-typhoon-warning, .modal.nws-typhoon-warning, .modal-list-item.nws-typhoon-warning { --nws: #DC143C; }
+.alert.nws-special-marine-warning, .modal.nws-special-marine-warning, .modal-list-item.nws-special-marine-warning { --nws: #FFA500; }
+.alert.nws-blizzard-warning, .modal.nws-blizzard-warning, .modal-list-item.nws-blizzard-warning { --nws: #FF4500; }
+.alert.nws-snow-squall-warning, .modal.nws-snow-squall-warning, .modal-list-item.nws-snow-squall-warning { --nws: #C71585; }
+.alert.nws-ice-storm-warning, .modal.nws-ice-storm-warning, .modal-list-item.nws-ice-storm-warning { --nws: #8B008B; }
+.alert.nws-winter-storm-warning, .modal.nws-winter-storm-warning, .modal-list-item.nws-winter-storm-warning { --nws: #FF69B4; }
+.alert.nws-high-wind-warning, .modal.nws-high-wind-warning, .modal-list-item.nws-high-wind-warning { --nws: #DAA520; }
+.alert.nws-tropical-storm-warning, .modal.nws-tropical-storm-warning, .modal-list-item.nws-tropical-storm-warning { --nws: #B22222; }
+.alert.nws-storm-warning, .modal.nws-storm-warning, .modal-list-item.nws-storm-warning { --nws: #9400D3; }
+.alert.nws-tsunami-advisory, .modal.nws-tsunami-advisory, .modal-list-item.nws-tsunami-advisory { --nws: #D2691E; }
+.alert.nws-tsunami-watch, .modal.nws-tsunami-watch, .modal-list-item.nws-tsunami-watch { --nws: #FF00FF; }
+.alert.nws-avalanche-warning, .modal.nws-avalanche-warning, .modal-list-item.nws-avalanche-warning { --nws: #1E90FF; }
+.alert.nws-earthquake-warning, .modal.nws-earthquake-warning, .modal-list-item.nws-earthquake-warning { --nws: #8B4513; }
+.alert.nws-volcano-warning, .modal.nws-volcano-warning, .modal-list-item.nws-volcano-warning { --nws: #2F4F4F; }
+.alert.nws-ashfall-warning, .modal.nws-ashfall-warning, .modal-list-item.nws-ashfall-warning { --nws: #A9A9A9; }
+.alert.nws-coastal-flood-warning, .modal.nws-coastal-flood-warning, .modal-list-item.nws-coastal-flood-warning { --nws: #228B22; }
+.alert.nws-lakeshore-flood-warning, .modal.nws-lakeshore-flood-warning, .modal-list-item.nws-lakeshore-flood-warning { --nws: #228B22; }
+.alert.nws-flood-warning, .modal.nws-flood-warning, .modal-list-item.nws-flood-warning { --nws: #228B22; }
+.alert.nws-high-surf-warning, .modal.nws-high-surf-warning, .modal-list-item.nws-high-surf-warning { --nws: #228B22; }
+.alert.nws-dust-storm-warning, .modal.nws-dust-storm-warning, .modal-list-item.nws-dust-storm-warning { --nws: #C9A57C; }
+.alert.nws-blowing-dust-warning, .modal.nws-blowing-dust-warning, .modal-list-item.nws-blowing-dust-warning { --nws: #C9A57C; }
+.alert.nws-lake-effect-snow-warning, .modal.nws-lake-effect-snow-warning, .modal-list-item.nws-lake-effect-snow-warning { --nws: #008B8B; }
+.alert.nws-excessive-heat-warning, .modal.nws-excessive-heat-warning, .modal-list-item.nws-excessive-heat-warning { --nws: #C71585; }
+.alert.nws-tornado-watch, .modal.nws-tornado-watch, .modal-list-item.nws-tornado-watch { --nws: #C9B100; }
+.alert.nws-severe-thunderstorm-watch, .modal.nws-severe-thunderstorm-watch, .modal-list-item.nws-severe-thunderstorm-watch { --nws: #DB7093; }
+.alert.nws-flash-flood-watch, .modal.nws-flash-flood-watch, .modal-list-item.nws-flash-flood-watch { --nws: #2E8B57; }
+.alert.nws-gale-warning, .modal.nws-gale-warning, .modal-list-item.nws-gale-warning { --nws: #DDA0DD; }
+.alert.nws-flood-statement, .modal.nws-flood-statement, .modal-list-item.nws-flood-statement { --nws: #228B22; }
+.alert.nws-wind-chill-warning, .modal.nws-wind-chill-warning, .modal-list-item.nws-wind-chill-warning { --nws: #B0C4DE; }
+.alert.nws-extreme-cold-warning, .modal.nws-extreme-cold-warning, .modal-list-item.nws-extreme-cold-warning { --nws: #0000FF; }
+.alert.nws-hard-freeze-warning, .modal.nws-hard-freeze-warning, .modal-list-item.nws-hard-freeze-warning { --nws: #9400D3; }
+.alert.nws-freeze-warning, .modal.nws-freeze-warning, .modal-list-item.nws-freeze-warning { --nws: #483D8B; }
+.alert.nws-red-flag-warning, .modal.nws-red-flag-warning, .modal-list-item.nws-red-flag-warning { --nws: #FF1493; }
+.alert.nws-storm-surge-watch, .modal.nws-storm-surge-watch, .modal-list-item.nws-storm-surge-watch { --nws: #DB7FF7; }
+.alert.nws-hurricane-watch, .modal.nws-hurricane-watch, .modal-list-item.nws-hurricane-watch { --nws: #FF00FF; }
+.alert.nws-hurricane-force-wind-watch, .modal.nws-hurricane-force-wind-watch, .modal-list-item.nws-hurricane-force-wind-watch { --nws: #9932CC; }
+.alert.nws-typhoon-watch, .modal.nws-typhoon-watch, .modal-list-item.nws-typhoon-watch { --nws: #FF00FF; }
+.alert.nws-tropical-storm-watch, .modal.nws-tropical-storm-watch, .modal-list-item.nws-tropical-storm-watch { --nws: #F08080; }
+.alert.nws-storm-watch, .modal.nws-storm-watch, .modal-list-item.nws-storm-watch { --nws: #C9A859; }
+.alert.nws-hurricane-local-statement, .modal.nws-hurricane-local-statement, .modal-list-item.nws-hurricane-local-statement { --nws: #C9A859; }
+.alert.nws-typhoon-local-statement, .modal.nws-typhoon-local-statement, .modal-list-item.nws-typhoon-local-statement { --nws: #C9A859; }
+.alert.nws-tropical-storm-local-statement, .modal.nws-tropical-storm-local-statement, .modal-list-item.nws-tropical-storm-local-statement { --nws: #C9A859; }
+.alert.nws-tropical-depression-local-statement, .modal.nws-tropical-depression-local-statement, .modal-list-item.nws-tropical-depression-local-statement { --nws: #C9A859; }
+.alert.nws-avalanche-advisory, .modal.nws-avalanche-advisory, .modal-list-item.nws-avalanche-advisory { --nws: #CD853F; }
+.alert.nws-freezing-rain-advisory, .modal.nws-freezing-rain-advisory, .modal-list-item.nws-freezing-rain-advisory { --nws: #DA70D6; }
+.alert.nws-winter-weather-advisory, .modal.nws-winter-weather-advisory, .modal-list-item.nws-winter-weather-advisory { --nws: #7B68EE; }
+.alert.nws-lake-effect-snow-advisory, .modal.nws-lake-effect-snow-advisory, .modal-list-item.nws-lake-effect-snow-advisory { --nws: #48D1CC; }
+.alert.nws-wind-chill-advisory, .modal.nws-wind-chill-advisory, .modal-list-item.nws-wind-chill-advisory { --nws: #87A9C9; }
+.alert.nws-heat-advisory, .modal.nws-heat-advisory, .modal-list-item.nws-heat-advisory { --nws: #FF7F50; }
+.alert.nws-urban-and-small-stream-flood-advisory, .modal.nws-urban-and-small-stream-flood-advisory, .modal-list-item.nws-urban-and-small-stream-flood-advisory { --nws: #2E9F4D; }
+.alert.nws-small-stream-flood-advisory, .modal.nws-small-stream-flood-advisory, .modal-list-item.nws-small-stream-flood-advisory { --nws: #2E9F4D; }
+.alert.nws-arroyo-and-small-stream-flood-advisory, .modal.nws-arroyo-and-small-stream-flood-advisory, .modal-list-item.nws-arroyo-and-small-stream-flood-advisory { --nws: #2E9F4D; }
+.alert.nws-flood-advisory, .modal.nws-flood-advisory, .modal-list-item.nws-flood-advisory { --nws: #2E9F4D; }
+.alert.nws-hydrologic-advisory, .modal.nws-hydrologic-advisory, .modal-list-item.nws-hydrologic-advisory { --nws: #2E9F4D; }
+.alert.nws-lakeshore-flood-advisory, .modal.nws-lakeshore-flood-advisory, .modal-list-item.nws-lakeshore-flood-advisory { --nws: #58A52B; }
+.alert.nws-coastal-flood-advisory, .modal.nws-coastal-flood-advisory, .modal-list-item.nws-coastal-flood-advisory { --nws: #58A52B; }
+.alert.nws-high-surf-advisory, .modal.nws-high-surf-advisory, .modal-list-item.nws-high-surf-advisory { --nws: #BA55D3; }
+.alert.nws-heavy-freezing-spray-warning, .modal.nws-heavy-freezing-spray-warning, .modal-list-item.nws-heavy-freezing-spray-warning { --nws: #00BFFF; }
+.alert.nws-dense-fog-advisory, .modal.nws-dense-fog-advisory, .modal-list-item.nws-dense-fog-advisory { --nws: #708090; }
+.alert.nws-dense-smoke-advisory, .modal.nws-dense-smoke-advisory, .modal-list-item.nws-dense-smoke-advisory { --nws: #BFA85F; }
+.alert.nws-small-craft-advisory-for-hazardous-seas, .modal.nws-small-craft-advisory-for-hazardous-seas, .modal-list-item.nws-small-craft-advisory-for-hazardous-seas { --nws: #B89AB8; }
+.alert.nws-small-craft-advisory-for-rough-bar, .modal.nws-small-craft-advisory-for-rough-bar, .modal-list-item.nws-small-craft-advisory-for-rough-bar { --nws: #B89AB8; }
+.alert.nws-small-craft-advisory-for-winds, .modal.nws-small-craft-advisory-for-winds, .modal-list-item.nws-small-craft-advisory-for-winds { --nws: #B89AB8; }
+.alert.nws-small-craft-advisory, .modal.nws-small-craft-advisory, .modal-list-item.nws-small-craft-advisory { --nws: #B89AB8; }
+.alert.nws-brisk-wind-advisory, .modal.nws-brisk-wind-advisory, .modal-list-item.nws-brisk-wind-advisory { --nws: #B89AB8; }
+.alert.nws-hazardous-seas-warning, .modal.nws-hazardous-seas-warning, .modal-list-item.nws-hazardous-seas-warning { --nws: #B89AB8; }
+.alert.nws-dust-advisory, .modal.nws-dust-advisory, .modal-list-item.nws-dust-advisory { --nws: #BDB76B; }
+.alert.nws-blowing-dust-advisory, .modal.nws-blowing-dust-advisory, .modal-list-item.nws-blowing-dust-advisory { --nws: #BDB76B; }
+.alert.nws-lake-wind-advisory, .modal.nws-lake-wind-advisory, .modal-list-item.nws-lake-wind-advisory { --nws: #B89878; }
+.alert.nws-wind-advisory, .modal.nws-wind-advisory, .modal-list-item.nws-wind-advisory { --nws: #B89878; }
+.alert.nws-frost-advisory, .modal.nws-frost-advisory, .modal-list-item.nws-frost-advisory { --nws: #6495ED; }
+.alert.nws-ashfall-advisory, .modal.nws-ashfall-advisory, .modal-list-item.nws-ashfall-advisory { --nws: #696969; }
+.alert.nws-freezing-fog-advisory, .modal.nws-freezing-fog-advisory, .modal-list-item.nws-freezing-fog-advisory { --nws: #008080; }
+.alert.nws-freezing-spray-advisory, .modal.nws-freezing-spray-advisory, .modal-list-item.nws-freezing-spray-advisory { --nws: #00BFFF; }
+.alert.nws-low-water-advisory, .modal.nws-low-water-advisory, .modal-list-item.nws-low-water-advisory { --nws: #A52A2A; }
+.alert.nws-local-area-emergency, .modal.nws-local-area-emergency, .modal-list-item.nws-local-area-emergency { --nws: #A0A0A0; }
+.alert.nws-child-abduction-emergency, .modal.nws-child-abduction-emergency, .modal-list-item.nws-child-abduction-emergency { --nws: #C9A300; }
+.alert.nws-avalanche-watch, .modal.nws-avalanche-watch, .modal-list-item.nws-avalanche-watch { --nws: #F4A460; }
+.alert.nws-blizzard-watch, .modal.nws-blizzard-watch, .modal-list-item.nws-blizzard-watch { --nws: #6FB31C; }
+.alert.nws-rip-current-statement, .modal.nws-rip-current-statement, .modal-list-item.nws-rip-current-statement { --nws: #2EBFB0; }
+.alert.nws-beach-hazards-statement, .modal.nws-beach-hazards-statement, .modal-list-item.nws-beach-hazards-statement { --nws: #2EBFB0; }
+.alert.nws-gale-watch, .modal.nws-gale-watch, .modal-list-item.nws-gale-watch { --nws: #C99AA8; }
+.alert.nws-winter-storm-watch, .modal.nws-winter-storm-watch, .modal-list-item.nws-winter-storm-watch { --nws: #4682B4; }
+.alert.nws-hazardous-seas-watch, .modal.nws-hazardous-seas-watch, .modal-list-item.nws-hazardous-seas-watch { --nws: #483D8B; }
+.alert.nws-heavy-freezing-spray-watch, .modal.nws-heavy-freezing-spray-watch, .modal-list-item.nws-heavy-freezing-spray-watch { --nws: #BC8F8F; }
+.alert.nws-coastal-flood-watch, .modal.nws-coastal-flood-watch, .modal-list-item.nws-coastal-flood-watch { --nws: #66CDAA; }
+.alert.nws-lakeshore-flood-watch, .modal.nws-lakeshore-flood-watch, .modal-list-item.nws-lakeshore-flood-watch { --nws: #66CDAA; }
+.alert.nws-flood-watch, .modal.nws-flood-watch, .modal-list-item.nws-flood-watch { --nws: #2E8B57; }
+.alert.nws-high-wind-watch, .modal.nws-high-wind-watch, .modal-list-item.nws-high-wind-watch { --nws: #B8860B; }
+.alert.nws-excessive-heat-watch, .modal.nws-excessive-heat-watch, .modal-list-item.nws-excessive-heat-watch { --nws: #800000; }
+.alert.nws-extreme-cold-watch, .modal.nws-extreme-cold-watch, .modal-list-item.nws-extreme-cold-watch { --nws: #0000FF; }
+.alert.nws-wind-chill-watch, .modal.nws-wind-chill-watch, .modal-list-item.nws-wind-chill-watch { --nws: #5F9EA0; }
+.alert.nws-lake-effect-snow-watch, .modal.nws-lake-effect-snow-watch, .modal-list-item.nws-lake-effect-snow-watch { --nws: #4FA8E0; }
+.alert.nws-hard-freeze-watch, .modal.nws-hard-freeze-watch, .modal-list-item.nws-hard-freeze-watch { --nws: #4169E1; }
+.alert.nws-freeze-watch, .modal.nws-freeze-watch, .modal-list-item.nws-freeze-watch { --nws: #00CED1; }
+.alert.nws-fire-weather-watch, .modal.nws-fire-weather-watch, .modal-list-item.nws-fire-weather-watch { --nws: #B8860B; }
+.alert.nws-extreme-fire-danger, .modal.nws-extreme-fire-danger, .modal-list-item.nws-extreme-fire-danger { --nws: #E9967A; }
 .alert.nws-telephone-outage-911 { --nws: #A0A0A0; }
-.alert.nws-coastal-flood-statement { --nws: #6B8E23; }
-.alert.nws-lakeshore-flood-statement { --nws: #6B8E23; }
-.alert.nws-special-weather-statement { --nws: #C9A859; }
-.alert.nws-marine-weather-statement { --nws: #D8A77C; }
-.alert.nws-air-quality-alert { --nws: #808080; }
-.alert.nws-air-stagnation-advisory { --nws: #808080; }
-.alert.nws-hazardous-weather-outlook { --nws: #BFA85F; }
-.alert.nws-hydrologic-outlook { --nws: #6FAF6F; }
-.alert.nws-short-term-forecast { --nws: #6FAF6F; }
-.alert.nws-administrative-message { --nws: #A0A0A0; }
-.alert.nws-test { --nws: #87B8D8; }
+.alert.nws-coastal-flood-statement, .modal.nws-coastal-flood-statement, .modal-list-item.nws-coastal-flood-statement { --nws: #6B8E23; }
+.alert.nws-lakeshore-flood-statement, .modal.nws-lakeshore-flood-statement, .modal-list-item.nws-lakeshore-flood-statement { --nws: #6B8E23; }
+.alert.nws-special-weather-statement, .modal.nws-special-weather-statement, .modal-list-item.nws-special-weather-statement { --nws: #C9A859; }
+.alert.nws-marine-weather-statement, .modal.nws-marine-weather-statement, .modal-list-item.nws-marine-weather-statement { --nws: #D8A77C; }
+.alert.nws-air-quality-alert, .modal.nws-air-quality-alert, .modal-list-item.nws-air-quality-alert { --nws: #808080; }
+.alert.nws-air-stagnation-advisory, .modal.nws-air-stagnation-advisory, .modal-list-item.nws-air-stagnation-advisory { --nws: #808080; }
+.alert.nws-hazardous-weather-outlook, .modal.nws-hazardous-weather-outlook, .modal-list-item.nws-hazardous-weather-outlook { --nws: #BFA85F; }
+.alert.nws-hydrologic-outlook, .modal.nws-hydrologic-outlook, .modal-list-item.nws-hydrologic-outlook { --nws: #6FAF6F; }
+.alert.nws-short-term-forecast, .modal.nws-short-term-forecast, .modal-list-item.nws-short-term-forecast { --nws: #6FAF6F; }
+.alert.nws-administrative-message, .modal.nws-administrative-message, .modal-list-item.nws-administrative-message { --nws: #A0A0A0; }
+.alert.nws-test, .modal.nws-test, .modal-list-item.nws-test { --nws: #87B8D8; }
 
 /* ============ Hero ============ */
 .hero {

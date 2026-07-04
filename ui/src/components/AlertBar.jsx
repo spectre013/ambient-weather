@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { slugifyEvent } from "../utils/format";
+import AlertModal from "./AlertModal";
 
 // Rotates through every alert in the array. Auto-advances every 8 s,
 // pauses on hover, and gives the user prev/next + a position pill.
@@ -7,6 +8,7 @@ export default function AlertBar({ alerts, interval = 8000 }) {
     const list = (alerts || []).filter(Boolean);
     const [idx, setIdx] = useState(0);
     const [paused, setPaused] = useState(false);
+    const [open, setOpen] = useState(false);
 
     // Clamp index if the alerts array changes underneath us.
     useEffect(() => {
@@ -49,8 +51,11 @@ export default function AlertBar({ alerts, interval = 8000 }) {
                         <button className="pg" onClick={() => go(1)} aria-label="Next alert">›</button>
                     </div>
                 )}
-                <button className="cta" onClick={() => alert(a.description)}>Read advisory →</button>
+                <button className="cta" onClick={() => setOpen(true)}>Read advisory →</button>
             </div>
+            {open && (
+                <AlertModal alerts={list} index={idx} onClose={() => setOpen(false)} />
+            )}
         </div>
     );
 }
