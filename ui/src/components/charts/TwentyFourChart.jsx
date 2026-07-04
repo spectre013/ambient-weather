@@ -17,7 +17,6 @@ export default function TwentyFourChart({ hours, history, current, nowHour, unit
   const PAD = { l: 40, r: 40, t: 18, b: 36 };
   const innerW = W - PAD.l - PAD.r;
   const innerH = H - PAD.t - PAD.b;
-  console.log(history)
   // Forecast temps (display units) — drive the y-axis along with observed.
   const fTemps = hours.map((h) => showT(h.temp, units));
 

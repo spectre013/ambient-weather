@@ -51,9 +51,12 @@ export const slugifyEvent = (s) =>
   (s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 
 export const  timeAgo = (dateString) => {
-  const then = new Date(dateString);
+  // The backend stores lightningtime in a `timestamp without time zone`
+  // column, so the value comes across as local wall-clock time mislabeled
+  // with a trailing "Z". Strip it so the browser parses it as local time
+  // instead of shifting it by the UTC offset.
+  const then = new Date(String(dateString).replace(/Z$/, ""));
   if (isNaN(then)) return "invalid date";
-
   let diff = Math.floor((Date.now() - then.getTime()) / 1000); // seconds
   if (diff < 0) return "in the future";
   if (diff < 60) return "just now";

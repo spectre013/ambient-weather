@@ -22,7 +22,6 @@ export default function HomePage() {
   const nowDate = new Date(current.date);
   const tzOffsetH = forecast.tzoffset;
   const todayHours = today.hours;
-  console.log(history);
   return (
     <>
       {current.alert && current.alert[0] && <AlertBar alerts={current.alert} />}
