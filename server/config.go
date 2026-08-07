@@ -23,6 +23,20 @@ type Config struct {
 	LogLevel    string
 	GoEnv       string
 	Station     string
+
+	// ForecastLocationID selects which location's forecast this station shows.
+	//
+	// The forecast table used to hold exactly one location and every query
+	// simply took whatever was there. It is now keyed on (location_id,
+	// datetime) and can hold many, so an unfiltered read returns rows for
+	// several places interleaved by date — ten rows that look like ten days and
+	// are three days of three locations. Plausible, and wrong.
+	//
+	// Required rather than defaulted, because there is no safe default: the
+	// forecaster does not know which location a weather station stands at, and
+	// guessing would produce exactly the plausible-wrong output above. Find the
+	// id on the forecaster's /locations page.
+	ForecastLocationID int64
 }
 
 // LoadConfig reads environment variables and validates required values.
@@ -46,6 +60,19 @@ func LoadConfig() (*Config, error) {
 	if cfg.DBUser == "" || cfg.DBHost == "" || cfg.DBDatabase == "" {
 		return nil, fmt.Errorf("DB_USER, DB_HOST, and DB_DATABASE are required")
 	}
+
+	fidStr := os.Getenv("FORECAST_LOCATION_ID")
+	if fidStr == "" {
+		return nil, fmt.Errorf(
+			"FORECAST_LOCATION_ID is required: the forecast table is keyed on location_id " +
+				"and holds one row per location per day, so a query without it mixes locations. " +
+				"Find the id on the forecaster's /locations page")
+	}
+	fid, err := strconv.ParseInt(fidStr, 10, 64)
+	if err != nil || fid <= 0 {
+		return nil, fmt.Errorf("invalid FORECAST_LOCATION_ID %q: want a positive integer", fidStr)
+	}
+	cfg.ForecastLocationID = fid
 
 	latStr := os.Getenv("LAT")
 	lonStr := os.Getenv("LON")

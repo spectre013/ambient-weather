@@ -44,6 +44,13 @@ func getRecord(sqlStatement string) Record {
 	return r
 }
 
+// GetForecasts returns this station's next ten days.
+//
+// The location_id predicate is not optional. The forecast table used to hold
+// one location and these queries took whatever was there; it is now keyed on
+// (location_id, datetime) and holds a row per location per day, so without the
+// filter LIMIT 10 returns ten rows ordered by date across every location —
+// three days of three places, looking exactly like ten days of one.
 func GetForecasts() ([]ForecastDB, error) {
 	start := time.Now().Format("2006-01-02")
 	const query = `
@@ -56,10 +63,10 @@ func GetForecasts() ([]ForecastDB, error) {
 			sunset, sunset_epoch, moonphase, conditions, description,
 			icon, stations, source, hours, summary
 		FROM forecast
-		WHERE datetime >= $1
+		WHERE datetime >= $1 AND location_id = $2
 		ORDER BY datetime ASC LIMIT 10`
 
-	rows, err := db.Query(query, start)
+	rows, err := db.Query(query, start, config.ForecastLocationID)
 	if err != nil {
 		return nil, err
 	}
@@ -88,6 +95,12 @@ func GetForecasts() ([]ForecastDB, error) {
 	return forecasts, nil
 }
 
+// GetForecastByTimestamp returns one day for this station.
+//
+// QueryRow made the missing predicate worse here than in GetForecasts: with
+// several locations sharing a datetime it silently returned whichever one the
+// planner happened to yield first, with nothing to indicate a choice had been
+// made.
 func GetForecastByTimestamp(ts time.Time) (*ForecastDB, error) {
 	f := &ForecastDB{}
 	const query = `
@@ -100,9 +113,9 @@ func GetForecastByTimestamp(ts time.Time) (*ForecastDB, error) {
 			sunset, sunset_epoch, moonphase, conditions, description,
 			icon, stations, source, hours, summary
 		FROM forecast
-		WHERE datetime = $1`
+		WHERE datetime = $1 AND location_id = $2`
 
-	err := db.QueryRow(query, ts).Scan(
+	err := db.QueryRow(query, ts, config.ForecastLocationID).Scan(
 		&f.Datetime, &f.DatetimeEpoch, &f.TempMax, &f.TempMin, &f.Temp, &f.FeelsLikeMax,
 		&f.FeelsLikeMin, &f.FeelsLike, &f.Dew, &f.Humidity, &f.Precip, &f.PrecipProb,
 		&f.PrecipCover, &f.PrecipType, &f.Snow, &f.SnowDepth, &f.WindGust, &f.WindSpeed,

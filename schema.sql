@@ -407,6 +407,89 @@ CREATE TABLE stat_ingest_log (
 ALTER TABLE IF EXISTS public.stat_ingest_log
     OWNER to ambient;
 
+
+-- Table: public.forecast
+
+-- DROP TABLE IF EXISTS public.forecast;
+
+CREATE TABLE IF NOT EXISTS public.forecast
+(
+    -- Identity is the id, not the name. The name used to be half the primary
+    -- key, which meant renaming a location on the map orphaned every forecast
+    -- row it had and started a second set accumulating under the new name.
+    -- Owned by the forecaster's migration 006; this file only describes it.
+    location_id bigint NOT NULL,
+    datetime timestamp with time zone NOT NULL,
+    datetime_epoch bigint,
+    tempmax numeric(5,2),
+    tempmin numeric(5,2),
+    temp numeric(5,2),
+    feelslikemax numeric(5,2),
+    feelslikemin numeric(5,2),
+    feelslike numeric(5,2),
+    dew numeric(5,2),
+    humidity numeric(5,2),
+    precip numeric(6,3),
+    precipprob numeric(5,2),
+    precipcover numeric(5,2),
+    preciptype text COLLATE pg_catalog."default",
+    snow numeric(5,2),
+    snowdepth numeric(5,2),
+    windgust numeric(5,2),
+    windspeed numeric(5,2),
+    winddir numeric(5,2),
+    pressure numeric(6,2),
+    cloudcover numeric(5,2),
+    visibility numeric(5,2),
+    solarradiation numeric(6,2),
+    solarenergy numeric(5,2),
+    uvindex integer,
+    severerisk integer,
+    sunrise time without time zone,
+    sunrise_epoch bigint,
+    sunset time without time zone,
+    sunset_epoch bigint,
+    moonphase numeric(3,2),
+    conditions text COLLATE pg_catalog."default",
+    description text COLLATE pg_catalog."default",
+    icon text COLLATE pg_catalog."default",
+    stations text COLLATE pg_catalog."default",
+    source text COLLATE pg_catalog."default",
+    hours jsonb,
+    summary text COLLATE pg_catalog."default",
+    model_blend text COLLATE pg_catalog."default",
+    based_on_runs text COLLATE pg_catalog."default",
+    transformed_at timestamp with time zone NOT NULL DEFAULT now(),
+    content_hash text COLLATE pg_catalog."default",
+    summary_generated_at timestamp with time zone,
+    summary_hash text COLLATE pg_catalog."default",
+    CONSTRAINT forecast_pkey PRIMARY KEY (location_id, datetime),
+    CONSTRAINT forecast_location_fk FOREIGN KEY (location_id)
+        REFERENCES map_locations (id) ON DELETE CASCADE
+)
+
+    TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.forecast
+    OWNER to ambient;
+-- Index: idx_forecast_datetime
+
+-- DROP INDEX IF EXISTS public.idx_forecast_datetime;
+
+CREATE INDEX IF NOT EXISTS idx_forecast_datetime
+    ON public.forecast USING btree
+        (datetime ASC NULLS LAST)
+    TABLESPACE pg_default;
+-- Index: idx_forecast_stale_summary
+
+-- DROP INDEX IF EXISTS public.idx_forecast_stale_summary;
+
+CREATE INDEX IF NOT EXISTS idx_forecast_stale_summary
+    ON public.forecast USING btree
+        (location_id ASC NULLS LAST, datetime ASC NULLS LAST)
+    TABLESPACE pg_default
+    WHERE summary_hash IS NULL OR summary_hash <> content_hash;
+
 -- Table: public.forecast
 
 -- DROP TABLE IF EXISTS public.forecast;
