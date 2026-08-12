@@ -455,38 +455,52 @@ type FirstFreeze struct {
 	Fall   string `json:"fall" json:"fall,omitempty"`
 }
 
+// ForecastDB is one row of the forecaster's daily `forecast` table.
+//
+// Every weather column in that table is nullable by design — a missing value
+// stays NULL rather than becoming 0, because 0 is a real temperature. The
+// numeric fields here are pointers for the same reason: they marshal as the
+// number when it is known and as null when it is not, rather than reporting
+// freezing for "we don't know".
+//
+// This began failing when summaries stopped being written for every row. The
+// forecaster now writes them for locations someone actually opens, so most rows
+// legitimately have none — and a bare string scan target turns that into
+// "converting NULL to string is unsupported", a 500 for the whole endpoint
+// because one paragraph was absent. Text columns are COALESCEd in the query
+// instead: for a caption, empty and absent read the same.
 type ForecastDB struct {
 	Datetime       time.Time `json:"datetime"`
-	DatetimeEpoch  int64     `json:"datetimeEpoch"`
-	TempMax        float64   `json:"tempmax"`
-	TempMin        float64   `json:"tempmin"`
-	Temp           float64   `json:"temp"`
-	FeelsLikeMax   float64   `json:"feelslikemax"`
-	FeelsLikeMin   float64   `json:"feelslikemin"`
-	FeelsLike      float64   `json:"feelslike"`
-	Dew            float64   `json:"dew"`
-	Humidity       float64   `json:"humidity"`
-	Precip         float64   `json:"precip"`
-	PrecipProb     float64   `json:"precipprob"`
-	PrecipCover    float64   `json:"precipcover"`
+	DatetimeEpoch  *int64    `json:"datetimeEpoch"`
+	TempMax        *float64  `json:"tempmax"`
+	TempMin        *float64  `json:"tempmin"`
+	Temp           *float64  `json:"temp"`
+	FeelsLikeMax   *float64  `json:"feelslikemax"`
+	FeelsLikeMin   *float64  `json:"feelslikemin"`
+	FeelsLike      *float64  `json:"feelslike"`
+	Dew            *float64  `json:"dew"`
+	Humidity       *float64  `json:"humidity"`
+	Precip         *float64  `json:"precip"`
+	PrecipProb     *float64  `json:"precipprob"`
+	PrecipCover    *float64  `json:"precipcover"`
 	PrecipType     string    `json:"preciptype"` // Flattened slice to string
-	Snow           float64   `json:"snow"`
-	SnowDepth      float64   `json:"snowdepth"`
-	WindGust       float64   `json:"windgust"`
-	WindSpeed      float64   `json:"windspeed"`
-	WindDir        float64   `json:"winddir"`
-	Pressure       float64   `json:"pressure"`
-	CloudCover     float64   `json:"cloudcover"`
-	Visibility     float64   `json:"visibility"`
-	SolarRadiation float64   `json:"solarradiation"`
-	SolarEnergy    float64   `json:"solarenergy"`
-	UVIndex        float64   `json:"uvindex"`
-	SevereRisk     float64   `json:"severerisk"`
+	Snow           *float64  `json:"snow"`
+	SnowDepth      *float64  `json:"snowdepth"`
+	WindGust       *float64  `json:"windgust"`
+	WindSpeed      *float64  `json:"windspeed"`
+	WindDir        *float64  `json:"winddir"`
+	Pressure       *float64  `json:"pressure"`
+	CloudCover     *float64  `json:"cloudcover"`
+	Visibility     *float64  `json:"visibility"`
+	SolarRadiation *float64  `json:"solarradiation"`
+	SolarEnergy    *float64  `json:"solarenergy"`
+	UVIndex        *float64  `json:"uvindex"`
+	SevereRisk     *float64  `json:"severerisk"`
 	Sunrise        string    `json:"sunrise"` // Format "HH:MM:SS"
-	SunriseEpoch   int64     `json:"sunriseEpoch"`
+	SunriseEpoch   *int64    `json:"sunriseEpoch"`
 	Sunset         string    `json:"sunset"` // Format "HH:MM:SS"
-	SunsetEpoch    int64     `json:"sunsetEpoch"`
-	MoonPhase      float64   `json:"moonphase"`
+	SunsetEpoch    *int64    `json:"sunsetEpoch"`
+	MoonPhase      *float64  `json:"moonphase"`
 	Conditions     string    `json:"conditions"`
 	Description    string    `json:"description"`
 	Icon           string    `json:"icon"`

@@ -46,6 +46,13 @@ func getRecord(sqlStatement string) Record {
 
 // GetForecasts returns this station's next ten days.
 //
+// Text columns are COALESCEd and numeric ones are not, deliberately. An absent
+// caption and an empty caption render identically, so ” loses nothing; an
+// absent temperature and 0°F do not, so those stay NULL and land in a pointer.
+// Every column in the forecast table is nullable, so a scan target that cannot
+// hold NULL is a 500 waiting for the first row that lacks one — which is what
+// happened when summaries stopped being written for every row.
+//
 // The location_id predicate is not optional. The forecast table used to hold
 // one location and these queries took whatever was there; it is now keyed on
 // (location_id, datetime) and holds a row per location per day, so without the
@@ -57,11 +64,14 @@ func GetForecasts() ([]ForecastDB, error) {
 		SELECT
 			datetime, datetime_epoch, tempmax, tempmin, temp, feelslikemax,
 			feelslikemin, feelslike, dew, humidity, precip, precipprob,
-			precipcover, preciptype, snow, snowdepth, windgust, windspeed,
-			winddir, pressure, cloudcover, visibility, solarradiation,
-			solarenergy, uvindex, severerisk, sunrise, sunrise_epoch,
-			sunset, sunset_epoch, moonphase, conditions, description,
-			icon, stations, source, hours, summary
+			precipcover, COALESCE(preciptype, ''), snow, snowdepth,
+			windgust, windspeed, winddir, pressure, cloudcover, visibility,
+			solarradiation, solarenergy, uvindex, severerisk,
+			COALESCE(sunrise::text, ''), sunrise_epoch,
+			COALESCE(sunset::text, ''), sunset_epoch, moonphase,
+			COALESCE(conditions, ''), COALESCE(description, ''),
+			COALESCE(icon, ''), COALESCE(stations, ''), COALESCE(source, ''),
+			COALESCE(hours::text, '[]'), COALESCE(summary, '')
 		FROM forecast
 		WHERE datetime >= $1 AND location_id = $2
 		ORDER BY datetime ASC LIMIT 10`
@@ -107,11 +117,14 @@ func GetForecastByTimestamp(ts time.Time) (*ForecastDB, error) {
 		SELECT
 			datetime, datetime_epoch, tempmax, tempmin, temp, feelslikemax,
 			feelslikemin, feelslike, dew, humidity, precip, precipprob,
-			precipcover, preciptype, snow, snowdepth, windgust, windspeed,
-			winddir, pressure, cloudcover, visibility, solarradiation,
-			solarenergy, uvindex, severerisk, sunrise, sunrise_epoch,
-			sunset, sunset_epoch, moonphase, conditions, description,
-			icon, stations, source, hours, summary
+			precipcover, COALESCE(preciptype, ''), snow, snowdepth,
+			windgust, windspeed, winddir, pressure, cloudcover, visibility,
+			solarradiation, solarenergy, uvindex, severerisk,
+			COALESCE(sunrise::text, ''), sunrise_epoch,
+			COALESCE(sunset::text, ''), sunset_epoch, moonphase,
+			COALESCE(conditions, ''), COALESCE(description, ''),
+			COALESCE(icon, ''), COALESCE(stations, ''), COALESCE(source, ''),
+			COALESCE(hours::text, '[]'), COALESCE(summary, '')
 		FROM forecast
 		WHERE datetime = $1 AND location_id = $2`
 
