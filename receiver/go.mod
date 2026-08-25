@@ -5,7 +5,7 @@ go 1.25.6
 require (
 	github.com/eclipse/paho.mqtt.golang v1.5.1
 	github.com/joho/godotenv v1.5.1
-	github.com/labstack/echo/v4 v4.15.2
+	github.com/labstack/echo/v4 v4.15.3
 	github.com/sirupsen/logrus v1.9.4
 )
 
