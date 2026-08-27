@@ -1,102 +1,123 @@
-
 name: weather
-# Define the services (containers)
+
+# Every value lives in .env beside this file; nothing is hardcoded here.
+#
+# Two things Compose does with environment variables, and they are not the same:
+#
+#   ${VAR}      substituted INTO this file by Compose before it runs, reading
+#               .env and the shell. That is what is used below.
+#   env_file:   handed to the container untouched, and never visible to Compose.
+#
+# Interpolation is the right one here because several values are assembled —
+# DATABASE_URL is built from the same host, user and password the server takes
+# as separate variables — and a value that has to be composed cannot be one the
+# compose file never sees.
+#
+# Secrets use the "colon-question" form, which makes Compose REFUSE to start
+# with an explanation naming the variable. The previous `${DB_PASSWORD}` silently became an empty string
+# when nothing set it, and an empty password fails later, further away, as an
+# authentication error against the database.
+#
+# Everything else uses ${VAR:-default}, so the defaults stay readable here and
+# .env only has to carry what differs.
+#
+#   cp .env.example .env      # then fill in the three secrets
+#   docker compose up -d
+
+x-common: &common
+  restart: unless-stopped
+  pull_policy: always
+  networks: [weather-network]
+  extra_hosts:
+    - "zoms-gitlab:${GITLAB_HOST_IP:-10.10.1.124}"
+
+# Assembled once. The processor and stats both connect as the same role to the
+# same database, and two copies of a URL containing a password is two places to
+# rotate it.
+x-database-url: &database-url
+  DATABASE_URL: postgres://${DB_USER:-ambient}:${DB_PASSWORD:?set DB_PASSWORD in .env}@${DB_HOST:-10.10.1.120}:${DB_PORT:-5432}/${DB_NAME:-ambient}?sslmode=${DB_SSLMODE:-disable}
+
 services:
   server:
+    <<: *common
     container_name: weather-server
-    image: docker.zoms.net/weather/server:v5.1.1
-    restart: unless-stopped
-    pull_policy: always
-    # Expose port 3000 inside the container to port 6001 on the host
+    image: ${REGISTRY:-docker.zoms.net}/weather/server:${SERVER_TAG:-v5.1.2}
     ports:
-      - "6001:3000"
-    # Set the environment variables
+      - "${SERVER_PORT:-6001}:3000"
     environment:
-      - PORT=3000
-      - DB_HOST=10.10.1.120
-      - DB_USER=ambient
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_DATABASE=ambient
-      - ENV=Production
-      - LOGLEVEL=Info
-      - LAT=38.725798
-      - LON=-104.66783
-      - STATION_ID=KCOS
-    # Attach the container to the custom network
-    networks:
-      - weather-network
-    extra_hosts:
-      - "zoms-gitlab:10.10.1.124"
-  processor:
-    container_name: weather-processor
-    image: docker.zoms.net/weather/processor:v3.0.1
-    restart: unless-stopped
-    pull_policy: always
-    # Expose port 3000 inside the container to port 6001 on the host
-    ports:
-      - "7501:8081"
-    # Set the environment variables
-    environment:
-      - MQTT_BROKER=tcp://10.10.1.124:1883
-      - MQTT_CLIENT_ID=weather-processor
-      - MQTT_USER=brian
-      - MQTT_PASS=${DB_PASSWORD}
-      - MQTT_TOPIC=ambient/#
-      - MQTT_STATS_TOPIC=weather/stats
-      - DATABASE_URL=postgres://ambient:${DB_PASSWORD}@10.10.1.120:5432/ambient?sslmode=disable
-      - STATION_MAC=WS-5000
-      - ELEVATION=1746.5
-      - SNAPSHOT_INTERVAL=1m
-      - RAIN_EVENT_GAP=1h
-    # Attach the container to the custom network
-    networks:
-      - weather-network
-    extra_hosts:
-      - "zoms-gitlab:10.10.1.124"
-  stats:
-    container_name: weather-stats
-    image: docker.zoms.net/weather/stats:v1.1.1
-    restart: unless-stopped
-    pull_policy: always
-    # Expose port 3000 inside the container to port 6001 on the host
-    ports:
-      - "7500:8080"
-    # Set the environment variables
-    environment:
-      - MQTT_BROKER=tcp://10.10.1.124:1883
-      - MQTT_CLIENT_ID=weather-stats
-      - MQTT_USERNAME=brian
-      - MQTT_PASSWORD=${DB_PASSWORD}
-      - MQTT_STATS_SUBSCRIBE=weather/stats
-      - STATION_MAC=WS-5000
-      - DATABASE_URL=postgres://ambient:${DB_PASSWORD}@10.10.1.120:5432/ambient?sslmode=disable
-      - ALERT_CRON=*/15 * * * *
-      - FORECAST_CRON=0 */4 * * *
-      - CONDITIONS_CRON=*/15 * * * *
-      - STATION_ID=KCOS
-      - LAT=38.725798
-      - LON=-104.66783
-      - WEATHER_API=${WEATHER_API}
+      PORT: "3000"
+      DB_HOST: ${DB_HOST:-10.10.1.120}
+      DB_USER: ${DB_USER:-ambient}
+      DB_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+      DB_DATABASE: ${DB_NAME:-ambient}
+      LOGLEVEL: ${LOGLEVEL:-Info}
+      TZ: ${TZ:-America/Denver}
+      LAT: ${LAT:?set LAT in .env}
+      LON: ${LON:?set LON in .env}
+      STATION_ID: ${STATION_ID:-KCOS}
+      # Which location's forecast this station shows.
+      #
+      # The forecast table is keyed on (location_id, datetime) and holds a row
+      # per location per day, so a query without this returns several locations
+      # interleaved by date. Required by the server from v5.1.2 onward;
+      # harmless to set on earlier builds.
+      FORECAST_LOCATION_ID: ${FORECAST_LOCATION_ID:?set FORECAST_LOCATION_ID in .env}
+      # GO_ENV is NOT set here. The image already sets it to "production", which
+      # is what stops the binary looking for a .env inside the container. The
+      # `ENV=Production` this file used to carry was read by nothing at all —
+      # the code looks for GO_ENV, and compares against lowercase.
 
-    # Attach the container to the custom network
-    networks:
-      - weather-network
-    extra_hosts:
-      - "zoms-gitlab:10.10.1.124"
+  processor:
+    <<: *common
+    container_name: weather-processor
+    image: ${REGISTRY:-docker.zoms.net}/weather/processor:${PROCESSOR_TAG:-v3.0.2}
+    ports:
+      - "${PROCESSOR_PORT:-7501}:8081"
+    environment:
+      <<: *database-url
+      MQTT_BROKER: ${MQTT_BROKER:-tcp://10.10.1.124:1883}
+      MQTT_CLIENT_ID: weather-processor
+      # This service spells them USER/PASS and stats spells them
+      # USERNAME/PASSWORD. Both read one pair of variables from .env, so the
+      # difference stays inside the images that have it.
+      MQTT_USER: ${MQTT_USER:-brian}
+      MQTT_PASS: ${MQTT_PASSWORD:?set MQTT_PASSWORD in .env}
+      MQTT_TOPIC: ${MQTT_TOPIC:-ambient/#}
+      MQTT_STATS_TOPIC: ${MQTT_STATS_TOPIC:-weather/stats}
+      STATION_MAC: ${STATION_MAC:-WS-5000}
+      ELEVATION: ${ELEVATION:?set ELEVATION in .env}
+      SNAPSHOT_INTERVAL: ${SNAPSHOT_INTERVAL:-1m}
+      RAIN_EVENT_GAP: ${RAIN_EVENT_GAP:-1h}
+
+  stats:
+    <<: *common
+    container_name: weather-stats
+    image: ${REGISTRY:-docker.zoms.net}/weather/stats:${STATS_TAG:-v1.1.2}
+    ports:
+      - "${STATS_PORT:-7500}:8080"
+    environment:
+      <<: *database-url
+      MQTT_BROKER: ${MQTT_BROKER:-tcp://10.10.1.124:1883}
+      MQTT_CLIENT_ID: weather-stats
+      MQTT_USERNAME: ${MQTT_USER:-brian}
+      MQTT_PASSWORD: ${MQTT_PASSWORD:?set MQTT_PASSWORD in .env}
+      MQTT_STATS_SUBSCRIBE: ${MQTT_STATS_TOPIC:-weather/stats}
+      STATION_MAC: ${STATION_MAC:-WS-5000}
+      ALERT_CRON: ${ALERT_CRON:-*/15 * * * *}
+      FORECAST_CRON: ${FORECAST_CRON:-0 */4 * * *}
+      CONDITIONS_CRON: ${CONDITIONS_CRON:-*/15 * * * *}
+      STATION_ID: ${STATION_ID:-KCOS}
+      LAT: ${LAT:?set LAT in .env}
+      LON: ${LON:?set LON in .env}
+      WEATHER_API: ${WEATHER_API:?set WEATHER_API in .env}
 
   weather-ui:
+    <<: *common
     container_name: weather-ui
-    image: docker.zoms.net/weather/ui:v3.3.1
-    restart: unless-stopped
-    pull_policy: always
-    # Expose port 6000 inside the container to port 6000 on the host
+    image: ${REGISTRY:-docker.zoms.net}/weather/ui:${UI_TAG:-v3.3.2}
     ports:
-      - "6000:6000"
-    # Attach the container to the custom network
-    networks:
-      - weather-network
+      - "${UI_PORT:-6000}:6000"
 
-# Define the custom network
 networks:
   weather-network:
     driver: bridge

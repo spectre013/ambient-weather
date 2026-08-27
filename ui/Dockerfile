@@ -1,6 +1,6 @@
 
 # build stage
-FROM node:lts-alpine3.21 AS build-stage
+FROM node:lts-alpine3.24 AS build-stage
 WORKDIR /app
 COPY package*.json ./
 COPY nginx.conf ./
