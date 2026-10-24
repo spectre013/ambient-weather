@@ -356,8 +356,13 @@ func newSensorStateAt(now time.Time) *SensorState {
 	return s
 }
 
+// startOfHour truncates the absolute instant rather than rebuilding it from
+// wall-clock fields: during the repeated hour at the end of DST, time.Date
+// resolves 01:xx to the first (MDT) 01:00, so the second 01:00 hour would
+// never start. Truncation assumes a whole-hour UTC offset, which holds for
+// America/Denver.
 func startOfHour(t time.Time) time.Time {
-	return time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), 0, 0, 0, t.Location())
+	return t.Truncate(time.Hour)
 }
 func startOfDay(t time.Time) time.Time {
 	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())

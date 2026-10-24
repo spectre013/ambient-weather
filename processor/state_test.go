@@ -381,3 +381,27 @@ func TestSeedRollsWithoutSensor(t *testing.T) {
 			r.Dailyrainin, r.Weeklyrainin, r.Lightningday, r.LightningMonth)
 	}
 }
+
+// On the night DST ends, 01:00-02:00 happens twice; both hours must roll.
+func TestStartOfHourDSTFallBack(t *testing.T) {
+	loc, err := time.LoadLocation("America/Denver")
+	if err != nil {
+		t.Skip(err)
+	}
+	first := time.Date(2026, 11, 1, 7, 30, 0, 0, time.UTC).In(loc)  // 01:30 MDT
+	second := time.Date(2026, 11, 1, 8, 30, 0, 0, time.UTC).In(loc) // 01:30 MST
+	a, b := startOfHour(first), startOfHour(second)
+	if !b.After(a) || b.Sub(a) != time.Hour {
+		t.Fatalf("startOfHour: %v then %v, want one hour apart", a, b)
+	}
+	if b.Hour() != 1 || b.Minute() != 0 || b.Location() != loc {
+		t.Errorf("startOfHour(%v) = %v, want 01:00 MST", second, b)
+	}
+
+	s := newSensorStateAt(first)
+	s.Apply(strikeMsg(10, "strike"), first)
+	s.Apply(strikeMsg(13, "strike"), first.Add(time.Minute))
+	if r := s.Snapshot("test", second); r.Lightninghour != 0 {
+		t.Errorf("lightninghour in the repeated hour = %d, want 0", r.Lightninghour)
+	}
+}
