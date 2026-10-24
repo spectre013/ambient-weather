@@ -1,5 +1,6 @@
 import React from "react";
 import Card from "../Card";
+import { statVal, fmtOr } from "../../utils/format";
 
 export default function HumidityCard({ humidity }) {
   const h = humidity.humidity;
@@ -9,7 +10,7 @@ export default function HumidityCard({ humidity }) {
     <Card label="Humidity" right={comfort.toUpperCase()}>
       <div className="big">{h}<span className="unit">%</span></div>
       <div className="sub">Dew point <b>{Math.round(dew)}°F</b></div>
-      <div className="sub">24h range {humidity.minmax.min.day.value}–{humidity.minmax.max.day.value}%</div>
+      <div className="sub">24h range {fmtOr(statVal(humidity.minmax, "min", "day"))}–{fmtOr(statVal(humidity.minmax, "max", "day"))}%</div>
         <div className="meter" style={{ marginTop: 12, position: "relative" }}>
             <span style={{ width: `${h}%`, background: h < 30 ? "var(--warm)" : h > 60 ? "var(--cool)" : "var(--green)" }} />
             <i style={{ position: "absolute", left: "30%", top: -2, bottom: -2, width: 1, background: "var(--rule)" }} />

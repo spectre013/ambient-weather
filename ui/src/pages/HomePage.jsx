@@ -15,12 +15,12 @@ import MoonCard from "../components/cards/MoonCard";
 import SensorGrid from "../components/SensorGrid";
 import HourlyStrip from "../components/HourlyStrip";
 import DailyList from "../components/DailyList";
+import { stationHour } from "../utils/format";
 
 export default function HomePage() {
   const { current, forecast, history, units, prefs } = useOutletContext();
   const today = forecast.days[0];
   const nowDate = new Date(current.date);
-  const tzOffsetH = forecast.tzoffset;
   const todayHours = today.hours;
   return (
     <>
@@ -49,7 +49,7 @@ export default function HomePage() {
             </span>
           </span>
         </div>
-        <TwentyFourChart hours={todayHours} history={history} current={current} nowHour={nowDate.getUTCHours() + tzOffsetH} units={units} />
+        <TwentyFourChart hours={todayHours} history={history} current={current} nowHour={stationHour(nowDate)} units={units} />
       </div>
 
       <div className="grid">
@@ -83,7 +83,7 @@ export default function HomePage() {
         <span className="meta">temperature & precipitation by hour</span>
       </div>
       <div className="card hourly-card">
-        <HourlyStrip days={forecast.days} nowDate={nowDate} tzOffsetH={tzOffsetH} units={units} />
+        <HourlyStrip days={forecast.days} nowDate={nowDate} units={units} />
       </div>
 
       <div className="section-rule" style={{ marginTop: 18 }}>
@@ -92,7 +92,7 @@ export default function HomePage() {
         <span className="meta">NOAA GFS · HRRR · NBM ensemble</span>
       </div>
       <div className="card">
-        <DailyList days={forecast.days} tzOffsetH={tzOffsetH} units={units} />
+        <DailyList days={forecast.days} units={units} />
       </div>
     </>
   );

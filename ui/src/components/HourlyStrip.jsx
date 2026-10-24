@@ -1,8 +1,8 @@
 import React from "react";
 import WeatherIcon from "./WeatherIcon";
-import { showT } from "../utils/format";
+import { showT, stationDate } from "../utils/format";
 
-export default function HourlyStrip({ days, nowDate, tzOffsetH, units }) {
+export default function HourlyStrip({ days, nowDate, units }) {
   const allHours = [];
   for (const d of days.slice(0, 2)) {
     for (const h of d.hours) allHours.push(h);
@@ -15,7 +15,7 @@ export default function HourlyStrip({ days, nowDate, tzOffsetH, units }) {
   return (
     <div className="hourly">
       {slice.map((h, i) => {
-        const d = new Date(h.datetimeEpoch * 1000 + tzOffsetH * 3600 * 1000);
+        const d = stationDate(h.datetimeEpoch);
         const hh = d.getUTCHours();
         const ampm = hh >= 12 ? "PM" : "AM";
         const h12 = hh % 12 || 12;

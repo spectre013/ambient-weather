@@ -148,22 +148,11 @@ type SensorState struct {
 	// this process started. They become the starting period totals on the
 	// first WH40/WH31L message after startup so that period totals stay
 	// continuous across restarts.
-	seededRain      bool
-	seedDayRainIn   float64
-	seedWeekRainIn  float64
-	seedMonthRainIn float64
-	seedYearRainIn  float64
-	seedEventRainIn float64
-	seedLastRain    time.Time
-	seedMaxGustMph  float64
-	seedMaxGustDay  time.Time
+	seededRain     bool
+	seedMaxGustMph float64
+	seedMaxGustDay time.Time
 
-	seededLightning     bool
-	seedLightningHour   int
-	seedLightningDay    int
-	seedLightningMonth  int
-	seedLightningTime   time.Time
-	seedLightningDistKM float64
+	seededLightning bool
 
 	seededAQ       bool
 	seedAQIPM25    int
@@ -189,11 +178,12 @@ type SensorState struct {
 //     copied into the in-memory state and the corresponding *HaveData flag is
 //     set. As real MQTT messages arrive they overwrite the seeded values.
 //
-//  2. Rain and lightning period totals are stashed as carry-over so the
-//     totals started on the first WH40/WH31L reading include the
-//     accumulation that already happened this period. Period seeds that fall
-//     in a previous period (e.g. last record was yesterday) are discarded so
-//     the new period correctly starts at zero.
+//  2. Rain and lightning period totals are loaded into the running
+//     accumulators, so increments from the first WH40/WH31L reading add to
+//     what already fell this period, and the periods roll over at their
+//     boundaries even if the sensor never reports again. Period totals that
+//     fall in a previous period (e.g. last record was yesterday) are
+//     discarded so the new period correctly starts at zero.
 func (s *SensorState) Seed(last *Record, now time.Time) {
 	if last == nil {
 		return
@@ -276,29 +266,34 @@ func (s *SensorState) Seed(last *Record, now time.Time) {
 	// --- Rain period seeds ----------------------------------------------------
 	// Only carry a period's accumulation forward if the previous record was
 	// inside the *same* period. Otherwise that period has rolled over while we
-	// were down and the seed for it should be 0.
+	// were down and the seed for it should be 0. The period starts are reset
+	// to now's periods so rollRain zeroes each total at its next boundary.
+	const inToMM = 25.4 // mmToIn is mm/25.4
+	s.rain.hourStart = startOfHour(now)
+	s.rain.dayStart = startOfDay(now)
+	s.rain.weekStart = startOfWeek(now)
+	s.rain.monthStart = startOfMonth(now)
+	s.rain.yearStart = startOfYear(now)
 	if startOfDay(last.Recorded).Equal(startOfDay(now)) {
-		s.seedDayRainIn = last.Dailyrainin
+		s.rain.dayMM = last.Dailyrainin * inToMM
 		s.seedMaxGustMph = last.Maxdailygust
 		s.seedMaxGustDay = startOfDay(now)
 	}
 	if startOfWeek(last.Recorded).Equal(startOfWeek(now)) {
-		s.seedWeekRainIn = last.Weeklyrainin
+		s.rain.weekMM = last.Weeklyrainin * inToMM
 	}
 	if startOfMonth(last.Recorded).Equal(startOfMonth(now)) {
-		s.seedMonthRainIn = last.Monthlyrainin
+		s.rain.monthMM = last.Monthlyrainin * inToMM
 	}
 	if startOfYear(last.Recorded).Equal(startOfYear(now)) {
-		s.seedYearRainIn = last.Yearlyrainin
+		s.rain.yearMM = last.Yearlyrainin * inToMM
 	}
 	// The event total always carries forward; the next hourly check in
 	// rollRain clears it if the last 24 hours were (nearly) dry.
-	s.seedEventRainIn = last.Eventrainin
+	s.rain.eventMM = last.Eventrainin * inToMM
 	// lastrain timestamp always carries forward — it's a historical fact, not
-	// a per-period accumulation. Set it directly on the rain baselines so that
-	// Snapshot emits it even before the first WH40 message arrives.
+	// a per-period accumulation.
 	if !last.Lastrain.IsZero() {
-		s.seedLastRain = last.Lastrain
 		s.rain.lastRainTime = last.Lastrain
 	}
 	s.seededRain = true
@@ -309,22 +304,22 @@ func (s *SensorState) Seed(last *Record, now time.Time) {
 		s.maxGustDay = s.seedMaxGustDay
 	}
 
-	// Lightning seeds.
+	// Lightning seeds, loaded the same way as rain.
+	s.lightning.hourStart = startOfHour(now)
+	s.lightning.dayStart = startOfDay(now)
+	s.lightning.monthStart = startOfMonth(now)
 	if startOfHour(last.Recorded).Equal(startOfHour(now)) {
-		s.seedLightningHour = last.Lightninghour
+		s.lightning.hourCount = last.Lightninghour
 	}
 	if startOfDay(last.Recorded).Equal(startOfDay(now)) {
-		s.seedLightningDay = last.Lightningday
+		s.lightning.dayCount = last.Lightningday
 	}
 	if startOfMonth(last.Recorded).Equal(startOfMonth(now)) {
-		s.seedLightningMonth = last.LightningMonth
+		s.lightning.monthCount = last.LightningMonth
 	}
 	// Same as lastrain: the lightning timestamp/distance are historical facts.
-	// Set them directly so they survive into the next Snapshot without waiting
-	// for the WH31L to chime in. DB column is miles; in-memory state is km.
+	// DB column is miles; in-memory state is km.
 	if !last.Lightningtime.IsZero() {
-		s.seedLightningTime = last.Lightningtime
-		s.seedLightningDistKM = miToKm(last.Lightningdistance)
 		s.lightning.lastStrikeTime = last.Lightningtime
 		s.lightning.lastDistanceKM = miToKm(last.Lightningdistance)
 	}
@@ -335,10 +330,10 @@ func (s *SensorState) Seed(last *Record, now time.Time) {
 		s.ws80HaveData, s.wh32BHaveData,
 		s.channelHave[1], s.channelHave[2], s.channelHave[3], s.channelHave[4])
 	log.Printf("seed: rain day=%.3fin week=%.3fin month=%.3fin year=%.3fin event=%.3fin",
-		s.seedDayRainIn, s.seedWeekRainIn,
-		s.seedMonthRainIn, s.seedYearRainIn, s.seedEventRainIn)
+		mmToIn(s.rain.dayMM), mmToIn(s.rain.weekMM),
+		mmToIn(s.rain.monthMM), mmToIn(s.rain.yearMM), mmToIn(s.rain.eventMM))
 	log.Printf("seed: lightning hour=%d day=%d month=%d",
-		s.seedLightningHour, s.seedLightningDay, s.seedLightningMonth)
+		s.lightning.hourCount, s.lightning.dayCount, s.lightning.monthCount)
 }
 
 // NewSensorState constructs an empty state and seeds the rain/lightning period
@@ -549,27 +544,16 @@ func (s *SensorState) Apply(m *SensorMessage, now time.Time) {
 func (s *SensorState) applyRain(totalMM float64, now time.Time) {
 	count := int(math.Round(totalMM * 10))
 
-	// First reading: start every period at zero — unless we were given
-	// carry-over from a previous run, in which case each period starts at the
-	// seeded amount.
+	// First reading: only synchronise the counter. The period totals are
+	// already zero, or hold the carry-over Seed loaded from the last record.
 	if !s.totalRainHaveIt {
-		// mmToIn is mm/25.4, so inToMM is in*25.4.
-		const inToMM = 25.4
-		s.rain.dayMM = s.seedDayRainIn * inToMM
-		s.rain.weekMM = s.seedWeekRainIn * inToMM
-		s.rain.monthMM = s.seedMonthRainIn * inToMM
-		s.rain.yearMM = s.seedYearRainIn * inToMM
-		s.rain.eventMM = s.seedEventRainIn * inToMM
-		if !s.seedLastRain.IsZero() {
-			s.rain.lastRainTime = s.seedLastRain
-		}
 		s.rain.lastCount = count
 		s.rain.lastMsg = now
 		s.totalRainMM = totalMM
 		s.totalRainHaveIt = true
 		if s.seededRain {
-			log.Printf("rain: first reading %.2fmm, applied seed (day=%.3fin)",
-				totalMM, s.seedDayRainIn)
+			log.Printf("rain: first reading %.2fmm, continuing seed (day=%.3fin)",
+				totalMM, mmToIn(s.rain.dayMM))
 		} else {
 			log.Printf("rain: first reading, counter=%.2fmm", totalMM)
 		}
@@ -641,18 +625,11 @@ func (s *SensorState) rollRain(now time.Time) {
 // restarted its counter, so that message only re-synchronises.
 func (s *SensorState) applyLightning(total int, distance *float64, state string, now time.Time) {
 	if !s.totalStrikesHave {
-		s.lightning.hourCount = s.seedLightningHour
-		s.lightning.dayCount = s.seedLightningDay
-		s.lightning.monthCount = s.seedLightningMonth
-		if !s.seedLightningTime.IsZero() {
-			s.lightning.lastStrikeTime = s.seedLightningTime
-			s.lightning.lastDistanceKM = s.seedLightningDistKM
-		}
 		s.totalStrikes = total
 		s.totalStrikesHave = true
 		if s.seededLightning {
-			log.Printf("lightning: first reading %d, applied seed (day=%d)",
-				total, s.seedLightningDay)
+			log.Printf("lightning: first reading %d, continuing seed (day=%d)",
+				total, s.lightning.dayCount)
 		} else {
 			log.Printf("lightning: first reading, counter=%d", total)
 		}
@@ -800,12 +777,15 @@ func (s *SensorState) Snapshot(mac string, now time.Time) Record {
 		}
 	}
 
-	// Rain aggregations.
-	if s.totalRainHaveIt {
+	// Rain aggregations. Before the first WH40 message of this run the
+	// totals are the seeded carry-over, which rolls over the same way.
+	if s.totalRainHaveIt || s.seededRain {
 		// Roll periods here too, so a period that ended since the last WH40
 		// message reads zero rather than carrying the previous period's total.
 		s.rollRain(now)
-		r.Totalrainin = round3(mmToIn(s.totalRainMM))
+		if s.totalRainHaveIt {
+			r.Totalrainin = round3(mmToIn(s.totalRainMM))
+		}
 		r.Dailyrainin = round3(mmToIn(s.rain.dayMM))
 		r.Weeklyrainin = round3(mmToIn(s.rain.weekMM))
 		r.Monthlyrainin = round3(mmToIn(s.rain.monthMM))
@@ -813,18 +793,6 @@ func (s *SensorState) Snapshot(mac string, now time.Time) Record {
 		// Event rain keeps showing after the rain stops; rollRain clears it
 		// at the first hour boundary that meets the console's reset rule.
 		r.Eventrainin = round3(mmToIn(s.rain.eventMM))
-	} else if s.seededRain {
-		// No WH40 message yet this run, but we have values from the last DB
-		// row — emit those so periods stay continuous.
-		r.Dailyrainin = s.seedDayRainIn
-		r.Weeklyrainin = s.seedWeekRainIn
-		r.Monthlyrainin = s.seedMonthRainIn
-		r.Yearlyrainin = s.seedYearRainIn
-		// Seed path: apply the event reset rule directly to the seeded total.
-		if s.rain.window.hourlyMM(now) >= rainEpsilonMM ||
-			s.rain.window.last24hMM(now) >= rainEventResetMM {
-			r.Eventrainin = s.seedEventRainIn
-		}
 	}
 	// Rolling values come from the per-minute window, which SeedRainHistory
 	// refills after a restart. Hourly is the last 60 minutes (the console's
@@ -836,12 +804,14 @@ func (s *SensorState) Snapshot(mac string, now time.Time) Record {
 		r.Lastrain = s.rain.lastRainTime
 	}
 
-	// Lightning aggregations.
-	if s.totalStrikesHave {
+	// Lightning aggregations; seeded counts roll over like live ones.
+	if s.totalStrikesHave || s.seededLightning {
 		s.rollLightning(now)
 		r.Lightninghour = s.lightning.hourCount
 		r.Lightningday = s.lightning.dayCount
 		r.LightningMonth = s.lightning.monthCount
+	}
+	if s.totalStrikesHave {
 		// rtl_433 reports battery_ok as 0, 0.5 or 1.0; the console only
 		// flags the WH57 battery as low at level 0.
 		if s.lightningBattery > 0 {
@@ -849,11 +819,6 @@ func (s *SensorState) Snapshot(mac string, now time.Time) Record {
 		} else {
 			r.Battlightning = 0
 		}
-	} else if s.seededLightning {
-		// No WH31L message yet this run — fall back to seeded period counts.
-		r.Lightninghour = s.seedLightningHour
-		r.Lightningday = s.seedLightningDay
-		r.LightningMonth = s.seedLightningMonth
 	}
 	// lastStrikeTime / distance are historical facts — emit whenever known,
 	// regardless of whether we've seen a live message. The DB column uses
@@ -906,9 +871,11 @@ func (s *SensorState) TrySnapshot(mac string, now time.Time) (Record, bool) {
 	return s.Snapshot(mac, now), true
 }
 
-func round1(v float64) float64 { return float64(int(v*10+0.5)) / 10.0 }
-func round2(v float64) float64 { return float64(int(v*100+0.5)) / 100.0 }
-func round3(v float64) float64 { return float64(int(v*1000+0.5)) / 1000.0 }
+// math.Round rounds half away from zero, so negative values (sub-zero
+// temperatures, dew points) round symmetrically with positive ones.
+func round1(v float64) float64 { return math.Round(v*10) / 10.0 }
+func round2(v float64) float64 { return math.Round(v*100) / 100.0 }
+func round3(v float64) float64 { return math.Round(v*1000) / 1000.0 }
 
 // wh32BReading is the part of a WH32B packet the glitch filter compares.
 type wh32BReading struct {

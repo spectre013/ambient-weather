@@ -1,6 +1,7 @@
 import React from "react";
 import Card from "../Card";
 import MoonPhase from "../charts/MoonPhase";
+import { fmtOr } from "../../utils/format";
 
 export default function MoonCard({ astro, today }) {
   // Guard: bail until we have astro — the websocket payload may arrive
@@ -27,11 +28,11 @@ export default function MoonCard({ astro, today }) {
         <div className="scale-track">
           <div className="row" style={{ gridTemplateColumns: "80px 1fr", gap: 10 }}>
             <span className="lbl">Visibility</span>
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, fontVariantNumeric: "tabular-nums" }}>{today.visibility} mi</span>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, fontVariantNumeric: "tabular-nums" }}>{fmtOr(today?.visibility)} mi</span>
           </div>
           <div className="row" style={{ gridTemplateColumns: "80px 1fr", gap: 10 }}>
             <span className="lbl">Cloud cover</span>
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, fontVariantNumeric: "tabular-nums" }}>{today.cloudcover.toFixed(0)}%</span>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, fontVariantNumeric: "tabular-nums" }}>{fmtOr(today?.cloudcover, (v) => v.toFixed(0))}%</span>
           </div>
         </div>
       </Card>

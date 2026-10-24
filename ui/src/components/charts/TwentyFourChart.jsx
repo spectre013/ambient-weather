@@ -36,7 +36,8 @@ export default function TwentyFourChart({ hours, history, current, nowHour, unit
   if (current && current.temp && typeof current.temp.temp === "number") {
     liveTemp = showT(current.temp.temp, units);
     const d = new Date(current.date);
-    // nowHour was computed as UTC hours + tzOffsetH; do the same for minutes.
+    // nowHour is the station-local hour; the offset is whole hours, so
+    // the UTC minutes are the local minutes.
     const localHour = nowHour;
     const minuteFrac = d.getUTCMinutes() / 60;
     liveX = localHour + minuteFrac;

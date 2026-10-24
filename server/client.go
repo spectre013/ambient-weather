@@ -19,8 +19,6 @@ const (
 	maxMessageSize = 512
 )
 
-var newline = []byte{'\n'}
-
 // Client is a middleman between the websocket connection and the hub.
 type Client struct {
 	hub  *Hub
@@ -70,20 +68,9 @@ func (c *Client) writePump() {
 				return
 			}
 
-			w, err := c.conn.NextWriter(websocket.TextMessage)
-			if err != nil {
-				return
-			}
-			_, _ = w.Write(message)
-
-			// Drain any additional messages queued during this write.
-			n := len(c.send)
-			for i := 0; i < n; i++ {
-				_, _ = w.Write(newline)
-				_, _ = w.Write(<-c.send)
-			}
-
-			if err := w.Close(); err != nil {
+			// One JSON document per frame: the UI parses each frame
+			// whole, so queued messages must not be batched together.
+			if err := c.conn.WriteMessage(websocket.TextMessage, message); err != nil {
 				return
 			}
 		case <-ticker.C:
@@ -102,27 +89,22 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		logger.WithError(err).Error("websocket upgrade failed")
 		return
 	}
+	// Build the initial snapshot before the client is registered. Once
+	// registered, the hub owns client.send and closes it when the client
+	// disconnects, so queueing into it from here afterwards could panic
+	// with a send on a closed channel. The snapshot goes to this client
+	// only rather than being broadcast to everyone.
+	m, err := json.Marshal(getConditions())
+	if err != nil {
+		logger.WithError(err).Error("serveWs: marshal initial snapshot")
+		_ = conn.Close()
+		return
+	}
 	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
+	client.send <- m // buffered and not yet shared, so this cannot block
+
 	client.hub.register <- client
 
 	go client.writePump()
 	go client.readPump()
-
-	// Send an initial snapshot directly to this client's send channel
-	// rather than broadcasting to everyone -- the broadcast path would
-	// echo to all other connected clients unnecessarily, and could race
-	// with the register channel.
-	c := getConditions()
-	m, err := json.Marshal(c)
-	if err != nil {
-		logger.WithError(err).Error("serveWs: marshal initial snapshot")
-		return
-	}
-	select {
-	case client.send <- m:
-	default:
-		// Client's channel is full -- shouldn't happen on first
-		// connect, but bail rather than block.
-		logger.Warn("serveWs: send buffer full on initial snapshot")
-	}
 }

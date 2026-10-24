@@ -83,10 +83,19 @@ func main() {
 
 	// --- MQTT ---
 	opts := mqtt.NewClientOptions().AddBroker(os.Getenv("MQTT_BROKER"))
-	opts.SetClientID(os.Getenv("MQTT_CLIENTID"))
+	// MQTT_CLIENT_ID is what docker-compose and env.sample set; MQTT_CLIENTID
+	// was read before and is still accepted. A stable, non-empty ID plus a
+	// persistent session lets the broker queue QoS 1 notifications published
+	// while this service is disconnected or restarting.
+	clientID := getEnvDefault("MQTT_CLIENT_ID", getEnvDefault("MQTT_CLIENTID", "weather-stats"))
+	opts.SetClientID(clientID)
+	opts.SetCleanSession(false)
 	opts.SetUsername(os.Getenv("MQTT_USERNAME"))
 	opts.SetPassword(os.Getenv("MQTT_PASSWORD"))
 	opts.SetAutoReconnect(true)
+	// Keep retrying the initial connect instead of panicking when the broker
+	// is not up yet.
+	opts.SetConnectRetry(true)
 	opts.SetOnConnectHandler(onMQTTConnect)
 	opts.SetConnectionLostHandler(func(_ mqtt.Client, err error) {
 		logger.Warn("MQTT connection lost: ", err)
@@ -96,7 +105,7 @@ func main() {
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
 		panic(token.Error())
 	}
-	logger.Info("Connected to MQTT broker ", os.Getenv("MQTT_HOST"))
+	logger.Info("Connected to MQTT broker ", os.Getenv("MQTT_BROKER"), " as ", clientID)
 
 	// --- scheduler ---
 	s := gocron.NewScheduler(loc)
@@ -169,13 +178,31 @@ func runDailyRebuild() {
 }
 
 // onMQTTConnect (re)subscribes whenever the client connects or reconnects.
+// The subscription is QoS 1 to match the processor's publish, so
+// notifications are redelivered rather than dropped; stat_ingest_log makes a
+// redelivered notification a no-op. A failed subscribe is retried, since
+// without it the service would sit connected but receive nothing.
 func onMQTTConnect(c mqtt.Client) {
 	topic := os.Getenv("MQTT_STATS_SUBSCRIBE")
-	if token := c.Subscribe(topic, 0, statsNotificationHandler); token.Wait() && token.Error() != nil {
-		logger.Error("MQTT subscribe: ", token.Error())
-		return
-	}
-	logger.Info("Subscribed to MQTT topic ", topic)
+	go func() {
+		backoff := time.Second
+		for {
+			token := c.Subscribe(topic, 1, statsNotificationHandler)
+			if token.Wait() && token.Error() == nil {
+				logger.Info("Subscribed to MQTT topic ", topic)
+				return
+			}
+			if !c.IsConnected() {
+				// The next connect runs onMQTTConnect again.
+				return
+			}
+			logger.Error("MQTT subscribe (retrying in ", backoff, "): ", token.Error())
+			time.Sleep(backoff)
+			if backoff < time.Minute {
+				backoff *= 2
+			}
+		}
+	}()
 }
 
 // ----------------------------------------------------------------------------

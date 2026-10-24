@@ -5,6 +5,7 @@ import Nav from "./Nav";
 import Footer from "./Footer";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import { useWeatherData } from "../hooks/useWeatherData";
+import ErrorBoundary from "./ErrorBoundary";
 
 // Static config — not user-facing prefs, so they don't go in localStorage.
 const DATA_SOURCE = "live"; // "fixture" | "live"
@@ -61,7 +62,9 @@ export default function Layout() {
             theme={theme}
             onThemeChange={setTheme}
         />
-        <Outlet context={{ current, history, forecast, conn, prefs, setPref, units }} />
+        <ErrorBoundary resetKey={current.date}>
+          <Outlet context={{ current, history, forecast, conn, prefs, setPref, units }} />
+        </ErrorBoundary>
         <Footer forecast={forecast} />
       </div>
   );

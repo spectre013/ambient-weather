@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { tzOffsetAt } from "../utils/format";
 
 // Visual Crossing's API serves day records as a flat array, with `hours`
 // stringified. The bundled fixture is already in the proper shape. This
@@ -11,7 +12,8 @@ export const normalizeForecast = (raw) => {
     }));
     return {
       days,
-      tzoffset: raw[0]?.tzoffset ?? -6,
+      // The forecast rows carry no tzoffset; use the station offset now.
+      tzoffset: raw[0]?.tzoffset ?? tzOffsetAt(),
       latitude: raw[0]?.latitude ?? 38.8674,
       longitude: raw[0]?.longitude ?? -104.7605,
       resolvedAddress: raw[0]?.resolvedAddress ?? "Colorado Springs",
@@ -48,10 +50,33 @@ export function useWeatherData({ source, wsUrl, forecastUrl, historyUrl, fixture
       return () => { cancelled = true; };
     }
 
-    fetch(forecastUrl)
-        .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
-        .then((f) => { if (cancelled) return; setForecast(normalizeForecast(f)); })
-        .catch((e) => console.warn("forecast fetch failed:", e.message));
+    // Forecast: retry failures with backoff (the page waits for it), and
+    // refresh periodically and when the tab becomes visible again so a page
+    // left open past midnight moves on to the new "today".
+    let forecastRetry = null;
+    let forecastDelay = 5000;
+    const fetchForecast = () => {
+      clearTimeout(forecastRetry);
+      fetch(forecastUrl)
+          .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+          .then((f) => {
+            if (cancelled) return;
+            // An empty forecast table comes back as null or [].
+            if (!Array.isArray(f) || f.length === 0) throw new Error("empty forecast");
+            forecastDelay = 5000;
+            setForecast(normalizeForecast(f));
+          })
+          .catch((e) => {
+            if (cancelled) return;
+            console.warn("forecast fetch failed:", e.message);
+            forecastRetry = setTimeout(fetchForecast, forecastDelay);
+            forecastDelay = Math.min(forecastDelay * 2, 300000);
+          });
+    };
+    fetchForecast();
+    const forecastTimer = setInterval(fetchForecast, 30 * 60 * 1000);
+    const onVisible = () => { if (document.visibilityState === "visible") fetchForecast(); };
+    document.addEventListener("visibilitychange", onVisible);
 
     // History: hourly observations recorded so far today. Poll on a slow
     // heartbeat so a new completed hour appears within a minute even when
@@ -64,7 +89,13 @@ export function useWeatherData({ source, wsUrl, forecastUrl, historyUrl, fixture
     fetchHistory();
     const histTimer = setInterval(fetchHistory, 60000);
 
-    return () => { cancelled = true; clearInterval(histTimer); };
+    return () => {
+      cancelled = true;
+      clearInterval(histTimer);
+      clearInterval(forecastTimer);
+      clearTimeout(forecastRetry);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
   }, [source, forecastUrl, historyUrl, fixturePaths.current, fixturePaths.forecast, fixturePaths.history]);
 
   useEffect(() => {

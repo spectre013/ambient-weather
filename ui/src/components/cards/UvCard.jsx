@@ -1,6 +1,6 @@
 import React from "react";
 import Card from "../Card";
-import { clamp } from "../../utils/format";
+import { clamp, statVal, fmtOr } from "../../utils/format";
 
 const COLORS = ["#5db66d", "#c9d23a", "#f5b324", "#e87f2b", "#d34a4a", "#9c3aab"];
 
@@ -11,7 +11,7 @@ export default function UvCard({ uv }) {
   return (
     <Card label="UV index" right={cat.toUpperCase()}>
       <div className="big" style={{ color: COLORS[colorIdx] }}>{idx}<span className="unit" style={{ color: "var(--muted)" }}>/11</span></div>
-      <div className="sub">Solar radiation <b>{Math.round(uv.solarradiation)} W/m²</b> · day max {uv.minmax.max.day.value}</div>
+      <div className="sub">Solar radiation <b>{Math.round(uv.solarradiation)} W/m²</b> · day max {fmtOr(statVal(uv.minmax, "max", "day"))}</div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(11, 1fr)", gap: 2, marginTop: 12 }}>
         {Array.from({ length: 11 }).map((_, i) => (
           <div key={i} style={{

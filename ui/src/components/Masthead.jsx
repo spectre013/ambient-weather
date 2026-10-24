@@ -15,7 +15,7 @@ export default function Masthead({ current, forecast, conn }) {
   const ds = date.toLocaleDateString("en-US", {
     weekday: "long", month: "long", day: "numeric", year: "numeric",
   });
-  const ts = fmtTime(current.date, forecast.tzoffset);
+  const ts = fmtTime(current.date);
   const c = connMap[conn] || connMap.idle;
   const pulsing = conn === "connecting" || conn === "closed";
   return (

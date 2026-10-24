@@ -1,7 +1,7 @@
 import React from "react";
 import WeatherIcon from "./WeatherIcon";
 import SunArc from "./charts/SunArc";
-import {showT, tUnit, fmtTime} from "../utils/format";
+import {showT, tUnit, fmtTime, statVal, fmtOr} from "../utils/format";
 
 export default function Hero({ current, forecast, units }) {
   const today = forecast.days[0];
@@ -14,8 +14,8 @@ export default function Hero({ current, forecast, units }) {
   const t = current.temp.temp;
   const feels = current.temp.feelslike;
   const dew = current.temp.dewpoint;
-  const aHi = current.temp.minmax.max.day.value;
-  const aLo = current.temp.minmax.min.day.value;
+  const aHi = statVal(current.temp.minmax, "max", "day");
+  const aLo = statVal(current.temp.minmax, "min", "day");
 
   const now = new Date(current.date).getTime() / 1000;
   const progress = Math.max(0, Math.min(1,
@@ -37,8 +37,8 @@ export default function Hero({ current, forecast, units }) {
             <div className="cond">{conditions}<br/>feels like {Math.round(showT(feels, units))}{tUnit(units)}</div>
           </div>
           <div className="row">
-            <div className="kv"><span className="k">High today</span><span className="v">{Math.round(showT(aHi, units))}{tUnit(units)}</span></div>
-            <div className="kv"><span className="k">Low today</span><span className="v">{Math.round(showT(aLo, units))}{tUnit(units)}</span></div>
+            <div className="kv"><span className="k">High today</span><span className="v">{fmtOr(aHi, (v) => Math.round(showT(v, units)))}{tUnit(units)}</span></div>
+            <div className="kv"><span className="k">Low today</span><span className="v">{fmtOr(aLo, (v) => Math.round(showT(v, units)))}{tUnit(units)}</span></div>
             <div className="kv"><span className="k">Dew point</span><span className="v">{Math.round(showT(current.temp.dewpoint, units))}{tUnit(units)}</span></div>
             <div className="kv"><span className="k">Humidity</span><span className="v">{current.humidity.humidity}%</span></div>
           </div>

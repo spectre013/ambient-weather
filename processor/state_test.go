@@ -357,3 +357,27 @@ func TestWH32BMissingPressureNotCompared(t *testing.T) {
 		t.Fatalf("temp/press = %v/%v, want 21.2/840", s.indoorTempC, s.pressureHPa)
 	}
 }
+
+// A sensor that never reports after a restart must not repeat the seeded
+// totals forever: they roll over at their period boundaries like live ones.
+func TestSeedRollsWithoutSensor(t *testing.T) {
+	s := newSensorStateAt(t0)
+	s.Seed(&Record{
+		Recorded:    t0.Add(-5 * time.Minute),
+		Dailyrainin: 0.1, Weeklyrainin: 0.5, Monthlyrainin: 1, Yearlyrainin: 2,
+		Lightninghour: 4, Lightningday: 7, LightningMonth: 9,
+	}, t0)
+	r := s.Snapshot("test", t0.Add(time.Minute))
+	if r.Dailyrainin != 0.1 || r.Lightninghour != 4 || r.Lightningday != 7 {
+		t.Fatalf("seed not emitted: day=%v hour=%d lday=%d", r.Dailyrainin, r.Lightninghour, r.Lightningday)
+	}
+	r = s.Snapshot("test", t0.Add(time.Hour))
+	if r.Lightninghour != 0 || r.Lightningday != 7 {
+		t.Errorf("next hour: lightninghour=%d lightningday=%d, want 0 and 7", r.Lightninghour, r.Lightningday)
+	}
+	r = s.Snapshot("test", t0.Add(24*time.Hour))
+	if r.Dailyrainin != 0 || r.Weeklyrainin != 0.5 || r.Lightningday != 0 || r.LightningMonth != 9 {
+		t.Errorf("next day: daily=%v weekly=%v lday=%d lmonth=%d, want 0, 0.5, 0, 9",
+			r.Dailyrainin, r.Weeklyrainin, r.Lightningday, r.LightningMonth)
+	}
+}

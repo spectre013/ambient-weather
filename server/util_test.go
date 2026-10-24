@@ -148,3 +148,18 @@ func TestMeanDirection(t *testing.T) {
 		t.Errorf("calm: meanDirection = %d, want fallback 123", got)
 	}
 }
+
+func TestWallClockIn(t *testing.T) {
+	loc, err := time.LoadLocation("America/Denver")
+	if err != nil {
+		t.Skip(err)
+	}
+	// 14:00 stored without a zone comes back from lib/pq labelled UTC.
+	got := wallClockIn(time.Date(2026, 7, 4, 14, 0, 0, 0, time.UTC), loc)
+	if got.Hour() != 14 || got.Location() != loc || got.UTC().Hour() != 20 {
+		t.Errorf("wallClockIn = %v, want 14:00 MDT", got)
+	}
+	if !wallClockIn(time.Time{}, loc).IsZero() {
+		t.Error("zero time should stay zero")
+	}
+}

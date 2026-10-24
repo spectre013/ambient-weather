@@ -19,13 +19,55 @@ export const miToKm = (mi) => mi * 1.609344;
 export const showD = (miles, units) => (units === "C" ? miToKm(miles) : miles);
 export const dUnit = (units) => (units === "C" ? "km" : "mi");
 
-export const fmtTime = (iso, tzOffsetH   = -6) => {
-  const localString = new Date(iso);
-  return localString.toLocaleTimeString('en-US', {
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true
+// The station's time zone. Times are shown in station time whatever the
+// viewer's own zone, and offsets come from it per instant so they follow DST.
+export const STATION_TZ = "America/Denver";
+
+const offsetFmt = new Intl.DateTimeFormat("en-US", {
+  timeZone: STATION_TZ, hourCycle: "h23",
+  year: "numeric", month: "numeric", day: "numeric",
+  hour: "numeric", minute: "numeric", second: "numeric",
+});
+
+// tzOffsetAt returns the station's UTC offset in hours (e.g. -6 in summer,
+// -7 in winter) at the instant ms (epoch milliseconds or a Date).
+export const tzOffsetAt = (ms = Date.now()) => {
+  const t = typeof ms === "number" ? ms : ms.getTime();
+  const p = Object.fromEntries(offsetFmt.formatToParts(t).map((x) => [x.type, x.value]));
+  const asUTC = Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute, +p.second);
+  return Math.round((asUTC - Math.floor(t / 1000) * 1000) / 60000) / 60;
+};
+
+// stationDate returns a Date whose UTC fields read as station wall-clock
+// time at epoch seconds `epoch` (use getUTCHours/getUTCDay on it).
+export const stationDate = (epoch) => {
+  const ms = epoch * 1000;
+  return new Date(ms + tzOffsetAt(ms) * 3600 * 1000);
+};
+
+// stationHour is the station-local hour (0-23) of a Date.
+export const stationHour = (d) => stationDate(d.getTime() / 1000).getUTCHours();
+
+export const fmtTime = (iso) =>
+  new Date(iso).toLocaleTimeString("en-US", {
+    timeZone: STATION_TZ,
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
   });
+
+// parseLocalTimestamp parses a value from a `timestamp without time zone`
+// column. Those hold station wall-clock time but are serialised with a
+// trailing "Z", so the "Z" is replaced with the station's offset at that
+// time instead of letting the browser read them as UTC.
+export const parseLocalTimestamp = (s) => {
+  const str = String(s).replace(/Z$/, "");
+  const naive = new Date(str + "Z"); // wall-clock fields, read as UTC
+  if (isNaN(naive)) return naive;
+  // Two passes so a time just after a DST change picks up the right offset.
+  let off = tzOffsetAt(naive.getTime());
+  off = tzOffsetAt(naive.getTime() - off * 3600 * 1000);
+  return new Date(naive.getTime() - off * 3600 * 1000);
 };
 
 const dirs = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
@@ -36,14 +78,20 @@ const dayNames = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
                     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-export const dayName = (epoch, tzOffsetH) => {
-  const d = new Date(epoch * 1000 + tzOffsetH * 3600 * 1000);
-  return dayNames[d.getUTCDay()];
-};
-export const dayDate = (epoch, tzOffsetH) => {
-  const d = new Date(epoch * 1000 + tzOffsetH * 3600 * 1000);
+export const dayName = (epoch) => dayNames[stationDate(epoch).getUTCDay()];
+export const dayDate = (epoch) => {
+  const d = stationDate(epoch);
   return `${monthNames[d.getUTCMonth()]} ${d.getUTCDate()}`;
 };
+
+// statVal reads minmax[kind][period].value ("max"/"min", "day"/"month"/...).
+// The server omits periods that have no stats row yet, so this returns null
+// instead of throwing when any level is missing.
+export const statVal = (minmax, kind, period) => minmax?.[kind]?.[period]?.value ?? null;
+
+// fmtOr applies f to v, or returns a dash when v is missing.
+export const fmtOr = (v, f = (x) => x) =>
+  v == null || (typeof v === "number" && Number.isNaN(v)) ? "—" : f(v);
 
 export const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
@@ -52,10 +100,9 @@ export const slugifyEvent = (s) =>
 
 export const  timeAgo = (dateString) => {
   // The backend stores lightningtime in a `timestamp without time zone`
-  // column, so the value comes across as local wall-clock time mislabeled
-  // with a trailing "Z". Strip it so the browser parses it as local time
-  // instead of shifting it by the UTC offset.
-  const then = new Date(String(dateString).replace(/Z$/, ""));
+  // column, so the value comes across as station wall-clock time mislabeled
+  // with a trailing "Z".
+  const then = parseLocalTimestamp(dateString);
   if (isNaN(then)) return "invalid date";
   let diff = Math.floor((Date.now() - then.getTime()) / 1000); // seconds
   if (diff < 0) return "in the future";

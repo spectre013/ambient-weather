@@ -1,5 +1,5 @@
 import React from "react";
-import { showT, tUnit } from "../utils/format";
+import { showT, tUnit, statVal, fmtOr } from "../utils/format";
 
 const SENSOR_DEFS = [
   { name: "Living Room", key: "tempin", hint: "Main Level" },
@@ -25,7 +25,7 @@ export default function SensorGrid({ current, units }) {
               {Math.round(showT(data.temp, units))}
               <span style={{ fontFamily: "var(--font-mono)", fontSize: 14, color: "var(--muted)", marginLeft: 4 }}>{tUnit(units)}</span>
             </div>
-            <div className="h">RH {data.humidity}% · day hi {Math.round(showT(data.minmax.max.day.value, units))}°</div>
+            <div className="h">RH {data.humidity}% · day hi {fmtOr(statVal(data.minmax, "max", "day"), (v) => Math.round(showT(v, units)))}°</div>
           </div>
         );
       })}

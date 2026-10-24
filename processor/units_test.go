@@ -58,3 +58,17 @@ func TestHeatIndexF(t *testing.T) {
 		}
 	}
 }
+
+func TestRoundNegative(t *testing.T) {
+	tests := []struct{ in, want float64 }{
+		{-5.0, -5.0}, {-5.08, -5.1}, {-5.04, -5.0}, {5.05, 5.1}, {-0.04, 0},
+	}
+	for _, tt := range tests {
+		if got := round1(tt.in); got != tt.want {
+			t.Errorf("round1(%v) = %v, want %v", tt.in, got, tt.want)
+		}
+	}
+	if got := round3(-0.0125); got != -0.013 {
+		t.Errorf("round3(-0.0125) = %v, want -0.013", got)
+	}
+}

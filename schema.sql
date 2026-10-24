@@ -1,425 +1,121 @@
--- SCHEMA: public
-
--- DROP SCHEMA IF EXISTS public ;
-
-CREATE SCHEMA IF NOT EXISTS public
-    AUTHORIZATION postgres;
-
-COMMENT ON SCHEMA public
-    IS 'standard public schema';
-
-GRANT ALL ON SCHEMA public TO PUBLIC;
-
-GRANT ALL ON SCHEMA public TO postgres;
-
--- SEQUENCE: public.alerts_seq
-
--- DROP SEQUENCE IF EXISTS public.alerts_seq;
-
-CREATE SEQUENCE IF NOT EXISTS public.alerts_seq
-    INCREMENT 1
-    START 1
-    MINVALUE 1
-    MAXVALUE 9223372036854775807
-    CACHE 1;
-
-ALTER SEQUENCE public.alerts_seq
-    OWNER TO ambient;
-
--- SEQUENCE: public.records_seq
-
--- DROP SEQUENCE IF EXISTS public.records_seq;
-
-CREATE SEQUENCE IF NOT EXISTS public.records_seq
-    INCREMENT 1
-    START 1
-    MINVALUE 1
-    MAXVALUE 9223372036854775807
-    CACHE 1;
-
-ALTER SEQUENCE public.records_seq
-    OWNER TO ambient;
-
--- Table: public.alerts
-
--- DROP TABLE IF EXISTS public.alerts;
-CREATE TABLE IF NOT EXISTS public.alerts
-(
-    alertid character varying(255) COLLATE pg_catalog."default" NOT NULL DEFAULT ''::character varying,
-    wxtype character varying(255) COLLATE pg_catalog."default" NOT NULL DEFAULT ''::character varying,
-    areadesc text COLLATE pg_catalog."default" NOT NULL DEFAULT ''::character varying,
-    sent timestamp(0) without time zone NOT NULL DEFAULT NULL::timestamp without time zone,
-    effective timestamp(0) without time zone NOT NULL DEFAULT NULL::timestamp without time zone,
-    onset timestamp(0) without time zone NOT NULL DEFAULT NULL::timestamp without time zone,
-    expires timestamp(0) without time zone NOT NULL DEFAULT NULL::timestamp without time zone,
-    ends timestamp(0) without time zone NOT NULL DEFAULT NULL::timestamp without time zone,
-    status character varying(255) COLLATE pg_catalog."default" NOT NULL DEFAULT ''::character varying,
-    messagetype character varying(255) COLLATE pg_catalog."default" NOT NULL DEFAULT ''::character varying,
-    category character varying(255) COLLATE pg_catalog."default" NOT NULL DEFAULT ''::character varying,
-    severity character varying(255) COLLATE pg_catalog."default" NOT NULL DEFAULT ''::character varying,
-    certainty character varying(255) COLLATE pg_catalog."default" NOT NULL DEFAULT ''::character varying,
-    urgency character varying(255) COLLATE pg_catalog."default" NOT NULL DEFAULT ''::character varying,
-    event character varying(255) COLLATE pg_catalog."default" NOT NULL DEFAULT ''::character varying,
-    sender character varying(255) COLLATE pg_catalog."default" NOT NULL DEFAULT ''::character varying,
-    sendername character varying(255) COLLATE pg_catalog."default" NOT NULL DEFAULT ''::character varying,
-    headline text COLLATE pg_catalog."default" NOT NULL DEFAULT ''::character varying,
-    description text COLLATE pg_catalog."default" NOT NULL DEFAULT ''::text,
-    instruction text COLLATE pg_catalog."default" NOT NULL DEFAULT ''::text,
-    response character varying(255) COLLATE pg_catalog."default" NOT NULL DEFAULT ''::character varying,
-    summary text COLLATE pg_catalog."default",
-    CONSTRAINT alerts_pkey PRIMARY KEY (alertid)
-)
-
-    TABLESPACE pg_default;
-
-ALTER TABLE IF EXISTS public.alerts
-    OWNER to ambient;
-
--- Table: public.records
-
--- DROP TABLE IF EXISTS public.records;
-
-CREATE TABLE IF NOT EXISTS public.records
-(
-    id integer NOT NULL DEFAULT nextval('records_seq'::regclass),
-    mac character varying(255) COLLATE pg_catalog."default" NOT NULL DEFAULT ''::character varying,
-    recorded timestamp(0) with time zone NOT NULL DEFAULT (now())::timestamp without time zone,
-    baromabsin real NOT NULL DEFAULT 0.0,
-    baromrelin real NOT NULL DEFAULT 0.0,
-    battout integer NOT NULL DEFAULT 0,
-    batt1 integer NOT NULL DEFAULT 0,
-    batt2 integer NOT NULL DEFAULT 0,
-    batt3 integer NOT NULL DEFAULT 0,
-    batt4 integer NOT NULL DEFAULT 0,
-    batt5 integer NOT NULL DEFAULT 0,
-    batt6 integer NOT NULL DEFAULT 0,
-    batt7 integer NOT NULL DEFAULT 0,
-    batt8 integer NOT NULL DEFAULT 0,
-    batt9 integer NOT NULL DEFAULT 0,
-    batt10 integer NOT NULL DEFAULT 0,
-    co2 real NOT NULL DEFAULT 0.0,
-    dailyrainin real NOT NULL DEFAULT 0.0,
-    dewpoint real NOT NULL DEFAULT 0.0,
-    eventrainin real NOT NULL DEFAULT 0.0,
-    feelslike real NOT NULL DEFAULT 0.0,
-    hourlyrainin real NOT NULL DEFAULT 0.0,
-    hourlyrain real NOT NULL DEFAULT 0.0,
-    rainratein real NOT NULL DEFAULT 0.0,
-    humidity integer NOT NULL DEFAULT 0,
-    humidity1 integer NOT NULL DEFAULT 0,
-    humidity2 integer NOT NULL DEFAULT 0,
-    humidity3 integer NOT NULL DEFAULT 0,
-    humidity4 integer NOT NULL DEFAULT 0,
-    humidity5 integer NOT NULL DEFAULT 0,
-    humidity6 integer NOT NULL DEFAULT 0,
-    humidity7 integer NOT NULL DEFAULT 0,
-    humidity8 integer NOT NULL DEFAULT 0,
-    humidity9 integer NOT NULL DEFAULT 0,
-    humidity10 integer NOT NULL DEFAULT 0,
-    humidityin integer NOT NULL DEFAULT 0,
-    lastrain timestamp(0) without time zone NOT NULL DEFAULT NULL::timestamp without time zone,
-    maxdailygust real NOT NULL DEFAULT 0.0,
-    relay1 integer NOT NULL DEFAULT 0,
-    relay2 integer NOT NULL DEFAULT 0,
-    relay3 integer NOT NULL DEFAULT 0,
-    relay4 integer NOT NULL DEFAULT 0,
-    relay5 integer NOT NULL DEFAULT 0,
-    relay6 integer NOT NULL DEFAULT 0,
-    relay7 integer NOT NULL DEFAULT 0,
-    relay8 integer NOT NULL DEFAULT 0,
-    relay9 integer NOT NULL DEFAULT 0,
-    relay10 integer NOT NULL DEFAULT 0,
-    monthlyrainin real NOT NULL DEFAULT 0.0,
-    solarradiation real NOT NULL DEFAULT 0.0,
-    tempf real NOT NULL DEFAULT 0.0,
-    temp1f real NOT NULL DEFAULT 0.0,
-    temp2f real NOT NULL DEFAULT 0.0,
-    temp3f real NOT NULL DEFAULT 0.0,
-    temp4f real NOT NULL DEFAULT 0.0,
-    temp5f real NOT NULL DEFAULT 0.0,
-    temp6f real NOT NULL DEFAULT 0.0,
-    temp7f real NOT NULL DEFAULT 0.0,
-    temp8f real NOT NULL DEFAULT 0.0,
-    temp9f real NOT NULL DEFAULT 0.0,
-    temp10f real NOT NULL DEFAULT 0.0,
-    tempinf real NOT NULL DEFAULT 0.0,
-    totalrainin real NOT NULL DEFAULT 0.0,
-    uv real NOT NULL DEFAULT 0.0,
-    weeklyrainin real NOT NULL DEFAULT 0.0,
-    winddir integer NOT NULL DEFAULT 0,
-    windgustmph real NOT NULL DEFAULT 0.0,
-    windgustdir integer NOT NULL DEFAULT 0,
-    windspeedmph real NOT NULL DEFAULT 0.0,
-    yearlyrainin real NOT NULL DEFAULT 0.0,
-    battlightning integer NOT NULL DEFAULT 0,
-    lightningday integer NOT NULL DEFAULT 0,
-    lightninghour integer NOT NULL DEFAULT 0,
-    lightningtime timestamp(0) without time zone NOT NULL DEFAULT NULL::timestamp without time zone,
-    lightningdistance real NOT NULL DEFAULT 0.0,
-    aqipm25 integer DEFAULT 0,
-    aqipm2524h integer DEFAULT 0,
-    CONSTRAINT records_pkey PRIMARY KEY (id)
-)
-
-    TABLESPACE pg_default;
-
-ALTER TABLE IF EXISTS public.records
-    OWNER to ambient;
--- Index: baromrelinidx
-
--- DROP INDEX IF EXISTS public.baromrelinidx;
-
-CREATE INDEX IF NOT EXISTS baromrelinidx
-    ON public.records USING btree
-        (baromrelin ASC NULLS LAST, recorded ASC NULLS LAST)
-    TABLESPACE pg_default;
--- Index: dailyraininidx
-
--- DROP INDEX IF EXISTS public.dailyraininidx;
-
-CREATE INDEX IF NOT EXISTS dailyraininidx
-    ON public.records USING btree
-        (dailyrainin ASC NULLS LAST, recorded ASC NULLS LAST)
-    TABLESPACE pg_default;
--- Index: date
-
--- DROP INDEX IF EXISTS public.date;
-
-CREATE INDEX IF NOT EXISTS date
-    ON public.records USING btree
-        (recorded ASC NULLS LAST)
-    TABLESPACE pg_default;
--- Index: datetempfidx
-
--- DROP INDEX IF EXISTS public.datetempfidx;
-
-CREATE INDEX IF NOT EXISTS datetempfidx
-    ON public.records USING btree
-        (recorded ASC NULLS LAST, tempf ASC NULLS LAST)
-    TABLESPACE pg_default;
--- Index: dewpointidx
-
--- DROP INDEX IF EXISTS public.dewpointidx;
-
-CREATE INDEX IF NOT EXISTS dewpointidx
-    ON public.records USING btree
-        (dewpoint ASC NULLS LAST, recorded ASC NULLS LAST)
-    TABLESPACE pg_default;
--- Index: feelsidx
-
--- DROP INDEX IF EXISTS public.feelsidx;
-
-CREATE INDEX IF NOT EXISTS feelsidx
-    ON public.records USING btree
-        (feelslike ASC NULLS LAST, recorded ASC NULLS LAST)
-    TABLESPACE pg_default;
--- Index: humidity1idx
-
--- DROP INDEX IF EXISTS public.humidity1idx;
-
-CREATE INDEX IF NOT EXISTS humidity1idx
-    ON public.records USING btree
-        (humidity1 ASC NULLS LAST, recorded ASC NULLS LAST)
-    TABLESPACE pg_default;
--- Index: humidity2idx
-
--- DROP INDEX IF EXISTS public.humidity2idx;
-
-CREATE INDEX IF NOT EXISTS humidity2idx
-    ON public.records USING btree
-        (humidity2 ASC NULLS LAST, recorded ASC NULLS LAST)
-    TABLESPACE pg_default;
--- Index: humidity3idx
-
--- DROP INDEX IF EXISTS public.humidity3idx;
-
-CREATE INDEX IF NOT EXISTS humidity3idx
-    ON public.records USING btree
-        (humidity3 ASC NULLS LAST, recorded ASC NULLS LAST)
-    TABLESPACE pg_default;
--- Index: humidity4idx
-
--- DROP INDEX IF EXISTS public.humidity4idx;
-
-CREATE INDEX IF NOT EXISTS humidity4idx
-    ON public.records USING btree
-        (humidity4 ASC NULLS LAST, recorded ASC NULLS LAST)
-    TABLESPACE pg_default;
--- Index: humidityidx
-
--- DROP INDEX IF EXISTS public.humidityidx;
-
-CREATE INDEX IF NOT EXISTS humidityidx
-    ON public.records USING btree
-        (humidity ASC NULLS LAST, recorded ASC NULLS LAST)
-    TABLESPACE pg_default;
--- Index: humidityinidx
-
--- DROP INDEX IF EXISTS public.humidityinidx;
-
-CREATE INDEX IF NOT EXISTS humidityinidx
-    ON public.records USING btree
-        (humidityin ASC NULLS LAST, recorded ASC NULLS LAST)
-    TABLESPACE pg_default;
--- Index: lightningdayidx
-
--- DROP INDEX IF EXISTS public.lightningdayidx;
-
-CREATE INDEX IF NOT EXISTS lightningdayidx
-    ON public.records USING btree
-        (lightningday ASC NULLS LAST, recorded ASC NULLS LAST)
-    TABLESPACE pg_default;
--- Index: recorded
-
--- DROP INDEX IF EXISTS public.recorded;
-
-CREATE INDEX IF NOT EXISTS recorded
-    ON public.records USING btree
-        (recorded DESC NULLS LAST)
-    TABLESPACE pg_default;
--- Index: temp1fidx
-
--- DROP INDEX IF EXISTS public.temp1fidx;
-
-CREATE INDEX IF NOT EXISTS temp1fidx
-    ON public.records USING btree
-        (temp1f ASC NULLS LAST, recorded ASC NULLS LAST)
-    TABLESPACE pg_default;
--- Index: temp2fidx
-
--- DROP INDEX IF EXISTS public.temp2fidx;
-
-CREATE INDEX IF NOT EXISTS temp2fidx
-    ON public.records USING btree
-        (temp2f ASC NULLS LAST, recorded ASC NULLS LAST)
-    TABLESPACE pg_default;
--- Index: temp3fidx
-
--- DROP INDEX IF EXISTS public.temp3fidx;
-
-CREATE INDEX IF NOT EXISTS temp3fidx
-    ON public.records USING btree
-        (temp3f ASC NULLS LAST, recorded ASC NULLS LAST)
-    TABLESPACE pg_default;
--- Index: temp4fidx
-
--- DROP INDEX IF EXISTS public.temp4fidx;
-
-CREATE INDEX IF NOT EXISTS temp4fidx
-    ON public.records USING btree
-        (temp4f ASC NULLS LAST, recorded ASC NULLS LAST)
-    TABLESPACE pg_default;
--- Index: tempfidx
-
--- DROP INDEX IF EXISTS public.tempfidx;
-
-CREATE INDEX IF NOT EXISTS tempfidx
-    ON public.records USING btree
-        (tempf ASC NULLS LAST, recorded ASC NULLS LAST)
-    TABLESPACE pg_default;
--- Index: tempinfidx
-
--- DROP INDEX IF EXISTS public.tempinfidx;
-
-CREATE INDEX IF NOT EXISTS tempinfidx
-    ON public.records USING btree
-        (tempinf ASC NULLS LAST, recorded ASC NULLS LAST)
-    TABLESPACE pg_default;
--- Index: uvidx
-
--- DROP INDEX IF EXISTS public.uvidx;
-
-CREATE INDEX IF NOT EXISTS uvidx
-    ON public.records USING btree
-        (uv ASC NULLS LAST, recorded ASC NULLS LAST)
-    TABLESPACE pg_default;
--- Index: windgustidx
-
--- DROP INDEX IF EXISTS public.windgustidx;
-
-CREATE INDEX IF NOT EXISTS windgustidx
-    ON public.records USING btree
-        (windgustmph ASC NULLS LAST, recorded ASC NULLS LAST)
-    TABLESPACE pg_default;
--- Index: windgustmphidx
-
--- DROP INDEX IF EXISTS public.windgustmphidx;
-
-CREATE INDEX IF NOT EXISTS windgustmphidx
-    ON public.records USING btree
-        (windgustmph ASC NULLS LAST, recorded ASC NULLS LAST)
-    TABLESPACE pg_default;
--- Index: windidx
-
--- DROP INDEX IF EXISTS public.windidx;
-
-CREATE INDEX IF NOT EXISTS windidx
-    ON public.records USING btree
-        (windspeedmph ASC NULLS LAST, recorded ASC NULLS LAST)
-    TABLESPACE pg_default;
--- Index: windspeedmphidx
-
--- DROP INDEX IF EXISTS public.windspeedmphidx;
-
-CREATE INDEX IF NOT EXISTS windspeedmphidx
-    ON public.records USING btree
-        (windspeedmph ASC NULLS LAST, recorded ASC NULLS LAST)
-    TABLESPACE pg_default;
-
-
--- Table: public.stats
-
--- DROP TABLE IF EXISTS public.stats;
-
-CREATE TABLE period_stats (
-      period       TEXT NOT NULL,        -- 'day' | 'month' | 'year' | 'alltime'
-      period_start DATE NOT NULL,        -- '2026-05-18', '2026-05-01', '2026-01-01', '1970-01-01' for alltime
-      field        TEXT NOT NULL,        -- 'tempf', 'humidity', ...
-      min_value    NUMERIC(10,2),
-      min_at       TIMESTAMPTZ,
-      max_value    NUMERIC(10,2),
-      max_at       TIMESTAMPTZ,
-      sum_value    NUMERIC(14,4),        -- running sum for avg + native sum for rain/lightning
-      sample_count BIGINT NOT NULL DEFAULT 0,
-      updated_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
-      PRIMARY KEY (period, period_start, field)
-);
-
-CREATE INDEX idx_period_stats_period ON period_stats(period, period_start DESC);
-
-ALTER TABLE IF EXISTS public.stats
-    OWNER to ambient;
-
-CREATE VIEW period_stats_v AS
-SELECT period, period_start, field,
-       min_value, min_at,
-       max_value, max_at,
-       CASE WHEN sample_count > 0 THEN sum_value / sample_count END AS avg_value,
-       sum_value, sample_count, updated_at
-FROM period_stats;
-
-
-CREATE TABLE stat_ingest_log (
-     recorded TIMESTAMPTZ PRIMARY KEY,
-     folded_at TIMESTAMPTZ NOT NULL DEFAULT now()
+--
+-- PostgreSQL database dump
+--
+
+\restrict q2kQrjCANIw2QU2KNRFymfKk7yFc0jsxkSkBwN6D9X60hG0IqsjACRNW0ZDScv4
+
+-- Dumped from database version 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)
+-- Dumped by pg_dump version 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: pg_stat_statements; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pg_stat_statements WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION pg_stat_statements; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION pg_stat_statements IS 'track planning and execution statistics of all SQL statements executed';
+
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: alerts; Type: TABLE; Schema: public; Owner: ambient
+--
+
+CREATE TABLE public.alerts (
+    alertid character varying(255) DEFAULT ''::character varying NOT NULL,
+    wxtype character varying(255) DEFAULT ''::character varying NOT NULL,
+    areadesc text DEFAULT ''::character varying NOT NULL,
+    sent timestamp(0) without time zone DEFAULT NULL::timestamp without time zone NOT NULL,
+    effective timestamp(0) without time zone DEFAULT NULL::timestamp without time zone NOT NULL,
+    onset timestamp(0) without time zone DEFAULT NULL::timestamp without time zone NOT NULL,
+    expires timestamp(0) without time zone DEFAULT NULL::timestamp without time zone NOT NULL,
+    ends timestamp(0) without time zone DEFAULT NULL::timestamp without time zone NOT NULL,
+    status character varying(255) DEFAULT ''::character varying NOT NULL,
+    messagetype character varying(255) DEFAULT ''::character varying NOT NULL,
+    category character varying(255) DEFAULT ''::character varying NOT NULL,
+    severity character varying(255) DEFAULT ''::character varying NOT NULL,
+    certainty character varying(255) DEFAULT ''::character varying NOT NULL,
+    urgency character varying(255) DEFAULT ''::character varying NOT NULL,
+    event character varying(255) DEFAULT ''::character varying NOT NULL,
+    sender character varying(255) DEFAULT ''::character varying NOT NULL,
+    sendername character varying(255) DEFAULT ''::character varying NOT NULL,
+    headline text DEFAULT ''::character varying NOT NULL,
+    description text DEFAULT ''::text NOT NULL,
+    instruction text DEFAULT ''::text NOT NULL,
+    response character varying(255) DEFAULT ''::character varying NOT NULL,
+    summary text
 );
 
 
-ALTER TABLE IF EXISTS public.stat_ingest_log
-    OWNER to ambient;
+ALTER TABLE public.alerts OWNER TO ambient;
+
+--
+-- Name: conditions; Type: TABLE; Schema: public; Owner: ambient
+--
+
+CREATE TABLE public.conditions (
+    id bigint NOT NULL,
+    station text NOT NULL,
+    observed_at timestamp with time zone NOT NULL,
+    conditions text,
+    icon text,
+    text_description text,
+    present_weather text,
+    cloud_layers text,
+    raw_icon text,
+    temperature numeric(6,2),
+    humidity numeric(6,2),
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
 
 
--- Table: public.forecast
+ALTER TABLE public.conditions OWNER TO ambient;
 
--- DROP TABLE IF EXISTS public.forecast;
+--
+-- Name: conditions_id_seq; Type: SEQUENCE; Schema: public; Owner: ambient
+--
 
-CREATE TABLE IF NOT EXISTS public.forecast
-(
-    -- Identity is the id, not the name. The name used to be half the primary
-    -- key, which meant renaming a location on the map orphaned every forecast
-    -- row it had and started a second set accumulating under the new name.
-    -- Owned by the forecaster's migration 006; this file only describes it.
-    location_id bigint NOT NULL,
+CREATE SEQUENCE public.conditions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.conditions_id_seq OWNER TO ambient;
+
+--
+-- Name: conditions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ambient
+--
+
+ALTER SEQUENCE public.conditions_id_seq OWNED BY public.conditions.id;
+
+
+--
+-- Name: forecast; Type: TABLE; Schema: public; Owner: ambient
+--
+
+CREATE TABLE public.forecast (
     datetime timestamp with time zone NOT NULL,
     datetime_epoch bigint,
     tempmax numeric(5,2),
@@ -433,7 +129,7 @@ CREATE TABLE IF NOT EXISTS public.forecast
     precip numeric(6,3),
     precipprob numeric(5,2),
     precipcover numeric(5,2),
-    preciptype text COLLATE pg_catalog."default",
+    preciptype text,
     snow numeric(5,2),
     snowdepth numeric(5,2),
     windgust numeric(5,2),
@@ -451,52 +147,589 @@ CREATE TABLE IF NOT EXISTS public.forecast
     sunset time without time zone,
     sunset_epoch bigint,
     moonphase numeric(3,2),
-    conditions text COLLATE pg_catalog."default",
-    description text COLLATE pg_catalog."default",
-    icon text COLLATE pg_catalog."default",
-    stations text COLLATE pg_catalog."default",
-    source text COLLATE pg_catalog."default",
+    conditions text,
+    description text,
+    icon text,
+    stations text,
+    source text,
     hours jsonb,
-    summary text COLLATE pg_catalog."default",
-    model_blend text COLLATE pg_catalog."default",
-    based_on_runs text COLLATE pg_catalog."default",
-    transformed_at timestamp with time zone NOT NULL DEFAULT now(),
-    content_hash text COLLATE pg_catalog."default",
+    summary text,
+    model_blend text,
+    based_on_runs text,
+    transformed_at timestamp with time zone DEFAULT now() NOT NULL,
+    content_hash text,
     summary_generated_at timestamp with time zone,
-    summary_hash text COLLATE pg_catalog."default",
-    CONSTRAINT forecast_pkey PRIMARY KEY (location_id, datetime),
-    CONSTRAINT forecast_location_fk FOREIGN KEY (location_id)
-        REFERENCES map_locations (id) ON DELETE CASCADE
-)
+    summary_hash text,
+    location_id bigint NOT NULL
+);
 
-    TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS public.forecast
-    OWNER to ambient;
--- Index: idx_forecast_datetime
+ALTER TABLE public.forecast OWNER TO ambient;
 
--- DROP INDEX IF EXISTS public.idx_forecast_datetime;
+--
+-- Name: forecast_data; Type: TABLE; Schema: public; Owner: ambient
+--
 
-CREATE INDEX IF NOT EXISTS idx_forecast_datetime
-    ON public.forecast USING btree
-        (datetime ASC NULLS LAST)
-    TABLESPACE pg_default;
--- Index: idx_forecast_stale_summary
+CREATE TABLE public.forecast_data (
+    id bigint NOT NULL,
+    model_type text NOT NULL,
+    requested_lat double precision NOT NULL,
+    requested_lon double precision NOT NULL,
+    grid_lat double precision,
+    grid_lon double precision,
+    model_run_time timestamp with time zone NOT NULL,
+    forecast_hour integer NOT NULL,
+    valid_time timestamp with time zone NOT NULL,
+    temp_2m double precision,
+    dpt_2m double precision,
+    rh_2m double precision,
+    pot_2m double precision,
+    tmax_2m double precision,
+    tmin_2m double precision,
+    ugrd_10m double precision,
+    vgrd_10m double precision,
+    wind_10m double precision,
+    maxvw_10m double precision,
+    temp_surface double precision,
+    vis_surface double precision,
+    gust_surface double precision,
+    pres_surface double precision,
+    snowc_surface double precision,
+    snod_surface double precision,
+    frozr_surface double precision,
+    frzr_surface double precision,
+    prate_surface double precision,
+    apcp_surface double precision,
+    crain_surface double precision,
+    csnow_surface double precision,
+    cfrzr_surface double precision,
+    cpofp_surface double precision,
+    fricv_surface double precision,
+    hail_atmosphere double precision,
+    ltng_atmosphere double precision,
+    tcdc_atmosphere double precision,
+    inserted_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    dswrf_surface double precision,
+    asnow_surface double precision,
+    weasd_surface double precision,
+    cape_surface double precision,
+    pop_surface double precision,
+    location_id bigint NOT NULL
+);
 
--- DROP INDEX IF EXISTS public.idx_forecast_stale_summary;
 
-CREATE INDEX IF NOT EXISTS idx_forecast_stale_summary
-    ON public.forecast USING btree
-        (location_id ASC NULLS LAST, datetime ASC NULLS LAST)
-    TABLESPACE pg_default
-    WHERE summary_hash IS NULL OR summary_hash <> content_hash;
+ALTER TABLE public.forecast_data OWNER TO ambient;
 
--- Table: public.forecast
+--
+-- Name: forecast_blend; Type: VIEW; Schema: public; Owner: ambient
+--
 
--- DROP TABLE IF EXISTS public.forecast;
+CREATE VIEW public.forecast_blend AS
+ WITH hrrr_pick AS (
+         SELECT DISTINCT ON (forecast_data.location_id, forecast_data.valid_time) forecast_data.location_id,
+            forecast_data.valid_time,
+            forecast_data.model_type,
+            forecast_data.model_run_time,
+            forecast_data.forecast_hour,
+            forecast_data.temp_2m,
+            forecast_data.dpt_2m,
+            forecast_data.rh_2m,
+            forecast_data.tmax_2m,
+            forecast_data.tmin_2m,
+            forecast_data.ugrd_10m,
+            forecast_data.vgrd_10m,
+            forecast_data.wind_10m,
+            forecast_data.temp_surface,
+            forecast_data.vis_surface,
+            forecast_data.gust_surface,
+            forecast_data.pres_surface,
+            forecast_data.snod_surface,
+            forecast_data.prate_surface,
+            forecast_data.apcp_surface,
+            forecast_data.crain_surface,
+            forecast_data.csnow_surface,
+            forecast_data.cfrzr_surface,
+            forecast_data.asnow_surface,
+            forecast_data.weasd_surface,
+            forecast_data.dswrf_surface,
+            forecast_data.cape_surface,
+            forecast_data.tcdc_atmosphere
+           FROM public.forecast_data
+          WHERE ((forecast_data.model_type = 'hrrr'::text) AND (forecast_data.temp_2m IS NOT NULL))
+          ORDER BY forecast_data.location_id, forecast_data.valid_time, forecast_data.model_run_time DESC, forecast_data.forecast_hour
+        ), gfs_pick AS (
+         SELECT DISTINCT ON (forecast_data.location_id, forecast_data.valid_time) forecast_data.location_id,
+            forecast_data.valid_time,
+            forecast_data.model_type,
+            forecast_data.model_run_time,
+            forecast_data.forecast_hour,
+            forecast_data.temp_2m,
+            forecast_data.dpt_2m,
+            forecast_data.rh_2m,
+            forecast_data.tmax_2m,
+            forecast_data.tmin_2m,
+            forecast_data.ugrd_10m,
+            forecast_data.vgrd_10m,
+            NULL::double precision AS wind_10m,
+            NULL::double precision AS temp_surface,
+            forecast_data.vis_surface,
+            forecast_data.gust_surface,
+            forecast_data.pres_surface,
+            forecast_data.snod_surface,
+            forecast_data.prate_surface,
+            forecast_data.apcp_surface,
+            forecast_data.crain_surface,
+            forecast_data.csnow_surface,
+            forecast_data.cfrzr_surface,
+            NULL::double precision AS asnow_surface,
+            forecast_data.weasd_surface,
+            forecast_data.dswrf_surface,
+            forecast_data.cape_surface,
+            forecast_data.tcdc_atmosphere
+           FROM public.forecast_data
+          WHERE ((forecast_data.model_type = 'gfs'::text) AND (forecast_data.temp_2m IS NOT NULL))
+          ORDER BY forecast_data.location_id, forecast_data.valid_time, forecast_data.model_run_time DESC, forecast_data.forecast_hour
+        ), deterministic AS (
+         SELECT hrrr_pick.location_id,
+            hrrr_pick.valid_time,
+            hrrr_pick.model_type,
+            hrrr_pick.model_run_time,
+            hrrr_pick.forecast_hour,
+            hrrr_pick.temp_2m,
+            hrrr_pick.dpt_2m,
+            hrrr_pick.rh_2m,
+            hrrr_pick.tmax_2m,
+            hrrr_pick.tmin_2m,
+            hrrr_pick.ugrd_10m,
+            hrrr_pick.vgrd_10m,
+            hrrr_pick.wind_10m,
+            hrrr_pick.temp_surface,
+            hrrr_pick.vis_surface,
+            hrrr_pick.gust_surface,
+            hrrr_pick.pres_surface,
+            hrrr_pick.snod_surface,
+            hrrr_pick.prate_surface,
+            hrrr_pick.apcp_surface,
+            hrrr_pick.crain_surface,
+            hrrr_pick.csnow_surface,
+            hrrr_pick.cfrzr_surface,
+            hrrr_pick.asnow_surface,
+            hrrr_pick.weasd_surface,
+            hrrr_pick.dswrf_surface,
+            hrrr_pick.cape_surface,
+            hrrr_pick.tcdc_atmosphere
+           FROM hrrr_pick
+        UNION ALL
+         SELECT g.location_id,
+            g.valid_time,
+            g.model_type,
+            g.model_run_time,
+            g.forecast_hour,
+            g.temp_2m,
+            g.dpt_2m,
+            g.rh_2m,
+            g.tmax_2m,
+            g.tmin_2m,
+            g.ugrd_10m,
+            g.vgrd_10m,
+            g.wind_10m,
+            g.temp_surface,
+            g.vis_surface,
+            g.gust_surface,
+            g.pres_surface,
+            g.snod_surface,
+            g.prate_surface,
+            g.apcp_surface,
+            g.crain_surface,
+            g.csnow_surface,
+            g.cfrzr_surface,
+            g.asnow_surface,
+            g.weasd_surface,
+            g.dswrf_surface,
+            g.cape_surface,
+            g.tcdc_atmosphere
+           FROM (gfs_pick g
+             LEFT JOIN hrrr_pick h ON (((h.location_id = g.location_id) AND (h.valid_time = g.valid_time))))
+          WHERE (h.location_id IS NULL)
+        ), nbm_pick AS (
+         SELECT DISTINCT ON (forecast_data.location_id, forecast_data.valid_time) forecast_data.location_id,
+            forecast_data.valid_time,
+            forecast_data.pop_surface
+           FROM public.forecast_data
+          WHERE ((forecast_data.model_type = 'nbm'::text) AND (forecast_data.pop_surface IS NOT NULL))
+          ORDER BY forecast_data.location_id, forecast_data.valid_time, forecast_data.model_run_time DESC, forecast_data.forecast_hour
+        )
+ SELECT d.location_id,
+    d.valid_time,
+    d.model_type,
+    d.model_run_time,
+    d.forecast_hour,
+    d.temp_2m,
+    d.dpt_2m,
+    d.rh_2m,
+    d.tmax_2m,
+    d.tmin_2m,
+    d.ugrd_10m,
+    d.vgrd_10m,
+    d.wind_10m,
+    d.temp_surface,
+    d.vis_surface,
+    d.gust_surface,
+    d.pres_surface,
+    d.snod_surface,
+    d.prate_surface,
+    d.apcp_surface,
+    d.crain_surface,
+    d.csnow_surface,
+    d.cfrzr_surface,
+    d.asnow_surface,
+    d.weasd_surface,
+    d.dswrf_surface,
+    d.cape_surface,
+    d.tcdc_atmosphere,
+    n.pop_surface
+   FROM (deterministic d
+     LEFT JOIN nbm_pick n ON (((n.location_id = d.location_id) AND (n.valid_time = d.valid_time))));
 
-CREATE TABLE IF NOT EXISTS public.vcforecast
-(
+
+ALTER VIEW public.forecast_blend OWNER TO ambient;
+
+--
+-- Name: forecast_data_id_seq; Type: SEQUENCE; Schema: public; Owner: ambient
+--
+
+CREATE SEQUENCE public.forecast_data_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.forecast_data_id_seq OWNER TO ambient;
+
+--
+-- Name: forecast_data_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ambient
+--
+
+ALTER SEQUENCE public.forecast_data_id_seq OWNED BY public.forecast_data.id;
+
+
+--
+-- Name: ingest_log; Type: TABLE; Schema: public; Owner: ambient
+--
+
+CREATE TABLE public.ingest_log (
+    id bigint NOT NULL,
+    model_type text NOT NULL,
+    model_run_time timestamp with time zone NOT NULL,
+    forecast_hour integer NOT NULL,
+    file_path text NOT NULL,
+    status text NOT NULL,
+    error_message text,
+    completed_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE public.ingest_log OWNER TO ambient;
+
+--
+-- Name: ingest_log_id_seq; Type: SEQUENCE; Schema: public; Owner: ambient
+--
+
+CREATE SEQUENCE public.ingest_log_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.ingest_log_id_seq OWNER TO ambient;
+
+--
+-- Name: ingest_log_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ambient
+--
+
+ALTER SEQUENCE public.ingest_log_id_seq OWNED BY public.ingest_log.id;
+
+
+--
+-- Name: map_locations; Type: TABLE; Schema: public; Owner: ambient
+--
+
+CREATE TABLE public.map_locations (
+    id bigint NOT NULL,
+    name text NOT NULL,
+    lat double precision NOT NULL,
+    lon double precision NOT NULL,
+    note text,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    timezone text,
+    forecast_enabled boolean DEFAULT false NOT NULL,
+    last_viewed_at timestamp with time zone,
+    CONSTRAINT map_locations_forecast_needs_tz CHECK (((NOT forecast_enabled) OR (timezone IS NOT NULL))),
+    CONSTRAINT map_locations_lat_range CHECK (((lat >= ('-90'::integer)::double precision) AND (lat <= (90)::double precision))),
+    CONSTRAINT map_locations_lon_range CHECK (((lon >= ('-180'::integer)::double precision) AND (lon <= (180)::double precision))),
+    CONSTRAINT map_locations_name_len CHECK (((char_length(name) >= 1) AND (char_length(name) <= 80)))
+);
+
+
+ALTER TABLE public.map_locations OWNER TO ambient;
+
+--
+-- Name: map_locations_id_seq; Type: SEQUENCE; Schema: public; Owner: ambient
+--
+
+CREATE SEQUENCE public.map_locations_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.map_locations_id_seq OWNER TO ambient;
+
+--
+-- Name: map_locations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ambient
+--
+
+ALTER SEQUENCE public.map_locations_id_seq OWNED BY public.map_locations.id;
+
+
+--
+-- Name: period_stats; Type: TABLE; Schema: public; Owner: ambient
+--
+
+CREATE TABLE public.period_stats (
+    period text NOT NULL,
+    field text NOT NULL,
+    min_value numeric(10,2),
+    min_at timestamp with time zone,
+    max_value numeric(10,2),
+    max_at timestamp with time zone,
+    sum_value numeric(14,4),
+    sample_count bigint DEFAULT 0 NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE public.period_stats OWNER TO ambient;
+
+--
+-- Name: period_stats_v; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW public.period_stats_v AS
+ SELECT period,
+    field,
+    min_value,
+    min_at,
+    max_value,
+    max_at,
+        CASE
+            WHEN (sample_count > 0) THEN (sum_value / (sample_count)::numeric)
+            ELSE NULL::numeric
+        END AS avg_value,
+    sum_value,
+    sample_count,
+    updated_at
+   FROM public.period_stats;
+
+
+ALTER VIEW public.period_stats_v OWNER TO postgres;
+
+--
+-- Name: records_seq; Type: SEQUENCE; Schema: public; Owner: ambient
+--
+
+CREATE SEQUENCE public.records_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.records_seq OWNER TO ambient;
+
+--
+-- Name: records; Type: TABLE; Schema: public; Owner: ambient
+--
+
+CREATE TABLE public.records (
+    id integer DEFAULT nextval('public.records_seq'::regclass) NOT NULL,
+    mac character varying(255) DEFAULT ''::character varying NOT NULL,
+    recorded timestamp(0) with time zone DEFAULT (now())::timestamp without time zone NOT NULL,
+    baromabsin real DEFAULT 0.0 NOT NULL,
+    baromrelin real DEFAULT 0.0 NOT NULL,
+    battout integer DEFAULT 0 NOT NULL,
+    batt1 integer DEFAULT 0 NOT NULL,
+    batt2 integer DEFAULT 0 NOT NULL,
+    batt3 integer DEFAULT 0 NOT NULL,
+    batt4 integer DEFAULT 0 NOT NULL,
+    batt5 integer DEFAULT 0 NOT NULL,
+    batt6 integer DEFAULT 0 NOT NULL,
+    batt7 integer DEFAULT 0 NOT NULL,
+    batt8 integer DEFAULT 0 NOT NULL,
+    batt9 integer DEFAULT 0 NOT NULL,
+    batt10 integer DEFAULT 0 NOT NULL,
+    co2 real DEFAULT 0.0 NOT NULL,
+    dailyrainin real DEFAULT 0.0 NOT NULL,
+    dewpoint real DEFAULT 0.0 NOT NULL,
+    eventrainin real DEFAULT 0.0 NOT NULL,
+    feelslike real DEFAULT 0.0 NOT NULL,
+    hourlyrainin real DEFAULT 0.0 NOT NULL,
+    hourlyrain real DEFAULT 0.0 NOT NULL,
+    humidity integer DEFAULT 0 NOT NULL,
+    humidity1 integer DEFAULT 0 NOT NULL,
+    humidity2 integer DEFAULT 0 NOT NULL,
+    humidity3 integer DEFAULT 0 NOT NULL,
+    humidity4 integer DEFAULT 0 NOT NULL,
+    humidity5 integer DEFAULT 0 NOT NULL,
+    humidity6 integer DEFAULT 0 NOT NULL,
+    humidity7 integer DEFAULT 0 NOT NULL,
+    humidity8 integer DEFAULT 0 NOT NULL,
+    humidity9 integer DEFAULT 0 NOT NULL,
+    humidity10 integer DEFAULT 0 NOT NULL,
+    humidityin integer DEFAULT 0 NOT NULL,
+    lastrain timestamp(0) without time zone DEFAULT NULL::timestamp without time zone NOT NULL,
+    maxdailygust real DEFAULT 0.0 NOT NULL,
+    relay1 integer DEFAULT 0 NOT NULL,
+    relay2 integer DEFAULT 0 NOT NULL,
+    relay3 integer DEFAULT 0 NOT NULL,
+    relay4 integer DEFAULT 0 NOT NULL,
+    relay5 integer DEFAULT 0 NOT NULL,
+    relay6 integer DEFAULT 0 NOT NULL,
+    relay7 integer DEFAULT 0 NOT NULL,
+    relay8 integer DEFAULT 0 NOT NULL,
+    relay9 integer DEFAULT 0 NOT NULL,
+    relay10 integer DEFAULT 0 NOT NULL,
+    monthlyrainin real DEFAULT 0.0 NOT NULL,
+    solarradiation real DEFAULT 0.0 NOT NULL,
+    tempf real DEFAULT 0.0 NOT NULL,
+    temp1f real DEFAULT 0.0 NOT NULL,
+    temp2f real DEFAULT 0.0 NOT NULL,
+    temp3f real DEFAULT 0.0 NOT NULL,
+    temp4f real DEFAULT 0.0 NOT NULL,
+    temp5f real DEFAULT 0.0 NOT NULL,
+    temp6f real DEFAULT 0.0 NOT NULL,
+    temp7f real DEFAULT 0.0 NOT NULL,
+    temp8f real DEFAULT 0.0 NOT NULL,
+    temp9f real DEFAULT 0.0 NOT NULL,
+    temp10f real DEFAULT 0.0 NOT NULL,
+    tempinf real DEFAULT 0.0 NOT NULL,
+    totalrainin real DEFAULT 0.0 NOT NULL,
+    uv real DEFAULT 0.0 NOT NULL,
+    weeklyrainin real DEFAULT 0.0 NOT NULL,
+    winddir integer DEFAULT 0 NOT NULL,
+    windgustmph real DEFAULT 0.0 NOT NULL,
+    windgustdir integer DEFAULT 0 NOT NULL,
+    windspeedmph real DEFAULT 0.0 NOT NULL,
+    yearlyrainin real DEFAULT 0.0 NOT NULL,
+    battlightning integer DEFAULT 0 NOT NULL,
+    lightningday integer DEFAULT 0 NOT NULL,
+    lightninghour integer DEFAULT 0 NOT NULL,
+    lightningtime timestamp(0) without time zone DEFAULT NULL::timestamp without time zone NOT NULL,
+    lightningdistance real DEFAULT 0.0 NOT NULL,
+    aqipm25 integer DEFAULT 0,
+    aqipm2524h integer DEFAULT 0,
+    lightningmonth integer DEFAULT 0 NOT NULL
+);
+
+
+ALTER TABLE public.records OWNER TO ambient;
+
+--
+-- Name: schema_migrations; Type: TABLE; Schema: public; Owner: ambient
+--
+
+CREATE TABLE public.schema_migrations (
+    name text NOT NULL,
+    applied_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE public.schema_migrations OWNER TO ambient;
+
+--
+-- Name: spc_outlook_history; Type: TABLE; Schema: public; Owner: ambient
+--
+
+CREATE TABLE public.spc_outlook_history (
+    id bigint NOT NULL,
+    location text NOT NULL,
+    outlook_day integer NOT NULL,
+    layer text NOT NULL,
+    in_area boolean NOT NULL,
+    label text,
+    severity double precision DEFAULT 0 NOT NULL,
+    checked_at timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public.spc_outlook_history OWNER TO ambient;
+
+--
+-- Name: spc_outlook_history_id_seq; Type: SEQUENCE; Schema: public; Owner: ambient
+--
+
+CREATE SEQUENCE public.spc_outlook_history_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.spc_outlook_history_id_seq OWNER TO ambient;
+
+--
+-- Name: spc_outlook_history_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ambient
+--
+
+ALTER SEQUENCE public.spc_outlook_history_id_seq OWNED BY public.spc_outlook_history.id;
+
+
+--
+-- Name: spc_outlook_status; Type: TABLE; Schema: public; Owner: ambient
+--
+
+CREATE TABLE public.spc_outlook_status (
+    location text NOT NULL,
+    lat double precision NOT NULL,
+    lon double precision NOT NULL,
+    outlook_day integer NOT NULL,
+    layer text NOT NULL,
+    in_area boolean NOT NULL,
+    label text,
+    severity double precision DEFAULT 0 NOT NULL,
+    checked_at timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public.spc_outlook_status OWNER TO ambient;
+
+--
+-- Name: stat_ingest_log; Type: TABLE; Schema: public; Owner: ambient
+--
+
+CREATE TABLE public.stat_ingest_log (
+    recorded timestamp with time zone NOT NULL,
+    folded_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE public.stat_ingest_log OWNER TO ambient;
+
+--
+-- Name: vcforecast; Type: TABLE; Schema: public; Owner: ambient
+--
+
+CREATE TABLE public.vcforecast (
     datetime timestamp with time zone NOT NULL,
     datetime_epoch bigint,
     tempmax numeric(5,2),
@@ -510,7 +743,7 @@ CREATE TABLE IF NOT EXISTS public.vcforecast
     precip numeric(5,3),
     precipprob numeric(5,2),
     precipcover numeric(5,2),
-    preciptype text COLLATE pg_catalog."default",
+    preciptype text,
     snow numeric(5,2),
     snowdepth numeric(5,2),
     windgust numeric(5,2),
@@ -528,59 +761,446 @@ CREATE TABLE IF NOT EXISTS public.vcforecast
     sunset time without time zone,
     sunset_epoch bigint,
     moonphase numeric(3,2),
-    conditions text COLLATE pg_catalog."default",
-    description text COLLATE pg_catalog."default",
-    icon text COLLATE pg_catalog."default",
-    stations text COLLATE pg_catalog."default",
-    source text COLLATE pg_catalog."default",
-    hours text COLLATE pg_catalog."default",
-    summary text COLLATE pg_catalog."default"
-)
-TABLESPACE pg_default;
+    conditions text,
+    description text,
+    icon text,
+    stations text,
+    source text,
+    hours jsonb,
+    summary text
+);
 
-ALTER TABLE vcforecast ADD PRIMARY KEY (datetime);
 
-ALTER TABLE IF EXISTS public.vcforecast
-    OWNER to ambient;
--- Index: idx_weather_date_desc
+ALTER TABLE public.vcforecast OWNER TO ambient;
 
--- DROP INDEX IF EXISTS public.idx_weather_date_desc;
+--
+-- Name: conditions id; Type: DEFAULT; Schema: public; Owner: ambient
+--
 
-CREATE INDEX IF NOT EXISTS idx_weather_date_desc
-    ON public.vcforecast USING btree
-        (datetime DESC NULLS FIRST)
-    TABLESPACE pg_default;
+ALTER TABLE ONLY public.conditions ALTER COLUMN id SET DEFAULT nextval('public.conditions_id_seq'::regclass);
 
--- ----------------------------------------------------------------------------
--- Table: public.conditions
--- ----------------------------------------------------------------------------
--- Observed current conditions for a station, pulled from the NWS
--- /stations/{id}/observations/latest endpoint by the stats service every
--- 15 minutes. One row per observation (keyed by station + observed_at);
--- the server reads the latest row to populate /api/app `conditions`/`icon`.
 
-CREATE TABLE IF NOT EXISTS public.conditions
-(
-    id               bigserial PRIMARY KEY,
-    station          text        NOT NULL,
-    observed_at      timestamptz NOT NULL,
-    conditions       text,                 -- human text (NWS textDescription, refined)
-    icon             text,                 -- derived Visual-Crossing-style icon kind
-    text_description text,                 -- raw NWS textDescription
-    present_weather  text,                 -- JSON-encoded raw presentWeather[]
-    cloud_layers     text,                 -- JSON-encoded raw cloudLayers[]
-    raw_icon         text,                 -- original NWS icon URL
-    temperature      numeric(6,2),         -- °F (converted from observed °C)
-    humidity         numeric(6,2),         -- %
-    created_at       timestamptz NOT NULL DEFAULT now(),
-    CONSTRAINT conditions_station_observed_uk UNIQUE (station, observed_at)
-)
-TABLESPACE pg_default;
+--
+-- Name: forecast_data id; Type: DEFAULT; Schema: public; Owner: ambient
+--
 
-ALTER TABLE IF EXISTS public.conditions
-    OWNER to ambient;
+ALTER TABLE ONLY public.forecast_data ALTER COLUMN id SET DEFAULT nextval('public.forecast_data_id_seq'::regclass);
 
-CREATE INDEX IF NOT EXISTS idx_conditions_observed
-    ON public.conditions USING btree
-        (station, observed_at DESC)
-    TABLESPACE pg_default;
+
+--
+-- Name: ingest_log id; Type: DEFAULT; Schema: public; Owner: ambient
+--
+
+ALTER TABLE ONLY public.ingest_log ALTER COLUMN id SET DEFAULT nextval('public.ingest_log_id_seq'::regclass);
+
+
+--
+-- Name: map_locations id; Type: DEFAULT; Schema: public; Owner: ambient
+--
+
+ALTER TABLE ONLY public.map_locations ALTER COLUMN id SET DEFAULT nextval('public.map_locations_id_seq'::regclass);
+
+
+--
+-- Name: spc_outlook_history id; Type: DEFAULT; Schema: public; Owner: ambient
+--
+
+ALTER TABLE ONLY public.spc_outlook_history ALTER COLUMN id SET DEFAULT nextval('public.spc_outlook_history_id_seq'::regclass);
+
+
+--
+-- Name: alerts alerts_pkey; Type: CONSTRAINT; Schema: public; Owner: ambient
+--
+
+ALTER TABLE ONLY public.alerts
+    ADD CONSTRAINT alerts_pkey PRIMARY KEY (alertid);
+
+
+--
+-- Name: conditions conditions_pkey; Type: CONSTRAINT; Schema: public; Owner: ambient
+--
+
+ALTER TABLE ONLY public.conditions
+    ADD CONSTRAINT conditions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: conditions conditions_station_observed_uk; Type: CONSTRAINT; Schema: public; Owner: ambient
+--
+
+ALTER TABLE ONLY public.conditions
+    ADD CONSTRAINT conditions_station_observed_uk UNIQUE (station, observed_at);
+
+
+--
+-- Name: forecast_data forecast_data_ident_key; Type: CONSTRAINT; Schema: public; Owner: ambient
+--
+
+ALTER TABLE ONLY public.forecast_data
+    ADD CONSTRAINT forecast_data_ident_key UNIQUE (model_type, location_id, model_run_time, forecast_hour);
+
+
+--
+-- Name: forecast_data forecast_data_pkey; Type: CONSTRAINT; Schema: public; Owner: ambient
+--
+
+ALTER TABLE ONLY public.forecast_data
+    ADD CONSTRAINT forecast_data_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: forecast forecast_pkey; Type: CONSTRAINT; Schema: public; Owner: ambient
+--
+
+ALTER TABLE ONLY public.forecast
+    ADD CONSTRAINT forecast_pkey PRIMARY KEY (location_id, datetime);
+
+
+--
+-- Name: ingest_log ingest_log_model_type_model_run_time_forecast_hour_key; Type: CONSTRAINT; Schema: public; Owner: ambient
+--
+
+ALTER TABLE ONLY public.ingest_log
+    ADD CONSTRAINT ingest_log_model_type_model_run_time_forecast_hour_key UNIQUE (model_type, model_run_time, forecast_hour);
+
+
+--
+-- Name: ingest_log ingest_log_pkey; Type: CONSTRAINT; Schema: public; Owner: ambient
+--
+
+ALTER TABLE ONLY public.ingest_log
+    ADD CONSTRAINT ingest_log_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: map_locations map_locations_pkey; Type: CONSTRAINT; Schema: public; Owner: ambient
+--
+
+ALTER TABLE ONLY public.map_locations
+    ADD CONSTRAINT map_locations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: period_stats period_stats_pkey; Type: CONSTRAINT; Schema: public; Owner: ambient
+--
+
+ALTER TABLE ONLY public.period_stats
+    ADD CONSTRAINT period_stats_pkey PRIMARY KEY (period, field);
+
+
+--
+-- Name: records records_pkey; Type: CONSTRAINT; Schema: public; Owner: ambient
+--
+
+ALTER TABLE ONLY public.records
+    ADD CONSTRAINT records_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: schema_migrations schema_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: ambient
+--
+
+ALTER TABLE ONLY public.schema_migrations
+    ADD CONSTRAINT schema_migrations_pkey PRIMARY KEY (name);
+
+
+--
+-- Name: spc_outlook_history spc_outlook_history_pkey; Type: CONSTRAINT; Schema: public; Owner: ambient
+--
+
+ALTER TABLE ONLY public.spc_outlook_history
+    ADD CONSTRAINT spc_outlook_history_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: spc_outlook_status spc_outlook_status_pkey; Type: CONSTRAINT; Schema: public; Owner: ambient
+--
+
+ALTER TABLE ONLY public.spc_outlook_status
+    ADD CONSTRAINT spc_outlook_status_pkey PRIMARY KEY (location, outlook_day, layer);
+
+
+--
+-- Name: stat_ingest_log stat_ingest_log_pkey; Type: CONSTRAINT; Schema: public; Owner: ambient
+--
+
+ALTER TABLE ONLY public.stat_ingest_log
+    ADD CONSTRAINT stat_ingest_log_pkey PRIMARY KEY (recorded);
+
+
+--
+-- Name: vcforecast vcforecast_pkey; Type: CONSTRAINT; Schema: public; Owner: ambient
+--
+
+ALTER TABLE ONLY public.vcforecast
+    ADD CONSTRAINT vcforecast_pkey PRIMARY KEY (datetime);
+
+
+--
+-- Name: baromrelinidx; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX baromrelinidx ON public.records USING btree (baromrelin, recorded);
+
+
+--
+-- Name: dailyraininidx; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX dailyraininidx ON public.records USING btree (dailyrainin, recorded);
+
+
+--
+-- Name: date; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX date ON public.records USING btree (recorded);
+
+
+--
+-- Name: datetempfidx; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX datetempfidx ON public.records USING btree (recorded, tempf);
+
+
+--
+-- Name: dewpointidx; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX dewpointidx ON public.records USING btree (dewpoint, recorded);
+
+
+--
+-- Name: feelsidx; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX feelsidx ON public.records USING btree (feelslike, recorded);
+
+
+--
+-- Name: humidity1idx; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX humidity1idx ON public.records USING btree (humidity1, recorded);
+
+
+--
+-- Name: humidity2idx; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX humidity2idx ON public.records USING btree (humidity2, recorded);
+
+
+--
+-- Name: humidity3idx; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX humidity3idx ON public.records USING btree (humidity3, recorded);
+
+
+--
+-- Name: humidity4idx; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX humidity4idx ON public.records USING btree (humidity4, recorded);
+
+
+--
+-- Name: humidityidx; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX humidityidx ON public.records USING btree (humidity, recorded);
+
+
+--
+-- Name: humidityinidx; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX humidityinidx ON public.records USING btree (humidityin, recorded);
+
+
+--
+-- Name: idx_conditions_observed; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX idx_conditions_observed ON public.conditions USING btree (station, observed_at DESC);
+
+
+--
+-- Name: idx_forecast_data_lookup; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX idx_forecast_data_lookup ON public.forecast_data USING btree (location_id, model_type, valid_time);
+
+
+--
+-- Name: idx_forecast_data_run_hour_loc; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX idx_forecast_data_run_hour_loc ON public.forecast_data USING btree (model_type, model_run_time, forecast_hour, location_id);
+
+
+--
+-- Name: idx_forecast_datetime; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX idx_forecast_datetime ON public.forecast USING btree (datetime);
+
+
+--
+-- Name: idx_forecast_run; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX idx_forecast_run ON public.forecast_data USING btree (model_type, model_run_time);
+
+
+--
+-- Name: idx_forecast_stale_summary; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX idx_forecast_stale_summary ON public.forecast USING btree (location_id, datetime) WHERE ((summary_hash IS NULL) OR (summary_hash <> content_hash));
+
+
+--
+-- Name: idx_period_field; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX idx_period_field ON public.period_stats USING btree (period, field);
+
+
+--
+-- Name: idx_spc_hist_time; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX idx_spc_hist_time ON public.spc_outlook_history USING btree (checked_at);
+
+
+--
+-- Name: idx_spc_status_inarea; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX idx_spc_status_inarea ON public.spc_outlook_status USING btree (in_area) WHERE in_area;
+
+
+--
+-- Name: lightningdayidx; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX lightningdayidx ON public.records USING btree (lightningday, recorded);
+
+
+--
+-- Name: map_locations_attention; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX map_locations_attention ON public.map_locations USING btree (last_viewed_at DESC) WHERE forecast_enabled;
+
+
+--
+-- Name: map_locations_name_key; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE UNIQUE INDEX map_locations_name_key ON public.map_locations USING btree (lower(name));
+
+
+--
+-- Name: recorded; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX recorded ON public.records USING btree (recorded DESC NULLS LAST);
+
+
+--
+-- Name: temp1fidx; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX temp1fidx ON public.records USING btree (temp1f, recorded);
+
+
+--
+-- Name: temp2fidx; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX temp2fidx ON public.records USING btree (temp2f, recorded);
+
+
+--
+-- Name: temp3fidx; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX temp3fidx ON public.records USING btree (temp3f, recorded);
+
+
+--
+-- Name: temp4fidx; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX temp4fidx ON public.records USING btree (temp4f, recorded);
+
+
+--
+-- Name: tempfidx; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX tempfidx ON public.records USING btree (tempf, recorded);
+
+
+--
+-- Name: tempinfidx; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX tempinfidx ON public.records USING btree (tempinf, recorded);
+
+
+--
+-- Name: uvidx; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX uvidx ON public.records USING btree (uv, recorded);
+
+
+--
+-- Name: windgustidx; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX windgustidx ON public.records USING btree (windgustmph, recorded);
+
+
+--
+-- Name: windgustmphidx; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX windgustmphidx ON public.records USING btree (windgustmph, recorded);
+
+
+--
+-- Name: windidx; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX windidx ON public.records USING btree (windspeedmph, recorded);
+
+
+--
+-- Name: windspeedmphidx; Type: INDEX; Schema: public; Owner: ambient
+--
+
+CREATE INDEX windspeedmphidx ON public.records USING btree (windspeedmph, recorded);
+
+
+--
+-- Name: forecast_data forecast_data_location_fk; Type: FK CONSTRAINT; Schema: public; Owner: ambient
+--
+
+ALTER TABLE ONLY public.forecast_data
+    ADD CONSTRAINT forecast_data_location_fk FOREIGN KEY (location_id) REFERENCES public.map_locations(id) ON DELETE CASCADE;
+
+
+--
+-- Name: forecast forecast_location_fk; Type: FK CONSTRAINT; Schema: public; Owner: ambient
+--
+
+ALTER TABLE ONLY public.forecast
+    ADD CONSTRAINT forecast_location_fk FOREIGN KEY (location_id) REFERENCES public.map_locations(id) ON DELETE CASCADE;
+
+

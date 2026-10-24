@@ -1,14 +1,17 @@
 import React from "react";
 import Card from "../Card";
 import Sparkline from "../charts/Sparkline";
+import { statVal } from "../../utils/format";
 
 export default function PressureCard({ baro }) {
-  const trend = baro.trend.trend;
+  // Empty when the server has no reading from 3 hours ago to compare with.
+  const trend = baro.trend?.trend || "—";
   const arrow = trend === "Rising" ? "↗" : trend === "Falling" ? "↘" : "→";
   const color = trend === "Rising" ? "var(--warm)" : trend === "Falling" ? "var(--cool)" : "var(--muted)";
-  const hi = baro.minmax.max.day.value;
-  const lo = baro.minmax.min.day.value;
   const cur = baro.baromrelin;
+  // Fall back to the current reading until today's stats row exists.
+  const hi = statVal(baro.minmax, "max", "day") ?? cur;
+  const lo = statVal(baro.minmax, "min", "day") ?? cur;
   const fakeHist = Array.from({ length: 24 }, (_, i) => {
     const t = i / 23;
     return lo + (hi - lo) * (0.4 + 0.6 * Math.sin(t * Math.PI * 1.2));

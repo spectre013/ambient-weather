@@ -1,5 +1,6 @@
 import React from "react";
 import Card from "../Card";
+import { statVal, fmtOr } from "../../utils/format";
 
 export default function AqiCard({ aqi }) {
   const pm = aqi.pm25;
@@ -15,7 +16,7 @@ export default function AqiCard({ aqi }) {
   return (
     <Card label="Air quality" right={cat.toUpperCase()}>
       <div className="big" style={{ color: colors[colorIdx] }}>{pm.toFixed(1)}<span className="unit" style={{ color: "var(--muted)" }}>µg/m³ PM2.5</span></div>
-      <div className="sub">24h avg <b>{aqi.pm2524h.toFixed(1)}</b> · month max {aqi.minmax.max.month.value}</div>
+      <div className="sub">24h avg <b>{aqi.pm2524h.toFixed(1)}</b> · month max {fmtOr(statVal(aqi.minmax, "max", "month"))}</div>
       <div className="scale-track" style={{ marginTop: 12 }}>
         {bands.map(([lbl, lo, hi, c]) => {
           const active = pm >= lo && pm < hi;

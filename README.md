@@ -41,7 +41,7 @@ The **Receiver** accepts incoming data pushes from the AWNet application's custo
         ↓
    [MQTT Broker]
         ↓
-  [mqtt_processor]  ← reads MQTT, writes to PostgreSQL
+   [Processor]  ← reads MQTT, writes to PostgreSQL
         ↓
    [MQTT Broker]  ← processor publishes "run stats" message
         ↓
@@ -86,11 +86,25 @@ Then apply the schema:
 psql -U ambient -d ambient -f schema.sql
 ```
 
-If you have existing data to migrate, also apply:
+`schema.sql` is a `pg_dump --schema-only` of the production database, so it
+always reflects what is actually deployed. Notes:
+
+- It uses the `\restrict` / `\unrestrict` meta-commands that pg_dump 16.10+
+  emits, so apply it with psql 16.10 or newer.
+- It creates the `pg_stat_statements` extension, which needs a superuser. Run
+  that part as `postgres`, or delete the `CREATE EXTENSION` line if you don't
+  want it.
+
+Columns added since the last dump ship as standalone `migration_*.sql` files.
+Apply any that exist (each is idempotent), then re-dump `schema.sql` from the
+database and delete the migration file:
 
 ```bash
-psql -U ambient -d ambient -f migration.sql
+psql -U ambient -d ambient -f migration_rainratein.sql   # records.rainratein
 ```
+
+Run a migration before deploying the service version that writes the new
+column; the processor's insert fails until it exists.
 
 ---
 
@@ -138,7 +152,7 @@ Save the settings and monitor the receiver container logs to confirm data is arr
 ### Services Used (Option A)
 
 - `receiver` — accepts AWNet HTTP push, publishes to MQTT
-- `processor` — reads MQTT, calculates, saves to PostgreSQL, triggers stats
+- `console_processor` — reads MQTT, calculates, saves to PostgreSQL, triggers stats
 - `stats` — runs on MQTT trigger, computes statistics
 - `server` — REST API backend
 - `ui` — web frontend
@@ -163,7 +177,7 @@ Replace `<host>`, `<user>`, and `<pass>` with your MQTT broker's host address an
 
 ### Services Used (Option B)
 
-- `mqtt_processor` — reads MQTT topics published by rtl_433, writes to PostgreSQL, triggers stats
+- `processor` — reads MQTT topics published by rtl_433, writes to PostgreSQL, triggers stats
 - `stats` — runs on MQTT trigger, computes statistics
 - `server` — REST API backend
 - `ui` — web frontend
@@ -190,7 +204,7 @@ docker build -t $DOCKER_REGISTRY/weather/weather-server:v5.0.1 . --no-cache
 docker push $DOCKER_REGISTRY/weather/weather-server:v5.0.1
 ```
 
-### Processor
+### Processor (RTL-SDR)
 
 ```bash
 cd processor
@@ -198,12 +212,12 @@ docker build -t $DOCKER_REGISTRY/weather/processor:v3.0.0 . --no-cache
 docker push $DOCKER_REGISTRY/weather/processor:v3.0.0
 ```
 
-### mqtt_processor (RTL-SDR only)
+### console_processor (Console/AWNet only)
 
 ```bash
-cd mqtt_processor
-docker build -t $DOCKER_REGISTRY/weather/mqtt-processor:v1.0.0 . --no-cache
-docker push $DOCKER_REGISTRY/weather/mqtt-processor:v1.0.0
+cd console_processor
+docker build -t $DOCKER_REGISTRY/weather/console-processor:v1.0.0 . --no-cache
+docker push $DOCKER_REGISTRY/weather/console-processor:v1.0.0
 ```
 
 ### Stats
@@ -270,15 +284,15 @@ docker-compose logs -f processor
 
 ```
 ambient-weather/
-├── receiver/        # AWNet custom server HTTP receiver (Option A)
-├── processor/       # MQTT consumer + data processor (Option A)
-├── mqtt_processor/  # MQTT consumer + data processor (Option B / RTL-SDR)
-├── stats/           # Statistical calculations service
-├── server/          # REST API backend
-├── ui/              # React web frontend
-├── schema.sql       # Initial database schema
-├── migration.sql    # Database migrations
-├── sample.env       # Example environment variable file
+├── receiver/           # AWNet custom server HTTP receiver (Option A)
+├── console_processor/  # MQTT consumer + data processor (Option A)
+├── processor/          # MQTT consumer + data processor (Option B / RTL-SDR)
+├── stats/              # Statistical calculations service
+├── server/             # REST API backend
+├── ui/                 # React web frontend
+├── schema.sql          # Schema dumped from the production database
+├── migration_*.sql     # Columns added since the last schema.sql dump
+├── sample.env          # Example environment variable file
 └── docker-compose.yml
 ```
 

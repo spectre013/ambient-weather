@@ -5,7 +5,7 @@ import {
   dirToCompass, dayName, dayDate, fmtTime,
 } from "../utils/format";
 
-export default function DailyList({ days, tzOffsetH, units }) {
+export default function DailyList({ days, units }) {
   const list = days.slice(0, 14);
   const allMin = Math.min(...list.map((d) => d.tempmin));
   const allMax = Math.max(...list.map((d) => d.tempmax));
@@ -17,7 +17,7 @@ export default function DailyList({ days, tzOffsetH, units }) {
         {list.map((d, i) => {
           const lo = (d.tempmin - allMin) / span;
           const hi = (d.tempmax - allMin) / span;
-          const dn = dayName(d.datetimeEpoch, tzOffsetH);
+          const dn = dayName(d.datetimeEpoch);
           const label = i === 0 ? "Today" : i === 1 ? "Tomorrow"
               : dn.charAt(0) + dn.slice(1).toLowerCase();
           const isOpen = openIdx === i;
@@ -37,7 +37,7 @@ export default function DailyList({ days, tzOffsetH, units }) {
                 >
                   <div className="d">
                     <span className="day-name">{label}</span>
-                    <span className="day-date">{dayDate(d.datetimeEpoch, tzOffsetH)}</span>
+                    <span className="day-date">{dayDate(d.datetimeEpoch)}</span>
                   </div>
                   <WeatherIcon kind={d.icon} size={26} />
                   <span className={`precip ${d.precipprob ? "" : "zero"}`}>

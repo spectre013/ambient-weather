@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math"
 	"net/http"
@@ -59,10 +60,11 @@ func loadAlerts() []Alert {
 			logger.WithError(err).Error("alerts scan")
 			continue
 		}
-		a.Sent = a.Sent.In(loc)
-		a.Effective = a.Effective.In(loc)
-		a.Onset = a.Onset.In(loc)
-		a.Ends = a.Ends.In(loc)
+		a.Sent = wallClockIn(a.Sent, loc)
+		a.Effective = wallClockIn(a.Effective, loc)
+		a.Onset = wallClockIn(a.Onset, loc)
+		a.Expires = wallClockIn(a.Expires, loc)
+		a.Ends = wallClockIn(a.Ends, loc)
 		alerts = append(alerts, a)
 	}
 	if err := rows.Err(); err != nil {
@@ -100,59 +102,86 @@ func astro() Astro {
 	}
 }
 
+// wallClockIn reinterprets a value read from a `timestamp without time zone`
+// column as wall-clock time in loc. The alerts columns hold station-local
+// time (stats inserts the NWS times and Postgres drops their offset), but
+// lib/pq returns such values labelled UTC, so converting them with .In(loc)
+// would shift them by the UTC offset a second time.
+func wallClockIn(t time.Time, loc *time.Location) time.Time {
+	if t.IsZero() {
+		return t
+	}
+	return time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), loc)
+}
+
 func getMoonPhase() (float64, float64, string) {
 	m := moonphase.New(time.Now())
 	return m.Phase(), m.Illumination() * 100, m.PhaseName()
 }
 
+// Barometer tendency is the change over the last three hours, the standard
+// meteorological window. 0.02 inHg (~0.7 hPa) in three hours is the usual
+// station threshold for a slow rise or fall; anything less is steady.
+const (
+	trendWindow       = 3 * time.Hour
+	trendMaxGap       = 30 * time.Minute // tolerated gap in the reading 3h ago
+	trendMaxStaleness = 10 * time.Minute // the latest reading must be this fresh
+	baroTrendInHg     = 0.02
+)
+
 // trend uses a column allowlist so the interpolated identifier can never
-// be user-controlled. Dates are parameterized.
+// be user-controlled. Dates are parameterized. It compares the latest reading
+// with the one trendWindow earlier and returns an empty Trend when either is
+// missing (processor down, gap in the data), rather than guessing.
 func trend(t string) Trend {
 	if !allowedTrendColumns[t] {
 		logger.WithField("column", t).Error("trend: column not in allowlist")
 		return Trend{}
 	}
 
-	end := time.Now()
-	start := end.Add(-30 * time.Minute)
+	now := time.Now()
 
-	avgQuery := fmt.Sprintf("select AVG(%s) from records where recorded BETWEEN $1 AND $2", t)
-	logger.Debug(avgQuery)
-
-	var avg float64
-	if err := db.QueryRow(avgQuery, start, end).Scan(&avg); err != nil {
-		sqlError("Trend1", err, avgQuery)
-	}
-
-	const currentQuery = "select id,baromrelin,tempf from records order by recorded desc limit 1"
+	currentQuery := fmt.Sprintf("select recorded, %s from records order by recorded desc limit 1", t)
 	logger.Debug(currentQuery)
-
-	cr := Record{}
-	if err := db.QueryRow(currentQuery).Scan(&cr.ID, &cr.Baromrelin, &cr.Tempf); err != nil {
-		sqlError("Trend2", err, currentQuery)
+	var curAt time.Time
+	var cur float64
+	if err := db.QueryRow(currentQuery).Scan(&curAt, &cur); err != nil {
+		sqlError("Trend1", err, currentQuery)
+		return Trend{}
+	}
+	if now.Sub(curAt) > trendMaxStaleness {
+		return Trend{}
 	}
 
-	trend := Trend{}
+	pastQuery := fmt.Sprintf(
+		"select %s from records where recorded BETWEEN $1 AND $2 order by recorded desc limit 1", t)
+	logger.Debug(pastQuery)
+	at := curAt.Add(-trendWindow)
+	var past float64
+	if err := db.QueryRow(pastQuery, at.Add(-trendMaxGap), at).Scan(&past); err != nil {
+		if !errors.Is(err, sql.ErrNoRows) {
+			sqlError("Trend2", err, pastQuery)
+		}
+		return Trend{}
+	}
+
+	change := cur - past
+	trend := Trend{By: toFixed(math.Abs(change), 2)}
 	if strings.Contains(t, "temp") {
-		if cr.Tempf > avg {
+		if change > 0 {
 			trend.Trend = "up"
-			trend.By = toFixed(cr.Tempf-avg, 2)
 		} else {
 			trend.Trend = "down"
-			trend.By = toFixed(avg-cr.Tempf, 2)
 		}
-	} else {
-		if cr.Baromrelin > avg {
-			trend.Trend = "Steady"
-			if (cr.Baromrelin - avg) > .5 {
-				trend.Trend = "Rising"
-			}
-		} else {
-			trend.Trend = "Steady"
-			if (avg - cr.Baromrelin) > .5 {
-				trend.Trend = "Falling"
-			}
-		}
+		return trend
+	}
+	switch {
+	case change >= baroTrendInHg:
+		trend.Trend = "Rising"
+	case change <= -baroTrendInHg:
+		trend.Trend = "Falling"
+	default:
+		trend.Trend = "Steady"
 	}
 	return trend
 }
