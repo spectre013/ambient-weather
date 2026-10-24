@@ -66,14 +66,20 @@ func dewPointF(tempF float64, rh float64) float64 {
 	return cToF(dpC)
 }
 
-// heatIndexF returns the NOAA heat index given T(F) and RH(%).
-// Below 80F it returns the raw temperature.
+// heatIndexF returns the NWS heat index given T(F) and RH(%), following the
+// full NWS procedure: the simple Steadman formula first, and only if that
+// averages 80F or more the Rothfusz regression with its low- and
+// high-humidity adjustments. Below 80F it returns the raw temperature.
 func heatIndexF(tempF, rh float64) float64 {
 	if tempF < 80.0 {
 		return tempF
 	}
 	t := tempF
 	r := rh
+	simple := 0.5 * (t + 61.0 + (t-68.0)*1.2 + r*0.094)
+	if (simple+t)/2 < 80.0 {
+		return simple
+	}
 	hi := -42.379 +
 		2.04901523*t +
 		10.14333127*r -
@@ -83,6 +89,12 @@ func heatIndexF(tempF, rh float64) float64 {
 		0.00122874*t*t*r +
 		0.00085282*t*r*r -
 		0.00000199*t*t*r*r
+	switch {
+	case r < 13 && t <= 112:
+		hi -= ((13 - r) / 4) * math.Sqrt((17-math.Abs(t-95))/17)
+	case r > 85 && t <= 87:
+		hi += ((r - 85) / 10) * ((87 - t) / 5)
+	}
 	return hi
 }
 
@@ -109,8 +121,14 @@ func feelsLikeF(tempF, rh, windMph float64) float64 {
 }
 
 // aqiFromPM25 converts a PM2.5 concentration to a US AQI value.
-// Standard EPA breakpoints.
+// Standard EPA breakpoints (the same ones the HP2550 console uses).
+//
+// The breakpoints are defined on 0.1 µg/m³ steps, so the concentration is
+// truncated to one decimal first, as EPA specifies and as the console does
+// by working in whole 0.1 µg units. Without that, a value between two
+// segments (e.g. a 24h average of 12.05) would match none and return 0.
 func aqiFromPM25(pm float64) int {
+	pm = math.Floor(pm*10+1e-9) / 10
 	type bp struct {
 		cLo, cHi, iLo, iHi float64
 	}

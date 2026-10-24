@@ -18,16 +18,37 @@ to PostgreSQL once per minute.
 ## Aggregation strategy
 
 Both the rain gauge (`rain_mm`) and the lightning sensor (`strike_count`) report
-*monotonically increasing* totals. For each period (hour / day / week / month /
-year) we record the counter value at the start of the period. The amount for
-that period is `current - baseline`. When the clock crosses a period boundary
-we roll the baseline forward to the latest counter value. If the device counter
-ever decreases (battery swap / reset) we re-baseline everything from the new
-starting value.
+running counters. As in the HP2550 console firmware, each message adds the
+increment since the previous message to every period total (day / week /
+month / year, and hour for lightning), and each total is zeroed when the clock
+crosses its boundary. Increments are taken modulo the counter width, so the
+rain counter wrapping at 6553.5 mm or the strike counter wrapping at 255 still
+counts. An increment larger than the console's limit (rain: 0.4 mm per elapsed
+second, at most 102.3 mm; lightning: 100 strikes) is treated as a battery-swap
+reset or bad packet and skipped, leaving the totals intact.
 
-The lightning sensor's `interference` state is treated specially: the counter
-moves but no real strike happened, so `lightningtime` and `lightningdistance`
-are only updated on real strikes.
+Rain also feeds a per-minute window that gives the console-style rolling values:
+
+- `hourlyrainin` / `hourlyrain`: rain in the last 60 minutes (rolling, not
+  since the top of the hour).
+- `rainratein`: rain rate in in/hr, the last 10 minutes x 6.
+- `eventrainin`: accumulates across showers and keeps showing after the rain
+  stops. At each hour boundary it resets to 0 if the last 60 minutes were dry
+  and the last 24 hours had less than 1.0 mm.
+
+At startup the window is rebuilt from the last 24 hours of `dailyrainin`
+values, so the rolling values are right immediately after a restart.
+
+The lightning sensor's `strike_count` advances on noise too. A single-count
+increase tagged `interference` or `noise` is not counted; larger jumps are
+counted because the state only describes the latest event.
+
+`lightningtime` and `lightningdistance` are only updated on messages whose
+state is `strike`.
+
+The WH32B is only protected by an 8-bit sum in rtl_433, so a reading is
+accepted only if it is within 0.5 °C, 3 % and 1.0 hPa of the previous packet
+(the console's filter). A genuine change is accepted one packet later.
 
 ## Configuration
 
@@ -49,7 +70,6 @@ A starter template is included as `.env.example` — copy it to `.env` and edit.
 | `STATION_MAC`       | `WS-5000`                                                            |
 | `DATABASE_URL`      | `postgres://weather:weather@localhost:5432/weather?sslmode=disable`  |
 | `SNAPSHOT_INTERVAL` | `1m` (parsed with `time.ParseDuration`)                              |
-| `RAIN_EVENT_GAP`    | `1h` — idle time after which a rain event is considered ended       |
 | `ELEVATION`         | `0` — station elevation above sea level in meters (for `baromrelin`) |
 
 ## Build & run
@@ -73,7 +93,9 @@ indexing are managed externally.
 
 ## Notes & caveats
 
-- `feelslike` uses NOAA heat-index above 80°F and NWS wind-chill below 50°F.
+- `feelslike` uses the full NWS heat-index procedure (Steadman, then
+  Rothfusz with its humidity adjustments) above 80°F and NWS wind-chill below
+  50°F. In dry heat the heat index can be below the air temperature.
 - `solarradiation` is a rough lux→W/m² conversion (`lux / 126.7`, Davis convention).
 - `baromrelin` is computed from `baromabsin` using the hypsometric formula
   with `ELEVATION` (meters) and the current outdoor temperature. If

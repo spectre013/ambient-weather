@@ -63,7 +63,7 @@ INSERT INTO records (
     tempinf, totalrainin, uv, weeklyrainin,
     winddir, windgustmph, windgustdir, windspeedmph, yearlyrainin,
     lightningday, lightninghour, lightningdistance, lightningtime, lightningmonth,
-    aqipm25, aqipm2524h
+    aqipm25, aqipm2524h, rainratein
 ) VALUES (
     $1, $2,
     $3, $4, $5,
@@ -79,7 +79,7 @@ INSERT INTO records (
     $51, $52, $53, $54,
     $55, $56, $57, $58, $59,
     $60, $61, $62, $63, $64,
-    $65, $66
+    $65, $66, $67
 )`
 	_, err := s.pool.Exec(ctx, sql,
 		r.Mac, r.Recorded,
@@ -96,7 +96,7 @@ INSERT INTO records (
 		r.Tempinf, r.Totalrainin, r.Uv, r.Weeklyrainin,
 		r.Winddir, r.Windgustmph, r.Windgustdir, r.Windspeedmph, r.Yearlyrainin,
 		r.Lightningday, r.Lightninghour, r.Lightningdistance, lightningTime, r.LightningMonth,
-		r.Aqipm25, r.Aqipm2524h,
+		r.Aqipm25, r.Aqipm2524h, r.Rainratein,
 	)
 	return err
 }
@@ -154,4 +154,28 @@ LIMIT 1`
 		r.Lightningtime = *lightningTime
 	}
 	return &r, nil
+}
+
+// RecentRain returns (recorded, dailyrainin) for every record since the given
+// time, oldest first, for rebuilding the rolling rain window at startup.
+func (s *Store) RecentRain(ctx context.Context, since time.Time) ([]RainSample, error) {
+	const sql = `
+SELECT recorded, dailyrainin
+FROM records
+WHERE recorded >= $1
+ORDER BY recorded ASC`
+	rows, err := s.pool.Query(ctx, sql, since)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var out []RainSample
+	for rows.Next() {
+		var r RainSample
+		if err := rows.Scan(&r.Recorded, &r.DailyRainIn); err != nil {
+			return nil, err
+		}
+		out = append(out, r)
+	}
+	return out, rows.Err()
 }

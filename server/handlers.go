@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"math"
 	"net/http"
 	"regexp"
 	"strings"
@@ -350,6 +351,28 @@ func wind(timeFrame string) float64 {
 	return avg.Float64
 }
 
+// windDir returns the speed-weighted mean wind direction (0-359°) over the
+// time frame, averaged as vectors so 350° and 10° give 0°, not 180°. With no
+// wind in the frame it returns fallback (the current direction).
+func windDir(timeFrame string, fallback int) int {
+	dirQ := fmt.Sprintf("SELECT SUM(windspeedmph * SIN(RADIANS(winddir))), SUM(windspeedmph * COS(RADIANS(winddir))) FROM records WHERE recorded >= NOW() - INTERVAL '%s'", timeFrame)
+
+	var x, y sql.NullFloat64
+	if err := db.QueryRow(dirQ).Scan(&x, &y); err != nil && err != sql.ErrNoRows {
+		sqlError("windDir", err, dirQ)
+	}
+	return meanDirection(x.Float64, y.Float64, fallback)
+}
+
+// meanDirection converts summed sin/cos components to a compass bearing.
+func meanDirection(sinSum, cosSum float64, fallback int) int {
+	if math.Abs(sinSum) < 1e-9 && math.Abs(cosSum) < 1e-9 {
+		return fallback
+	}
+	deg := math.Atan2(sinSum, cosSum) * 180 / math.Pi
+	return (int(math.Round(deg)) + 360) % 360
+}
+
 var minmaxRegexCache sync.Map // map[string]*regexp.Regexp
 
 func minmaxRegex(f string) *regexp.Regexp {
@@ -593,6 +616,7 @@ func buildBaseConditions(record Record, observed *StationConditions) Conditions 
 		Gustdir:    record.Windgustdir,
 		Speedmph:   record.Windspeedmph,
 		Avg:        wind("10 minutes"),
+		AvgDir:     windDir("10 minutes", record.Winddir),
 		MinMax:     minmax("windspeedmph"),
 		GustMinMax: minmax("windgustmph"),
 	}
@@ -600,6 +624,8 @@ func buildBaseConditions(record Record, observed *StationConditions) Conditions 
 	c.UV = UV{Uv: record.Uv, Solarradiation: record.Solarradiation, MinMax: minmax("uv")}
 	c.Rain = Rain{
 		Hourly:   record.Hourlyrainin,
+		Rate:     record.Rainratein,
+		Event:    record.Eventrainin,
 		Daily:    record.Dailyrainin,
 		Weekly:   record.Weeklyrainin,
 		Monthly:  record.Monthlyrainin,

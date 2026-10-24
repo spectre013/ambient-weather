@@ -39,7 +39,6 @@ func main() {
 	stationID := envOr("STATION_MAC", "WS-5000")
 	pgDSN := envOr("DATABASE_URL", "postgres://weather:weather@localhost:5432/weather?sslmode=disable")
 	interval := envDuration("SNAPSHOT_INTERVAL", time.Minute)
-	rainEventGap := envDuration("RAIN_EVENT_GAP", time.Hour)
 	elevationM := envFloat("ELEVATION", 0)
 
 	log.SetFlags(log.LstdFlags | log.Lmicroseconds)
@@ -57,7 +56,6 @@ func main() {
 	defer store.Close()
 
 	state := NewSensorState()
-	state.rainEventGap = rainEventGap
 	state.elevationM = elevationM
 
 	// Seed running totals from the most recent DB row so rain/lightning
@@ -67,6 +65,14 @@ func main() {
 	} else {
 		log.Printf("seed: found last record at %s", last.Recorded.Format(time.RFC3339))
 		state.Seed(last, time.Now())
+	}
+	// Rebuild the rolling hourly / rain-rate / 24h window from the last day
+	// of records so those values are right straight after a restart.
+	if rows, err := store.RecentRain(ctx, time.Now().Add(-24*time.Hour)); err != nil {
+		log.Printf("seed: rain history unavailable (%v)", err)
+	} else {
+		state.SeedRainHistory(rows)
+		log.Printf("seed: rain history from %d records", len(rows))
 	}
 
 	// Connect to MQTT and route every message into state.Apply.

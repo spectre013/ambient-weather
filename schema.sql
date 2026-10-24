@@ -104,6 +104,7 @@ CREATE TABLE IF NOT EXISTS public.records
     feelslike real NOT NULL DEFAULT 0.0,
     hourlyrainin real NOT NULL DEFAULT 0.0,
     hourlyrain real NOT NULL DEFAULT 0.0,
+    rainratein real NOT NULL DEFAULT 0.0,
     humidity integer NOT NULL DEFAULT 0,
     humidity1 integer NOT NULL DEFAULT 0,
     humidity2 integer NOT NULL DEFAULT 0,

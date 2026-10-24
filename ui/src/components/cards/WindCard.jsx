@@ -15,7 +15,7 @@ export default function WindCard({ wind, hours, units = "F" }) {
                     <div className="head">{Math.round(showW(wind.windspeedmph, units))}<small>{u}</small></div>
                     <div className="row"><span>Direction</span><span>{dirToCompass(wind.winddir)} · {Math.round(wind.winddir)}°</span></div>
                     <div className="row"><span>Gust</span><span>{showW(wind.windgustmph, units).toFixed(1)} {u}</span></div>
-                    <div className="row"><span>10-min avg</span><span>{showW(wind.windavg, units).toFixed(1)} {u}</span></div>
+                    <div className="row"><span>10-min avg</span><span>{showW(wind.windavg, units).toFixed(1)} {u} · {dirToCompass(wind.winddiravg ?? wind.winddir)}</span></div>
                     <div className="row"><span>Day max</span><span>[{fmtTime(wind.gustminmax.max.day.date)}] {showW(wind.gustminmax.max.day.value, units).toFixed(1)} {u}</span></div>
                 </div>
             </div>

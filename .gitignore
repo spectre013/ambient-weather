@@ -34,3 +34,9 @@ server/ambient-weather
 stats/processor
 receiver/receiver
 server/server
+
+# Local `go build` output (binary named after each module path)
+console_processor/processor
+processor/proccessor
+server/weather
+stats/stats

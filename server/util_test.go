@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"math"
 	"testing"
 	"time"
 )
@@ -115,4 +116,35 @@ func Test_FormatDate(t *testing.T) {
 	have := formatDate(date)
 	want := "2023-02-10 00:00:00 -0700"
 	assert.Equal(t, have, want)
+}
+
+func TestMeanDirection(t *testing.T) {
+	rad := func(d float64) float64 { return d * math.Pi / 180 }
+	vec := func(dirs ...float64) (float64, float64) {
+		var s, c float64
+		for _, d := range dirs {
+			s += math.Sin(rad(d))
+			c += math.Cos(rad(d))
+		}
+		return s, c
+	}
+	tests := []struct {
+		name string
+		dirs []float64
+		want int
+	}{
+		{"across north", []float64{350, 10}, 0},
+		{"east", []float64{80, 100}, 90},
+		{"south-west", []float64{200, 250}, 225},
+		{"north-west", []float64{300, 340}, 320},
+	}
+	for _, tt := range tests {
+		s, c := vec(tt.dirs...)
+		if got := meanDirection(s, c, -1); got != tt.want {
+			t.Errorf("%s: meanDirection = %d, want %d", tt.name, got, tt.want)
+		}
+	}
+	if got := meanDirection(0, 0, 123); got != 123 {
+		t.Errorf("calm: meanDirection = %d, want fallback 123", got)
+	}
 }

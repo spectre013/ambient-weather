@@ -15,7 +15,7 @@ export default function RainCard({ rain, units = "F" }) {
   return (
     <Card label="Precipitation" right={`last rain ${sinceLast}d ago`}>
       <div className="big">{showP(rain.daily,units).toFixed(pDecimals(units))}<span className="unit"> {u} today</span></div>
-      <div className="sub">Last event {showP(rain.event,units).toFixed(pDecimals(units))} {u} · {last.toLocaleDateString("en-US", { month: "short", day: "numeric" })}</div>
+      <div className="sub">Rate {showP(rain.rate ?? 0,units).toFixed(pDecimals(units))} {u}/hr · Last event {showP(rain.event,units).toFixed(pDecimals(units))} {u} · {last.toLocaleDateString("en-US", { month: "short", day: "numeric" })}</div>
       <div className="rain-rows" style={{ marginTop: 12 }}>
         {rows.map(([lbl, v]) => (
           <div key={lbl} className="r">

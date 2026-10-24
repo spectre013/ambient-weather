@@ -28,6 +28,7 @@ type Record struct {
 	Feelslike         float64   `json:"feelslike" db:"feelslike"`
 	Hourlyrainin      float64   `json:"hourlyrainin" db:"hourlyrainin"`
 	Hourlyrain        float64   `json:"hourlyrain" db:"hourlyrain"`
+	Rainratein        float64   `json:"rainratein" db:"rainratein"`
 	Humidity          int       `json:"humidity" db:"humidity"`
 	Humidity1         int       `json:"humidity1" db:"humidity1"`
 	Humidity2         int       `json:"humidity2" db:"humidity2"`

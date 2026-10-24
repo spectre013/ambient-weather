@@ -87,7 +87,6 @@ services:
       STATION_MAC: ${STATION_MAC:-WS-5000}
       ELEVATION: ${ELEVATION:?set ELEVATION in .env}
       SNAPSHOT_INTERVAL: ${SNAPSHOT_INTERVAL:-1m}
-      RAIN_EVENT_GAP: ${RAIN_EVENT_GAP:-1h}
 
   stats:
     <<: *common
