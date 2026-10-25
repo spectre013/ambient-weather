@@ -111,7 +111,19 @@ indexing are managed externally.
   lightning period totals. As real MQTT messages arrive they overwrite the
   seeded values. Rain/lightning period seeds that fall in a previous period
   (e.g. last record was yesterday) are correctly discarded so the new period
-  starts at zero.
+  starts at zero. Seeded readings count as being as old as the row they came
+  from, so they go stale on the normal schedule if a sensor stays silent.
+- A sensor that has not reported for 10 minutes (30 for the WH0290), or has
+  never reported, has its reading columns written as NULL instead of
+  repeating its last value: WS80 → `tempf`, `humidity`, `dewpoint`,
+  `feelslike`, wind, `uv`, `solarradiation`; WH32B → `tempinf`, `humidityin`,
+  `baromabsin`, `baromrelin`; WH31E → `tempNf`, `humidityN`; WH0290 →
+  `aqipm25` (immediately on a "no reading" packet), and `aqipm2524h` once no
+  valid sample is left in the last 24 hours. Batteries, `maxdailygust` (which
+  resets at midnight regardless) and the rain/lightning totals are kept; a
+  silent WH40 or WH31L is only logged. Each sensor going stale and coming
+  back is logged once (`ws80: no data since …, writing NULL`). Requires
+  `migration_sensor_nulls.sql`.
 - The periodic snapshot only writes a row when new sensor data has arrived
   since the previous write. If the MQTT feed stalls (broker down, antenna
   unplugged), the service logs `no new sensor data since last write, skipping

@@ -33,11 +33,11 @@ export default function Compass({ dir, speed, size = 140 }) {
           </text>
         );
       })}
-      <g transform={`rotate(${dir} ${cx} ${cy})`}>
+      {dir != null && <g transform={`rotate(${dir} ${cx} ${cy})`}>
         <line x1={cx} y1={cy} x2={cx} y2={cy - (r - 14)} stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" />
         <polygon points={`${cx - 3},${cy - r + 14} ${cx + 3},${cy - r + 14} ${cx},${cy - r + 6}`} fill="var(--accent)" />
         <line x1={cx} y1={cy} x2={cx} y2={cy + (r - 24)} stroke="var(--ink-2)" strokeWidth="1.4" />
-      </g>
+      </g>}
       <circle cx={cx} cy={cy} r="3" fill="var(--ink)" />
     </svg>
   );

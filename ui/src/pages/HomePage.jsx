@@ -62,13 +62,13 @@ export default function HomePage() {
         <div className="col-7"><WindCard wind={current.wind} hours={todayHours} units={units} /></div>
         <div className="col-5"><PressureCard baro={current.barometer} /></div>
 
-        <div className="col-3"><HumidityCard humidity={current.humidity} /></div>
-        <div className="col-3"><UvCard uv={current.uv} /></div>
-        <div className="col-3"><AqiCard aqi={current.aqi} /></div>
-        <div className="col-3"><LightningCard lightning={current.lightning} /></div>
+        <div className="col-4"><RainCard rain={current.rain} units={units} /></div>
+        <div className="col-4"><HumidityCard humidity={current.humidity} /></div>
+        <div className="col-4"><LightningCard lightning={current.lightning} /></div>
 
-        <div className="col-7"><RainCard rain={current.rain} units={units} /></div>
-        <div className="col-5"><MoonCard astro={current.astro} today={today} /></div>
+        <div className="col-4"><UvCard uv={current.uv} /></div>
+        <div className="col-4"><AqiCard aqi={current.aqi} /></div>
+        <div className="col-4"><MoonCard astro={current.astro} today={today} /></div>
       </div>
       <div className="section-rule" style={{ marginTop: 18 }}>
         <span className="h">§ Remote sensors</span>

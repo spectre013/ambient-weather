@@ -47,6 +47,11 @@ func (s *Store) Insert(ctx context.Context, r Record) error {
 		lightningTime = r.Lightningtime
 	}
 
+	m := r.Missing
+	ws80 := func(v any) any { return orNull(v, m.Outdoor) }
+	wh32b := func(v any) any { return orNull(v, m.Indoor) }
+	ch := func(n int, v any) any { return orNull(v, m.Channel[n]) }
+
 	const sql = `
 INSERT INTO records (
     mac, recorded,
@@ -83,22 +88,31 @@ INSERT INTO records (
 )`
 	_, err := s.pool.Exec(ctx, sql,
 		r.Mac, r.Recorded,
-		r.Baromabsin, r.Baromrelin, r.Battout,
+		wh32b(r.Baromabsin), wh32b(r.Baromrelin), r.Battout,
 		r.Batt1, r.Batt2, r.Batt3, r.Batt4, r.Batt5, r.Batt6, r.Batt7, r.Batt8, r.Batt9, r.Batt10,
 		r.Battlightning, r.Co2,
-		r.Dailyrainin, r.Dewpoint, r.Eventrainin, r.Feelslike,
-		r.Hourlyrainin, r.Hourlyrain, r.Humidity,
-		r.Humidity1, r.Humidity2, r.Humidity3, r.Humidity4, r.Humidity5,
-		r.Humidity6, r.Humidity7, r.Humidity8, r.Humidity9, r.Humidity10,
-		r.Humidityin, lastRain, r.Maxdailygust,
-		r.Monthlyrainin, r.Solarradiation,
-		r.Tempf, r.Temp1f, r.Temp2f, r.Temp3f, r.Temp4f, r.Temp5f, r.Temp6f, r.Temp7f, r.Temp8f, r.Temp9f, r.Temp10f,
-		r.Tempinf, r.Totalrainin, r.Uv, r.Weeklyrainin,
-		r.Winddir, r.Windgustmph, r.Windgustdir, r.Windspeedmph, r.Yearlyrainin,
+		r.Dailyrainin, ws80(r.Dewpoint), r.Eventrainin, ws80(r.Feelslike),
+		r.Hourlyrainin, r.Hourlyrain, ws80(r.Humidity),
+		ch(1, r.Humidity1), ch(2, r.Humidity2), ch(3, r.Humidity3), ch(4, r.Humidity4), ch(5, r.Humidity5),
+		ch(6, r.Humidity6), ch(7, r.Humidity7), ch(8, r.Humidity8), ch(9, r.Humidity9), ch(10, r.Humidity10),
+		wh32b(r.Humidityin), lastRain, r.Maxdailygust,
+		r.Monthlyrainin, ws80(r.Solarradiation),
+		ws80(r.Tempf), ch(1, r.Temp1f), ch(2, r.Temp2f), ch(3, r.Temp3f), ch(4, r.Temp4f), ch(5, r.Temp5f),
+		ch(6, r.Temp6f), ch(7, r.Temp7f), ch(8, r.Temp8f), ch(9, r.Temp9f), ch(10, r.Temp10f),
+		wh32b(r.Tempinf), r.Totalrainin, ws80(r.Uv), r.Weeklyrainin,
+		ws80(r.Winddir), ws80(r.Windgustmph), ws80(r.Windgustdir), ws80(r.Windspeedmph), r.Yearlyrainin,
 		r.Lightningday, r.Lightninghour, r.Lightningdistance, lightningTime, r.LightningMonth,
-		r.Aqipm25, r.Aqipm2524h, r.Rainratein,
+		orNull(r.Aqipm25, m.AQ), orNull(r.Aqipm2524h, m.AQ24), r.Rainratein,
 	)
 	return err
+}
+
+// orNull returns nil (SQL NULL) when missing is set, otherwise v.
+func orNull(v any, missing bool) any {
+	if missing {
+		return nil
+	}
+	return v
 }
 
 // LatestRecord returns the most recent row, used at startup to recover the
@@ -106,22 +120,24 @@ INSERT INTO records (
 // snapshots taken before each sensor has reported still produce sensible rows.
 // Returns the error from pgx (pgx.ErrNoRows if the table is empty).
 func (s *Store) LatestRecord(ctx context.Context) (*Record, error) {
+	// Sensor columns are NULL while their sensor was silent; read those as
+	// 0, which Seed already treats as "nothing to carry over".
 	const sql = `
 SELECT recorded,
-       baromabsin, baromrelin, battout,
+       COALESCE(baromabsin, 0), COALESCE(baromrelin, 0), battout,
        batt1, batt2, batt3, batt4, batt5, batt6, batt7, batt8, batt9, batt10,
        battlightning, co2,
-       dailyrainin, dewpoint, eventrainin, feelslike,
-       hourlyrainin, hourlyrain, humidity,
-       humidity1, humidity2, humidity3, humidity4, humidity5,
-       humidity6, humidity7, humidity8, humidity9, humidity10,
-       humidityin, lastrain, maxdailygust,
-       monthlyrainin, solarradiation,
-       tempf, temp1f, temp2f, temp3f, temp4f, temp5f, temp6f, temp7f, temp8f, temp9f, temp10f,
-       tempinf, totalrainin, uv, weeklyrainin,
-       winddir, windgustmph, windgustdir, windspeedmph, yearlyrainin,
+       dailyrainin, COALESCE(dewpoint, 0), eventrainin, COALESCE(feelslike, 0),
+       hourlyrainin, hourlyrain, COALESCE(humidity, 0),
+       COALESCE(humidity1, 0), COALESCE(humidity2, 0), COALESCE(humidity3, 0), COALESCE(humidity4, 0), COALESCE(humidity5, 0),
+       COALESCE(humidity6, 0), COALESCE(humidity7, 0), COALESCE(humidity8, 0), COALESCE(humidity9, 0), COALESCE(humidity10, 0),
+       COALESCE(humidityin, 0), lastrain, maxdailygust,
+       monthlyrainin, COALESCE(solarradiation, 0),
+       COALESCE(tempf, 0), COALESCE(temp1f, 0), COALESCE(temp2f, 0), COALESCE(temp3f, 0), COALESCE(temp4f, 0), COALESCE(temp5f, 0), COALESCE(temp6f, 0), COALESCE(temp7f, 0), COALESCE(temp8f, 0), COALESCE(temp9f, 0), COALESCE(temp10f, 0),
+       COALESCE(tempinf, 0), totalrainin, COALESCE(uv, 0), weeklyrainin,
+       COALESCE(winddir, 0), COALESCE(windgustmph, 0), COALESCE(windgustdir, 0), COALESCE(windspeedmph, 0), yearlyrainin,
        lightningday, lightninghour, lightningdistance, lightningtime, lightningmonth,
-       aqipm25, aqipm2524h
+       COALESCE(aqipm25, 0), COALESCE(aqipm2524h, 0)
 FROM records
 ORDER BY recorded DESC
 LIMIT 1`

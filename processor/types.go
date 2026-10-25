@@ -82,6 +82,20 @@ type Record struct {
 	LightningMonth    int       `json:"lightningmonth" db:"lightningmonth"`
 	Aqipm25           int       `json:"aqipm25" db:"aqi"`
 	Aqipm2524h        int       `json:"aqipm2524h" db:"aqi24"`
+
+	// Missing marks the sensors whose columns are written as NULL because
+	// they have not reported recently (or at all). Their fields above are
+	// left at zero and must not be read as readings.
+	Missing Missing `json:"-" db:"-"`
+}
+
+// Missing records which sensors' readings are absent from a Record.
+type Missing struct {
+	Outdoor bool     // WS80: tempf, humidity, dewpoint, feelslike, wind, uv, solar
+	Indoor  bool     // WH32B: tempinf, humidityin, baromabsin, baromrelin
+	Channel [11]bool // WH31E channel 1..10: tempNf, humidityN
+	AQ      bool     // WH0290: aqipm25
+	AQ24    bool     // aqipm2524h
 }
 
 // SensorMessage is a loosely-typed view of every incoming JSON message.

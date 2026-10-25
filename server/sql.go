@@ -185,10 +185,13 @@ func chartQuery(timeframe, sensor string) (string, bool) {
 		interval = "1 hour"
 	}
 
-	q := fmt.Sprintf(`SELECT recorded AS ts, %s as value
+	// NULL rows (sensor not reporting) are left out, so the chart shows a
+	// gap rather than dropping to zero.
+	q := fmt.Sprintf(`SELECT recorded AS ts, %[1]s as value
 		FROM records
-		WHERE recorded >= NOW() - interval '%s'
+		WHERE recorded >= NOW() - interval '%[2]s'
 		  AND recorded <= NOW()
+		  AND %[1]s IS NOT NULL
 		ORDER BY ts ASC`, sensor, interval)
 	return q, true
 }
@@ -304,6 +307,7 @@ func getHistory(ctx context.Context) (HistoryResponse, error) {
 					windspeedmph AS windspeed
 				FROM records
 				WHERE recorded >= $2 AND recorded < $3
+				  AND tempf IS NOT NULL -- WS80 not reporting
 				ORDER BY
 					date_trunc('hour', recorded AT TIME ZONE $1),
 					ABS(EXTRACT(EPOCH FROM (
@@ -369,6 +373,7 @@ func getLatestPoint(ctx context.Context) (*LatestPoint, error) {
 	const q = `
 		SELECT recorded, tempf
 		FROM records
+		WHERE tempf IS NOT NULL
 		ORDER BY recorded DESC
 		LIMIT 1`
 	var lp LatestPoint

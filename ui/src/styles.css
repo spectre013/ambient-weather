@@ -690,6 +690,8 @@ button { font: inherit; color: inherit; }
 .col-8 { grid-column: span 8; }
 .col-9 { grid-column: span 9; }
 .col-12 { grid-column: span 12; }
+/* Cards fill their grid cell so every card in a row is the same height. */
+.grid > [class*="col-"] > .card { height: 100%; }
 
 .metric {
   display: flex; flex-direction: column; gap: 6px;
@@ -1036,7 +1038,7 @@ button { font: inherit; color: inherit; }
 
   .grid { grid-template-columns: repeat(6, 1fr); }
   .col-3 { grid-column: span 3; }
-  .col-4 { grid-column: span 6; }
+  .col-4 { grid-column: span 2; }
   .col-5 { grid-column: span 6; }
   .col-7 { grid-column: span 6; }
   .col-8, .col-9, .col-12 { grid-column: span 6; }

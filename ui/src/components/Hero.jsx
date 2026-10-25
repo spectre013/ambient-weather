@@ -31,16 +31,16 @@ export default function Hero({ current, forecast, units }) {
         <div className="tempblock">
           <div>
             <div className="stack">
-              <span className="num">{Math.round(showT(t, units))}</span>
+              <span className="num">{fmtOr(t, (v) => Math.round(showT(v, units)))}</span>
               <span className="deg">{tUnit(units)}</span>
             </div>
-            <div className="cond">{conditions}<br/>feels like {Math.round(showT(feels, units))}{tUnit(units)}</div>
+            <div className="cond">{conditions}<br/>feels like {fmtOr(feels, (v) => Math.round(showT(v, units)))}{tUnit(units)}</div>
           </div>
           <div className="row">
             <div className="kv"><span className="k">High today</span><span className="v">{fmtOr(aHi, (v) => Math.round(showT(v, units)))}{tUnit(units)}</span></div>
             <div className="kv"><span className="k">Low today</span><span className="v">{fmtOr(aLo, (v) => Math.round(showT(v, units)))}{tUnit(units)}</span></div>
-            <div className="kv"><span className="k">Dew point</span><span className="v">{Math.round(showT(current.temp.dewpoint, units))}{tUnit(units)}</span></div>
-            <div className="kv"><span className="k">Humidity</span><span className="v">{current.humidity.humidity}%</span></div>
+            <div className="kv"><span className="k">Dew point</span><span className="v">{fmtOr(current.temp.dewpoint, (v) => Math.round(showT(v, units)))}{tUnit(units)}</span></div>
+            <div className="kv"><span className="k">Humidity</span><span className="v">{fmtOr(current.humidity.humidity)}%</span></div>
           </div>
         </div>
         <div className="iconbox">

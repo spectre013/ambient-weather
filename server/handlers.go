@@ -141,7 +141,10 @@ func trend(t string) Trend {
 
 	now := time.Now()
 
-	currentQuery := fmt.Sprintf("select recorded, %s from records order by recorded desc limit 1", t)
+	// NULL rows are times the sensor was not reporting; skip them and let
+	// the staleness check below decide whether the latest reading is usable.
+	currentQuery := fmt.Sprintf(
+		"select recorded, %[1]s from records where %[1]s is not null order by recorded desc limit 1", t)
 	logger.Debug(currentQuery)
 	var curAt time.Time
 	var cur float64
@@ -154,7 +157,7 @@ func trend(t string) Trend {
 	}
 
 	pastQuery := fmt.Sprintf(
-		"select %s from records where recorded BETWEEN $1 AND $2 order by recorded desc limit 1", t)
+		"select %[1]s from records where recorded BETWEEN $1 AND $2 and %[1]s is not null order by recorded desc limit 1", t)
 	logger.Debug(pastQuery)
 	at := curAt.Add(-trendWindow)
 	var past float64
@@ -369,28 +372,44 @@ func alltime(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, rt)
 }
 
-func wind(timeFrame string) float64 {
+// wind returns the average wind speed over the time frame, or nil when the
+// frame holds no WS80 readings.
+func wind(timeFrame string) *float64 {
 	avgSpeedQ := fmt.Sprintf("SELECT ROUND(AVG(windspeedmph)::numeric, 2) AS value FROM records WHERE recorded >= NOW() - INTERVAL '%s'", timeFrame)
 
 	var avg sql.NullFloat64
 	if err := db.QueryRow(avgSpeedQ).Scan(&avg); err != nil && err != sql.ErrNoRows {
 		sqlError("wind", err, avgSpeedQ)
 	}
-
-	return avg.Float64
+	if !avg.Valid {
+		return nil
+	}
+	return &avg.Float64
 }
 
 // windDir returns the speed-weighted mean wind direction (0-359°) over the
 // time frame, averaged as vectors so 350° and 10° give 0°, not 180°. With no
-// wind in the frame it returns fallback (the current direction).
-func windDir(timeFrame string, fallback int) int {
+// wind in the frame it returns fallback (the current direction), and nil
+// when there is neither.
+func windDir(timeFrame string, fallback *int) *int {
 	dirQ := fmt.Sprintf("SELECT SUM(windspeedmph * SIN(RADIANS(winddir))), SUM(windspeedmph * COS(RADIANS(winddir))) FROM records WHERE recorded >= NOW() - INTERVAL '%s'", timeFrame)
 
 	var x, y sql.NullFloat64
 	if err := db.QueryRow(dirQ).Scan(&x, &y); err != nil && err != sql.ErrNoRows {
 		sqlError("windDir", err, dirQ)
 	}
-	return meanDirection(x.Float64, y.Float64, fallback)
+	if !x.Valid || !y.Valid {
+		return fallback
+	}
+	fb := -1
+	if fallback != nil {
+		fb = *fallback
+	}
+	d := meanDirection(x.Float64, y.Float64, fb)
+	if d < 0 {
+		return nil
+	}
+	return &d
 }
 
 // meanDirection converts summed sin/cos components to a compass bearing.

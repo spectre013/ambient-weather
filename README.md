@@ -100,7 +100,8 @@ Apply any that exist (each is idempotent), then re-dump `schema.sql` from the
 database and delete the migration file:
 
 ```bash
-psql -U ambient -d ambient -f migration_rainratein.sql   # records.rainratein
+psql -U ambient -d ambient -f migration_rainratein.sql    # records.rainratein
+psql -U ambient -d ambient -f migration_sensor_nulls.sql  # NULL for silent sensors
 ```
 
 Run a migration before deploying the service version that writes the new

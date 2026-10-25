@@ -1,21 +1,23 @@
 import React from "react";
-import { showT, tUnit, dirToCompass, showW, wUnit, showP, pUnit, pDecimals } from "../utils/format";
+import { showT, tUnit, dirToCompass, showW, wUnit, showP, pUnit, pDecimals, fmtOr } from "../utils/format";
 
 export default function QuickStats({ current, today, units }) {
+  // Readings are null while their sensor is not reporting.
   const w = current.wind;
+  const uv = current.uv.uv;
   const items = [
-    { lbl: "Wind", v: Math.round(showW(w.windspeedmph, units)), unit: wUnit(units),
-      sub: `${dirToCompass(w.winddir)} · gust ${Math.round(showW(w.windgustmph, units))} ${wUnit(units)}` },
-    { lbl: "Pressure", v: current.barometer.baromrelin.toFixed(2), unit: "inHg",
-      sub: current.barometer.trend.trend },
-    { lbl: "Humidity", v: current.humidity.humidity, unit: "%",
-      sub: `dew ${Math.round(showT(current.humidity.dewpoint, units))}${tUnit(units)}` },
-    { lbl: "UV", v: current.uv.uv, unit: "",
-      sub: current.uv.uv < 3 ? "Low" : current.uv.uv < 6 ? "Moderate" : current.uv.uv < 8 ? "High" : "Very high" },
+    { lbl: "Wind", v: fmtOr(w.windspeedmph, (v) => Math.round(showW(v, units))), unit: wUnit(units),
+      sub: `${fmtOr(w.winddir, dirToCompass)} · gust ${fmtOr(w.windgustmph, (v) => Math.round(showW(v, units)))} ${wUnit(units)}` },
+    { lbl: "Pressure", v: fmtOr(current.barometer.baromrelin, (v) => v.toFixed(2)), unit: "inHg",
+      sub: current.barometer.trend?.trend || "" },
+    { lbl: "Humidity", v: fmtOr(current.humidity.humidity), unit: "%",
+      sub: `dew ${fmtOr(current.humidity.dewpoint, (v) => Math.round(showT(v, units)))}${tUnit(units)}` },
+    { lbl: "UV", v: fmtOr(uv), unit: "",
+      sub: uv == null ? "" : uv < 3 ? "Low" : uv < 6 ? "Moderate" : uv < 8 ? "High" : "Very high" },
     { lbl: "Precip", v: showP(current.rain.daily,units).toFixed(pDecimals(units)), unit: pUnit(units),
       sub: `${today.precipprob || 0}% chance today` },
-    { lbl: "Air", v: current.aqi.pm25.toFixed(2), unit: "µg",
-      sub: current.aqi.pm25 < 12 ? "Good" : current.aqi.pm25 < 35 ? "Moderate" : "Unhealthy" },
+    { lbl: "Air", v: fmtOr(current.aqi.pm25, (v) => v.toFixed(2)), unit: "µg",
+      sub: current.aqi.pm25 == null ? "" : current.aqi.pm25 < 12 ? "Good" : current.aqi.pm25 < 35 ? "Moderate" : "Unhealthy" },
   ];
   return (
     <div className="card quick-card">

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import WeatherIcon from "./WeatherIcon";
+import { tempRangeGradient } from "../utils/tempColor";
 import {
   showT, showW, showP, wUnit, pUnit, pDecimals,
   dirToCompass, dayName, dayDate, fmtTime,
@@ -9,14 +10,11 @@ export default function DailyList({ days, units }) {
   const list = days.slice(0, 14);
   const allMin = Math.min(...list.map((d) => d.tempmin));
   const allMax = Math.max(...list.map((d) => d.tempmax));
-  const span = allMax - allMin || 1;
   const [openIdx, setOpenIdx] = useState(null);
 
   return (
       <div className="daily">
         {list.map((d, i) => {
-          const lo = (d.tempmin - allMin) / span;
-          const hi = (d.tempmax - allMin) / span;
           const dn = dayName(d.datetimeEpoch);
           const label = i === 0 ? "Today" : i === 1 ? "Tomorrow"
               : dn.charAt(0) + dn.slice(1).toLowerCase();
@@ -49,12 +47,7 @@ export default function DailyList({ days, units }) {
                   <div className="range">
                     <span className="min">{Math.round(showT(d.tempmin, units))}°</span>
                     <div className="bar" style={{
-                      background: `linear-gradient(to right,
-                    var(--rule-2) 0%, var(--rule-2) ${lo * 100}%,
-                    var(--cool) ${lo * 100}%,
-                    color-mix(in oklch, var(--cool) 50%, var(--warm)) ${((lo + hi) / 2) * 100}%,
-                    var(--warm) ${hi * 100}%,
-                    var(--rule-2) ${hi * 100}%, var(--rule-2) 100%)`
+                      background: tempRangeGradient(d.tempmin, d.tempmax, allMin, allMax, "var(--rule-2)"),
                     }} />
                     <span className="max">{Math.round(showT(d.tempmax, units))}°</span>
                   </div>

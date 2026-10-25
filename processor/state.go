@@ -38,6 +38,15 @@ const (
 	wh32BMaxDeltaHPa = 1.0
 )
 
+// A sensor that has not been heard from for its stale period has its columns
+// written as NULL rather than repeating its last reading. The WS80 sends
+// every ~5 s and the WH32B, WH31E, WH40 and WH31L about once a minute, so 10
+// minutes is several missed packets; the WH0290 reports far less often.
+const (
+	sensorStaleAfter = 10 * time.Minute
+	aqStaleAfter     = 30 * time.Minute
+)
+
 // pm25History keeps a sliding window of PM2.5 readings so we can compute a 24h AQI.
 type pm25Sample struct {
 	t  time.Time
@@ -107,6 +116,7 @@ type SensorState struct {
 	lightLux        float64
 	ws80BatteryMV   float64
 	ws80HaveData    bool
+	ws80Seen        time.Time
 
 	// Indoor WH32B
 	indoorTempC    float64
@@ -114,6 +124,7 @@ type SensorState struct {
 	pressureHPa    float64
 	wh32BBattery   int
 	wh32BHaveData  bool
+	wh32BSeen      time.Time
 	// wh32BPrev is the previous WH32B packet, for the console's glitch
 	// filter; it is updated on every packet, accepted or not.
 	wh32BPrev     wh32BReading
@@ -124,6 +135,7 @@ type SensorState struct {
 	channelHumidity [11]int
 	channelBattery  [11]int
 	channelHave     [11]bool
+	channelSeen     [11]time.Time
 
 	// Air quality
 	pm25         float64
@@ -131,6 +143,9 @@ type SensorState struct {
 	pm25History  []pm25Sample
 	aqHaveData   bool
 	aqBatteryRaw float64
+	// aqSeen is the time of the last valid PM reading; a "no reading"
+	// packet clears it so the columns go NULL straight away.
+	aqSeen time.Time
 
 	// Rain (from EcoWitt-WH40)
 	totalRainMM     float64
@@ -142,6 +157,11 @@ type SensorState struct {
 	totalStrikesHave bool
 	lightningBattery float64
 	lightning        lightningTotals
+	wh31LSeen        time.Time
+
+	// stale holds the sensors currently logged as stale, so going stale and
+	// coming back are each logged once.
+	stale map[string]bool
 
 	// Seeded values from the most recent DB record. These describe how much
 	// rain/lightning has *already* accumulated in the current period before
@@ -214,6 +234,9 @@ func (s *SensorState) Seed(last *Record, now time.Time) {
 			s.ws80BatteryMV = 3000 // good-enough placeholder; live msg will overwrite
 		}
 		s.ws80HaveData = true
+		// Seeded readings are as fresh as the row they came from, so they
+		// go stale on schedule if the sensor stays silent after a restart.
+		s.ws80Seen = last.Recorded
 	}
 
 	// Indoor barometer (WH32B).
@@ -223,6 +246,7 @@ func (s *SensorState) Seed(last *Record, now time.Time) {
 		s.pressureHPa = last.Baromabsin / 0.02953
 		s.wh32BBattery = 1
 		s.wh32BHaveData = true
+		s.wh32BSeen = last.Recorded
 	}
 
 	// WH31E channels — temp/humidity per channel.
@@ -252,6 +276,7 @@ func (s *SensorState) Seed(last *Record, now time.Time) {
 		s.channelHumidity[c.idx] = c.hum
 		s.channelBattery[c.idx] = c.batt
 		s.channelHave[c.idx] = true
+		s.channelSeen[c.idx] = last.Recorded
 	}
 
 	// Air quality (WH0290). We don't store raw pm2_5 in the DB, only AQI, so
@@ -261,6 +286,7 @@ func (s *SensorState) Seed(last *Record, now time.Time) {
 		s.seedAQIPM25 = last.Aqipm25
 		s.seedAQIPM2524h = last.Aqipm2524h
 		s.seededAQ = true
+		s.aqSeen = last.Recorded
 	}
 
 	// --- Rain period seeds ----------------------------------------------------
@@ -426,6 +452,7 @@ func (s *SensorState) Apply(m *SensorMessage, now time.Time) {
 			s.ws80BatteryMV = *m.BatteryMV
 		}
 		s.ws80HaveData = true
+		s.ws80Seen = now
 
 	case "Fineoffset-WH32B":
 		// rtl_433 checks WH32B packets with an 8-bit sum only, so corrupt
@@ -454,6 +481,7 @@ func (s *SensorState) Apply(m *SensorMessage, now time.Time) {
 			s.wh32BBattery = int(*m.BatteryOK)
 		}
 		s.wh32BHaveData = true
+		s.wh32BSeen = now
 
 	case "AmbientWeather-WH31E":
 		if m.Channel == nil {
@@ -473,13 +501,14 @@ func (s *SensorState) Apply(m *SensorMessage, now time.Time) {
 			s.channelBattery[ch] = int(*m.BatteryOK)
 		}
 		s.channelHave[ch] = true
+		s.channelSeen[ch] = now
 
 	case "Fineoffset-WH0290":
 		// A raw PM value of 0x3fff is the sensor's "no reading" marker (the
 		// console firmware treats it as invalid); rtl_433 divides by 10 and
 		// reports it as 1638. The sensor also sends it once its battery drops
-		// below ~0.3 — treat either case as "no signal" and force the database
-		// row to 0 rather than polluting the history.
+		// below ~0.3 — treat either case as "no signal" and write NULL rather
+		// than polluting the history.
 		batteryLow := m.BatteryOK != nil && *m.BatteryOK < 0.3
 		noReading := m.PM25 != nil && *m.PM25 == pmNoReading
 		if m.BatteryOK != nil {
@@ -488,24 +517,14 @@ func (s *SensorState) Apply(m *SensorMessage, now time.Time) {
 		if batteryLow || noReading {
 			s.pm25 = 0
 			s.pm10 = 0
-			// Don't append the bogus reading to the 24h rolling buffer, but
-			// do trim out any genuinely old samples so aqi24 ages out cleanly.
-			cutoff := now.Add(-24 * time.Hour)
-			i := 0
-			for i < len(s.pm25History) && s.pm25History[i].t.Before(cutoff) {
-				i++
-			}
-			s.pm25History = s.pm25History[i:]
+			// Don't append the bogus reading to the 24h rolling buffer, and
+			// mark the current reading as absent.
+			s.aqSeen = time.Time{}
 		} else {
 			if m.PM25 != nil {
 				s.pm25 = *m.PM25
 				s.pm25History = append(s.pm25History, pm25Sample{t: now, pm: *m.PM25})
-				cutoff := now.Add(-24 * time.Hour)
-				i := 0
-				for i < len(s.pm25History) && s.pm25History[i].t.Before(cutoff) {
-					i++
-				}
-				s.pm25History = s.pm25History[i:]
+				s.aqSeen = now
 			}
 			if m.PM10 != nil {
 				s.pm10 = *m.PM10
@@ -526,6 +545,7 @@ func (s *SensorState) Apply(m *SensorMessage, now time.Time) {
 		if m.BatteryOK != nil {
 			s.lightningBattery = *m.BatteryOK
 		}
+		s.wh31LSeen = now
 		if m.StrikeCount != nil {
 			s.applyLightning(*m.StrikeCount, m.StormDistance, m.State, now)
 		}
@@ -700,29 +720,49 @@ func (s *SensorState) Snapshot(mac string, now time.Time) Record {
 	r.Mac = mac
 	r.Recorded = now
 
-	// Outdoor temperature / humidity / wind.
+	fresh := func(name string, have bool, seen time.Time, after time.Duration) bool {
+		ok := have && !seen.IsZero() && now.Sub(seen) <= after
+		s.noteStale(name, have && !ok, seen, "writing NULL")
+		return ok
+	}
+	outdoorOK := fresh("ws80", s.ws80HaveData, s.ws80Seen, sensorStaleAfter)
+	indoorOK := fresh("wh32b", s.wh32BHaveData, s.wh32BSeen, sensorStaleAfter)
+
+	// Today's max gust is a running total, not a reading: it stays valid
+	// while the WS80 is silent, and starts again at midnight even if no
+	// WS80 packet arrives to reset it.
+	if today := startOfDay(now); !s.maxGustDay.Equal(today) {
+		s.maxDailyGustMS = 0
+		s.maxGustDay = today
+	}
 	if s.ws80HaveData {
-		r.Tempf = round1(cToF(s.outdoorTempC))
-		r.Humidity = s.outdoorHumidity
-		r.Winddir = s.windDirDeg
-		r.Windspeedmph = round1(msToMph(s.windAvgMS))
-		r.Windgustmph = round1(msToMph(s.windMaxMS))
-		r.Windgustdir = s.windGustDir
 		r.Maxdailygust = round1(msToMph(s.maxDailyGustMS))
-		r.Uv = s.uvi
-		r.Solarradiation = round2(luxToWm2(s.lightLux))
 		// 1.5V alkaline cell: 1=good, 0=low. Use 1 if reading > 1.0V.
 		if s.ws80BatteryMV >= 2400 {
 			r.Battout = 1
 		} else {
 			r.Battout = 0
 		}
+	}
+
+	// Outdoor temperature / humidity / wind.
+	r.Missing.Outdoor = !outdoorOK
+	if outdoorOK {
+		r.Tempf = round1(cToF(s.outdoorTempC))
+		r.Humidity = s.outdoorHumidity
+		r.Winddir = s.windDirDeg
+		r.Windspeedmph = round1(msToMph(s.windAvgMS))
+		r.Windgustmph = round1(msToMph(s.windMaxMS))
+		r.Windgustdir = s.windGustDir
+		r.Uv = s.uvi
+		r.Solarradiation = round2(luxToWm2(s.lightLux))
 		r.Feelslike = round1(feelsLikeF(r.Tempf, float64(r.Humidity), r.Windspeedmph))
 		r.Dewpoint = round1(dewPointF(r.Tempf, float64(r.Humidity)))
 	}
 
 	// Indoor barometer.
-	if s.wh32BHaveData {
+	r.Missing.Indoor = !indoorOK
+	if indoorOK {
 		r.Tempinf = round1(cToF(s.indoorTempC))
 		r.Humidityin = s.indoorHumidity
 		r.Baromabsin = round3(hpaToInHg(s.pressureHPa))
@@ -731,7 +771,7 @@ func (s *SensorState) Snapshot(mac string, now time.Time) Record {
 		// outdoor sensor hasn't reported yet, fall back to ICAO standard temp
 		// (15°C). If no elevation is configured, relative == absolute.
 		outdoorC := s.outdoorTempC
-		if !s.ws80HaveData {
+		if !outdoorOK {
 			outdoorC = 15.0
 		}
 		r.Baromrelin = round3(hpaToInHg(
@@ -739,34 +779,31 @@ func (s *SensorState) Snapshot(mac string, now time.Time) Record {
 	}
 
 	// WH31E channels. Channel 1 = basement -> temp1f/humidity1/batt1, etc.
-	if s.channelHave[1] {
-		r.Temp1f = round1(cToF(s.channelTempC[1]))
-		r.Humidity1 = s.channelHumidity[1]
-		r.Batt1 = s.channelBattery[1]
-	}
-	if s.channelHave[2] {
-		r.Temp2f = round1(cToF(s.channelTempC[2]))
-		r.Humidity2 = s.channelHumidity[2]
-		r.Batt2 = s.channelBattery[2]
-	}
-	if s.channelHave[3] {
-		r.Temp3f = round1(cToF(s.channelTempC[3]))
-		r.Humidity3 = s.channelHumidity[3]
-		r.Batt3 = s.channelBattery[3]
-	}
-	if s.channelHave[4] {
-		r.Temp4f = round1(cToF(s.channelTempC[4]))
-		r.Humidity4 = s.channelHumidity[4]
-		r.Batt4 = s.channelBattery[4]
-	}
-	for ch := 5; ch <= 10; ch++ {
+	// The battery flag is the last one reported and is kept while the
+	// channel is silent; temperature and humidity go NULL.
+	for ch := 1; ch <= 10; ch++ {
 		if !s.channelHave[ch] {
+			r.Missing.Channel[ch] = true
 			continue
 		}
-		f := round1(cToF(s.channelTempC[ch]))
-		h := s.channelHumidity[ch]
+		ok := fresh(fmt.Sprintf("wh31e ch%d", ch), true, s.channelSeen[ch], sensorStaleAfter)
+		r.Missing.Channel[ch] = !ok
+		var f float64
+		var h int
+		if ok {
+			f = round1(cToF(s.channelTempC[ch]))
+			h = s.channelHumidity[ch]
+		}
 		b := s.channelBattery[ch]
 		switch ch {
+		case 1:
+			r.Temp1f, r.Humidity1, r.Batt1 = f, h, b
+		case 2:
+			r.Temp2f, r.Humidity2, r.Batt2 = f, h, b
+		case 3:
+			r.Temp3f, r.Humidity3, r.Batt3 = f, h, b
+		case 4:
+			r.Temp4f, r.Humidity4, r.Batt4 = f, h, b
 		case 5:
 			r.Temp5f, r.Humidity5, r.Batt5 = f, h, b
 		case 6:
@@ -781,6 +818,14 @@ func (s *SensorState) Snapshot(mac string, now time.Time) Record {
 			r.Temp10f, r.Humidity10, r.Batt10 = f, h, b
 		}
 	}
+
+	// Rain and lightning totals stay valid while their sensors are silent
+	// (no tips or strikes are being counted), so they are only logged.
+	quiet := func(name string, seen time.Time) {
+		s.noteStale(name, !seen.IsZero() && now.Sub(seen) > sensorStaleAfter, seen, "totals held")
+	}
+	quiet("wh40", s.rain.lastMsg)
+	quiet("wh31l", s.wh31LSeen)
 
 	// Rain aggregations. Before the first WH40 message of this run the
 	// totals are the seeded carry-over, which rolls over the same way.
@@ -833,23 +878,36 @@ func (s *SensorState) Snapshot(mac string, now time.Time) Record {
 		r.Lightningdistance = round1(kmToMi(s.lightning.lastDistanceKM))
 	}
 
-	// Air quality.
-	if s.aqHaveData {
-		r.Aqipm25 = aqiFromPM25(s.pm25)
-		// 24-hour average AQI.
+	// Air quality. The current AQI needs a recent valid reading; the 24h
+	// average uses whatever valid samples the last 24 hours hold.
+	cutoff := now.Add(-24 * time.Hour)
+	i := 0
+	for i < len(s.pm25History) && s.pm25History[i].t.Before(cutoff) {
+		i++
+	}
+	s.pm25History = s.pm25History[i:]
+	aqOK := fresh("wh0290", s.aqHaveData || s.seededAQ, s.aqSeen, aqStaleAfter)
+	r.Missing.AQ = !aqOK
+	r.Missing.AQ24 = true
+	switch {
+	case s.aqHaveData:
+		if aqOK {
+			r.Aqipm25 = aqiFromPM25(s.pm25)
+		}
 		if len(s.pm25History) > 0 {
 			var sum float64
 			for _, p := range s.pm25History {
 				sum += p.pm
 			}
-			avg := sum / float64(len(s.pm25History))
-			r.Aqipm2524h = aqiFromPM25(avg)
-		} else {
-			r.Aqipm2524h = r.Aqipm25
+			r.Aqipm2524h = aqiFromPM25(sum / float64(len(s.pm25History)))
+			r.Missing.AQ24 = false
 		}
-	} else if s.seededAQ {
+	case s.seededAQ && aqOK:
+		// No WH0290 message yet this run: carry the last row's values
+		// while they are still recent.
 		r.Aqipm25 = s.seedAQIPM25
 		r.Aqipm2524h = s.seedAQIPM2524h
+		r.Missing.AQ24 = false
 	}
 
 	// Snapshot consumes the dirty flag — anyone calling Snapshot is committing
@@ -874,6 +932,26 @@ func (s *SensorState) TrySnapshot(mac string, now time.Time) (Record, bool) {
 	}
 	_ = last // available for callers that want to log staleness in future
 	return s.Snapshot(mac, now), true
+}
+
+// noteStale logs a sensor going stale and coming back, once each. Caller
+// holds s.mu.
+func (s *SensorState) noteStale(name string, stale bool, seen time.Time, action string) {
+	if s.stale == nil {
+		s.stale = make(map[string]bool)
+	}
+	switch {
+	case stale && !s.stale[name]:
+		s.stale[name] = true
+		if seen.IsZero() {
+			log.Printf("%s: no valid reading, %s", name, action)
+		} else {
+			log.Printf("%s: no data since %s, %s", name, seen.Format(time.RFC3339), action)
+		}
+	case !stale && s.stale[name]:
+		delete(s.stale, name)
+		log.Printf("%s: reporting again", name)
+	}
 }
 
 // math.Round rounds half away from zero, so negative values (sub-zero

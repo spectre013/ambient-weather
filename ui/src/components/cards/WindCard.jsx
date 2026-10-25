@@ -12,12 +12,12 @@ export default function WindCard({ wind, hours, units = "F" }) {
     return (
         <Card label="Wind" right={`gust ${fmtOr(dayGust, (v) => showW(v, units).toFixed(0))} ${u} today`}>
             <div className="compass-wrap">
-                <Compass dir={wind.winddir} speed={wind.windspeedmph} />
+                <Compass dir={wind.winddir ?? wind.winddiravg} speed={wind.windspeedmph} />
                 <div className="compass-readout">
-                    <div className="head">{Math.round(showW(wind.windspeedmph, units))}<small>{u}</small></div>
-                    <div className="row"><span>Direction</span><span>{dirToCompass(wind.winddir)} · {Math.round(wind.winddir)}°</span></div>
-                    <div className="row"><span>Gust</span><span>{showW(wind.windgustmph, units).toFixed(1)} {u}</span></div>
-                    <div className="row"><span>10-min avg</span><span>{showW(wind.windavg, units).toFixed(1)} {u} · {dirToCompass(wind.winddiravg ?? wind.winddir)}</span></div>
+                    <div className="head">{fmtOr(wind.windspeedmph, (v) => Math.round(showW(v, units)))}<small>{u}</small></div>
+                    <div className="row"><span>Direction</span><span>{fmtOr(wind.winddir, (d) => `${dirToCompass(d)} · ${Math.round(d)}°`)}</span></div>
+                    <div className="row"><span>Gust</span><span>{fmtOr(wind.windgustmph, (v) => showW(v, units).toFixed(1))} {u}</span></div>
+                    <div className="row"><span>10-min avg</span><span>{fmtOr(wind.windavg, (v) => showW(v, units).toFixed(1))} {u} · {fmtOr(wind.winddiravg ?? wind.winddir, dirToCompass)}</span></div>
                     <div className="row"><span>Day max</span><span>[{fmtOr(dayGustAt, fmtTime)}] {fmtOr(dayGust, (v) => showW(v, units).toFixed(1))} {u}</span></div>
                 </div>
             </div>

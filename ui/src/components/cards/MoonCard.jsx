@@ -13,7 +13,7 @@ export default function MoonCard({ astro, today }) {
   const name  = astro.moonPhaseName ?? "—";
 
   return (
-      <Card label="Moon" right={`${illum}% ILLUM.`}>
+      <Card className="metric" label="Moon" right={`${illum}% ILLUM.`}>
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 10 }}>
           <MoonPhase phase={phase} size={44} />
           <div style={{ minWidth: 0, flex: 1 }}>
@@ -25,7 +25,7 @@ export default function MoonCard({ astro, today }) {
             </div>
           </div>
         </div>
-        <div className="scale-track">
+        <div className="scale-track" style={{ marginTop: "auto" }}>
           <div className="row" style={{ gridTemplateColumns: "80px 1fr", gap: 10 }}>
             <span className="lbl">Visibility</span>
             <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, fontVariantNumeric: "tabular-nums" }}>{fmtOr(today?.visibility)} mi</span>

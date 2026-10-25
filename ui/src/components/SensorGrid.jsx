@@ -22,10 +22,10 @@ export default function SensorGrid({ current, units }) {
               <span className={`battery ${data.battout ? "low" : ""}`}>BATT {data.battout ? "LOW" : "OK"}</span>
             </div>
             <div className="v">
-              {Math.round(showT(data.temp, units))}
+              {fmtOr(data.temp, (v) => Math.round(showT(v, units)))}
               <span style={{ fontFamily: "var(--font-mono)", fontSize: 14, color: "var(--muted)", marginLeft: 4 }}>{tUnit(units)}</span>
             </div>
-            <div className="h">RH {data.humidity}% · day hi {fmtOr(statVal(data.minmax, "max", "day"), (v) => Math.round(showT(v, units)))}°</div>
+            <div className="h">RH {fmtOr(data.humidity)}% · day hi {fmtOr(statVal(data.minmax, "max", "day"), (v) => Math.round(showT(v, units)))}°</div>
           </div>
         );
       })}

@@ -405,3 +405,78 @@ func TestStartOfHourDSTFallBack(t *testing.T) {
 		t.Errorf("lightninghour in the repeated hour = %d, want 0", r.Lightninghour)
 	}
 }
+
+func ws80Msg(tempC float64) *SensorMessage {
+	return &SensorMessage{Model: "Fineoffset-WS80", TemperatureC: f64(tempC), Humidity: intp(40),
+		WindAvgMS: f64(2), WindMaxMS: f64(5), BatteryMV: f64(3000)}
+}
+
+// A silent sensor's readings go NULL after sensorStaleAfter, and come back
+// with its next packet.
+func TestStaleSensorGoesNull(t *testing.T) {
+	s := newSensorStateAt(t0)
+	s.Apply(ws80Msg(10), t0)
+	s.Apply(&SensorMessage{Model: "AmbientWeather-WH31E", Channel: intp(2),
+		TemperatureC: f64(20), Humidity: intp(50), BatteryOK: f64(1)}, t0)
+
+	r := s.Snapshot("test", t0.Add(sensorStaleAfter))
+	if r.Missing.Outdoor || r.Tempf != 50 || r.Missing.Channel[2] || r.Temp2f != 68 {
+		t.Fatalf("fresh readings missing: %+v tempf=%v temp2f=%v", r.Missing, r.Tempf, r.Temp2f)
+	}
+	if !r.Missing.Channel[1] || !r.Missing.Indoor || !r.Missing.AQ {
+		t.Errorf("never-seen sensors should be missing: %+v", r.Missing)
+	}
+
+	later := t0.Add(sensorStaleAfter + time.Minute)
+	r = s.Snapshot("test", later)
+	if !r.Missing.Outdoor || r.Tempf != 0 || !r.Missing.Channel[2] || r.Temp2f != 0 {
+		t.Fatalf("stale readings not missing: %+v tempf=%v temp2f=%v", r.Missing, r.Tempf, r.Temp2f)
+	}
+	if r.Batt2 != 1 || r.Maxdailygust == 0 {
+		t.Errorf("battery and max gust should be kept: batt2=%d maxgust=%v", r.Batt2, r.Maxdailygust)
+	}
+
+	s.Apply(ws80Msg(12), later)
+	if r = s.Snapshot("test", later); r.Missing.Outdoor || r.Tempf != 53.6 {
+		t.Errorf("after a new packet: missing=%v tempf=%v", r.Missing.Outdoor, r.Tempf)
+	}
+}
+
+// Seeded readings are as old as the row they came from.
+func TestSeedFromOldRowIsStale(t *testing.T) {
+	s := newSensorStateAt(t0)
+	s.Seed(&Record{Recorded: t0.Add(-time.Hour), Tempf: 50, Humidity: 40, Tempinf: 70, Baromabsin: 24}, t0)
+	if r := s.Snapshot("test", t0); !r.Missing.Outdoor || !r.Missing.Indoor {
+		t.Errorf("hour-old seed should be missing: %+v", r.Missing)
+	}
+	s = newSensorStateAt(t0)
+	s.Seed(&Record{Recorded: t0.Add(-time.Minute), Tempf: 50, Humidity: 40}, t0)
+	if r := s.Snapshot("test", t0); r.Missing.Outdoor || r.Tempf != 50 {
+		t.Errorf("recent seed should be used: missing=%v tempf=%v", r.Missing.Outdoor, r.Tempf)
+	}
+}
+
+func TestPMNoReadingIsNull(t *testing.T) {
+	s := newSensorStateAt(t0)
+	s.Apply(pmMsg(8), t0)
+	s.Apply(pmMsg(pmNoReading), t0.Add(time.Minute))
+	r := s.Snapshot("test", t0.Add(time.Minute))
+	if !r.Missing.AQ || r.Missing.AQ24 || r.Aqipm2524h != aqiFromPM25(8) {
+		t.Errorf("after sentinel: missing=%+v aqi24=%d", r.Missing, r.Aqipm2524h)
+	}
+	// Once the valid sample is over 24h old the average goes NULL too.
+	if r = s.Snapshot("test", t0.Add(25*time.Hour)); !r.Missing.AQ24 {
+		t.Errorf("aqi24 should be missing once its samples age out")
+	}
+}
+
+func TestMaxGustResetsAtMidnightWithoutPacket(t *testing.T) {
+	s := newSensorStateAt(t0)
+	s.Apply(ws80Msg(10), t0)
+	if r := s.Snapshot("test", t0); r.Maxdailygust == 0 {
+		t.Fatal("max gust not recorded")
+	}
+	if r := s.Snapshot("test", t0.Add(24*time.Hour)); r.Maxdailygust != 0 {
+		t.Errorf("max gust next day = %v, want 0", r.Maxdailygust)
+	}
+}
