@@ -13,8 +13,8 @@ export default function AboutPage() {
   return (
     <article className="page about-page">
       <header className="page-head">
-        <div className="page-meta">§ Vol 4 · Colophon</div>
-        <h1 className="page-title">About Lorson Ranch.</h1>
+        <div className="page-meta">§ Vol 4 · About</div>
+        <h1 className="page-title">About Lorson Ranch Weather.</h1>
         <p className="page-dek">
           Lorson Ranch Weather is a personal weather station running an Ambient
           WS-5000 array on my roof in Lorson Ranch, Colorado. It reports
@@ -35,9 +35,9 @@ export default function AboutPage() {
           <p>
             Readings are pushed from the indoor console to a service that translates the data
             to json and then pushes the json to a messaging server. The processing service
-            retrieves that messages sand does some calculations and than persists the data
-            to a Postgres instance running on the same machine. A Visual Crossing forecast
-            is fetched every four hours and cached locally. All data is captured and stored
+            retrieves that messages and does some calculations and than persists the data
+            to a Postgres instance running on the same machine. The forecast
+            is created from the NWS models every hour. All data is captured and stored
             locally with the only data coming in from external connections is forecast data.
           </p>
           <p>
@@ -53,8 +53,7 @@ export default function AboutPage() {
             <span className="dropcap">D</span>ata in <em>Climate</em> covers
             seven calendar years of monthly aggregates. The station was
             installed in late July 2020, so the earliest months are
-            necessarily blank. Anything dated 2026 is the current year-to-date
-            and will continue to fill in.
+            necessarily blank.
           </p>
           <p>
             I am not a meteorologist. I am an observer with a database. The pages

@@ -16,6 +16,9 @@ const METRICS = [
   { key: "avgrain", label: "Rainfall",        unit: "in",  color: "var(--cool)", domain: "rain" },
 ];
 
+// Not a monthly metric — selecting it swaps the grid for the freeze table.
+const FREEZE = { key: "freeze", label: "Freeze dates", unit: "≤32°F" };
+
 // A value is "present" if it isn't exactly 0, OR if at least one other metric
 // for the same year/month is non-zero. That handles legitimate zero rain.
 function isPresent(d, metric, monthIdx) {
@@ -239,11 +242,68 @@ function HeadlineStats({ climate }) {
   );
 }
 
+// ---------- Freeze dates ----------
+
+// /api/firstfreeze returns { year, spring, fall } per calendar year: the last
+// reading at or below 32°F in Jan–Jun and the first in Jul–Dec. The server
+// fills a missing side with 2000-01-01, so anything outside the row's year
+// means no freeze was recorded.
+function parseFreeze(ts, year) {
+  if (!ts) return null;
+  const d = new Date(ts);
+  if (Number.isNaN(d.getTime()) || d.getFullYear() !== year) return null;
+  return d;
+}
+
+const fmtFreeze = (d) => d
+  ? d.toLocaleDateString(undefined, { month: "short", day: "numeric" }) + " · " +
+    d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })
+  : "—";
+
+function FreezeTable({ freezes }) {
+  if (!freezes) return <div className="loading" style={{ minHeight: 120 }}>Loading freeze dates…</div>;
+  if (!freezes.length) return <p className="climate-caption">No freezing readings on record.</p>;
+
+  const rows = freezes.map((f) => {
+    const spring = parseFreeze(f.spring, f.year);
+    const fall = parseFreeze(f.fall, f.year);
+    const season = spring && fall ? Math.round((fall - spring) / 86400000) : null;
+    return { year: f.year, spring, fall, season };
+  });
+
+  return (
+    <div className="stats-table-wrap">
+      <table className="stats-table">
+        <thead>
+          <tr>
+            <th>Year</th>
+            <th>Last spring freeze</th>
+            <th>First fall freeze</th>
+            <th className="num">Frost-free days</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.year}>
+              <td>{r.year}</td>
+              <td>{fmtFreeze(r.spring)}</td>
+              <td>{fmtFreeze(r.fall)}</td>
+              <td className="num">{r.season ?? "—"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 // ---------- Page ----------
 
 export default function ClimatePage() {
   const [climate, setClimate] = useState(null);
   const [metric, setMetric] = useState(METRICS[0]);
+  const [view, setView] = useState(METRICS[0]);
+  const [freezes, setFreezes] = useState(null);
 
   useEffect(() => {
     fetch(`/api/climate`)
@@ -251,6 +311,17 @@ export default function ClimatePage() {
       .then((d) => setClimate(d.sort((a, b) => a.Year - b.Year)))
       .catch((e) => console.error("climate fetch failed", e));
   }, []);
+
+  // Freeze dates scan the whole records table, so fetch only when asked for.
+  useEffect(() => {
+    if (view.key !== FREEZE.key || freezes) return;
+    fetch(`/api/firstfreeze`)
+      .then((r) => r.json())
+      .then((d) => setFreezes((d || []).sort((a, b) => a.year - b.year)))
+      .catch((e) => console.error("freeze fetch failed", e));
+  }, [view, freezes]);
+
+  const isFreeze = view.key === FREEZE.key;
 
   if (!climate) {
     return (
@@ -264,7 +335,7 @@ export default function ClimatePage() {
     <article className="page climate-page">
       <header className="page-head">
         <div className="page-meta">§ Vol 4 · Climate record</div>
-        <h1 className="page-title">Seven years on the front range.</h1>
+        <h1 className="page-title">Front Range Climate</h1>
         <p className="page-dek">
           Monthly aggregates from the station's installation in late July 2020
           through the present. Empty cells were before the station went up or
@@ -281,11 +352,14 @@ export default function ClimatePage() {
         <div className="climate-section-head">
           <h2 className="page-h2">§ Monthly grid</h2>
           <div className="climate-tabs">
-            {METRICS.map((m) => (
+            {[...METRICS, FREEZE].map((m) => (
               <button
                 key={m.key}
-                className={`climate-tab ${metric.key === m.key ? "active" : ""}`}
-                onClick={() => setMetric(m)}
+                className={`climate-tab ${view.key === m.key ? "active" : ""}`}
+                onClick={() => {
+                  setView(m);
+                  if (m.key !== FREEZE.key) setMetric(m);
+                }}
               >
                 {m.label}
                 <span className="climate-tab-unit">{m.unit}</span>
@@ -293,22 +367,38 @@ export default function ClimatePage() {
             ))}
           </div>
         </div>
-        <p className="climate-caption">
-          Each cell is one month at the station. Values are {metric.label.toLowerCase()},
-          measured in {metric.unit}.
-        </p>
-        <Heatmap climate={climate} metric={metric} />
+        {isFreeze ? (
+          <>
+            <p className="climate-caption">
+              Last reading at or below 32°F before July and first one after, for each
+              calendar year. Frost-free days is the gap between them.
+            </p>
+            <FreezeTable freezes={freezes} />
+          </>
+        ) : (
+          <>
+            <p className="climate-caption">
+              Each cell is one month at the station. Values are {metric.label.toLowerCase()},
+              measured in {metric.unit}.
+            </p>
+            <Heatmap climate={climate} metric={metric} />
+          </>
+        )}
       </section>
 
-      <div className="page-rule" />
+      {!isFreeze && (
+        <>
+          <div className="page-rule" />
 
-      <section className="climate-section">
-        <div className="climate-section-head">
-          <h2 className="page-h2">§ Year over year</h2>
-          <span className="climate-caption-inline">Each line is a calendar year.</span>
-        </div>
-        <YearLines climate={climate} metric={metric} />
-      </section>
+          <section className="climate-section">
+            <div className="climate-section-head">
+              <h2 className="page-h2">§ Year over year</h2>
+              <span className="climate-caption-inline">Each line is a calendar year.</span>
+            </div>
+            <YearLines climate={climate} metric={metric} />
+          </section>
+        </>
+      )}
     </article>
   );
 }
