@@ -1,6 +1,6 @@
 module git.zoms.net/apps/weather
 
-go 1.27.0
+go 1.27.4
 
 require (
 	github.com/dyindude/moonphase v0.0.0-20221027024102-d432dfb9acbc
@@ -15,5 +15,5 @@ require (
 
 require (
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
-	golang.org/x/sys v0.47.0 // indirect
+	golang.org/x/sys v0.50.0 // indirect
 )
