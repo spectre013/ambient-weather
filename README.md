@@ -37,7 +37,7 @@ The **Receiver** accepts incoming data pushes from the AWNet application's custo
 ```
 [Weather Station RF]
         ↓
-  [RTL-SDR + rtl_433]  ← receives 915MHz signal, publishes directly to MQTT
+  [RTL-SDR + sdr]  ← receives 915MHz signal, publishes directly to MQTT
         ↓
    [MQTT Broker]
         ↓
@@ -52,7 +52,7 @@ The **Receiver** accepts incoming data pushes from the AWNet application's custo
       [UI]
 ```
 
-With RTL-SDR, `rtl_433` handles reception and publishes directly to MQTT — no Receiver service is needed. The **Processor** takes data from MQTT and writes it to the database.
+With RTL-SDR, the **sdr** service handles reception and publishes directly to MQTT — no Receiver service is needed. (`rtl_433` publishes the same topics and fields and can be used instead.) The **Processor** takes data from MQTT and writes it to the database.
 
 ---
 
@@ -66,7 +66,7 @@ The following external services are required regardless of which data source opt
 
 For **Option B (RTL-SDR)** only:
 - An RTL-SDR USB dongle
-- [`rtl_433`](https://github.com/merbanan/rtl_433) installed on the host
+- Docker on the host the dongle is plugged into (nothing else needs installing)
 
 ---
 
@@ -162,13 +162,34 @@ Save the settings and monitor the receiver container logs to confirm data is arr
 
 ## 4. Option B Setup — RTL-SDR
 
-### Install rtl_433
+### The sdr service
 
-Install `rtl_433` on the host machine that has the RTL-SDR dongle attached. See [https://github.com/merbanan/rtl_433](https://github.com/merbanan/rtl_433) for installation instructions.
+`sdr/` receives the sensors with the dongle and publishes each reading to
+`ambient/<model>/<id>`. It uses the sensor decoders recovered from the HP2550
+console firmware; see [`sdr/README.md`](sdr/README.md) for how it works and
+every setting.
 
-### Configure rtl_433 as a Service
+It is part of `docker-compose.yml` behind the `sdr` profile. On the host with
+the dongle, add to `.env`:
 
-Create a systemd service (or equivalent) with the following `ExecStart`:
+```env
+COMPOSE_PROFILES=sdr
+SDR_SENSORS=
+```
+
+then `docker compose up -d`. Leave `SDR_SENSORS` empty at first, list what it
+hears with `docker logs weather-sdr 2>&1 | grep sensor`, and set it to your
+own sensors (`Fineoffset-WS80/34306,AmbientWeather-WH31E/156,...`) so a
+neighbour's station is ignored.
+
+Run only one receiver per broker: two publishing the same topics double every
+reading.
+
+### Alternative: rtl_433
+
+Install [`rtl_433`](https://github.com/merbanan/rtl_433) on the host with the
+dongle and create a systemd service (see `rtl-433.service`) with the following
+`ExecStart`:
 
 ```
 /usr/bin/rtl_433 -f 915M -Y classic -M level -F json -F "mqtt://<host>:1883,user=<user>,pass=<pass>,retain=0,events=ambient[/model][/id]"
@@ -178,7 +199,8 @@ Replace `<host>`, `<user>`, and `<pass>` with your MQTT broker's host address an
 
 ### Services Used (Option B)
 
-- `processor` — reads MQTT topics published by rtl_433, writes to PostgreSQL, triggers stats
+- `sdr` — receives the sensors, publishes to MQTT
+- `processor` — reads the MQTT topics published by sdr (or rtl_433), writes to PostgreSQL, triggers stats
 - `stats` — runs on MQTT trigger, computes statistics
 - `server` — REST API backend
 - `ui` — web frontend
@@ -203,6 +225,14 @@ docker push $DOCKER_REGISTRY/weather/weather-ui:v3.2.1
 cd server
 docker build -t $DOCKER_REGISTRY/weather/weather-server:v5.0.1 . --no-cache
 docker push $DOCKER_REGISTRY/weather/weather-server:v5.0.1
+```
+
+### SDR receiver (RTL-SDR)
+
+```bash
+cd sdr
+docker build -t $DOCKER_REGISTRY/weather/sdr:v1.0.0 . --no-cache
+docker push $DOCKER_REGISTRY/weather/sdr:v1.0.0
 ```
 
 ### Processor (RTL-SDR)
@@ -287,6 +317,7 @@ docker-compose logs -f processor
 ambient-weather/
 ├── receiver/           # AWNet custom server HTTP receiver (Option A)
 ├── console_processor/  # MQTT consumer + data processor (Option A)
+├── sdr/                # RTL-SDR receiver + sensor decoders (Option B)
 ├── processor/          # MQTT consumer + data processor (Option B / RTL-SDR)
 ├── stats/              # Statistical calculations service
 ├── server/             # REST API backend

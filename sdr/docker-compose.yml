@@ -1,0 +1,33 @@
+name: weather-sdr
+
+# Stand-alone run of the SDR receiver for development: it builds from this
+# directory and, with MQTT_BROKER unset, only prints readings
+# (docker compose logs -f). Production runs it from ../docker-compose.yml.
+#
+#   docker compose up -d --build
+
+services:
+  sdr:
+    build: .
+    image: weather-sdr:dev
+    container_name: weather-sdr
+    restart: unless-stopped
+    # The whole USB tree plus a cgroup rule for USB character devices (major
+    # 189), rather than one /dev/bus/usb/BBB/DDD path: the device number
+    # changes every time the dongle is re-plugged.
+    volumes:
+      - /dev/bus/usb:/dev/bus/usb
+    device_cgroup_rules:
+      - "c 189:* rmw"
+    environment:
+      SDR_FREQ: ${SDR_FREQ:-915}
+      SDR_GAIN: ${SDR_GAIN:-0}
+      SDR_DEVICE: ${SDR_DEVICE:-0}
+      SDR_WATCHDOG: ${SDR_WATCHDOG:-5m}
+      SDR_SENSORS: ${SDR_SENSORS:-}
+      MQTT_BROKER: ${MQTT_BROKER:-}
+      MQTT_CLIENT_ID: ${MQTT_CLIENT_ID:-weather-sdr}
+      MQTT_USER: ${MQTT_USER:-}
+      MQTT_PASS: ${MQTT_PASSWORD:-}
+      MQTT_TOPIC_PREFIX: ${MQTT_TOPIC_PREFIX:-ambient}
+      TZ: ${TZ:-America/Denver}

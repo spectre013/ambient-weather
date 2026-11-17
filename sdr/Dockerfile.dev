@@ -1,0 +1,4 @@
+# Dev/toolbox image: Go toolchain + rtl-sdr userland tools.
+FROM golang:1.27.4-bookworm
+RUN apt-get update && apt-get install -y --no-install-recommends rtl-sdr rtl-433 && rm -rf /var/lib/apt/lists/*
+WORKDIR /src

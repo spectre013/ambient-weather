@@ -110,6 +110,37 @@ services:
       LON: ${LON:?set LON in .env}
       WEATHER_API: ${WEATHER_API:?set WEATHER_API in .env}
 
+  # RTL-SDR receiver: replaces rtl_433. Only started with the "sdr" profile
+  # (COMPOSE_PROFILES=sdr in .env), because it needs the dongle plugged into
+  # this host and must be the only thing publishing sensor readings: a second
+  # receiver on the same topics doubles every reading.
+  sdr:
+    <<: *common
+    profiles: [sdr]
+    container_name: weather-sdr
+    image: ${REGISTRY:-docker.zoms.net}/weather/sdr:${SDR_TAG:-v1.0.0}
+    # The whole USB tree plus a cgroup rule for USB character devices (major
+    # 189), rather than one /dev/bus/usb/BBB/DDD path: the device number
+    # changes every time the dongle is re-plugged.
+    volumes:
+      - /dev/bus/usb:/dev/bus/usb
+    device_cgroup_rules:
+      - "c 189:* rmw"
+    environment:
+      SDR_FREQ: ${SDR_FREQ:-915}
+      SDR_GAIN: ${SDR_GAIN:-0}
+      SDR_DEVICE: ${SDR_DEVICE:-0}
+      SDR_WATCHDOG: ${SDR_WATCHDOG:-5m}
+      # Empty accepts every sensor in range; see .env.example.
+      SDR_SENSORS: ${SDR_SENSORS:-}
+      MQTT_BROKER: ${MQTT_BROKER:-tcp://10.10.1.124:1883}
+      MQTT_CLIENT_ID: weather-sdr
+      MQTT_USER: ${MQTT_USER:-brian}
+      MQTT_PASS: ${MQTT_PASSWORD:?set MQTT_PASSWORD in .env}
+      # The processor subscribes to MQTT_TOPIC (ambient/#); this is its root.
+      MQTT_TOPIC_PREFIX: ${MQTT_TOPIC_PREFIX:-ambient}
+      TZ: ${TZ:-America/Denver}
+
   weather-ui:
     <<: *common
     container_name: weather-ui
